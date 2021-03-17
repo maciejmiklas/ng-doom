@@ -24,12 +24,12 @@
     "import-spacing": true,
     "indent": {
       "options": [
-        "spaces"
+        "tabs"
       ]
     },
     "max-classes-per-file": false,
     "max-line-length": [
-      true,
+      false,
       140
     ],
     "member-ordering": [
