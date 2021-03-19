@@ -5,11 +5,11 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "test_org": "ng test",
+    "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
 		"build:prod": "ng build --prod",
-		"test": "ng test --browsers=ChromeHeadless --watch=false --code-coverage"
+		"test:main": "ng test --browsers=ChromeHeadless --watch=false --code-coverage"
   },
   "private": true,
   "dependencies": {

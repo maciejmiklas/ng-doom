@@ -87,7 +87,8 @@ const parseBitmap = (bytes: number[]) => (dir: Directory): Either<PatchBitmap> =
 export const testFunctions = {
 	parsePatchHeader,
 	unfoldColumnofs,
-	parseColumn
+	parseColumn,
+	pixelToImage
 };
 
 export const functions = {

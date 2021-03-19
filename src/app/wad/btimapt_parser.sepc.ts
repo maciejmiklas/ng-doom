@@ -80,11 +80,8 @@ describe('Parse Column', () => {
 
 describe('Pixel To Image', () => {
 
-	it('aa', () => {
-		const res = R.reduce(R.subtract, 0, [1, 2, 3, 4]);
-		const res1 = R.reduce(R.subtract)(0, [1, 2, 3, 4]);
-		// const res2 = R.reduce(R.subtract)(0)([1, 2, 3, 4]);
-		console.log('');
+	it('One Pixel', () => {
+
 	});
 });
 
