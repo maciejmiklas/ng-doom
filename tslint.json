@@ -5,6 +5,7 @@
   ],
   "rules": {
 		"jsdoc-format": false,
+		"no-bitwise": false,
     "align": {
       "options": [
         "parameters",
