@@ -70,8 +70,7 @@ const parseColumn = (bytes: number[]) => (filepos: number): Either<Column> => {
 const patchToImg = (header: PatchHeader, columns: Column[]): Uint8ClampedArray => {
 	const array = new Uint8ClampedArray(header.width * header.height * 4);
 	const mapToImageColumnByt = columnToImg(array, header.width);
-	let x = 0;
-	columns.forEach(c => mapToImageColumnByt(x++, c));
+	R.addIndex<Column>(R.forEach)((c, idx) => mapToImageColumnByt(idx, c), columns);
 	return array;
 };
 
@@ -89,30 +88,10 @@ const pixelToImg = (img: Uint8ClampedArray) => (pixel: number, idx: number): voi
 
 const postToImg = (img: Uint8ClampedArray, width: number, x: number) => (post: Post): void => {
 	const pixelConv = pixelToImg(img);
-	let y = 0;
-	post.data.forEach(pixel => pixelConv(pixel, (y++ * post.topdelta * width + x) * 4));
+	let y = post.topdelta;
+	post.data.forEach(pixel => pixelConv(pixel, (y++ * width + x) * 4));
+	// R.addIndex(post.data.forEach)((pixel, idx) => pixelConv(pixel, ((post.topdelta + idx) * width + x) * 4));
 };
-
-
-/*
-const patchToImg = (header: PatchHeader, columns: Column[]): Uint8ClampedArray => {
-	const width = header.width;
-	const height = header.height;
-	const img = new Uint8ClampedArray(width * height * 4);
-	const pixelConv = pixelToImage(img);
-	for (let x = 0; x < width; x++) {
-		for (const post of columns[x].posts) {
-			let y = post.topdelta;
-			for (const pixel of post.data) {
-				const pos = (y * width + x) * 4;
-				pixelConv(pixel, pos);
-				y = y + 1;
-			}
-		}
-	}
-	return img;
-};
-*/
 
 const parseBitmap = (bytes: number[]) => (dir: Directory): Either<PatchBitmap> => {
 	const header = parsePatchHeader(bytes)(dir);

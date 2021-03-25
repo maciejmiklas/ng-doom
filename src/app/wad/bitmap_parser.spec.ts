@@ -128,10 +128,19 @@ describe('Parse Bitmap', () => {
 	it('TITLEPIC - image data - random pixels', () => {
 		expect(bitmap.imageData[0]).toEqual(128);
 		expect(bitmap.imageData[2]).toEqual(192);
-		expect(bitmap.imageData[128]).toEqual(64);
-		expect(bitmap.imageData[5123]).toEqual(0);
-		expect(bitmap.imageData[2342]).toEqual(128);
+		expect(bitmap.imageData[12]).toEqual(64);
+		expect(bitmap.imageData[28]).toEqual(64);
+		expect(bitmap.imageData[198]).toEqual(192);
+		expect(bitmap.imageData[294]).toEqual(192);
+		expect(bitmap.imageData[322]).toEqual(128);
+		expect(bitmap.imageData[330]).toEqual(128);
+		expect(bitmap.imageData[358]).toEqual(192);
+		expect(bitmap.imageData[378]).toEqual(192);
+		expect(bitmap.imageData[432]).toEqual(128);
+		expect(bitmap.imageData[470]).toEqual(64);
+		expect(bitmap.imageData[594]).toEqual(0);
 	});
 
 });
+
 
