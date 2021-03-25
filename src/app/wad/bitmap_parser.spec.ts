@@ -81,7 +81,12 @@ describe('Parse Column', () => {
 describe('Pixel To Image', () => {
 
 	it('One Pixel', () => {
-
+		const array = new Uint8ClampedArray(4);
+		expect(tf.pixelToImage(array)(123, 0));
+		expect(array[0]).toEqual(64);
+		expect(array[1]).toEqual(255);
+		expect(array[2]).toEqual(192);
+		expect(array[3]).toEqual(255);
 	});
 });
 
@@ -103,6 +108,29 @@ describe('Parse Bitmap', () => {
 		for (const col of bitmap.columns) {
 			expect(R.reduce(R.add, 0, col.posts.map(p => p.data.length))).toEqual(200);
 		}
+	});
+
+	it('TITLEPIC - image data size', () => {
+		expect(bitmap.imageData.length).toEqual(320 * 200 * 4);
+	});
+
+	it('TITLEPIC - image data - 4th pixel', () => {
+		const length = 320 * 200 * 4;
+		for (let idx = 3; idx < length; idx += 4) {
+			const pix = bitmap.imageData[idx];
+			if (pix !== 0 && pix !== 255) {
+				fail('Mismatch on ' + idx);
+				break;
+			}
+		}
+	});
+
+	it('TITLEPIC - image data - random pixels', () => {
+		expect(bitmap.imageData[0]).toEqual(128);
+		expect(bitmap.imageData[2]).toEqual(192);
+		expect(bitmap.imageData[128]).toEqual(64);
+		expect(bitmap.imageData[5123]).toEqual(0);
+		expect(bitmap.imageData[2342]).toEqual(128);
 	});
 
 });

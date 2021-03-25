@@ -47,19 +47,59 @@ const parseColumn = (bytes: number[]) => (filepos: number): Either<Column> => {
 		.map(posts => ({posts}));
 };
 
-
-const pixelToImage = (array: Uint8ClampedArray) => (pixel: number, pos: number) => {
-	array[pos + 0] = (pixel) & 0b111000000;    // R value
-	array[pos + 1] = (pixel << 3) & 0b111000000;  // G value
-	array[pos + 2] = (pixel << 6) & 0b11000000;    // B value
-	array[pos + 3] = 255;  // A value
+/**
+ * Difference between DOOM Patch bitmap and Image on Canvas
+ <table style="width:100%">
+  <tr>
+    <th></th>
+    <th>DOOM Patch</th>
+    <th>Image on Canvas</th>
+  </tr>
+  <tr>
+    <td>pixel</td>
+    <td>one byte</td>
+    <td>4 bytes</td>
+  </tr>
+  <tr>
+    <td>orientation</td>
+    <td>columns</td>
+    <td>rows</td>
+  </tr>
+</table>
+ */
+const patchToImg = (header: PatchHeader, columns: Column[]): Uint8ClampedArray => {
+	const array = new Uint8ClampedArray(header.width * header.height * 4);
+	const mapToImageColumnByt = columnToImg(array, header.width);
+	let x = 0;
+	columns.forEach(c => mapToImageColumnByt(x++, c));
+	return array;
 };
 
-const mapToImageData = (header: PatchHeader, columns: Column[]): Uint8ClampedArray => {
+const columnToImg = (img: Uint8ClampedArray, width: number) => (x: number, column: Column): void => {
+	const postToImageByt = postToImg(img, width, x);
+	column.posts.forEach(p => postToImageByt(p));
+};
+
+const pixelToImg = (img: Uint8ClampedArray) => (pixel: number, idx: number): void => {
+	img[idx++] = (pixel) & 0b111000000;    // R value
+	img[idx++] = (pixel << 3) & 0b111000000;  // G value
+	img[idx++] = (pixel << 6) & 0b11000000;    // B value
+	img[idx++] = 255;  // A value
+};
+
+const postToImg = (img: Uint8ClampedArray, width: number, x: number) => (post: Post): void => {
+	const pixelConv = pixelToImg(img);
+	let y = 0;
+	post.data.forEach(pixel => pixelConv(pixel, (y++ * post.topdelta * width + x) * 4));
+};
+
+
+/*
+const patchToImg = (header: PatchHeader, columns: Column[]): Uint8ClampedArray => {
 	const width = header.width;
 	const height = header.height;
-	const array = new Uint8ClampedArray(width * height * 4);
-	const pixelConv = pixelToImage(array);
+	const img = new Uint8ClampedArray(width * height * 4);
+	const pixelConv = pixelToImage(img);
 	for (let x = 0; x < width; x++) {
 		for (const post of columns[x].posts) {
 			let y = post.topdelta;
@@ -70,25 +110,29 @@ const mapToImageData = (header: PatchHeader, columns: Column[]): Uint8ClampedArr
 			}
 		}
 	}
-	return array;
+	return img;
 };
+*/
 
 const parseBitmap = (bytes: number[]) => (dir: Directory): Either<PatchBitmap> => {
 	const header = parsePatchHeader(bytes)(dir);
 	const columnParser = parseColumn(bytes);
 	const columns = header.columnofs.map(colOfs => columnParser(colOfs)).filter(c => c.isRight()).map(c => c.get());
-	return Either.ofCondition(() => columns.length > 0, () => 'No picture columns fround for: ' + dir, () => ({
-		header,
-		columns,
-		imageData: mapToImageData(header, columns)
-	}));
+	return Either.ofCondition(
+		() => columns.length === header.width,
+		() => 'Some columns (' + columns.length + '/' + header.width + ') are missing in Picture : ' + dir,
+		() => ({
+			header,
+			columns,
+			imageData: patchToImg(header, columns)
+		}));
 };
 
 export const testFunctions = {
 	parsePatchHeader,
 	unfoldColumnofs,
 	parseColumn,
-	pixelToImage
+	pixelToImage: pixelToImg
 };
 
 export const functions = {
