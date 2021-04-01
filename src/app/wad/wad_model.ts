@@ -216,7 +216,7 @@ export type PatchHeader = {
  */
 export type Post = {
 
-	/** vertical offset of this post in patch. */
+	/** vertical (y) offset of this post in patch. */
 	topdelta: number
 
 	/** Total size of this post including padding bytes. Used to calculate position of next post in column */
@@ -250,6 +250,8 @@ export type Column = {
  */
 export type PatchBitmap = {
 	header: PatchHeader
+
+	/** Picture in Doom format consists of columns (x-axis) going downward on the screen (y-axis) */
 	columns: Column[]
 	imageData: Uint8ClampedArray
 };

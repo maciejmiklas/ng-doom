@@ -3,8 +3,6 @@ import * as R from 'ramda';
 import U from '../common/util';
 import {Either} from '../common/either';
 
-const PIX_BYTES = 4;
-
 /**
  * @see https://doomwiki.org/wiki/Picture_format
  * @see https://www.cyotek.com/blog/decoding-doom-picture-files
@@ -12,7 +10,7 @@ const PIX_BYTES = 4;
  */
 
 const unfoldColumnofs = (filepos: number, width: number): number[] =>
-	R.unfold((idx) => idx === width ? false : [filepos + idx * PIX_BYTES, idx + 1], 0);
+	R.unfold((idx) => idx === width ? false : [filepos + idx * 4, idx + 1], 0);
 
 const parsePatchHeader = (bytes: number[]) => (dir: Directory): PatchHeader => {
 	const shortParser = U.parseShort(bytes);
@@ -69,40 +67,28 @@ const parseColumn = (bytes: number[]) => (filepos: number): Either<Column> => {
   </tr>
 </table>
  */
-
 const patchToImg = (header: PatchHeader, columns: Column[]): Uint8ClampedArray => {
-	const pixAtCol = postPixelAt(columns);
-	const array = new Uint8ClampedArray(header.width * header.height * PIX_BYTES);
-	const column = R.until(({x, y}) => y < header.height, ({x, y}) => {
-		array.set(pixelToImg(pixAtCol(x, y)), x * y * PIX_BYTES);
-		return {x, y: ++y};
-	});
-	R.until(({x, y}) => x < header.width,
-		({x, y}) => {
-			column({x, y});
-			return {x: ++x, y: 0};
-		})({x: 0, y: 0});
+	const array = new Uint8ClampedArray(header.width * header.height * 4);
+	const mapToImageColumnByt = columnToImg(array, header.width);
+	R.addIndex<Column>(R.forEach)((c, idx) => mapToImageColumnByt(idx, c), columns);
 	return array;
 };
 
-const patchToImgLoop = (header: PatchHeader, columns: Column[]): Uint8ClampedArray => {
-	const pixAtCol = postPixelAt(columns);
-	const array = new Uint8ClampedArray(header.width * header.height * PIX_BYTES);
-	for (let x = 0; x < header.width; x++) {
-		for (let y = 0; header.height; y++) {
-			array.set(pixelToImg(pixAtCol(x, y)), x * y * PIX_BYTES);
-		}
-	}
-	return array;
+const columnToImg = (img: Uint8ClampedArray, width: number) => (x: number, column: Column): void => {
+	const postToImageByt = postToImg(img, width, x);
+	column.posts.forEach(p => postToImageByt(p));
 };
 
-const pixelToImg = (pixel: number): number[] => {
-	const img = new Array<number>(4);
-	img[0] = (pixel) & 0b111000000;    // R value
-	img[1] = (pixel << 3) & 0b111000000;  // G value
-	img[2] = (pixel << 6) & 0b11000000;    // B value
-	img[3] = 255;  // A value
-	return img;
+const pixelToImg = (img: Uint8ClampedArray) => (pixel: number, idx: number): void => {
+	img[idx++] = (pixel) & 0b111000000;    // R value
+	img[idx++] = (pixel << 3) & 0b111000000;  // G value
+	img[idx++] = (pixel << 6) & 0b11000000;    // B value
+	img[idx++] = 255;  // A value
+};
+
+const postToImg = (img: Uint8ClampedArray, width: number, x: number) => (post: Post): void => {
+	const pixelConv = pixelToImg(img);
+	R.addIndex<number>(R.forEach)((pixel, idx) => pixelConv(pixel, ((idx + post.topdelta) * width + x) * 4), post.data);
 };
 
 const parsePatchBitmap = (bytes: number[]) => (dir: Directory): Either<PatchBitmap> => {
@@ -119,21 +105,6 @@ const parsePatchBitmap = (bytes: number[]) => (dir: Directory): Either<PatchBitm
 		}));
 };
 
-const postPixelAt = (columns: Column[]) => (x: number, y: number): number => {
-	return postAt(columns)(x, y).map(p => p.data[y - p.topdelta]).orElseGet(() => 0);
-};
-
-const postAt = (columns: Column[]) => (x: number, y: number): Either<Post> =>
-	Either.ofNullable(R.find<Post>(p => y >= p.topdelta && y < p.topdelta + p.postBytes)(columns[x].posts), () => 'Transparent pixel at (' + x + ',' + y + ')');
-
-export const testFunctions = {
-	postAt,
-	postPixelAt,
-	parsePatchHeader,
-	unfoldColumnofs,
-	parseColumn,
-	pixelToImg
-};
 
 export const functions = {
 	parseBitmap: parsePatchBitmap

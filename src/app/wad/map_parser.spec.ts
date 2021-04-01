@@ -20,7 +20,7 @@ import {
 	WAD_BYTES
 } from '../test/data';
 
-describe('Parse Header', () => {
+describe('map_parser#parseHeader', () => {
 	it('IWAD', () => {
 		const header = HEADER.get();
 		expect(header.identification).toEqual(WadType.IWAD);
@@ -60,7 +60,7 @@ const validateLastThing = (thing: Thing) => {
 	expect(thing.flags).toEqual(7);
 };
 
-describe('Parse Thing', () => {
+describe('map_parser#parseThing', () => {
 	const thingsDir = ALL_DIRS.get()[FIRST_MAP.idx + 1];
 	const parser = tf.parseThing(WAD_BYTES, thingsDir);
 
@@ -81,7 +81,7 @@ describe('Parse Thing', () => {
 	});
 });
 
-describe('Parse Things', () => {
+describe('map_parser#parseThings', () => {
 	const thingsDir = ALL_DIRS.get()[FIRST_MAP.idx + MapLumpType.THINGS];
 	const parser = tf.parseThings(WAD_BYTES, ALL_DIRS.get());
 	const things: Thing[] = parser(FIRST_MAP_DIR_OFFSET).get();
@@ -185,7 +185,7 @@ const validateSidedefDir = (dir: Directory) => {
 	expect(dir.name).toEqual('SIDEDEFS');
 };
 
-describe('Parse Sidedef', () => {
+describe('map_parser#parseSidedef', () => {
 	const thingsDir = ALL_DIRS.get()[FIRST_MAP.idx + +MapLumpType.SIDEDEFS];
 	const parser = tf.parseSidedef(WAD_BYTES, thingsDir);
 
@@ -210,7 +210,7 @@ describe('Parse Sidedef', () => {
 	});
 });
 
-describe('Parse Sidedefs', () => {
+describe('map_parser#parseSidedefs', () => {
 	const parsed = tf.parseSidedefs(WAD_BYTES, ALL_DIRS.get())(FIRST_MAP_DIR_OFFSET).get();
 
 	it('Sidedef Nr. 0', () => {
@@ -258,7 +258,7 @@ const validateLastVertex = (vertex: Vertex) => {
 	validateVertex(vertex, VERTEX_466);
 };
 
-describe('Parse Vertex', () => {
+describe('map_parser#parseVertex', () => {
 	const vertexesDir = ALL_DIRS.get()[FIRST_MAP.idx + MapLumpType.VERTEXES];
 
 	const parser = tf.parseVertex(WAD_BYTES, vertexesDir);
@@ -280,7 +280,7 @@ describe('Parse Vertex', () => {
 	});
 });
 
-describe('Parse Vertexes', () => {
+describe('map_parser#parseVertexes', () => {
 	const vertexes = tf.parseVertexes(WAD_BYTES, ALL_DIRS.get())(FIRST_MAP_DIR_OFFSET).get();
 
 	it('First Vertex', () => {
@@ -327,7 +327,7 @@ const validateLindedef26 = (lindedef: Linedef) => {
 	validateSidedef27(lindedef.backSide.get());
 };
 
-describe('Parse Linedef', () => {
+describe('map_parser#parseLinedef', () => {
 	const linedefDir = ALL_DIRS.get()[FIRST_MAP.idx + MapLumpType.LINEDEFS];
 
 	const vertexes = tf.parseVertexes(WAD_BYTES, ALL_DIRS.get())(FIRST_MAP_DIR_OFFSET).get();
@@ -352,7 +352,7 @@ describe('Parse Linedef', () => {
 	});
 });
 
-describe('Parse Linedefs', () => {
+describe('map_parser#parseLinedefs', () => {
 	const linedefDir = ALL_DIRS.get()[FIRST_MAP.idx + MapLumpType.LINEDEFS];
 	const vertexes = tf.parseVertexes(WAD_BYTES, ALL_DIRS.get())(FIRST_MAP_DIR_OFFSET).get();
 	const sidedefs = tf.parseSidedefs(WAD_BYTES, ALL_DIRS.get())(FIRST_MAP_DIR_OFFSET).get();
@@ -375,8 +375,9 @@ describe('Parse Linedefs', () => {
 	});
 });
 
-describe('Parse Map Directory', () => {
+describe('map_parser -> Parse Map Directory', () => {
 	const validate = HEADER.map(v => validateDir(v)).get();
+
 	it('First MAP - THINGS', () => {
 		validate(FIRST_MAP_DIR_OFFSET + MapLumpType.THINGS, E1M1_THINGS);
 	});
@@ -390,7 +391,7 @@ describe('Parse Map Directory', () => {
 	});
 });
 
-describe('Find Next Map Dir', () => {
+describe('map_parser#findNextMapDir', () => {
 	const nextDirEi = ALL_DIRS.map(dirs => tf.findNextMapDir(dirs));
 	const nextDir = nextDirEi.get();
 
@@ -429,7 +430,7 @@ describe('Find Next Map Dir', () => {
 
 });
 
-describe('Is Map Name', () => {
+describe('map_parser#isMapName', () => {
 
 	it('MAPxx', () => {
 		expect(tf.isMapName('MAP01')).toBe(true);

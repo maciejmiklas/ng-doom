@@ -1,7 +1,7 @@
 import {testFunctions as mpt} from '../wad/map_parser';
 import {functions as dp} from '../wad/directory_parser';
 
-import {Column, Directory, Header, MapLumpType, PatchHeader, Vertex} from '../wad/wad_model';
+import {Column, Directory, Header, MapLumpType, PatchHeader, Post, Vertex} from '../wad/wad_model';
 
 import jsonData from './doom.json';
 import {Either} from '../common/either';
@@ -84,6 +84,99 @@ export const VERTEX_466: Vertex = {
 	x: 2912,
 	y: -4848
 };
+
+export const verifySimpleDoomImageAt0x0 = (post: Post) => {
+	expect(post.topdelta).toEqual(0);
+	expect(post.postBytes).toEqual(3);
+	expect(post.filepos).toEqual(1000);
+	expect(post.data[0]).toEqual(11);
+	expect(post.data[2]).toEqual(13);
+};
+
+export const verifySimpleDoomImageAt0x1 = (post: Post) => {
+	expect(post.topdelta).toEqual(20);
+	expect(post.postBytes).toEqual(2);
+	expect(post.filepos).toEqual(1003);
+	expect(post.data[0]).toEqual(21);
+	expect(post.data[1]).toEqual(22);
+};
+
+export const verifySimpleDoomImageAt0x2 = (post: Post) => {
+	expect(post.topdelta).toEqual(22);
+	expect(post.postBytes).toEqual(3);
+	expect(post.filepos).toEqual(1005);
+	expect(post.data[0]).toEqual(31);
+	expect(post.data[1]).toEqual(32);
+};
+
+export const verifySimpleDoomImageAt1x0 = (post: Post) => {
+	expect(post.topdelta).toEqual(0);
+	expect(post.postBytes).toEqual(3);
+	expect(post.filepos).toEqual(2000);
+	expect(post.data[0]).toEqual(101);
+	expect(post.data[1]).toEqual(102);
+};
+
+export const verifySimpleDoomImageAt1x1 = (post: Post) => {
+	expect(post.topdelta).toEqual(60);
+	expect(post.postBytes).toEqual(2);
+	expect(post.filepos).toEqual(2003);
+	expect(post.data[0]).toEqual(110);
+	expect(post.data[1]).toEqual(111);
+};
+
+export const verifySimpleDoomImageAt2x0 = (post: Post) => {
+	expect(post.topdelta).toEqual(0);
+	expect(post.postBytes).toEqual(4);
+	expect(post.filepos).toEqual(3000);
+	expect(post.data[0]).toEqual(201);
+	expect(post.data[1]).toEqual(202);
+	expect(post.data[2]).toEqual(203);
+	expect(post.data[3]).toEqual(204);
+};
+
+export const simpleDoomImage = (): Column[] => (
+	[
+		{
+			posts: [{// (0,0)
+				topdelta: 0,
+				postBytes: 3,
+				data: [11, 12, 13],
+				filepos: 1000
+			}, {// (0,1)
+				topdelta: 20,
+				postBytes: 2,
+				data: [21, 22],
+				filepos: 1003
+			}, {// (0,2)
+				topdelta: 22,
+				postBytes: 3,
+				data: [31, 32, 34],
+				filepos: 1005
+			}]
+		},
+		{
+			posts: [{// (1,0)
+				topdelta: 0,
+				postBytes: 3,
+				data: [101, 102, 103],
+				filepos: 2000
+			}, {// (1,1)
+				topdelta: 60,
+				postBytes: 2,
+				data: [110, 111],
+				filepos: 2003
+			}]
+		},
+		{
+			posts: [{// (2,0)
+				topdelta: 0,
+				postBytes: 4,
+				data: [201, 202, 203, 204],
+				filepos: 3000
+			}]
+		}
+	]);
 
 export const eqDir = (dir: Directory, given: Directory) => {
 	expect(dir.name).toEqual(given.name);

@@ -3,7 +3,7 @@ import {ALL_DIRS, validateTitleColumn, validateTitlePatchHeader, WAD_BYTES,} fro
 import {functions as dp} from './directory_parser';
 import {WadType} from './wad_model';
 
-describe('parseTitlePic', () => {
+describe('wad_parser#parseTitlePic', () => {
 	const tp = tf.parseTitlePic(WAD_BYTES, ALL_DIRS.get());
 	it('Found Pictures', () => {
 		expect(tp.isRight()).toBeTruthy();
@@ -20,7 +20,7 @@ describe('parseTitlePic', () => {
 	});
 });
 
-describe('parseWad', () => {
+describe('wad_parser#parseWad', () => {
 	const wad = wp.parseWad(WAD_BYTES).get();
 
 	it('wad.header', () => {

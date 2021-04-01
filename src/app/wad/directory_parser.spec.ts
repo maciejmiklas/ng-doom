@@ -14,7 +14,7 @@ import {
 	WAD_BYTES
 } from '../test/data';
 
-describe('Find directory by name', () => {
+describe('directory_parser#findDirectoryByName', () => {
 	const find = dp.findDirectoryByName(ALL_DIRS.get());
 	const findAndCompare = (name: string) => {
 		expect(find(name).get().name).toEqual(name);
@@ -40,7 +40,7 @@ describe('Find directory by name', () => {
 const findDirectory = (dir: Directory, dirs: Directory[]) =>
 	dirs.find(d => (d.name === dir.name && d.filepos === dir.filepos && d.size === dir.size));
 
-describe('Parse All Directories', () => {
+describe('directory_parser#parseAllDirectories', () => {
 	const header = HEADER.get();
 	const allDirs = dp.parseAllDirectories(header, WAD_BYTES).get();
 	const validate = (dir: Directory) => {
@@ -67,7 +67,8 @@ describe('Parse All Directories', () => {
 		validate(E1M1_BLOCKMAP);
 	});
 });
-describe('Find Map Directory', () => {
+
+describe('directory_parser#parseDirectory', () => {
 	const header = HEADER.get();
 	const validate = validateDir(header);
 
@@ -80,7 +81,7 @@ describe('Find Map Directory', () => {
 	});
 });
 
-describe('Parse Header', () => {
+describe('directory_parser#parseHeader', () => {
 
 	it('Header found', () => {
 		expect(HEADER.isRight()).toBeTruthy();

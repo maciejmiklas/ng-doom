@@ -2,7 +2,7 @@ import U from './util';
 
 const IWAD_STR = [73, 87, 65, 68];
 
-describe('Parse uint', () => {
+describe('util#parseUint', () => {
 
 	it('8', () => {
 		expect(U.parseUint([0x8, 0x00, 0x00, 0x00])(0)).toEqual(8);
@@ -82,7 +82,7 @@ describe('Parse uint', () => {
 
 });
 
-describe('Parse int', () => {
+describe('util#parseInt', () => {
 	it('12', () => {
 		expect(U.parseInt([0x0C, 0x00, 0x00, 0x00])(0)).toEqual(12);
 	});
@@ -141,7 +141,7 @@ describe('Parse int', () => {
 
 });
 
-describe('Parse short', () => {
+describe('util#parseShort', () => {
 	it('12', () => {
 		expect(U.parseShort([0x0C, 0x00])(0)).toEqual(12);
 	});
@@ -179,7 +179,7 @@ describe('Parse short', () => {
 	});
 });
 
-describe('Parse parseUbyte', () => {
+describe('util#parseUbyte', () => {
 	it('90 at 0', () => {
 		expect(U.parseUbyte([0x5A, 0xFF, 0xFF])(0)).toEqual(90);
 	});
@@ -201,7 +201,7 @@ describe('Parse parseUbyte', () => {
 	});
 });
 
-describe('Parse short Opt', () => {
+describe('util#Parse short Opt', () => {
 	it('Right', () => {
 		expect(U.parseShortOp([0x0C, 0x00])(v => v > 1, (v) => '?')(0).get()).toEqual(12);
 	});
@@ -214,7 +214,7 @@ describe('Parse short Opt', () => {
 
 });
 
-describe('Parse string', () => {
+describe('util#parseStr', () => {
 	it('whole', () => {
 		expect(U.parseStr(IWAD_STR)(0, 4)).toEqual('IWAD');
 	});
@@ -232,7 +232,7 @@ describe('Parse string', () => {
 	});
 });
 
-describe('Parse string Op', () => {
+describe('util#parseStrOp', () => {
 	it('found', () => {
 		expect(U.parseStrOp(IWAD_STR)(str => str === 'IWAD', () => '?')(0, 4).get()).toEqual('IWAD');
 	});

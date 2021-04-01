@@ -33,7 +33,7 @@ function getNullOrString(): string | null {
 	return null;
 }
 
-describe('Either.append', () => {
+describe('Either#append', () => {
 	it('Append to from Right to Right', () => {
 		const res = Either.ofRight({vv: '123'})
 			.remap(() => Either.ofRight(new TwoStrings()), (v, t) => {
@@ -63,7 +63,7 @@ describe('Either.append', () => {
 	});
 });
 
-describe('Either.exec', () => {
+describe('Either#exec', () => {
 	const nil = Either.ofNullable(null, () => 'just null!');
 	const of = Either.ofRight(101);
 
@@ -81,7 +81,7 @@ describe('Either.exec', () => {
 
 });
 
-describe('Either.ofTruth', () => {
+describe('Either#ofTruth', () => {
 	const falsy1 = Either.ofCondition(() => false, () => 'cond false 1', () => 98);
 	const falsy2 = Either.ofCondition(() => false, () => 'cond false 2', () => 97);
 	const truthy1 = Either.ofCondition(() => true, () => 'cond true', () => 99);
@@ -100,7 +100,7 @@ describe('Either.ofTruth', () => {
 	});
 });
 
-describe('Either.toString', () => {
+describe('Either#toString', () => {
 	const nil = Either.ofNullable(null, () => 'just null!');
 	const of = Either.ofRight(101);
 	const nn = Either.ofNullable(100, () => 'test 100');
@@ -122,7 +122,7 @@ describe('Either.toString', () => {
 	});
 });
 
-describe('Either.orElse', () => {
+describe('Either#orElse', () => {
 	const nil = Either.ofNullable(getNullOrString(), () => 'just null!');
 	const of = Either.ofRight(101);
 	const nn = Either.ofNullable(100, () => 'test 100');
@@ -140,7 +140,7 @@ describe('Either.orElse', () => {
 	});
 });
 
-describe('Either.orElseGet', () => {
+describe('Either#orElseGet', () => {
 	const nil = Either.ofNullable(getNullOrString(), () => 'just null!');
 	const of = Either.ofRight(101);
 	const nn = Either.ofNullable(100, () => 'test 100');
@@ -158,7 +158,7 @@ describe('Either.orElseGet', () => {
 	});
 });
 
-describe('Either.ofNullable', () => {
+describe('Either#ofNullable', () => {
 	const nil = Either.ofNullable(getNullOrNumber(), () => 'just null!');
 	const nn = Either.ofNullable(100, () => 'test 100');
 
@@ -201,7 +201,7 @@ describe('Either.ofNullable', () => {
 	});
 });
 
-describe('Either.of', () => {
+describe('Either#of', () => {
 	const str = Either.ofRight('123');
 	it('isLeft', () => {
 		expect(str.isLeft()).toBeFalsy();
@@ -218,7 +218,7 @@ describe('Either.of', () => {
 	});
 });
 
-describe('Either.ofLeft', () => {
+describe('Either#ofLeft', () => {
 	const left = Either.ofLeft('123') as Either<number>;
 
 	it('isLeft', () => {
@@ -240,7 +240,7 @@ describe('Either.ofLeft', () => {
 	});
 });
 
-describe('Either.map', () => {
+describe('Either#map', () => {
 	const nil = Either.ofNullable(getNullOrNumber(), () => 'just null!');
 	const nn = Either.ofNullable(100, () => 'test 100');
 
@@ -266,7 +266,7 @@ describe('Either.map', () => {
 	});
 });
 
-describe('Either.remap', () => {
+describe('Either#remap', () => {
 	it('Remap from Right to Right', () => {
 		const res = Either.ofRight({vv: '123'}).remap(() => Either.ofRight(new TwoStrings()), (v, t) => v.vv = t.vv);
 		expect(res.get().vv).toEqual('123');
@@ -286,7 +286,7 @@ describe('Either.remap', () => {
 
 });
 
-describe('Either.ofArray', () => {
+describe('Either#ofArray', () => {
 	it('All Left', () => {
 		const res = Either.ofArray(Either.ofLeft('l1'), Either.ofLeft('l2'), Either.ofLeft('l3'));
 		expect(res.isLeft()).toBeTruthy();
@@ -306,7 +306,7 @@ describe('Either.ofArray', () => {
 
 });
 
-describe('Either.unitl', () => {
+describe('Either#unitl', () => {
 	it('number array', () => {
 		const res = Either.until<number>(v => Either.ofCondition(() => v < 5, () => 'End', () => v + 1), Either.ofRight(0)).get();
 		expect(res).toEqual([0, 1, 2, 3, 4, 5]);
@@ -318,7 +318,7 @@ describe('Either.unitl', () => {
 	});
 });
 
-describe('Either.ofCondition', () => {
+describe('Either#ofCondition', () => {
 	const falsyInt = Either.ofCondition(() => false, () => 'cond false', () => 98);
 	const truthyInt = Either.ofCondition(() => true, () => 'cond true', () => 99);
 
