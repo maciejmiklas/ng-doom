@@ -43,7 +43,7 @@ describe('Either#assert', () => {
 	});
 
 	it('Right Negative', () => {
-		expect(() => Either.ofRight('H!').assert(v => Either.ofLeft('NO!'))).toThrowError('NO!');
+		expect(() => Either.ofRight('H!').assert(v => Either.ofLeft('NO!')).isLeft()).toBeTruthy();
 	});
 });
 

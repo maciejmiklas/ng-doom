@@ -45,7 +45,9 @@ describe('directory_parser#parseAllDirectories', () => {
 	const allDirs = dp.parseAllDirectories(header, WAD_BYTES).get();
 	const validate = (dir: Directory) => {
 		const found = findDirectory(dir, allDirs);
+		expect(found).toBeDefined('Dir:' + dir.name + ' not found');
 		eqDir(dir, found);
+
 	};
 	it('First MAP', () => {
 		validate(FD_E1M1);
@@ -87,6 +89,6 @@ describe('directory_parser#parseHeader', () => {
 		expect(HEADER.isRight()).toBeTruthy();
 	});
 	it('numlumps', () => {
-		expect(HEADER.get().numlumps).toEqual(1241);
+		expect(HEADER.get().numlumps).toEqual(1264);
 	});
 });

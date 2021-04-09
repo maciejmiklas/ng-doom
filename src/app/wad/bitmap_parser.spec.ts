@@ -124,7 +124,7 @@ describe('bitmap_parser#parsePost', () => {
 
 	it('Col 0 - post 1', () => {
 		const post = parsePost(postOffsetAt0x1).get();
-		expect(post.filepos).toEqual(postOffsetAt0x0);
+		expect(post.filepos).toEqual(postOffsetAt0x1);
 		expect(post.topdelta).toEqual(128);
 		expect(post.data.length).toEqual(72);
 	});
@@ -172,7 +172,7 @@ describe('bitmap_parser#parseBitmap', () => {
 	});
 
 	it('TITLEPIC - image data - random pixels', () => {
-		//	expect(bitmap.imageData[0]).toEqual(128); TODO
+		// expect(bitmap.imageData[0]).toEqual(128); TODO
 	});
 });
 

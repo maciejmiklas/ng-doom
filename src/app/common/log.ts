@@ -5,14 +5,14 @@ export class Log {
 	}
 
 	static info(msg: string, ...args: any[]): void {
-		console.log('INFO: ' + msg + ' - ', args);
+		// console.log('INFO: ' + msg + ' - ', args);
 	}
 
 	static debug(msg: string, ...args: any[]): void {
-		console.log('DEBUG: ' + msg + ' - ', args);
+		// console.log('DEBUG: ' + msg + ' - ', args);
 	}
 
 	static trace(msg: string, ...args: any[]): void {
-		console.log('TRACE: ' + msg + ' - ', args);
+		// console.log('TRACE: ' + msg + ' - ', args);
 	}
 }

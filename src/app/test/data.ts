@@ -16,38 +16,38 @@ export const ALL_DIRS: Either<Directory[]> = HEADER.map(header => dp.parseAllDir
 export const FIRST_MAP: Directory = ALL_DIRS.map(dirs => mpt.findNextMapDir(dirs)).get()(0).get();
 
 export const FD_E1M1: Directory = {
-	filepos: 130300,
+	filepos: 67500,
 	size: 0,
 	name: 'E1M1',
 	idx: 6
 };
 
-export const FD_E1M2: Directory = {
-	filepos: 186020,
-	size: 0,
-	name: 'E1M2',
-	idx: 17
-};
-
 export const E1M1_THINGS: Directory = {
-	filepos: 130300,
+	filepos: 67500,
 	size: 1380,
 	name: MapLumpType[MapLumpType.THINGS],
 	idx: 7
 };
 
 export const E1M1_LINEDEFS: Directory = {
-	filepos: 131680,
+	filepos: 68880,
 	size: 6650,
 	name: MapLumpType[MapLumpType.LINEDEFS],
 	idx: 8
 };
 
 export const E1M1_BLOCKMAP: Directory = {
-	filepos: 179096,
+	filepos: 116296,
 	size: 6922,
 	name: MapLumpType[MapLumpType.BLOCKMAP],
 	idx: 16
+};
+
+export const FD_E1M2: Directory = {
+	filepos: 123220,
+	size: 0,
+	name: 'E1M2',
+	idx: 17
 };
 
 export const VERTEX_0: Vertex = {

@@ -24,8 +24,8 @@ describe('map_parser#parseHeader', () => {
 	it('IWAD', () => {
 		const header = HEADER.get();
 		expect(header.identification).toEqual(WadType.IWAD);
-		expect(header.numlumps).toEqual(1241);
-		expect(header.infotableofs).toEqual(4205648);
+		expect(header.numlumps).toEqual(1264);
+		expect(header.infotableofs).toEqual(4175796);
 	});
 });
 
