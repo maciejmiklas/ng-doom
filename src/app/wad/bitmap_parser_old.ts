@@ -35,7 +35,6 @@ const parsePost = (bytes: number[]) => (filepos: number): Either<Post> => {
 		({
 			topdelta,
 			filepos,
-			postBytes: 4 + length,
 			data: R.unfold((idx) => idx === length ? false : [ubyteParser(filepos + idx + 3), idx + 1], 0)
 		}));
 };
@@ -43,7 +42,7 @@ const parsePost = (bytes: number[]) => (filepos: number): Either<Post> => {
 const parseColumn = (bytes: number[]) => (filepos: number): Either<Column> => {
 	const postParser = parsePost(bytes);
 	return Either.until<Post>(
-		p => postParser(p.filepos + p.postBytes), postParser(filepos))
+		p => postParser(p.filepos + 4), postParser(filepos))
 		.map(posts => ({posts}));
 };
 

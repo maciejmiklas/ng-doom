@@ -1,25 +1,35 @@
 import * as R from 'ramda';
+import {Log} from './log';
 
 export abstract class Either<T> {
 	protected readonly val: T;
 	protected readonly msg: string;
 
+	protected constructor(value: T, msg: string) {
+		this.val = value;
+		this.msg = msg;
+	}
+
 	static until = <T>(next: (previous: T) => Either<T>, init: Either<T>, max: number = 500): Either<T[]> => {
 		let val = init;
 		const all: T[] = [];
 		let cnt = 0;
-		while (val.isRight() && cnt <= max) {
+		while (val.isRight()) {
+			if (cnt > max) {
+				Log.error('Until iterations limit of $max reached', {max});
+				break;
+			}
 			val.exec((v) => all.push(v));
 			val = next(val.get());
 			cnt = cnt + 1;
 		}
 		return Either.ofCondition(() => all.length > 0, () => 'Empty result for ' + init, () => all);
-	}
+	};
 
 	static ofArray = <T>(...args: Either<T>[]): Either<T[]> => {
 		const ret = args.filter(e => e.isRight()).map(e => e.get());
 		return Either.ofCondition(() => ret.length > 0, () => 'All candidates for Array are Left: ' + args, () => ret);
-	}
+	};
 
 	static ofRight<T>(val: T): Either<T> {
 		return new Right<T>(val);
@@ -40,11 +50,6 @@ export abstract class Either<T> {
 	static ofTruth<T>(truth: Either<any>[], right: () => T): Either<T> {
 		const left = truth.filter(e => e.isLeft());
 		return left.length === 0 ? new Right<T>(right()) : new Left(left.map(l => l.message()).join(','));
-	}
-
-	protected constructor(value: T, msg: string) {
-		this.val = value;
-		this.msg = msg;
 	}
 
 	get(): T {
@@ -70,12 +75,18 @@ export abstract class Either<T> {
 	abstract append<V>(producer: (val: T) => Either<V>, appender: (t: T, v: V) => void): Either<T>;
 
 	abstract exec(fn: (v: T) => void): Either<T>;
+
+	abstract assert(fn: (v: T) => Either<string>): Either<T>;
 }
 
 export class Left<T> extends Either<T> {
 
 	constructor(msg: string) {
 		super(null as any, msg);
+	}
+
+	assert(fn: (v: T) => Either<string>): Either<T> {
+		return this;
 	}
 
 	map(fn: (val: T) => any): Either<any> {
@@ -128,8 +139,17 @@ export class Right<T> extends Either<T> {
 	constructor(value: T) {
 		super(value, 'Right');
 		if (R.isNil(value)) {
-			throw new TypeError('null get provided to Right');
+			Log.error('null get provided to Right');
 		}
+	}
+
+	assert(fn: (v: T) => Either<string>): Either<T> {
+		const resp = fn(this.val);
+		if (resp.isLeft()) {
+			Log.error(resp.message());
+			return Either.ofLeft(resp.message());
+		}
+		return this;
 	}
 
 	orElseGet(fn: () => T): T {

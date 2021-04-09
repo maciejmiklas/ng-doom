@@ -3,16 +3,17 @@ import * as R from 'ramda';
 import U from '../common/util';
 import {Either} from '../common/either';
 
-const PIX_BYTES = 4;
+const IMG_BYTES = 4;
+const POST_PADDING_BYTES = 4;
+const LAST_POST_MARKER = 0XFF;
 
 /**
  * @see https://doomwiki.org/wiki/Picture_format
  * @see https://www.cyotek.com/blog/decoding-doom-picture-files
  * @see https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
  */
-
 const unfoldColumnofs = (filepos: number, width: number): number[] =>
-	R.unfold((idx) => idx === width ? false : [filepos + idx * PIX_BYTES, idx + 1], 0);
+	R.unfold((idx) => idx === width ? false : [filepos + idx * IMG_BYTES, idx + 1], 0);
 
 const parsePatchHeader = (bytes: number[]) => (dir: Directory): PatchHeader => {
 	const shortParser = U.parseShort(bytes);
@@ -33,11 +34,10 @@ const parsePost = (bytes: number[]) => (filepos: number): Either<Post> => {
 	const ubyteParser = U.parseUbyte(bytes);
 	const topdelta = ubyteParser(filepos);
 	const length = ubyteParser(filepos + 1);
-	return Either.ofCondition(() => topdelta !== 0XFF, () => 'End of column', () =>
+	return Either.ofCondition(() => topdelta !== LAST_POST_MARKER, () => 'End of column', () =>
 		({
 			topdelta,
 			filepos,
-			postBytes: 4 + length,
 			data: R.unfold((idx) => idx === length ? false : [ubyteParser(filepos + idx + 3), idx + 1], 0)
 		}));
 };
@@ -45,8 +45,8 @@ const parsePost = (bytes: number[]) => (filepos: number): Either<Post> => {
 const parseColumn = (bytes: number[]) => (filepos: number): Either<Column> => {
 	const postParser = parsePost(bytes);
 	return Either.until<Post>(
-		p => postParser(p.filepos + p.postBytes), postParser(filepos))
-		.map(posts => ({posts}));
+		p => postParser(p.filepos + p.data.length + POST_PADDING_BYTES), // p here is the previous post
+		postParser(filepos)).map(posts => ({posts}));
 };
 
 /**
@@ -69,12 +69,11 @@ const parseColumn = (bytes: number[]) => (filepos: number): Either<Column> => {
   </tr>
 </table>
  */
-
 const patchToImg = (header: PatchHeader, columns: Column[]): Uint8ClampedArray => {
 	const pixAtCol = postPixelAt(columns);
-	const array = new Uint8ClampedArray(header.width * header.height * PIX_BYTES);
+	const array = new Uint8ClampedArray(header.width * header.height * IMG_BYTES);
 	const column = R.until(({x, y}) => y < header.height, ({x, y}) => {
-		array.set(pixelToImg(pixAtCol(x, y)), x * y * PIX_BYTES);
+		array.set(pixelToImg(pixAtCol(x, y)), x * y * IMG_BYTES);
 		return {x, y: ++y};
 	});
 	R.until(({x, y}) => x < header.width,
@@ -87,10 +86,12 @@ const patchToImg = (header: PatchHeader, columns: Column[]): Uint8ClampedArray =
 
 const patchToImgLoop = (header: PatchHeader, columns: Column[]): Uint8ClampedArray => {
 	const pixAtCol = postPixelAt(columns);
-	const array = new Uint8ClampedArray(header.width * header.height * PIX_BYTES);
+	const array = new Uint8ClampedArray(header.width * header.height * IMG_BYTES);
+	let idx = 0;
 	for (let x = 0; x < header.width; x++) {
-		for (let y = 0; header.height; y++) {
-			array.set(pixelToImg(pixAtCol(x, y)), x * y * PIX_BYTES);
+		for (let y = 0; y < header.height; y++) {
+			array.set(pixelToImg(pixAtCol(x, y)), idx);
+			idx += IMG_BYTES;
 		}
 	}
 	return array;
@@ -115,19 +116,22 @@ const parsePatchBitmap = (bytes: number[]) => (dir: Directory): Either<PatchBitm
 		() => ({
 			header,
 			columns,
-			imageData: patchToImg(header, columns)
+			imageData: patchToImgLoop(header, columns)
 		}));
 };
 
 const postPixelAt = (columns: Column[]) => (x: number, y: number): number => {
-	return postAt(columns)(x, y).map(p => p.data[y - p.topdelta]).orElseGet(() => 0);
+	return postAt(columns)(x, y)
+		.assert(p => Either.ofCondition(() => p.data.length > y - p.topdelta, () => 'Pixel out of range at:(' + x + ',' + y + ')->' + p.data.length + '<=' + y + '-' + p.topdelta, () => 'OK'))
+		.map(p => p.data[y - p.topdelta]).orElseGet(() => 0);
 };
 
 const postAt = (columns: Column[]) => (x: number, y: number): Either<Post> =>
-	Either.ofNullable(R.find<Post>(p => y >= p.topdelta && y < p.topdelta + p.postBytes)(columns[x].posts), () => 'Transparent pixel at (' + x + ',' + y + ')');
+	Either.ofNullable(R.find<Post>(p => y >= p.topdelta && y < p.topdelta + p.data.length)(columns[x].posts), () => 'Transparent pixel at (' + x + ',' + y + ')');
 
 export const testFunctions = {
 	postAt,
+	parsePost,
 	postPixelAt,
 	parsePatchHeader,
 	unfoldColumnofs,

@@ -8,8 +8,8 @@
     "test_org": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-		"build:prod": "ng build --prod",
-		"test": "ng test --browsers=ChromeHeadless --watch=false --code-coverage"
+    "build:prod": "ng build --prod",
+    "test": "ng test --browsers=ChromeHeadless --watch=false --code-coverage"
   },
   "private": true,
   "dependencies": {

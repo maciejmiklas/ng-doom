@@ -1,18 +1,18 @@
 export class Log {
 
 	static error(msg: string, ...args: any[]): void {
-		//  console.log(msg + " - ", args);
+		console.log('ERROR: ' + msg + ' - ', args);
 	}
 
 	static info(msg: string, ...args: any[]): void {
-		//  console.log(msg + " - ", args);
+		console.log('INFO: ' + msg + ' - ', args);
 	}
 
 	static debug(msg: string, ...args: any[]): void {
-		// console.log(msg + " - ", args);
+		console.log('DEBUG: ' + msg + ' - ', args);
 	}
 
 	static trace(msg: string, ...args: any[]): void {
-		//  console.log(msg + " - ", args);
+		console.log('TRACE: ' + msg + ' - ', args);
 	}
 }

@@ -219,9 +219,6 @@ export type Post = {
 	/** vertical (y) offset of this post in patch. */
 	topdelta: number
 
-	/** Total size of this post including padding bytes. Used to calculate position of next post in column */
-	postBytes: number
-
 	/**
 	 * Array of pixels is this post. Length is given by #length.
 	 * Each pixel has value 0-255 and it's an index in Doom palate

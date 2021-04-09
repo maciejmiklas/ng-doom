@@ -13,7 +13,7 @@ class TwoStrings {
 
 	public toString = (): string => {
 		return `TwoStrings [vv: ${this.vv}, pp: ${this.pp}]`;
-	}
+	};
 }
 
 class OneString {
@@ -22,7 +22,7 @@ class OneString {
 
 	public toString = (): string => {
 		return `OneString [vv: ${this.vv}]`;
-	}
+	};
 }
 
 function getNullOrNumber(): number | null {
@@ -32,6 +32,20 @@ function getNullOrNumber(): number | null {
 function getNullOrString(): string | null {
 	return null;
 }
+
+describe('Either#assert', () => {
+	it('Assert Left', () => {
+		expect(Either.ofLeft('H!').assert(v => Either.ofLeft('NO!')).isLeft()).toBeTruthy();
+	});
+
+	it('Right Positive', () => {
+		expect(Either.ofRight('H!').assert(v => Either.ofRight('NO!')).get()).toEqual('H!');
+	});
+
+	it('Right Negative', () => {
+		expect(() => Either.ofRight('H!').assert(v => Either.ofLeft('NO!'))).toThrowError('NO!');
+	});
+});
 
 describe('Either#append', () => {
 	it('Append to from Right to Right', () => {
