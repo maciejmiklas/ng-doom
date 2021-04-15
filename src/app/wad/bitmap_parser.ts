@@ -11,6 +11,8 @@ const LAST_POST_MARKER = 0XFF;
  * @see https://doomwiki.org/wiki/Picture_format
  * @see https://www.cyotek.com/blog/decoding-doom-picture-files
  * @see https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
+ * @see https://doomwiki.org/wiki/COLORMAP
+ * @see https://doomwiki.org/wiki/PLAYPAL
  */
 const unfoldColumnofs = (filepos: number, width: number): number[] =>
 	R.unfold((idx) => idx === width ? false : [filepos + idx * IMG_BYTES, idx + 1], 0);
@@ -87,14 +89,22 @@ const patchToImg = (header: PatchHeader, columns: Column[]): Uint8ClampedArray =
 const patchToImgLoop = (header: PatchHeader, columns: Column[]): Uint8ClampedArray => {
 	const pixAtCol = postPixelAt(columns);
 	const array = new Uint8ClampedArray(header.width * header.height * IMG_BYTES);
+	const pixConv = pixelToImgBuf(array);
 	let idx = 0;
-	for (let x = 0; x < header.width; x++) {
-		for (let y = 0; y < header.height; y++) {
-			array.set(pixelToImg(pixAtCol(x, y)), idx);
-			idx += IMG_BYTES;
+	for (let y = 0; y < header.height; y++) {
+		for (let x = 0; x < header.width; x++) {
+			idx = pixConv(idx, pixAtCol(x, y));
 		}
 	}
 	return array;
+};
+
+const pixelToImgBuf = (img: Uint8ClampedArray) => (idx: number, pixel: number): number => {
+	img[idx++] = (pixel) & 0b111000000;    // R value
+	img[idx++] = (pixel << 3) & 0b111000000;  // G value
+	img[idx++] = (pixel << 6) & 0b11000000;    // B value
+	img[idx++] = 255;  // A value
+	return idx;
 };
 
 const pixelToImg = (pixel: number): number[] => {

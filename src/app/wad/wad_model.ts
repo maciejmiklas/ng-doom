@@ -71,6 +71,21 @@ export type Lump = {
 };
 
 /**
+ * @see https://doomwiki.org/wiki/PLAYPAL
+ */
+export type Playpal = Lump & {};
+
+export type DoomPalette = {
+	bytes: RBG[]
+};
+
+export type RBG = {
+	r: number,
+	g: number,
+	b: number
+};
+
+/**
  * Lump is a abstract data type found in each map.
  * Each Lump definition starts with Directory containing type of the Lump and pointer to Lump's data in WAD.
  */

@@ -30,9 +30,17 @@ export class AppComponent {
 			const wad = wp.parseWad(Array.from(new Uint8Array(buf))).get();
 			const img = bc.toImageData(wad.title.title);
 			const canvas = document.getElementById('imgTag') as HTMLCanvasElement;
+			canvas.width = 960;
+			canvas.height = 600;
 			const ctx = canvas.getContext('2d');
 			ctx.putImageData(img, 0, 0);
-			console.log('WAD');
+
+			const imageObject = new Image();
+			imageObject.onload = () => {
+				ctx.scale(3, 3);
+				ctx.drawImage(imageObject, 0, 0);
+			};
+			imageObject.src = canvas.toDataURL();
 		});
 	}
 }

@@ -229,51 +229,50 @@ describe('bitmap_parser#postAt', () => {
 
 describe('bitmap_parser#postPixelAt', () => {
 	const pa = tf.postPixelAt(simpleDoomImage());
-
+	const pix0 = pa(0);
+	const pix1 = pa(1);
+	const pix2 = pa(2);
 	it('column[0] at post[0]', () => {
-		expect(pa(0, 0)).toEqual(11);
-		expect(pa(0, 1)).toEqual(12);
-		expect(pa(0, 2)).toEqual(13);
+		expect(pix0(0)).toEqual(11);
+		expect(pix0(1)).toEqual(12);
+		expect(pix0(2)).toEqual(13);
 	});
 
 	it('column[0] between post[0] and post[1]', () => {
-		expect(pa(0, 3)).toEqual(0);
-		expect(pa(0, 10)).toEqual(0);
-		expect(pa(0, 19)).toEqual(0);
+		for (let y = 3; y < 20; y++) {
+			expect(pix0(y)).toEqual(0);
+		}
 	});
 
 	it('column[0] at post[1]', () => {
-		expect(pa(0, 20)).toEqual(21);
-		expect(pa(0, 21)).toEqual(22);
-	});
-
-	it('column[0] at post[2]', () => {
-		expect(pa(0, 22)).toEqual(31);
-		expect(pa(0, 23)).toEqual(32);
-		expect(pa(0, 24)).toEqual(34);
+		expect(pix0(20)).toEqual(21);
+		expect(pix0(21)).toEqual(22);
+		expect(pix0(22)).toEqual(31);
+		expect(pix0(23)).toEqual(32);
+		expect(pix0(24)).toEqual(34);
 	});
 
 	it('column[1] at post[0]', () => {
-		expect(pa(1, 0)).toEqual(101);
-		expect(pa(1, 1)).toEqual(102);
-		expect(pa(1, 2)).toEqual(103);
+		expect(pix1(0)).toEqual(101);
+		expect(pix1(1)).toEqual(102);
+		expect(pix1(2)).toEqual(103);
 	});
 
 	it('column[1] between post[0] and post[1]', () => {
-		for (let y = 4; y < 59; y++) {
-			expect(pa(1, y)).toEqual(0);
+		for (let y = 3; y < 60; y++) {
+			expect(pix1(y)).toEqual(0);
 		}
 	});
 
 	it('column[1] at post[1]', () => {
-		expect(pa(1, 60)).toEqual(110);
-		expect(pa(1, 61)).toEqual(111);
+		expect(pix1(60)).toEqual(110);
+		expect(pix1(61)).toEqual(111);
 	});
 
 	it('column[2] at post[0]', () => {
-		expect(pa(2, 0)).toEqual(201);
-		expect(pa(2, 1)).toEqual(202);
-		expect(pa(2, 2)).toEqual(203);
-		expect(pa(2, 3)).toEqual(204);
+		expect(pix2(0)).toEqual(201);
+		expect(pix2(1)).toEqual(202);
+		expect(pix2(2)).toEqual(203);
+		expect(pix2(3)).toEqual(204);
 	});
 });
