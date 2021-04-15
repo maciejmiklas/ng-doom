@@ -76,7 +76,7 @@ export type Lump = {
 export type Playpal = Lump & {};
 
 export type DoomPalette = {
-	bytes: RBG[]
+	colors: RBG[]
 };
 
 export type RBG = {

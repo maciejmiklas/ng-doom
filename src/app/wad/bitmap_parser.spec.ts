@@ -228,51 +228,48 @@ describe('bitmap_parser#postAt', () => {
 });
 
 describe('bitmap_parser#postPixelAt', () => {
-	const pa = tf.postPixelAt(simpleDoomImage());
-	const pix0 = pa(0);
-	const pix1 = pa(1);
-	const pix2 = pa(2);
+	const pix = tf.postPixelAt(simpleDoomImage());
 	it('column[0] at post[0]', () => {
-		expect(pix0(0)).toEqual(11);
-		expect(pix0(1)).toEqual(12);
-		expect(pix0(2)).toEqual(13);
+		expect(pix(0, 0)).toEqual(11);
+		expect(pix(0, 1)).toEqual(12);
+		expect(pix(0, 2)).toEqual(13);
 	});
 
 	it('column[0] between post[0] and post[1]', () => {
 		for (let y = 3; y < 20; y++) {
-			expect(pix0(y)).toEqual(0);
+			expect(pix(0, y)).toEqual(0);
 		}
 	});
 
 	it('column[0] at post[1]', () => {
-		expect(pix0(20)).toEqual(21);
-		expect(pix0(21)).toEqual(22);
-		expect(pix0(22)).toEqual(31);
-		expect(pix0(23)).toEqual(32);
-		expect(pix0(24)).toEqual(34);
+		expect(pix(0, 20)).toEqual(21);
+		expect(pix(0, 21)).toEqual(22);
+		expect(pix(0, 22)).toEqual(31);
+		expect(pix(0, 23)).toEqual(32);
+		expect(pix(0, 24)).toEqual(34);
 	});
 
 	it('column[1] at post[0]', () => {
-		expect(pix1(0)).toEqual(101);
-		expect(pix1(1)).toEqual(102);
-		expect(pix1(2)).toEqual(103);
+		expect(pix(1, 0)).toEqual(101);
+		expect(pix(1, 1)).toEqual(102);
+		expect(pix(1, 2)).toEqual(103);
 	});
 
 	it('column[1] between post[0] and post[1]', () => {
 		for (let y = 3; y < 60; y++) {
-			expect(pix1(y)).toEqual(0);
+			expect(pix(1, y)).toEqual(0);
 		}
 	});
 
 	it('column[1] at post[1]', () => {
-		expect(pix1(60)).toEqual(110);
-		expect(pix1(61)).toEqual(111);
+		expect(pix(1, 60)).toEqual(110);
+		expect(pix(1, 61)).toEqual(111);
 	});
 
 	it('column[2] at post[0]', () => {
-		expect(pix2(0)).toEqual(201);
-		expect(pix2(1)).toEqual(202);
-		expect(pix2(2)).toEqual(203);
-		expect(pix2(3)).toEqual(204);
+		expect(pix(2, 0)).toEqual(201);
+		expect(pix(2, 1)).toEqual(202);
+		expect(pix(2, 2)).toEqual(203);
+		expect(pix(2, 3)).toEqual(204);
 	});
 });
