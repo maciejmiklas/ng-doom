@@ -1,12 +1,12 @@
-import {Directory, TitlePic, Wad} from './wad_model';
+import {Directories, Directory, TitlePic, Wad} from './wad_model';
 import {Either} from '../common/either';
 import {functions as dp} from './directory_parser';
 import {functions as bp} from './bitmap_parser';
 
 const parseTitlePic = (bytes: number[], dirs: Directory[]): Either<TitlePic> => {
 	const find = dp.findDirectoryByName(dirs);
-	const title = find('TITLEPIC').map(d => bp.parseBitmap(bytes)(d));
-	const credit = find('CREDIT').map(d => bp.parseBitmap(bytes)(d));
+	const title = find(Directories.TITLEPIC).map(d => bp.parseBitmap(bytes)(d));
+	const credit = find(Directories.CREDIT).map(d => bp.parseBitmap(bytes)(d));
 	const help = Either.ofArray(find('HELP1').map(d => bp.parseBitmap(bytes)(d)), find('HELP2').map(d => bp.parseBitmap(bytes)(d)));
 
 	return Either.ofCondition(() => title.isRight() && credit.isRight() && credit.isRight(), () => 'Image Folders not found', () => ({

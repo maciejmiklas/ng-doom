@@ -1,11 +1,20 @@
-<label for="file">Choose File</label>
-<input type="file"
-			 id="file"
-			 (change)="handleFileInput($event)">
+<label for="file">Show Title Image: </label>
+<input type="file" id="file" (change)="handleShowTitleImage($event)">
+<br>
 
+
+<br>
+<label for="playpal">Show playpal: </label>
+<input type="file" id="playpal" (change)="handleShowPlaypal($event)">
+<div *ngIf="palette !== undefined" style="width: 100%; overflow: hidden;">
+	<span *ngFor="let rgb of palette.colors;let idx = index"
+				[ngStyle]="{'background-color': 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')'}">
+		<br *ngIf="idx % 16 ==0">
+		<span style="display: inline-block;width: 50px">&nbsp;&nbsp;&nbsp;{{idx}}&nbsp;&nbsp;&nbsp;</span>
+	</span>
+</div>
+<br>
 <br>
 <button (click)="drawRectangle()">Draw rectangle</button>
 <br>
-A
 <canvas id="imgTag" width="320" height="200"></canvas>
-B

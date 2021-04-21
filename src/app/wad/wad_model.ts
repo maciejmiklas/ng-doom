@@ -45,6 +45,16 @@ export type Directory = {
 };
 
 /**
+ * Names of static directories
+ */
+export enum Directories {
+	PLAYPAL = 'PLAYPAL',
+	TITLEPIC = 'TITLEPIC',
+	VERTEXES = 'VERTEXES',
+	CREDIT = 'CREDIT'
+}
+
+/**
  * Lump's names and their order within single map. The first element does not indicate a real Lump, it's just a
  * starting directory of the map.
  */
@@ -73,13 +83,15 @@ export type Lump = {
 /**
  * @see https://doomwiki.org/wiki/PLAYPAL
  */
-export type Playpal = Lump & {};
-
-export type DoomPalette = {
-	colors: RBG[]
+export type Playpal = Lump & {
+	palettes: Palette[]
 };
 
-export type RBG = {
+export type Palette = {
+	colors: RGB[]
+};
+
+export type RGB = {
 	r: number,
 	g: number,
 	b: number
@@ -265,7 +277,6 @@ export type PatchBitmap = {
 
 	/** Picture in Doom format consists of columns (x-axis) going downward on the screen (y-axis) */
 	columns: Column[]
-	imageData: Uint8ClampedArray
 };
 
 /**

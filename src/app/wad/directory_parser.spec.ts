@@ -1,4 +1,4 @@
-import {Directory, MapLumpType} from './wad_model';
+import {Directories, Directory, MapLumpType} from './wad_model';
 import {functions as dp} from './directory_parser';
 import {
 	ALL_DIRS,
@@ -33,7 +33,7 @@ describe('directory_parser#findDirectoryByName', () => {
 	});
 
 	it('Find title', () => {
-		findAndCompare('TITLEPIC');
+		findAndCompare(Directories.TITLEPIC);
 	});
 });
 

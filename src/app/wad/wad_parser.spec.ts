@@ -1,7 +1,7 @@
 import {functions as wp, testFunctions as tf} from './wad_parser';
 import {ALL_DIRS, validateTitleColumn, validateTitlePatchHeader, WAD_BYTES,} from '../test/data';
 import {functions as dp} from './directory_parser';
-import {WadType} from './wad_model';
+import {Directories, WadType} from './wad_model';
 
 describe('wad_parser#parseTitlePic', () => {
 	const tp = tf.parseTitlePic(WAD_BYTES, ALL_DIRS.get());
@@ -30,8 +30,8 @@ describe('wad_parser#parseWad', () => {
 	it('wad.dirs', () => {
 		expect(wad.dirs.length).toBeGreaterThan(50);
 		const df = dp.findDirectoryByName(wad.dirs);
-		expect(df('TITLEPIC').isRight()).toBeTruthy();
+		expect(df(Directories.TITLEPIC).isRight()).toBeTruthy();
 		expect(df('E1M1').isRight()).toBeTruthy();
-		expect(df('VERTEXES').isRight()).toBeTruthy();
+		expect(df(Directories.VERTEXES).isRight()).toBeTruthy();
 	});
 });

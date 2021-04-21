@@ -1,4 +1,4 @@
-import {Directory, Header, WadType} from './wad_model';
+import {Directories, Directory, Header, WadType} from './wad_model';
 import * as R from 'ramda';
 import U from '../common/util';
 import {Log} from '../common/log';
@@ -8,7 +8,7 @@ const parseAllDirectories = (header: Header, bytes: number[]): Either<Directory[
 	const dirs = R.unfold(idx => idx > header.numlumps ? false : [header.infotableofs + idx * 16, idx + 1], 0)
 		.map((ofs, index) => parseDirectory(ofs, index, bytes));
 	Log.debug('Parsed %1 directories', dirs.length);
-	return Either.ofCondition(() => findDirectoryByName(dirs)('TITLEPIC').isRight(), () => 'TITLEPIC not found in Dirs', () => dirs);
+	return Either.ofCondition(() => findDirectoryByName(dirs)(Directories.TITLEPIC).isRight(), () => Directories.TITLEPIC + ' not found in Dirs', () => dirs);
 };
 
 const parseDirectory = (offset: number, idx: number, bytes: number[]): Directory => {

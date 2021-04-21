@@ -13,7 +13,7 @@ import {
 	verifySimpleDoomImageAt2x0,
 	WAD_BYTES
 } from '../test/data';
-import {PatchHeader} from './wad_model';
+import {Directories, PatchHeader} from './wad_model';
 import * as R from 'ramda';
 
 describe('bitmap_parser#unfoldColumnofs', () => {
@@ -39,7 +39,7 @@ const validateStbarPatchHeader = (header: PatchHeader) => {
 describe('bitmap_parser#parsePatchHeader', () => {
 	const findDir = dp.findDirectoryByName(ALL_DIRS.get());
 	const patchParser = tf.parsePatchHeader(WAD_BYTES);
-	const titleDir = findDir('TITLEPIC').get();
+	const titleDir = findDir(Directories.TITLEPIC).get();
 
 	it('TITLEPIC Header', () => {
 		validateTitlePatchHeader(patchParser(titleDir));
@@ -72,7 +72,7 @@ describe('bitmap_parser#parsePatchHeader', () => {
 
 describe('bitmap_parser#parseColumn', () => {
 	const findDir = dp.findDirectoryByName(ALL_DIRS.get());
-	const titleDir = findDir('TITLEPIC').get();
+	const titleDir = findDir(Directories.TITLEPIC).get();
 	const patchParser = tf.parsePatchHeader(WAD_BYTES);
 	const titlePatch = patchParser(titleDir);
 	const parseColumn = tf.parseColumn(WAD_BYTES);
@@ -103,7 +103,7 @@ describe('bitmap_parser#pixelToImg', () => {
 
 describe('bitmap_parser#parsePost', () => {
 	const findDir = dp.findDirectoryByName(ALL_DIRS.get());
-	const dir = findDir('TITLEPIC');
+	const dir = findDir(Directories.TITLEPIC);
 	const header = tf.parsePatchHeader(WAD_BYTES)(dir.get());
 	const parsePost = tf.parsePost(WAD_BYTES);
 	// Sizes:
@@ -132,7 +132,7 @@ describe('bitmap_parser#parsePost', () => {
 
 describe('bitmap_parser#parseBitmap', () => {
 	const findDir = dp.findDirectoryByName(ALL_DIRS.get());
-	const dir = findDir('TITLEPIC');
+	const dir = findDir(Directories.TITLEPIC);
 	const bitmap = bp.parseBitmap(WAD_BYTES)(dir.get()).get();
 
 	it('TITLEPIC - header', () => {
