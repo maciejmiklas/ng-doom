@@ -244,3 +244,26 @@ describe('util#parseStrOp', () => {
 	});
 
 });
+
+describe('util#its', () => {
+
+	it('iterate', () => {
+		let maxIdx = 0;
+		let loops = 0;
+		U.its(1, 11, (idx) => idx + 2, idx => {
+			maxIdx = idx;
+			loops++;
+		});
+		expect(maxIdx).toEqual(9);
+		expect(loops).toEqual(4);
+	});
+});
+
+describe('util#itn', () => {
+
+	it('iterate', () => {
+		let maxIdx = 0;
+		U.itn(1, 10, idx => maxIdx = idx);
+		expect(maxIdx).toEqual(100);
+	});
+});

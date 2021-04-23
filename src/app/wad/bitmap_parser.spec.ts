@@ -149,18 +149,6 @@ describe('bitmap_parser#parseBitmap', () => {
 		}
 	});
 
-	it('TITLEPIC - image data size', () => {
-		expect(bitmap.imageData.length).toEqual(320 * 200 * 4);
-	});
-
-	it('TITLEPIC - image data - 4th pixel', () => {
-		const length = 320 * 200 * 4;
-		for (let idx = 3; idx < length; idx += 4) {
-			const pix = bitmap.imageData[idx];
-			expect(pix === 0 || pix === 255).toBeTrue();
-		}
-	});
-
 	it('TITLEPIC - posts top delta', () => {
 		bitmap.columns.forEach(c => {
 			expect(c.posts[0].topdelta).toEqual(0);
@@ -271,5 +259,87 @@ describe('bitmap_parser#postPixelAt', () => {
 		expect(pix(2, 1)).toEqual(202);
 		expect(pix(2, 2)).toEqual(203);
 		expect(pix(2, 3)).toEqual(204);
+	});
+});
+
+describe('bitmap_parser#parseRBG', () => {
+	const parse = tf.parseRBG([1, 2, 3, 44, 55, 66]);
+	it('parse at 0', () => {
+		expect(parse(0)).toEqual({r: 1, g: 2, b: 3});
+	});
+
+	it('parse at 1', () => {
+		expect(parse(1)).toEqual({r: 2, g: 3, b: 44});
+	});
+
+	it('parse at 3', () => {
+		expect(parse(3)).toEqual({r: 44, g: 55, b: 66});
+	});
+});
+
+describe('bitmap_parser#parsePlaypal', () => {
+	const playpal = bp.parsePlaypal(WAD_BYTES, ALL_DIRS.get());
+
+	it('palettes amount', () => {
+		expect(playpal.palettes.length).toEqual(13);
+	});
+
+	it('palette colors', () => {
+		playpal.palettes.forEach(palette => {
+				expect(palette.colors.length).toEqual(256);
+			}
+		);
+	});
+
+	it('palette - color value', () => {
+		playpal.palettes.forEach(palette => {
+				palette.colors.forEach(col => {
+					expect(col.r).toBeLessThanOrEqual(255);
+					expect(col.r).toBeGreaterThanOrEqual(0);
+				});
+			}
+		);
+	});
+
+	it('palette[0] - few random colors', () => {
+		const palette = playpal.palettes[0].colors;
+		expect(palette[0]).toEqual({r: 0, g: 0, b: 0});
+		expect(palette[4]).toEqual({r: 255, g: 255, b: 255});
+		expect(palette[10]).toEqual({r: 35, g: 43, b: 15});
+		expect(palette[31]).toEqual({r: 163, g: 59, b: 59});
+	});
+});
+
+describe('bitmap_parser#toImageData', () => {
+	const playpal = bp.parsePlaypal(WAD_BYTES, ALL_DIRS.get());
+	const findDir = dp.findDirectoryByName(ALL_DIRS.get());
+	const titleDir = findDir(Directories.TITLEPIC).get();
+	const titleBitmap = bp.parseBitmap(WAD_BYTES)(titleDir).get();
+	const imageData = bp.toImageData(titleBitmap)(playpal.palettes[0]);
+
+	it('TITLEPIC - image data size', () => {
+		expect(imageData.data.length).toEqual(320 * 200 * 4);
+	});
+
+	it('TITLEPIC - image data - 4th pixel', () => {
+		const length = 320 * 200 * 4;
+		for (let idx = 3; idx < length; idx += 4) {
+			const pix = imageData[idx];
+			expect(pix === 0 || pix === 255).toBeTrue();
+		}
+	});
+
+	it('TITLEPIC - randoom pixels', () => {
+		const data = imageData.data;
+		expect(data[0]).toEqual(115);
+		expect(data[22]).toEqual(71);
+		expect(data[19]).toEqual(255);
+		expect(data[37]).toEqual(179);
+		expect(data[44]).toEqual(159);
+		expect(data[89]).toEqual(0);
+		expect(data[112]).toEqual(239);
+		expect(data[120]).toEqual(179);
+		expect(data[124]).toEqual(159);
+		expect(data[396]).toEqual(179);
 	});
 });

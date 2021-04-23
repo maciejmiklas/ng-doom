@@ -61,6 +61,16 @@ const parseShortOp = (bytes: number[]) => (cnd: (val: number) => boolean, emsg: 
 	return Either.ofCondition(() => cnd(parsed), () => emsg(parsed), () => parsed);
 };
 
+const itn = (from: number, to: number, func: (idx: number) => void): void => {
+	its(from, to, idx => ++idx, func);
+};
+
+const its = (from: number, to: number, step: (idx: number) => number, func: (idx: number) => void): void => {
+	for (const idx = from; idx < to; step(idx)) {
+		func(idx);
+	}
+};
+
 const U = {
 	uint8ArrayToBase64,
 	base64ToUint8Array,
@@ -71,7 +81,9 @@ const U = {
 	parseShort,
 	parseShortOp,
 	parseUint,
-	parseUbyte
+	parseUbyte,
+	itn,
+	its
 };
 
 export default U;

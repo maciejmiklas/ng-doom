@@ -19,7 +19,7 @@ const PLAYPAL_COLORS = 256;
 const PLAYPAL_BYTES = RBG_BYTES * 256;
 
 const parseRBG = (bytes: number[]) => (idx: number): RGB => {
-	return  {
+	return {
 		r: bytes[idx],
 		g: bytes[idx + 1],
 		b: bytes[idx + 2]
@@ -28,35 +28,15 @@ const parseRBG = (bytes: number[]) => (idx: number): RGB => {
 
 const parsePlaypal = (bytes: number[], dirs: Directory[]): Playpal => {
 	const dir = dp.findDirectoryByName(dirs)(Directories.PLAYPAL).get();
-	const palettes = new Array<Palette>(13);
 	const paletteParser = parsePalette(bytes, dir);
-	palettes[0] = paletteParser(0);
+	const palettes = R.range(0, 13).map(idx => paletteParser(idx));
 	return {dir, palettes};
 };
 
 const parsePalette = (bytes: number[], dir: Directory) => (paletteNumber: number): Palette => {
-	const colors = new Array<RGB>(PLAYPAL_COLORS);
 	const parseRBGBytes = parseRBG(bytes);
-	let idx = dir.filepos + paletteNumber * PLAYPAL_BYTES;
-	for (let pos = 0; pos < PLAYPAL_COLORS; pos++) {
-		colors[pos] = parseRBGBytes(idx);
-		idx += 3;
-	}
-	return {colors};
-};
-
-const parsePalette1 = (bytes: number[], dir: Directory) => (paletteNumber: number): Palette => {
-	const colors = new Array<RGB>(PLAYPAL_COLORS);
-	const parseRBGBytes = parseRBG(bytes);
-
-	let fileIdx = dir.filepos + paletteNumber * PLAYPAL_BYTES;
-	for (let x = 0; x < 16; x++) {
-		for (let y = 0; y < 16; y++) {
-			const colIdx = y * 16 + x;
-			colors[colIdx] = parseRBGBytes(fileIdx);
-			fileIdx += 3;
-		}
-	}
+	const bytesOffset = dir.filepos + paletteNumber * PLAYPAL_BYTES;
+	const colors = R.range(0, PLAYPAL_COLORS).map(idx => parseRBGBytes(bytesOffset + idx * 3));
 	return {colors};
 };
 
@@ -116,45 +96,17 @@ const parseColumn = (bytes: number[]) => (filepos: number): Either<Column> => {
     <td>rows</td>
   </tr>
 </table>
-
-const patchToImg = (header: PatchHeader, columns: Column[]): Uint8ClampedArray => {
-	const pixAtCol = postPixelAt(columns);
-	const array = new Uint8ClampedArray(header.width * header.height * IMG_BYTES);
-	const column = R.until(({x, y}) => y < header.height, ({x, y}) => {
-		array.set(pixelToImg(pixAtCol(x, y)), x * y * IMG_BYTES);
-		return;
-		{
-			x, y;
-		:
-			++y;
-		}
-		;
-	});
-	R.until(({x, y}) => x < header.width,
-		({x, y}) => {
-			column({x, y});
-			return;
-			{
-				x: ++x, y;
-			:
-				0;
-			}
-			;
-		})({x: 0, y: 0});
-	return array;
-}; */
-
-const patchToImgLoop = (bitmap: PatchBitmap) => (palette: Palette): Uint8ClampedArray => {
+ */
+const patchToImg = (bitmap: PatchBitmap) => (palette: Palette): Uint8ClampedArray => {
 	const pixAtCol = postPixelAt(bitmap.columns);
-	const header = bitmap.header;
-	const array = new Uint8ClampedArray(header.width * header.height * IMG_BYTES);
+	const array = new Uint8ClampedArray(bitmap.header.width * bitmap.header.height * IMG_BYTES);
 	const pixConv = pixelToImgBuf(array, palette);
 	let idx = 0;
-	for (let y = 0; y < header.height; y++) {
-		for (let x = 0; x < header.width; x++) {
+	U.itn(0, bitmap.header.height, (y) => {
+		U.itn(0, bitmap.header.width, (x) => {
 			idx = pixConv(idx, pixAtCol(x, y));
-		}
-	}
+		});
+	});
 	return array;
 };
 
@@ -199,7 +151,7 @@ const postAt = (columns: Column[]) => (x: number, y: number): Either<Post> =>
 	Either.ofNullable(R.find<Post>(p => y >= p.topdelta && y < p.topdelta + p.data.length)(columns[x].posts), () => 'Transparent pixel at (' + x + ',' + y + ')');
 
 const toImageData = (bitmap: PatchBitmap) => (palette: Palette): ImageData => {
-	const image = patchToImgLoop(bitmap)(palette);
+	const image = patchToImg(bitmap)(palette);
 	return new ImageData(image, bitmap.header.width, bitmap.header.height);
 };
 
@@ -211,7 +163,8 @@ export const testFunctions = {
 	unfoldColumnofs,
 	parseColumn,
 	pixelToImg,
-	parsePalette
+	parsePalette,
+	parseRBG
 };
 
 export const functions = {
