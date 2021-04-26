@@ -4,17 +4,42 @@ import {functions as dp} from '../wad/directory_parser';
 import {Column, Directory, Header, MapLumpType, PatchHeader, Post, Vertex} from '../wad/wad_model';
 
 import jsonData from './doom.json';
-import {Either} from '../common/either';
 import U from '../common/util';
 
-// @ts-ignore
-export const WAD_BYTES = U.base64ToUint8Array(jsonData.doom);
+let _wadBytes = null;
+export const getWadBytes = () => {
+	if (!_wadBytes) {
+		// @ts-ignore
+		_wadBytes = U.base64ToUint8Array(jsonData.doom);
+	}
+	return _wadBytes;
+};
+
+let _header = null;
+export const getHeader = () => {
+	if (!_header) {
+		_header = dp.parseHeader(getWadBytes());
+	}
+	return _header;
+};
+
+let _allDirs = null;
+export const getAllDirs = () => {
+	if (!_allDirs) {
+		_allDirs = getHeader().map(header => dp.parseAllDirectories(header, getWadBytes()).get());
+	}
+	return _allDirs;
+};
+
+let _firstMap = null;
+export const getFirstMap = () => {
+	if (!_firstMap) {
+		_firstMap = getAllDirs().map(dirs => mpt.findNextMapDir(dirs)).get()(0).get();
+	}
+	return _firstMap;
+};
 
 export const FIRST_MAP_DIR_OFFSET = 6; // starting from 0
-export const HEADER: Either<Header> = dp.parseHeader(WAD_BYTES);
-export const ALL_DIRS: Either<Directory[]> = HEADER.map(header => dp.parseAllDirectories(header, WAD_BYTES).get());
-export const FIRST_MAP: Directory = ALL_DIRS.map(dirs => mpt.findNextMapDir(dirs)).get()(0).get();
-
 export const FD_E1M1: Directory = {
 	filepos: 67500,
 	size: 0,
@@ -174,7 +199,7 @@ export const eqDir = (dir: Directory, given: Directory) => {
 };
 
 export const validateDir = (header: Header) => (nr: number, given: Directory) => {
-	const dir = dp.parseDirectory(header.infotableofs + 16 * nr, nr, WAD_BYTES);
+	const dir = dp.parseDirectory(header.infotableofs + 16 * nr, nr, getWadBytes());
 	eqDir(dir, given);
 };
 

@@ -1,7 +1,7 @@
 import {Directories, Directory, MapLumpType} from './wad_model';
 import {functions as dp} from './directory_parser';
 import {
-	ALL_DIRS,
+	getAllDirs,
 	E1M1_BLOCKMAP,
 	E1M1_LINEDEFS,
 	E1M1_THINGS,
@@ -9,13 +9,13 @@ import {
 	FD_E1M1,
 	FD_E1M2,
 	FIRST_MAP_DIR_OFFSET,
-	HEADER,
+	getHeader,
 	validateDir,
-	WAD_BYTES
+	getWadBytes
 } from '../test/data';
 
 describe('directory_parser#findDirectoryByName', () => {
-	const find = dp.findDirectoryByName(ALL_DIRS.get());
+	const find = dp.findDirectoryByName(getAllDirs().get());
 	const findAndCompare = (name: string) => {
 		expect(find(name).get().name).toEqual(name);
 	};
@@ -41,8 +41,8 @@ const findDirectory = (dir: Directory, dirs: Directory[]) =>
 	dirs.find(d => (d.name === dir.name && d.filepos === dir.filepos && d.size === dir.size));
 
 describe('directory_parser#parseAllDirectories', () => {
-	const header = HEADER.get();
-	const allDirs = dp.parseAllDirectories(header, WAD_BYTES).get();
+	const header = getHeader().get();
+	const allDirs = dp.parseAllDirectories(header, getWadBytes()).get();
 	const validate = (dir: Directory) => {
 		const found = findDirectory(dir, allDirs);
 		expect(found).toBeDefined('Dir:' + dir.name + ' not found');
@@ -71,7 +71,7 @@ describe('directory_parser#parseAllDirectories', () => {
 });
 
 describe('directory_parser#parseDirectory', () => {
-	const header = HEADER.get();
+	const header = getHeader().get();
 	const validate = validateDir(header);
 
 	it('First MAP', () => {
@@ -86,9 +86,9 @@ describe('directory_parser#parseDirectory', () => {
 describe('directory_parser#parseHeader', () => {
 
 	it('Header found', () => {
-		expect(HEADER.isRight()).toBeTruthy();
+		expect(getHeader().isRight()).toBeTruthy();
 	});
 	it('numlumps', () => {
-		expect(HEADER.get().numlumps).toEqual(1264);
+		expect(getHeader().get().numlumps).toEqual(1264);
 	});
 });

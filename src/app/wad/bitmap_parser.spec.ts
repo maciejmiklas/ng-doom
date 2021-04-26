@@ -1,7 +1,8 @@
 import {functions as dp} from './directory_parser';
 import {functions as bp, testFunctions as tf} from './bitmap_parser';
 import {
-	ALL_DIRS,
+	getAllDirs,
+	getWadBytes,
 	simpleDoomImage,
 	validateTitleColumn,
 	validateTitlePatchHeader,
@@ -10,8 +11,7 @@ import {
 	verifySimpleDoomImageAt0x2,
 	verifySimpleDoomImageAt1x0,
 	verifySimpleDoomImageAt1x1,
-	verifySimpleDoomImageAt2x0,
-	WAD_BYTES
+	verifySimpleDoomImageAt2x0
 } from '../test/data';
 import {Directories, PatchHeader} from './wad_model';
 import * as R from 'ramda';
@@ -37,8 +37,8 @@ const validateStbarPatchHeader = (header: PatchHeader) => {
 };
 
 describe('bitmap_parser#parsePatchHeader', () => {
-	const findDir = dp.findDirectoryByName(ALL_DIRS.get());
-	const patchParser = tf.parsePatchHeader(WAD_BYTES);
+	const findDir = dp.findDirectoryByName(getAllDirs().get());
+	const patchParser = tf.parsePatchHeader(getWadBytes());
 	const titleDir = findDir(Directories.TITLEPIC).get();
 
 	it('TITLEPIC Header', () => {
@@ -71,11 +71,11 @@ describe('bitmap_parser#parsePatchHeader', () => {
 });
 
 describe('bitmap_parser#parseColumn', () => {
-	const findDir = dp.findDirectoryByName(ALL_DIRS.get());
+	const findDir = dp.findDirectoryByName(getAllDirs().get());
 	const titleDir = findDir(Directories.TITLEPIC).get();
-	const patchParser = tf.parsePatchHeader(WAD_BYTES);
+	const patchParser = tf.parsePatchHeader(getWadBytes());
 	const titlePatch = patchParser(titleDir);
-	const parseColumn = tf.parseColumn(WAD_BYTES);
+	const parseColumn = tf.parseColumn(getWadBytes());
 
 	it('TITLEPIC - column 0', () => {
 		validateTitleColumn(parseColumn(titlePatch.columnofs[0]).get());
@@ -102,10 +102,10 @@ describe('bitmap_parser#pixelToImg', () => {
 });
 
 describe('bitmap_parser#parsePost', () => {
-	const findDir = dp.findDirectoryByName(ALL_DIRS.get());
+	const findDir = dp.findDirectoryByName(getAllDirs().get());
 	const dir = findDir(Directories.TITLEPIC);
-	const header = tf.parsePatchHeader(WAD_BYTES)(dir.get());
-	const parsePost = tf.parsePost(WAD_BYTES);
+	const header = tf.parsePatchHeader(getWadBytes())(dir.get());
+	const parsePost = tf.parsePost(getWadBytes());
 	// Sizes:
 	//  - patch header: 6
 	//  - columnofs array: 4 * header.width
@@ -131,9 +131,9 @@ describe('bitmap_parser#parsePost', () => {
 });
 
 describe('bitmap_parser#parseBitmap', () => {
-	const findDir = dp.findDirectoryByName(ALL_DIRS.get());
+	const findDir = dp.findDirectoryByName(getAllDirs().get());
 	const dir = findDir(Directories.TITLEPIC);
-	const bitmap = bp.parseBitmap(WAD_BYTES)(dir.get()).get();
+	const bitmap = bp.parseBitmap(getWadBytes())(dir.get()).get();
 
 	it('TITLEPIC - header', () => {
 		validateTitlePatchHeader(bitmap.header);
@@ -278,7 +278,7 @@ describe('bitmap_parser#parseRBG', () => {
 });
 
 describe('bitmap_parser#parsePlaypal', () => {
-	const playpal = bp.parsePlaypal(WAD_BYTES, ALL_DIRS.get());
+	const playpal = bp.parsePlaypal(getWadBytes(), getAllDirs().get());
 
 	it('palettes amount', () => {
 		expect(playpal.palettes.length).toEqual(13);
@@ -311,10 +311,10 @@ describe('bitmap_parser#parsePlaypal', () => {
 });
 
 describe('bitmap_parser#toImageData', () => {
-	const playpal = bp.parsePlaypal(WAD_BYTES, ALL_DIRS.get());
-	const findDir = dp.findDirectoryByName(ALL_DIRS.get());
+	const playpal = bp.parsePlaypal(getWadBytes(), getAllDirs().get());
+	const findDir = dp.findDirectoryByName(getAllDirs().get());
 	const titleDir = findDir(Directories.TITLEPIC).get();
-	const titleBitmap = bp.parseBitmap(WAD_BYTES)(titleDir).get();
+	const titleBitmap = bp.parseBitmap(getWadBytes())(titleDir).get();
 	const imageData = bp.toImageData(titleBitmap)(playpal.palettes[0]);
 
 	it('TITLEPIC - image data size', () => {
@@ -322,10 +322,12 @@ describe('bitmap_parser#toImageData', () => {
 	});
 
 	it('TITLEPIC - image data - 4th pixel', () => {
-		const length = 320 * 200 * 4;
-		for (let idx = 3; idx < length; idx += 4) {
-			const pix = imageData[idx];
-			expect(pix === 0 || pix === 255).toBeTrue();
+		for (let idx = 3; idx < 320 * 200 * 4; idx += 4) {
+			const pix = imageData.data[idx];
+			if (pix !== 0 && pix !== 255) {
+				fail('pix: ' + pix + ' on ' + idx);
+				return;
+			}
 		}
 	});
 

@@ -255,7 +255,7 @@ describe('util#its', () => {
 			loops++;
 		});
 		expect(maxIdx).toEqual(9);
-		expect(loops).toEqual(4);
+		expect(loops).toEqual(5);
 	});
 });
 
@@ -263,7 +263,12 @@ describe('util#itn', () => {
 
 	it('iterate', () => {
 		let maxIdx = 0;
-		U.itn(1, 10, idx => maxIdx = idx);
-		expect(maxIdx).toEqual(100);
+		let loops = 0;
+		U.itn(1, 11, idx => {
+			maxIdx = idx;
+			loops++;
+		});
+		expect(maxIdx).toEqual(10);
+		expect(loops).toEqual(10);
 	});
 });

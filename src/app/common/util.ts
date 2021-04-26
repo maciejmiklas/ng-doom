@@ -66,7 +66,7 @@ const itn = (from: number, to: number, func: (idx: number) => void): void => {
 };
 
 const its = (from: number, to: number, step: (idx: number) => number, func: (idx: number) => void): void => {
-	for (const idx = from; idx < to; step(idx)) {
+	for (let idx = from; idx < to; idx = step(idx)) {
 		func(idx);
 	}
 };

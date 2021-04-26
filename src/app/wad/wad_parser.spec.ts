@@ -1,10 +1,10 @@
 import {functions as wp, testFunctions as tf} from './wad_parser';
-import {ALL_DIRS, validateTitleColumn, validateTitlePatchHeader, WAD_BYTES,} from '../test/data';
+import {getAllDirs, validateTitleColumn, validateTitlePatchHeader, getWadBytes} from '../test/data';
 import {functions as dp} from './directory_parser';
 import {Directories, WadType} from './wad_model';
 
 describe('wad_parser#parseTitlePic', () => {
-	const tp = tf.parseTitlePic(WAD_BYTES, ALL_DIRS.get());
+	const tp = tf.parseTitlePic(getWadBytes(), getAllDirs().get());
 	it('Found Pictures', () => {
 		expect(tp.isRight()).toBeTruthy();
 		expect(tp.get().credit).toBeTruthy();
@@ -21,7 +21,7 @@ describe('wad_parser#parseTitlePic', () => {
 });
 
 describe('wad_parser#parseWad', () => {
-	const wad = wp.parseWad(WAD_BYTES).get();
+	const wad = wp.parseWad(getWadBytes()).get();
 
 	it('wad.header', () => {
 		expect(wad.header.identification).toEqual(WadType.IWAD);
