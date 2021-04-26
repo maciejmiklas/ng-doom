@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {functions as wp} from './wad/wad_parser';
 import {functions as bp} from './wad/bitmap_parser';
 import {Palette} from './wad/wad_model';
+import {Router} from '@angular/router';
 
 // https://stackblitz.com/edit/canvas-example-angular?file=app%2Fapp.component.ts
 @Component({
@@ -12,6 +13,9 @@ import {Palette} from './wad/wad_model';
 export class AppComponent {
 	title = 'ng-doom';
 	palette: Palette | undefined;
+
+	constructor(private router: Router) {
+	}
 
 	drawRectangle(): void {
 		const canvas = document.getElementById('imgTag') as HTMLCanvasElement;
@@ -29,22 +33,9 @@ export class AppComponent {
 		const file = (event.target as HTMLInputElement).files[0];
 		file.arrayBuffer().then(buf => {
 			const bytes = Array.from(new Uint8Array(buf));
-			const wad = wp.parseWad(bytes).get();
-			const palette = bp.parsePlaypal(bytes, wad.dirs).palettes[0];
-			const canvas = document.getElementById('imgTag') as HTMLCanvasElement;
-			const ctx = canvas.getContext('2d');
-			const img = bp.toImageData(wad.title.credit);
-			canvas.width = 960;
-			canvas.height = 600;
-			ctx.putImageData(img(palette), 0, 0);
-
-			const imageObject = new Image();
-			imageObject.onload = () => {
-				ctx.scale(3, 3);
-				ctx.drawImage(imageObject, 0, 0);
-			};
-			imageObject.src = canvas.toDataURL();
+			this.router.navigate(['/wad-title-img'], {queryParams: {flip: 3}});
 		});
+
 	}
 
 	handleShowPlaypal(event: Event): void {
