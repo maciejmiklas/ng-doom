@@ -7,12 +7,17 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {DirsComponent} from './pages/wad/dirs/dirs.component';
 import {TitleImgComponent} from './pages/wad/title-img/title-img.component';
+import {CurrentWadService} from './wad/current-wad.service';
+import {PlaypalComponent} from './pages/wad/playpal/playpal.component';
+import {PaletteComponent} from './pages/wad/playpal/palette/palette.component';
 
 @NgModule({
 	declarations: [
 		AppComponent,
 		DirsComponent,
-		TitleImgComponent
+		TitleImgComponent,
+		PlaypalComponent,
+		PaletteComponent
 	],
 	imports: [
 		BrowserModule,
@@ -20,7 +25,7 @@ import {TitleImgComponent} from './pages/wad/title-img/title-img.component';
 		ReactiveFormsModule,
 		NgbModule
 	],
-	providers: [],
+	providers: [CurrentWadService],
 	bootstrap: [AppComponent]
 })
 export class AppModule {

@@ -1,0 +1,5 @@
+<span *ngFor="let rgb of palette.colors;let idx = index"
+			[ngStyle]="{'background-color': 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')'}">
+		<br *ngIf="idx % 16 ==0">
+		<span style="display: inline-block;width: 50px">&nbsp;&nbsp;&nbsp;{{idx}}&nbsp;&nbsp;&nbsp;</span>
+</span>

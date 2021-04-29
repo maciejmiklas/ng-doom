@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {functions as wp} from '../../../wad/wad_parser';
 import {functions as bp} from '../../../wad/bitmap_parser';
+import {CurrentWadService} from '../../../wad/current-wad.service';
+import {PatchBitmap} from '../../../wad/wad_model';
 
 @Component({
 	selector: 'app-title-img',
@@ -10,37 +10,36 @@ import {functions as bp} from '../../../wad/bitmap_parser';
 })
 export class TitleImgComponent implements OnInit {
 
-	private bytes: Uint8Array;
-
-	constructor(private route: ActivatedRoute) {
+	constructor(private currentWadService: CurrentWadService) {
 	}
 
 	ngOnInit(): void {
-		this.route.queryParams.subscribe(params => {
-			this.bytes = params.bytes;
-		});
+		if (!this.currentWadService.isLoaded()) {
+			return;
+		}
+		const wad = this.currentWadService.wad;
+		this.paint('titleImg', wad.title.title);
+		this.paint('creditImg', wad.title.credit);
+		this.paint('help0Img', wad.title.help.get()[0]);
+		this.paint('help1Img', wad.title.help.get()[1]);
 	}
 
+	private paint(imageEl: string, bitmap: PatchBitmap): void {
+		const bytes = this.currentWadService.bytes;
+		const wad = this.currentWadService.wad;
+		const palette = bp.parsePlaypal(bytes, wad.dirs).palettes[0];
+		const canvas = document.getElementById(imageEl) as HTMLCanvasElement;
+		const ctx = canvas.getContext('2d');
+		const img = bp.toImageData(bitmap);
+		canvas.width = 960;
+		canvas.height = 600;
+		ctx.putImageData(img(palette), 0, 0);
 
-	handleShowTitleImage(event: Event): void {
-		const file = (event.target as HTMLInputElement).files[0];
-		file.arrayBuffer().then(buf => {
-			const bytes = Array.from(new Uint8Array(buf));
-			const wad = wp.parseWad(bytes).get();
-			const palette = bp.parsePlaypal(bytes, wad.dirs).palettes[0];
-			const canvas = document.getElementById('imgTag') as HTMLCanvasElement;
-			const ctx = canvas.getContext('2d');
-			const img = bp.toImageData(wad.title.credit);
-			canvas.width = 960;
-			canvas.height = 600;
-			ctx.putImageData(img(palette), 0, 0);
-
-			const imageObject = new Image();
-			imageObject.onload = () => {
-				ctx.scale(3, 3);
-				ctx.drawImage(imageObject, 0, 0);
-			};
-			imageObject.src = canvas.toDataURL();
-		});
+		const imageObject = new Image();
+		imageObject.onload = () => {
+			ctx.scale(3, 3);
+			ctx.drawImage(imageObject, 0, 0);
+		};
+		imageObject.src = canvas.toDataURL();
 	}
 }
