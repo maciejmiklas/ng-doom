@@ -5,19 +5,24 @@ import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {ReactiveFormsModule} from '@angular/forms';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
-import {DirsComponent} from './pages/wad/dirs/dirs.component';
-import {TitleImgComponent} from './pages/wad/title-img/title-img.component';
+import { WadDirsComponent } from './web/wad-dirs/wad-dirs.component';
+import {WadTitleImgComponent} from './web/wad-title-img/wad-title-img.component';
+import {WadPlaypalComponent} from './web/wad-playpal/wad-playpal.component';
+import {WadPaletteComponent} from './web/wad-palette/wad-palette.component';
+import {PbmpComponent} from './web/pbmp/pbmp.component';
+import {WadUploadComponent} from './web/wad-upload/wad-upload.component';
 import {CurrentWadService} from './wad/current-wad.service';
-import {PlaypalComponent} from './pages/wad/playpal/playpal.component';
-import {PaletteComponent} from './pages/wad/playpal/palette/palette.component';
 
 @NgModule({
 	declarations: [
 		AppComponent,
-		DirsComponent,
-		TitleImgComponent,
-		PlaypalComponent,
-		PaletteComponent
+		WadDirsComponent,
+		WadTitleImgComponent,
+		WadPlaypalComponent,
+		WadPaletteComponent,
+		PbmpComponent,
+		WadUploadComponent,
+		WadDirsComponent
 	],
 	imports: [
 		BrowserModule,

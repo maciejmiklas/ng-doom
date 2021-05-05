@@ -7,7 +7,7 @@ import {Either} from '../common/either';
 const parseAllDirectories = (header: Header, bytes: number[]): Either<Directory[]> => {
 	const dirs = R.unfold(idx => idx > header.numlumps ? false : [header.infotableofs + idx * 16, idx + 1], 0)
 		.map((ofs, index) => parseDirectory(ofs, index, bytes));
-	Log.debug('Parsed %1 directories', dirs.length);
+	Log.debug('directory_parser#parseAllDirectories', 'Parsed %1 directories', dirs.length);
 	return Either.ofCondition(() => findDirectoryByName(dirs)(Directories.TITLEPIC).isRight(), () => Directories.TITLEPIC + ' not found in Dirs', () => dirs);
 };
 
@@ -19,7 +19,7 @@ const parseDirectory = (offset: number, idx: number, bytes: number[]): Directory
 		name: U.parseStr(bytes)(offset + 0x08, 8),
 		idx
 	};
-	Log.trace('Parsed Directory %1 on %2 -> %3', idx, offset, dir);
+	Log.trace('directory_parser#parseDirectory', 'Parsed Directory %1 on %2 -> %3', idx, offset, dir);
 	return dir;
 };
 
@@ -34,7 +34,7 @@ const parseHeader = (bytes: number[]): Either<Header> => {
 			identification: headerStr.map((s: string) => WadType[s]).get(),
 			numlumps: intParser(0x04),
 			infotableofs: intParser(0x08)
-		})).exec(h => Log.debug('Parsed Header: %1', h));
+		})).exec(h => Log.debug('directory_parser#parseHeader', 'Parsed Header: %1', h));
 };
 
 // ############################ EXPORTS ############################

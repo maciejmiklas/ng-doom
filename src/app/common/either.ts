@@ -16,7 +16,7 @@ export abstract class Either<T> {
 		let cnt = 0;
 		while (val.isRight()) {
 			if (cnt > max) {
-				Log.error('Until iterations limit of $max reached', {max});
+				Log.error('Either#until', 'Iterations limit of $max reached', {max});
 				break;
 			}
 			val.exec((v) => all.push(v));
@@ -139,14 +139,14 @@ export class Right<T> extends Either<T> {
 	constructor(value: T) {
 		super(value, 'Right');
 		if (R.isNil(value)) {
-			Log.error('null get provided to Right');
+			Log.error('Right#', 'null provided to Right');
 		}
 	}
 
 	assert(fn: (v: T) => Either<string>): Either<T> {
 		const resp = fn(this.val);
 		if (resp.isLeft()) {
-			Log.error(resp.message());
+			Log.error('Right#assert', resp.message());
 			return Either.ofLeft(resp.message());
 		}
 		return this;

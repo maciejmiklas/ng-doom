@@ -31,7 +31,7 @@ const parseThing = (bytes: number[], dir: Directory) => (thingIdx: number): Thin
 		type: shortParser(offset + 6),
 		flags: shortParser(offset + 8),
 	};
-	Log.trace('Parsed Thing on %1 -> %2', thingIdx, thing);
+	Log.trace('mod_parser#parseThing', 'Parsed Thing on %1 -> %2', thingIdx, thing);
 	return thing;
 };
 
@@ -61,7 +61,7 @@ const parseSidedef = (bytes: number[], dir: Directory) => (idx: number): Sidedef
 		middleTexture: strOpParser(offset + 20, 8),
 		sector: shortParser(offset + 28)
 	};
-	Log.trace('Parsed Sidedef on %1 -> %2', idx, sidedef);
+	Log.trace('mod_parser#parseSidedef', 'Parsed Sidedef on %1 -> %2', idx, sidedef);
 	return sidedef;
 };
 
@@ -102,7 +102,7 @@ const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sided
 			frontSide: frontSide.get(),
 			backSide
 		})).exec(v => {
-		Log.trace('Parsed Linedef on %1 -> %2', thingIdx, v);
+		Log.trace('mod_parser#parseLinedef', 'Parsed Linedef on %1 -> %2', thingIdx, v);
 	});
 };
 

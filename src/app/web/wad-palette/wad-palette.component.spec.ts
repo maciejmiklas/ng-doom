@@ -1,20 +1,20 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import {PaletteComponent} from './palette.component';
+import {WadPaletteComponent} from './wad-palette.component';
 
 describe('PaletteComponent', () => {
-	let component: PaletteComponent;
-	let fixture: ComponentFixture<PaletteComponent>;
+	let component: WadPaletteComponent;
+	let fixture: ComponentFixture<WadPaletteComponent>;
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [PaletteComponent]
+			declarations: [WadPaletteComponent]
 		})
 			.compileComponents();
 	});
 
 	beforeEach(() => {
-		fixture = TestBed.createComponent(PaletteComponent);
+		fixture = TestBed.createComponent(WadPaletteComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});

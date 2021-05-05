@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DirsComponent } from './dirs.component';
+import { WadUploadComponent } from './wad-upload.component';
 
-describe('DirsComponent', () => {
-  let component: DirsComponent;
-  let fixture: ComponentFixture<DirsComponent>;
+describe('WadUploadComponent', () => {
+  let component: WadUploadComponent;
+  let fixture: ComponentFixture<WadUploadComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DirsComponent ]
+      declarations: [ WadUploadComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DirsComponent);
+    fixture = TestBed.createComponent(WadUploadComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

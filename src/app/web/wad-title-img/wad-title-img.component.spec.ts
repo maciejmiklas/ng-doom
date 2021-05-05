@@ -1,20 +1,20 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import {PlaypalComponent} from './playpal.component';
+import {WadTitleImgComponent} from './wad-title-img.component';
 
-describe('PlaypalComponent', () => {
-	let component: PlaypalComponent;
-	let fixture: ComponentFixture<PlaypalComponent>;
+describe('TitleImgComponent', () => {
+	let component: WadTitleImgComponent;
+	let fixture: ComponentFixture<WadTitleImgComponent>;
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [PlaypalComponent]
+			declarations: [WadTitleImgComponent]
 		})
 			.compileComponents();
 	});
 
 	beforeEach(() => {
-		fixture = TestBed.createComponent(PlaypalComponent);
+		fixture = TestBed.createComponent(WadTitleImgComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});

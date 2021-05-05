@@ -1,18 +1,18 @@
 export class Log {
 
-	static error(msg: string, ...args: any[]): void {
-		console.log('ERROR: ' + msg + ' - ', args);
+	static error(cmp: string, msg: string, ...args: any[]): void {
+		console.log('ERROR(' + cmp + '): ' + msg + ' - ', args);
 	}
 
-	static info(msg: string, ...args: any[]): void {
-		// console.log('INFO: ' + msg + ' - ', args);
+	static info(cmp: string, msg: string, ...args: any[]): void {
+		// console.log('INFO(' + cmp + '): ' + msg + ' - ', args);
 	}
 
-	static debug(msg: string, ...args: any[]): void {
-		// console.log('DEBUG: ' + msg + ' - ', args);
+	static debug(cmp: string, msg: string, ...args: any[]): void {
+		// console.log('DEBUG(' + cmp + '): ' + msg + ' - ', args);
 	}
 
-	static trace(msg: string, ...args: any[]): void {
-		// console.log('TRACE: ' + msg + ' - ', args);
+	static trace(cmp: string, msg: string, ...args: any[]): void {
+		// console.log('TRACE(' + cmp + '): ' + msg + ' - ', args);
 	}
 }
