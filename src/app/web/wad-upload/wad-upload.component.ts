@@ -3,7 +3,7 @@ import {CurrentWadService} from '../../wad/current-wad.service';
 
 @Component({
 	selector: 'app-wad-upload',
-	templateUrl: './wad-upload.component.html',
+	templateUrl: './wad-upload.component.html'
 })
 export class WadUploadComponent implements OnInit {
 

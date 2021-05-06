@@ -3,7 +3,7 @@ import {Palette} from '../../wad/wad_model';
 
 @Component({
 	selector: 'app-wad-palette',
-	templateUrl: './wad-palette.component.html',
+	templateUrl: './wad-palette.component.html'
 })
 export class WadPaletteComponent implements OnInit {
 

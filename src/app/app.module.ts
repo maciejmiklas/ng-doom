@@ -12,6 +12,7 @@ import {WadPaletteComponent} from './web/wad-palette/wad-palette.component';
 import {PbmpComponent} from './web/pbmp/pbmp.component';
 import {WadUploadComponent} from './web/wad-upload/wad-upload.component';
 import {CurrentWadService} from './wad/current-wad.service';
+import { MeinMenuComponent } from './web/mein-menu/mein-menu.component';
 
 @NgModule({
 	declarations: [
@@ -22,7 +23,8 @@ import {CurrentWadService} from './wad/current-wad.service';
 		WadPaletteComponent,
 		PbmpComponent,
 		WadUploadComponent,
-		WadDirsComponent
+		WadDirsComponent,
+  MeinMenuComponent
 	],
 	imports: [
 		BrowserModule,

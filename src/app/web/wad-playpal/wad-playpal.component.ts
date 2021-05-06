@@ -6,7 +6,7 @@ import {Log} from '../../common/log';
 
 @Component({
 	selector: 'app-wad-playpal',
-	templateUrl: './wad-playpal.component.html',
+	templateUrl: './wad-playpal.component.html'
 })
 export class WadPlaypalComponent implements OnInit {
 	static CMP = 'app-wad-playpal';

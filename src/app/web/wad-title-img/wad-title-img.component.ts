@@ -5,7 +5,7 @@ import {Log} from '../../common/log';
 
 @Component({
 	selector: 'app-wad-title-img',
-	templateUrl: './wad-title-img.component.html',
+	templateUrl: './wad-title-img.component.html'
 })
 export class WadTitleImgComponent implements OnInit {
 	static CMP = 'app-title-img';

@@ -26,11 +26,16 @@
 						<app-wad-playpal></app-wad-playpal>
 					</ng-template>
 				</li>
+				<li ngbNavItem="mein-menu">
+					<a ngbNavLink class="nobr">Menu</a>
+					<ng-template ngbNavContent>
+						<app-mein-menu></app-mein-menu>
+					</ng-template>
+				</li>
 			</ul>
 
 			<div [ngbNavOutlet]="nav" class="ml-4"></div>
 		</div>
-
 		<pre>Active: {{ active }}</pre>
 	</div>
 </div>

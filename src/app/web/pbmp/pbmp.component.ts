@@ -6,7 +6,7 @@ import {Log} from '../../common/log';
 
 @Component({
 	selector: 'app-pbmp',
-	templateUrl: './pbmp.component.html',
+	templateUrl: './pbmp.component.html'
 })
 export class PbmpComponent implements OnInit {
 	static CMP = 'app-pbmp';
