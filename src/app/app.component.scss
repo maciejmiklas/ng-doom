@@ -1,0 +1,100 @@
+@import "../scss/ng-doom";
+
+// ########### APP ##################
+.app-wrapper {
+	display: flex;
+	align-items: stretch;
+}
+
+.app-content {
+	width: 100%;
+	padding: 20px;
+	min-height: 100vh;
+	transition: all 0.3s;
+}
+
+// ########### NAVBAR ##################
+.app-content .navbar {
+	@extend .navbar-expand-lg;
+	@extend .navbar-light;
+	@extend .bg-light;
+	padding: 15px 10px;
+	background: #fff;
+	border: none;
+	border-radius: 0;
+	margin-bottom: 40px;
+	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.app-content .navbar .nav-container {
+	@extend .container-fluid
+}
+
+.app-content .navbar .nav-container .hide-menu-btn {
+	@extend .btn;
+	@extend .btn-info;
+}
+
+// ########### MENU ##################
+.menu-hide-btn-exp {
+}
+
+.menu-hide-btn-col {
+	display: none;
+}
+
+#menu {
+	min-width: 250px;
+	max-width: 250px;
+	background: #7386D5;
+	color: #fff;
+	transition: all 0.5s;
+}
+
+#menu .sidebar-header {
+	padding: 20px;
+	background: #6d7fcc;
+}
+
+#menu .sidebar-header strong {
+	display: none;
+	font-size: 1.8em;
+}
+
+#menu ul.firstLevel {
+	padding: 20px 0;
+	border-bottom: 1px solid #47748b;
+}
+
+#menu ul.secondLevel {
+}
+
+#menu ul li a {
+	padding: 10px;
+	font-size: 1.1em;
+	display: block;
+}
+
+#menu ul li a i {
+	margin-right: 10px;
+}
+
+// ########### MEDIA ##################
+@media (max-width: 768px) {
+	#menu {
+		min-width: $nav-hide-left-margin;
+		max-width: $nav-hide-left-margin;
+		margin-left: -$nav-hide-left-margin !important;
+	}
+	#sidebarCollapse span {
+		display: none;
+	}
+
+	.menu-hide-btn-exp {
+		display: none;
+	}
+
+	.menu-hide-btn-col {
+		display: block;
+	}
+}

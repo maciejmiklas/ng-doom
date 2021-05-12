@@ -1,0 +1,52 @@
+<div class="card">
+	<div class="card-body">
+		<div class="d-flex">
+			<ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-pills" orientation="vertical">
+				<li ngbNavItem="app-wad-upload">
+					<a ngbNavLink class="nobr">WAD Upload</a>
+					<ng-template ngbNavContent>
+						<app-wad-upload></app-wad-upload>
+					</ng-template>
+				</li>
+				<li ngbNavItem="app-title-img">
+					<a ngbNavLink class="nobr">Title Images</a>
+					<ng-template ngbNavContent>
+						<app-wad-title-img></app-wad-title-img>
+					</ng-template>
+				</li>
+				<li ngbNavItem="wad-dirs">
+					<a ngbNavLink class="nobr">Directories</a>
+					<ng-template ngbNavContent>
+						<app-wad-dirs></app-wad-dirs>
+					</ng-template>
+				</li>
+				<li ngbNavItem="wad-playpal">
+					<a ngbNavLink class="nobr">Palette</a>
+					<ng-template ngbNavContent>
+						<app-wad-playpal></app-wad-playpal>
+					</ng-template>
+				</li>
+				<li ngbNavItem="mein-menu">
+					<a ngbNavLink class="nobr">Menu</a>
+					<ng-template ngbNavContent>
+						<app-mein-menu></app-mein-menu>
+					</ng-template>
+				</li>
+			</ul>
+
+			<div [ngbNavOutlet]="nav" class="ml-4"></div>
+		</div>
+		<pre>Active: {{ active }}</pre>
+	</div>
+</div>
+
+
+<nav>
+	<ul>
+		<li><a routerLink="/wad-title-img" routerLinkActive="active">WAD Title</a></li>
+		<li><a routerLink="/wad-dirs" routerLinkActive="active">WAD Dirs</a></li>
+		<li><a routerLink="/wad-playpal" routerLinkActive="active">WAD Playpal</a></li>
+	</ul>
+</nav>
+<br><br><br><br><br>
+<router-outlet></router-outlet>
