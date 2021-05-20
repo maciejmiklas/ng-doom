@@ -10,7 +10,6 @@
 
 body {
 	font-family: 'Poppins', sans-serif;
-	background: #fafafa;
 }
 
 p {
@@ -18,13 +17,11 @@ p {
 	font-size: 1.1em;
 	font-weight: 300;
 	line-height: 1.7em;
-	color: #999;
 }
 
-// Horizontal separator line
 .sep-line {
 	width: 100%;
 	height: 1px;
-	border-bottom: 1px dashed #ddd;
+	border-bottom: 1px dashed $dialog-border-color;
 	margin: 40px 0;
 }

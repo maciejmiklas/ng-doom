@@ -1,15 +1,16 @@
+<div class="bg-image"> </div>
+
 <div class="app-wrapper">
-	<nav id="menu" [ngbCollapse]="sidebarCollapsed">
+	<nav class="sidebar" [ngbCollapse]="!isSidebarOpen()" [@sidebarOpenCollapse]="sidebarOpenCollapseState()">
 		<div class="sidebar-header">
-			<h3>Bootstrap Sidebar</h3>
+			<h3>NG-DOOM</h3>
 		</div>
 
 		<ngb-accordion>
 			<ngb-panel>
 				<ng-template ngbPanelHeader>
 					<button ngbPanelToggle class="btn btn-link container-fluid text-left"><i class="bi bi-archive-fill pr-2"></i>
-						First
-						panel
+						First panel
 					</button>
 				</ng-template>
 				<ng-template ngbPanelContent>
@@ -29,8 +30,7 @@
 			<ngb-panel>
 				<ng-template ngbPanelHeader>
 					<button ngbPanelToggle class="btn btn-link container-fluid text-left"><i class="bi bi-archive-fill pr-2"></i>
-						Second
-						panel
+						Second panel
 					</button>
 				</ng-template>
 				<ng-template ngbPanelContent>
@@ -73,9 +73,12 @@
 	<div class="app-content">
 		<nav class="navbar">
 			<div class="nav-container">
-				<button type="button" class="hide-menu-btn" (click)="sidebarCollapsed = !sidebarCollapsed">
-					<i class="menu-hide-btn-exp bi bi-box-arrow-in-left"></i> <i class="menu-hide-btn-col bi bi-box-arrow-in-right"></i>
+
+				<button type="button" class="hide-sidebar-btn" (click)="toggleSidebarCollapse()">
+					<i class="bi bi-box-arrow-in-left" *ngIf="isSidebarOpen()"></i>
+					<i class="bi bi-box-arrow-in-right" *ngIf="!isSidebarOpen()"></i>
 				</button>
+
 				<button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse"
 								data-target="#navbarSupportedContent">
 					<i class="bi bi-justify-right"></i>
@@ -99,39 +102,50 @@
 				</div>
 			</div>
 		</nav>
+		<div class="main-container">
+			<h2>Collapsible Sidebar Using Bootstrap 4:</h2>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+				magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+				consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+				pariatur.
+				Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+				laborum.</p>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+				magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+				consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+				pariatur.
+				Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+				laborum.</p>
 
-		<h2>Collapsible Sidebar Using Bootstrap 4</h2>
-		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
-			magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-			consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-			Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
-			magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-			consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-			Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			<div class="sep-line"></div>
 
-		<div class="sep-line"></div>
+			<h2>Lorem Ipsum Dolor</h2>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+				magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+				consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+				pariatur.
+				Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+				laborum.</p>
 
-		<h2>Lorem Ipsum Dolor</h2>
-		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
-			magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-			consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-			Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			<div class="sep-line"></div>
 
-		<div class="sep-line"></div>
+			<h2>Lorem Ipsum Dolor</h2>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+				magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+				consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+				pariatur.
+				Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+				laborum.</p>
 
-		<h2>Lorem Ipsum Dolor</h2>
-		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
-			magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-			consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-			Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			<div class="sep-line"></div>
 
-		<div class="sep-line"></div>
-
-		<h3>Lorem Ipsum Dolor</h3>
-		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
-			magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-			consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-			Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			<h3>Lorem Ipsum Dolor</h3>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+				magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+				consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+				pariatur.
+				Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+				laborum.</p>
+		</div>
 	</div>
 </div>

@@ -1,6 +1,27 @@
 @import "../scss/ng-doom";
 
 // ########### APP ##################
+.bg-image {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+
+	background-image: url("../scss/img/doom_logo.png");
+	filter: blur(10px);
+	-webkit-filter: blur(8px);
+
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-color: $screen-bg-color;
+	z-index: -100;
+}
+
+@mixin bg-color {
+	background-color: rgba($screen-bg-color, 0.6);
+	color: $font-color;
+}
+
 .app-wrapper {
 	display: flex;
 	align-items: stretch;
@@ -10,16 +31,18 @@
 	width: 100%;
 	padding: 20px;
 	min-height: 100vh;
-	transition: all 0.3s;
+}
+
+.main-container {
+	@include bg-color;
 }
 
 // ########### NAVBAR ##################
 .app-content .navbar {
 	@extend .navbar-expand-lg;
 	@extend .navbar-light;
-	@extend .bg-light;
+	@include bg-color;
 	padding: 15px 10px;
-	background: #fff;
 	border: none;
 	border-radius: 0;
 	margin-bottom: 40px;
@@ -27,74 +50,39 @@
 }
 
 .app-content .navbar .nav-container {
-	@extend .container-fluid
+	@extend .container-fluid;
 }
 
-.app-content .navbar .nav-container .hide-menu-btn {
+.app-content .navbar .nav-container .hide-sidebar-btn {
 	@extend .btn;
 	@extend .btn-info;
 }
 
-// ########### MENU ##################
-.menu-hide-btn-exp {
-}
-
-.menu-hide-btn-col {
-	display: none;
-}
-
-#menu {
+// ########### SIDEBAR ##################
+.sidebar {
 	min-width: 250px;
 	max-width: 250px;
-	background: #7386D5;
-	color: #fff;
-	transition: all 0.5s;
 }
 
-#menu .sidebar-header {
+.sidebar .sidebar-header {
 	padding: 20px;
-	background: #6d7fcc;
+	text-align: center;
 }
 
-#menu .sidebar-header strong {
-	display: none;
-	font-size: 1.8em;
-}
-
-#menu ul.firstLevel {
+.sidebar ul.firstLevel {
 	padding: 20px 0;
 	border-bottom: 1px solid #47748b;
 }
 
-#menu ul.secondLevel {
+.sidebar ul.secondLevel {
 }
 
-#menu ul li a {
+.sidebar ul li a {
 	padding: 10px;
 	font-size: 1.1em;
 	display: block;
 }
 
-#menu ul li a i {
+.sidebar ul li a i {
 	margin-right: 10px;
-}
-
-// ########### MEDIA ##################
-@media (max-width: 768px) {
-	#menu {
-		min-width: $nav-hide-left-margin;
-		max-width: $nav-hide-left-margin;
-		margin-left: -$nav-hide-left-margin !important;
-	}
-	#sidebarCollapse span {
-		display: none;
-	}
-
-	.menu-hide-btn-exp {
-		display: none;
-	}
-
-	.menu-hide-btn-col {
-		display: block;
-	}
 }
