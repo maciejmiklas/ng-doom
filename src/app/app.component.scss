@@ -1,6 +1,6 @@
 @import "../scss/ng-doom";
 
-// ########### APP ##################
+
 .bg-image {
 	position: absolute;
 	width: 100%;
@@ -17,8 +17,8 @@
 	z-index: -100;
 }
 
-@mixin bg-color {
-	background-color: rgba($screen-bg-color, 0.6);
+@mixin content-color {
+	background-color: $content-bg-color;
 	color: $font-color;
 }
 
@@ -34,14 +34,15 @@
 }
 
 .main-container {
-	@include bg-color;
+	@include content-color;
+	padding: 10px;
 }
 
 // ########### NAVBAR ##################
 .app-content .navbar {
 	@extend .navbar-expand-lg;
 	@extend .navbar-light;
-	@include bg-color;
+	@include content-color;
 	padding: 15px 10px;
 	border: none;
 	border-radius: 0;
@@ -49,11 +50,11 @@
 	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.app-content .navbar .nav-container {
+.app-content .navbar {
 	@extend .container-fluid;
 }
 
-.app-content .navbar .nav-container .hide-sidebar-btn {
+.app-content .navbar .hide-sidebar-btn {
 	@extend .btn;
 	@extend .btn-info;
 }
@@ -64,7 +65,11 @@
 	max-width: 250px;
 }
 
-.sidebar .sidebar-header {
+.sidebar-menu {
+	@include content-color;
+}
+
+.sidebar-header {
 	padding: 20px;
 	text-align: center;
 }

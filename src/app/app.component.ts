@@ -19,6 +19,7 @@ export class AppComponent implements OnInit {
 
 	title = 'ng-doom';
 	active = 'app-wad-upload';
+	menuCardClass = 'sidebar-menu';
 	private sidebarState = SidebarState.UNKNOWN;
 	private innerWidth = 1500;
 	private lastViewSmall;
