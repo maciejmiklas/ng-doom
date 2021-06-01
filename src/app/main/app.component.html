@@ -1,0 +1,144 @@
+<div class="bg-image"> </div>
+
+<div class="app-wrapper">
+	<nav class="sidebar" [ngbCollapse]="!isSidebarOpen()" [@sidebarOpenCollapse]="sidebarOpenCollapseState()">
+		<div class="sidebar-header">
+			<h3>NG-DOOM</h3>
+		</div>
+
+		<ngb-accordion [closeOthers]="true" class="sidebar-menu">
+			<ngb-panel cardClass="card">
+				<ng-template ngbPanelHeader>
+					<button ngbPanelToggle class="btn btn-link container-fluid text-left"><i class="bi bi-archive-fill pr-2"></i>
+						First panel
+					</button>
+				</ng-template>
+				<ng-template ngbPanelContent>
+					<div class="list-group" role="tablist">
+						<a class="second-level active" data-toggle="list" role="tab">Home</a>
+						<a class="second-level" data-toggle="list" role="tab">Profile</a>
+						<a class="second-level" data-toggle="list" role="tab">Messages</a>
+						<a class="second-level" data-toggle="list" role="tab">Settings</a>
+					</div>
+				</ng-template>
+			</ngb-panel>
+
+			<ngb-panel>
+				<ng-template ngbPanelHeader>
+					<button ngbPanelToggle class="btn btn-link container-fluid text-left"><i class="bi bi-archive-fill pr-2"></i>
+						Second panel
+					</button>
+				</ng-template>
+				<ng-template ngbPanelContent>
+					<div class="list-group" role="tablist">
+						<a class="list-group-item list-group-item-action active" data-toggle="list"
+							 role="tab">Home</a>
+						<a class="list-group-item list-group-item-action" data-toggle="list"
+							 role="tab">Profile</a>
+						<a class="list-group-item list-group-item-action" data-toggle="list"
+							 role="tab">Messages</a>
+						<a class="list-group-item list-group-item-action" data-toggle="list"
+							 role="tab">Settings</a>
+					</div>
+				</ng-template>
+			</ngb-panel>
+
+			<ngb-panel>
+				<ng-template ngbPanelHeader>
+					<button ngbPanelToggle class="btn btn-link container-fluid text-left"><i class="bi bi-archive-fill pr-2"></i>
+						Third
+						panel
+					</button>
+				</ng-template>
+				<ng-template ngbPanelContent>
+					<div class="list-group" role="tablist">
+						<a class="list-group-item list-group-item-action active" data-toggle="list"
+							 role="tab">Home</a>
+						<a class="list-group-item list-group-item-action" data-toggle="list"
+							 role="tab">Profile</a>
+						<a class="list-group-item list-group-item-action" data-toggle="list"
+							 role="tab">Messages</a>
+						<a class="list-group-item list-group-item-action" data-toggle="list"
+							 role="tab">Settings</a>
+					</div>
+				</ng-template>
+			</ngb-panel>
+		</ngb-accordion>
+	</nav>
+
+	<div class="app-content">
+		<nav class="navbar">
+				<button type="button" class="hide-sidebar-btn" (click)="toggleSidebarCollapse()">
+					<i class="bi bi-box-arrow-in-left" *ngIf="isSidebarOpen()"></i>
+					<i class="bi bi-box-arrow-in-right" *ngIf="!isSidebarOpen()"></i>
+				</button>
+
+				<button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse"
+								data-target="#navbarSupportedContent">
+					<i class="bi bi-justify-right"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="nav navbar-nav ml-auto">
+						<li class="nav-item active">
+							<a class="nav-link" href="#">Page1</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#">Page2</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#">Page3</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#">Page4</a>
+						</li>
+					</ul>
+				</div>
+		</nav>
+		<div class="main-container">
+			<h2>Collapsible Sidebar Using Bootstrap 4:</h2>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+				magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+				consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+				pariatur.
+				Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+				laborum.</p>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+				magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+				consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+				pariatur.
+				Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+				laborum.</p>
+
+			<div class="sep-line"></div>
+
+			<h2>Lorem Ipsum Dolor</h2>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+				magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+				consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+				pariatur.
+				Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+				laborum.</p>
+
+			<div class="sep-line"></div>
+
+			<h2>Lorem Ipsum Dolor</h2>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+				magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+				consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+				pariatur.
+				Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+				laborum.</p>
+
+			<div class="sep-line"></div>
+
+			<h3>Lorem Ipsum Dolor</h3>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+				magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+				consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+				pariatur.
+				Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+				laborum.</p>
+		</div>
+	</div>
+</div>

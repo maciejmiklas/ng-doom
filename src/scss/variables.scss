@@ -3,22 +3,21 @@ $flicker-delay: 0.5s;
 
 $screen-bg-color: black;
 $content-bg-color: rgba($screen-bg-color, 0.6);
+$list-hover-bg: rgba($screen-bg-color, 0.1);
 
 $font-color: rgb(27, 180, 20);
-$error-color: rgb(249, 255, 0);
+$separator-line-color: rgba(252, 0, 0, 0.8);
 
-$dialog-bg-color: rgba(102, 0, 0, 0.8);
-$dialog-bg-tr-color: rgba(102, 0, 0, 0.8);
-$dialog-bg-hover-bg-color: rgba(102, 0, 0, 0.8);
-$dialog-border-color:rgba(252, 0, 0, 0.8);
 
-$nav-bg-color: rgb(40, 44, 52);
-$navbar-font-color: #6c757d;
-$navbar-border-color: #6c757d;
+$_error-color: rgb(249, 255, 0);
+$_dialog-bg-color: rgba(102, 0, 0, 0.8);
+$_dialog-bg-tr-color: rgba(102, 0, 0, 0.8);
+$_dialog-bg-hover-bg-color: rgba(102, 0, 0, 0.8);
+$_dialog-border-color: rgba(252, 0, 0, 0.8);
+$_nav-bg-color: rgb(40, 44, 52);
+$_navbar-font-color: #6c757d;
+$_navbar-border-color: #6c757d;
+$_input-active-bg: #cbcbcb;
+$_input-inactive-bg: #91adca;
+$_input-font-color: black;
 
-$input-active-bg: #cbcbcb;
-$input-inactive-bg: #91adca;
-$input-font-color:black;
-
-// NAVBAR/MENU
-$nav-hide-left-margin: 50px;
