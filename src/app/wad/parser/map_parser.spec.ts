@@ -18,7 +18,7 @@ import {
 	VERTEX_3,
 	VERTEX_466,
 	getWadBytes
-} from '../../testdata/data';
+} from './testdata/data';
 
 describe('map_parser#parseHeader', () => {
 	it('IWAD', () => {

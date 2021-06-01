@@ -1,5 +1,5 @@
 import {functions as wp, testFunctions as tf} from './wad_parser';
-import {getAllDirs, validateTitleColumn, validateTitlePatchHeader, getWadBytes} from '../../testdata/data';
+import {getAllDirs, validateTitleColumn, validateTitlePatchHeader, getWadBytes} from './testdata/data';
 import {functions as dp} from './directory_parser';
 import {Directories, WadType} from './wad_model';
 

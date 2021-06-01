@@ -12,7 +12,7 @@ import {
 	verifySimpleDoomImageAt1x0,
 	verifySimpleDoomImageAt1x1,
 	verifySimpleDoomImageAt2x0
-} from '../../testdata/data';
+} from './testdata/data';
 import {Directories, PatchHeader} from './wad_model';
 import * as R from 'ramda';
 

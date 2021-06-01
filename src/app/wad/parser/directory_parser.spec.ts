@@ -12,7 +12,7 @@ import {
 	getHeader,
 	validateDir,
 	getWadBytes
-} from '../../testdata/data';
+} from './testdata/data';
 
 describe('directory_parser#findDirectoryByName', () => {
 	const find = dp.findDirectoryByName(getAllDirs().get());
