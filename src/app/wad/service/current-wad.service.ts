@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {functions as wp} from '../parser/wad_parser';
-import {Wad} from '../wad_structure_model';
+import {Wad} from '../parser/wad_model';
 import {Either} from '../../common/is/either';
 
 @Injectable({
