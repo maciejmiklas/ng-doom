@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
-import {MenuL1} from './menu_model';
-import {yaml} from 'js-yaml';
+import {MenuRoot} from './menu_model';
+import menuStructure from './menu.json';
 
 @Injectable({
 	providedIn: 'root'
@@ -10,7 +10,7 @@ export class MenuParserService {
 	constructor() {
 	}
 
-	public parseConfig(): MenuL1 {
-		return null;
+	public parseConfig(): MenuRoot {
+		return menuStructure;
 	}
 }

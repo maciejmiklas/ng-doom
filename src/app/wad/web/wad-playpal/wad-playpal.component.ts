@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {functions as bp} from '../../parser/bitmap_parser';
 import {CurrentWadService} from '../../service/current-wad.service';
-import {Palette} from '../../../wad/parser/wad_model';
+import {Palette} from '../../parser/wad_model';
 import {Log} from '../../../common/is/log';
 
 @Component({

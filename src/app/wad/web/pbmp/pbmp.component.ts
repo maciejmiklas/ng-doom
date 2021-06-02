@@ -1,5 +1,5 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import {PatchBitmap} from '../../../wad/parser/wad_model';
+import {PatchBitmap} from '../../parser/wad_model';
 import {functions as bp} from '../../parser/bitmap_parser';
 import {CurrentWadService} from '../../service/current-wad.service';
 import {Log} from '../../../common/is/log';

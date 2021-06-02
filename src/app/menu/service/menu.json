@@ -1,1 +1,28 @@
-
+{
+	"l1": [
+		{
+			"id": "manage_wads", "title": "Manage WADs",
+			"l2": [
+				{"id": "wad_upload", "title": "Upload new", "page": "wad_upload"},
+				{"id": "wad_list", "title": "My WADs", "page": "wad_list"},
+				{"id": "wad_select", "title": "Select WAD", "page": "wad_select"}
+			]
+		},
+		{
+			"id": "wad_viewer", "title": "WAD Viewer",
+			"l2": [
+				{"id": "wad_maps", "title": "Maps", "page": "wad_maps"},
+				{"id": "wad_palette", "title": "Palette", "page": "wad_palette"},
+				{"id": "wad_title", "title": "Title Images", "page": "wad_title"}
+			]
+		},
+		{
+			"id": "saves", "title": "Save/Load",
+			"l2": [
+				{"id": "save_load", "title": "Load", "page": "save_load"},
+				{"id": "save_new", "title": "Save", "page": "save_new"},
+				{"id": "save_manage", "title": "Manage", "page": "save_manage"}
+			]
+		}
+	]
+}

@@ -13,7 +13,7 @@ import {PbmpComponent} from './wad/web/pbmp/pbmp.component';
 import {WadUploadComponent} from './wad/web/wad-upload/wad-upload.component';
 import {CurrentWadService} from './wad/service/current-wad.service';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MenuComponent} from './main/menu/menu.component';
+import {MenuComponent} from './menu/web/menu/menu.component';
 
 @NgModule({
 	declarations: [

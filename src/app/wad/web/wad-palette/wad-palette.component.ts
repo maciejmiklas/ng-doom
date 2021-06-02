@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Palette} from '../../../wad/parser/wad_model';
+import {Palette} from '../../parser/wad_model';
 
 @Component({
 	selector: 'app-wad-palette',

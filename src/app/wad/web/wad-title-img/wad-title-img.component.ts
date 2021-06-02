@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {CurrentWadService} from '../../service/current-wad.service';
-import {PatchBitmap, Wad} from '../../../wad/parser/wad_model';
+import {PatchBitmap, Wad} from '../../parser/wad_model';
 import {Log} from '../../../common/is/log';
 
 @Component({
