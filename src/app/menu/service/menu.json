@@ -1,27 +1,27 @@
 {
 	"l1": [
 		{
-			"id": "manage_wads", "title": "Manage WADs",
+			"title": "Manage WADs",
 			"l2": [
-				{"id": "wad_upload", "title": "Upload new", "page": "wad_upload"},
-				{"id": "wad_list", "title": "My WADs", "page": "wad_list"},
-				{"id": "wad_select", "title": "Select WAD", "page": "wad_select"}
+				{"title": "Upload new", "path": "wad_upload"},
+				{"title": "My WADs", "path": "wad_list"},
+				{"title": "Select WAD", "path": "wad_select"}
 			]
 		},
 		{
-			"id": "wad_viewer", "title": "WAD Viewer",
+			"title": "WAD Viewer",
 			"l2": [
-				{"id": "wad_maps", "title": "Maps", "page": "wad_maps"},
-				{"id": "wad_palette", "title": "Palette", "page": "wad_palette"},
-				{"id": "wad_title", "title": "Title Images", "page": "wad_title"}
+				{"title": "Maps", "path": "wad_maps"},
+				{"title": "Palette", "path": "wad_palette"},
+				{"title": "Title Images", "path": "wad_title_img"}
 			]
 		},
 		{
-			"id": "saves", "title": "Save/Load",
+			"title": "Save/Load",
 			"l2": [
-				{"id": "save_load", "title": "Load", "page": "save_load"},
-				{"id": "save_new", "title": "Save", "page": "save_new"},
-				{"id": "save_manage", "title": "Manage", "page": "save_manage"}
+				{"title": "Load", "path": "save_load"},
+				{"title": "Save", "path": "save_new"},
+				{"title": "Manage", "path": "save_manage"}
 			]
 		}
 	]

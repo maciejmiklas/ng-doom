@@ -16,7 +16,7 @@ describe('MenuParserService', () => {
 	});
 
 
-	it('Initial Menu to Json', () => {
+	it('Initial Menu Structure to Json', () => {
 		const manage_wads: MenuL1 = {
 			title: 'Manage WADs',
 			l2: [

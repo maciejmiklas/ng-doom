@@ -5,20 +5,23 @@ import {WadDirsComponent} from './wad/web/wad-dirs/wad-dirs.component';
 import {WadPlaypalComponent} from './wad/web/wad-playpal/wad-playpal.component';
 import {WadPaletteComponent} from './wad/web/wad-palette/wad-palette.component';
 import {WadUploadComponent} from './wad/web/wad-upload/wad-upload.component';
+import {EmptyComponent} from './common/web/empty/empty.component';
 
 
 const routes: Routes = [
-	// wad_list
-	// wad_select
-	// wad_maps
-	// save_load
-	// save_new
-	// save_manage
+
 	{path: 'wad_title_img', component: WadTitleImgComponent},
 	{path: 'wad-dirs', component: WadDirsComponent},
 	{path: 'wad-playpal', component: WadPlaypalComponent},
 	{path: 'wad_palette', component: WadPaletteComponent},
 	{path: 'wad_upload', component: WadUploadComponent},
+
+	{path: 'wad_list', component: EmptyComponent},
+	{path: 'wad_select', component: EmptyComponent},
+	{path: 'wad_maps', component: EmptyComponent},
+	{path: 'save_load', component: EmptyComponent},
+	{path: 'save_new', component: EmptyComponent},
+	{path: 'save_manage', component: EmptyComponent},
 ];
 
 @NgModule({

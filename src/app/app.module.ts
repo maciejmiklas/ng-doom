@@ -14,6 +14,8 @@ import {WadUploadComponent} from './wad/web/wad-upload/wad-upload.component';
 import {CurrentWadService} from './wad/service/current-wad.service';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MenuComponent} from './menu/web/menu/menu.component';
+import { CommonwebemptyComponent } from './commonwebempty/commonwebempty.component';
+import { EmptyComponent } from './common/web/empty/empty.component';
 
 @NgModule({
 	declarations: [
@@ -25,7 +27,9 @@ import {MenuComponent} from './menu/web/menu/menu.component';
 		PbmpComponent,
 		WadUploadComponent,
 		WadDirsComponent,
-		MenuComponent
+		MenuComponent,
+  CommonwebemptyComponent,
+  EmptyComponent
 	],
 	imports: [
 		BrowserModule,
