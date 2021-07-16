@@ -11,11 +11,10 @@ import {WadPlaypalComponent} from './wad/web/wad-playpal/wad-playpal.component';
 import {WadPaletteComponent} from './wad/web/wad-palette/wad-palette.component';
 import {PbmpComponent} from './wad/web/pbmp/pbmp.component';
 import {WadUploadComponent} from './wad/web/wad-upload/wad-upload.component';
-import {CurrentWadService} from './wad/service/current-wad.service';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MenuComponent} from './menu/web/menu/menu.component';
-import { CommonwebemptyComponent } from './commonwebempty/commonwebempty.component';
-import { EmptyComponent } from './common/web/empty/empty.component';
+import {EmptyComponent} from './common/web/empty/empty.component';
+import {NgRxEventBusModule} from 'ngrx-event-bus';
 
 @NgModule({
 	declarations: [
@@ -28,17 +27,17 @@ import { EmptyComponent } from './common/web/empty/empty.component';
 		WadUploadComponent,
 		WadDirsComponent,
 		MenuComponent,
-  CommonwebemptyComponent,
-  EmptyComponent
+		EmptyComponent
 	],
 	imports: [
 		BrowserModule,
 		AppRoutingModule,
 		ReactiveFormsModule,
 		NgbModule,
-		BrowserAnimationsModule
+		BrowserAnimationsModule,
+		NgRxEventBusModule
 	],
-	providers: [CurrentWadService],
+	providers: [],
 	bootstrap: [AppComponent]
 })
 export class AppModule {

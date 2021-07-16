@@ -7,7 +7,6 @@ import {CurrentWadService} from '../../service/current-wad.service';
 })
 export class WadUploadComponent implements OnInit {
 
-
 	constructor(private currentWadService: CurrentWadService) {
 	}
 

@@ -1,1 +1,19 @@
-<p>menu works!</p>
+<ngb-accordion [closeOthers]="true" class="sidebar-menu">
+
+	<ngb-panel cardClass="card" *ngFor="let l1 of menuRoot.l1">
+		<ng-template ngbPanelHeader>
+			<button ngbPanelToggle class="btn btn-link container-fluid text-left"><i class="bi bi-archive-fill pr-2"></i>
+				{{l1.title}}
+			</button>
+		</ng-template>
+		<ng-template ngbPanelContent>
+			<div class="list-group" role="tablist">
+				<ng-container *ngFor="let l2 of l1.l2">
+					<a routerLink="{{l2.path}}" routerLinkActive="active" class="second-level" data-toggle="list"
+						 role="tab">{{l2.title}}</a>
+				</ng-container>
+			</div>
+		</ng-template>
+	</ngb-panel>
+
+</ngb-accordion>
