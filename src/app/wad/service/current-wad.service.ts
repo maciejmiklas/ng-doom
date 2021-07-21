@@ -23,7 +23,6 @@ export class CurrentWadService {
 	}
 
 	public isLoaded(): boolean {
-		console.log('LOADED: ', (this.wad !== undefined));
 		return this.wad !== undefined;
 	}
 

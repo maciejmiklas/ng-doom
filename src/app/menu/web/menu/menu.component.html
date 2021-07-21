@@ -1,8 +1,8 @@
-<ngb-accordion [closeOthers]="true" class="sidebar-menu">
-
-	<ngb-panel cardClass="card" *ngFor="let l1 of menuRoot.l1">
+<ngb-accordion [closeOthers]="true" class="sidebar-menu" [activeIds]="activeL1">
+	<ngb-panel cardClass="card" *ngFor="let l1 of menuRoot.l1" [id]="l1.id">
 		<ng-template ngbPanelHeader>
-			<button ngbPanelToggle class="btn btn-link container-fluid text-left"><i class="bi bi-archive-fill pr-2"></i>
+			<button ngbPanelToggle class="btn btn-link container-fluid text-left" (click)="activeL1 = l1.id">
+				<i class="bi bi-archive-fill pr-2"></i>
 				{{l1.title}}
 			</button>
 		</ng-template>
@@ -10,10 +10,9 @@
 			<div class="list-group" role="tablist">
 				<ng-container *ngFor="let l2 of l1.l2">
 					<a routerLink="{{l2.path}}" routerLinkActive="active" class="second-level" data-toggle="list"
-						 role="tab">{{l2.title}}</a>
+						 role="tab" (click)="activeL2 = l2.id">{{l2.title}}</a>
 				</ng-container>
 			</div>
 		</ng-template>
 	</ngb-panel>
-
 </ngb-accordion>

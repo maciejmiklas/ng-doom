@@ -1,24 +1,24 @@
 {
 	"l1": [
 		{
-			"title": "Manage WADs", "l2": [
-			{"id": "mid_wad_upload", "title": "Upload new", "path": "wad_upload", "decorator": "dec_wad_upload"},
-			{"id": "mid_wad_list", "title": "My WADs", "path": "wad_list", "decorator": "dec_wad_list"},
-			{"id": "mid_wad_select", "title": "Select WAD", "path": "wad_select", "decorator": "dec_wad_select"}
+			"title": "Manage WADs", "id": "m1_manage_wads", "l2": [
+			{"id": "m2_wad_upload", "title": "Upload new", "path": "wad_upload", "decorator": "dec_wad_upload"},
+			{"id": "m2_wad_list", "title": "My WADs", "path": "wad_list", "decorator": "dec_wad_list"},
+			{"id": "m2_wad_select", "title": "Select WAD", "path": "wad_select", "decorator": "dec_wad_select"}
 		]
 		},
 		{
-			"title": "WAD Viewer", "l2": [
-			{"id": "mid_wad_maps", "title": "Maps", "path": "wad_maps", "decorator": "dec_wad_maps"},
-			{"id": "mid_wad_palette", "title": "Palette", "path": "wad_palette", "decorator": "dec_wad_palette"},
-			{"id": "mid_wad_title_img", "title": "Title Images", "path": "wad_title_img", "decorator": "dec_wad_title_img"}
+			"title": "WAD Viewer", "id": "m1_wad_viewer", "l2": [
+			{"id": "m2_wad_maps", "title": "Maps", "path": "wad_maps", "decorator": "dec_wad_maps"},
+			{"id": "m2_wad_palette", "title": "Palette", "path": "wad_palette", "decorator": "dec_wad_palette"},
+			{"id": "m2_wad_title_img", "title": "Title Images", "path": "wad_title_img", "decorator": "dec_wad_title_img"}
 		]
 		},
 		{
-			"title": "Save/Load", "l2": [
-			{"id": "mid_save_load", "title": "Load", "path": "save_load", "decorator": "dec_mid_save_load"},
-			{"id": "mid_save_new", "title": "Save", "path": "save_new", "decorator": "dec_mid_save_new"},
-			{"id": "mid_save_manage", "title": "Manage", "path": "save_manage", "decorator": "dec_mid_save_manage"}
+			"title": "Save/Load", "id": "m1_saves", "l2": [
+			{"id": "m2_save_load", "title": "Load", "path": "save_load", "decorator": "dec_mid_save_load"},
+			{"id": "m2_save_new", "title": "Save", "path": "save_new", "decorator": "dec_mid_save_new"},
+			{"id": "m2_save_manage", "title": "Manage", "path": "save_manage", "decorator": "dec_mid_save_manage"}
 		]
 		}
 	], "welcomeMid": "mid_wad_upload"

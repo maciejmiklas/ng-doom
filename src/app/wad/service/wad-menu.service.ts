@@ -3,8 +3,7 @@ import {MenuDecorator} from '../../menu/service/menu_model';
 import {CurrentWadService} from './current-wad.service';
 
 @Injectable({
-	providedIn: 'root',
-	useValue: 'WadUploadMenuDecorator'
+	providedIn: 'root'
 })
 export class WadUploadMenuDecorator implements MenuDecorator {
 	visible(): boolean {
@@ -29,8 +28,12 @@ export class WadListMenuDecorator implements MenuDecorator {
 	providedIn: 'root'
 })
 export class WadSelectMenuDecorator implements MenuDecorator {
+
+	constructor(private currentWadService: CurrentWadService) {
+	}
+
 	visible(): boolean {
-		return false;
+		return this.currentWadService.isLoaded();
 	}
 }
 
@@ -38,8 +41,11 @@ export class WadSelectMenuDecorator implements MenuDecorator {
 	providedIn: 'root'
 })
 export class WadMapsMenuDecorator implements MenuDecorator {
+	constructor(private currentWadService: CurrentWadService) {
+	}
+
 	visible(): boolean {
-		return false;
+		return this.currentWadService.isLoaded();
 	}
 }
 
@@ -47,8 +53,11 @@ export class WadMapsMenuDecorator implements MenuDecorator {
 	providedIn: 'root'
 })
 export class WadPaletteMenuDecorator implements MenuDecorator {
+	constructor(private currentWadService: CurrentWadService) {
+	}
+
 	visible(): boolean {
-		return false;
+		return this.currentWadService.isLoaded();
 	}
 }
 
@@ -56,7 +65,10 @@ export class WadPaletteMenuDecorator implements MenuDecorator {
 	providedIn: 'root'
 })
 export class WadTitleImgMenuDecorator implements MenuDecorator {
+	constructor(private currentWadService: CurrentWadService) {
+	}
+
 	visible(): boolean {
-		return false;
+		return this.currentWadService.isLoaded();
 	}
 }

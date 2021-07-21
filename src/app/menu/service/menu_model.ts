@@ -1,10 +1,11 @@
 export type MenuRoot = {
-	l1: MenuL1[]
+	l1: MenuL1[],
 	welcomeMid: string
 };
 
 export type MenuL1 = {
 	title: string,
+	id: string,
 	l2: MenuL2[]
 };
 

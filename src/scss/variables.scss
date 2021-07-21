@@ -1,13 +1,12 @@
 $flicker-steps: 50;
 $flicker-delay: 0.5s;
 
-$screen-bg-color: black;
-$content-bg-color: rgba($screen-bg-color, 0.6);
-$list-hover-bg: rgba($screen-bg-color, 0.1);
-
 $font-color: rgb(27, 180, 20);
 $separator-line-color: rgba(252, 0, 0, 0.8);
 
+$screen-bg-color: black;
+$content-bg-color: rgba($screen-bg-color, 0.6);
+$list-hover-bg: rgba($font-color, 0.7);
 
 $_error-color: rgb(249, 255, 0);
 $_dialog-bg-color: rgba(102, 0, 0, 0.8);
