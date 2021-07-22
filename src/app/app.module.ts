@@ -15,6 +15,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MenuComponent} from './menu/web/menu/menu.component';
 import {EmptyComponent} from './common/web/empty/empty.component';
 import {NgRxEventBusModule} from 'ngrx-event-bus';
+import {NavbarComponent} from './navbar/web/navbar/navbar.component';
 
 @NgModule({
 	declarations: [
@@ -27,7 +28,8 @@ import {NgRxEventBusModule} from 'ngrx-event-bus';
 		WadUploadComponent,
 		WadDirsComponent,
 		MenuComponent,
-		EmptyComponent
+		EmptyComponent,
+		NavbarComponent,
 	],
 	imports: [
 		BrowserModule,

@@ -1,45 +1,6 @@
 <div class="bg-image"></div>
-
-<div class="app-wrapper">
-	<nav class="sidebar" [ngbCollapse]="!isSidebarOpen()" [@sidebarOpenCollapse]="sidebarOpenCollapseState()">
-		<div class="sidebar-header">
-			<h3>NG-DOOM</h3>
-		</div>
-
-		<app-menu></app-menu>
-	</nav>
-
-	<div class="app-content">
-		<nav class="navbar">
-			<button type="button" class="hide-sidebar-btn" (click)="toggleSidebarCollapse()">
-				<i class="bi bi-box-arrow-in-left" *ngIf="isSidebarOpen()"></i>
-				<i class="bi bi-box-arrow-in-right" *ngIf="!isSidebarOpen()"></i>
-			</button>
-
-			<button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse"
-							data-target="#navbarSupportedContent">
-				<i class="bi bi-justify-right"></i>
-			</button>
-
-			<div class="collapse navbar-collapse" id="navbarSupportedContent">
-				<ul class="nav navbar-nav ml-auto">
-					<li class="nav-item active">
-						<a class="nav-link" href="#">Page1</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">Page2</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">Page3</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">Page4</a>
-					</li>
-				</ul>
-			</div>
-		</nav>
-		<div class="main-container">
-			<router-outlet></router-outlet>
-		</div>
+<app-navbar>
+	<div class="main-container">
+		<router-outlet></router-outlet>
 	</div>
-</div>
+</app-navbar>
