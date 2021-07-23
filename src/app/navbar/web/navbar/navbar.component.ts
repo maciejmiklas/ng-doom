@@ -5,24 +5,20 @@ import {animate, state, style, transition, trigger} from '@angular/animations';
 	selector: 'app-navbar',
 	templateUrl: './navbar.component.html',
 	animations: [
-		trigger('sidebarResponsiveStyle', [
+		trigger('sidebarAnimation', [
 			state('open_overlay', style({'z-index': 999, position: 'fixed'})),
-			state('open_full', style({})),
 			state('collapsed', style({transform: 'translateX(-100%)'})),
 			transition('* => *', [animate('100ms')])
 		]),
-		trigger('sidebarHeaderResponsiveStyle', [
-			state('open_overlay', style({visibility: 'hidden'})),
-			state('open_full', style({})),
-			state('collapsed', style({visibility: 'hidden'}))
-		]),
+		trigger('collapsedMenuAnimation', [
+			state('open_overlay', style({ position: 'fixed' })),
+			transition('* => *', [animate('1ms')])
+		])
 	]
 })
 
 export class NavbarComponent implements OnInit {
-
 	static readonly MENU_COLLAPSE_WIDTH = 800;
-
 	title = 'ng-doom';
 	active = 'app-wad-upload';
 	private sidebarState;
@@ -78,9 +74,14 @@ export class NavbarComponent implements OnInit {
 		}
 	}
 
-	sidebarResponsiveState(): string {
-		console.log('State:', this.sidebarState);
-		return SidebarState[this.sidebarState];
+	shouldSidebarCollapse(): boolean {
+		const sh =  this.isViewSmall() || !this.isSidebarOpen();
+		console.log('SH', sh, this.sidebarState);
+		return sh;
+	}
+
+	collapsedMenuVisible(): boolean {
+		return this.isViewSmall() && this.sidebarState === SidebarState.OPEN_OVERLAY;
 	}
 }
 

@@ -1,10 +1,20 @@
 <div class="nav-container">
-	<nav class="sidebar" [ngbCollapse]="!isSidebarOpen()" [@sidebarResponsiveStyle]="sidebarResponsiveState()">
-		<div class="sidebar-header" [@sidebarHeaderResponsiveStyle]="sidebarResponsiveState()">
+	<nav class="sidebar" [ngbCollapse]="shouldSidebarCollapse()" [@sidebarAnimation]="sidebarState">
+		<div class="sidebar-header">
 			<h3>NG-DOOM</h3>
 		</div>
 		<app-menu></app-menu>
 	</nav>
+
+	<nav class="sidebar" *ngIf="collapsedMenuVisible()" [@collapsedMenuAnimation]="sidebarState">
+		<div class="sidebar-header" style="visibility: hidden">
+			<h3>NG-DOOM</h3>
+		</div>
+		<div class="sidebar-menu-collapsed">
+			<app-menu></app-menu>
+		</div>
+	</nav>
+
 	<div class="app-content">
 		<nav class="navbar">
 			<button type="button" class="hide-sidebar-btn" (click)="toggleSidebarCollapse()">

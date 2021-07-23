@@ -83,12 +83,18 @@ p {
 .app-content .navbar .hide-sidebar-btn {
 	@extend .btn;
 	@extend .btn-info;
+	z-index: 999;
 }
 
 // ########### SIDEBAR ##################
 .sidebar {
 	min-width: 250px;
 	max-width: 250px;
+}
+
+.sidebar-menu-collapsed {
+	@include content-color;
+	background-color: $content-bg-color-text-overlay;
 }
 
 .sidebar-menu {
