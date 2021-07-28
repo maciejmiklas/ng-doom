@@ -1,20 +1,24 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewEncapsulation} from '@angular/core';
 import {MenuService} from '../../service/menu.service';
-import {MenuRoot} from '../../service/menu_model';
+import {MenuRoot} from '../../service/menu-model';
 import {NgRxEventBusService} from 'ngrx-event-bus';
 import {Events} from '../../../common/is/Events';
+import {MenuStateService} from '../../service/menu-state.service';
 
 @Component({
 	selector: 'app-menu',
-	templateUrl: './menu.component.html'
+	templateUrl: './menu.component.html',
+	styleUrls: ['./menu.component.scss'],
+	encapsulation : ViewEncapsulation.None // TODO - CSS is being ignored in Emulated, why?
 })
 export class MenuComponent implements OnInit {
 
 	menuRoot: MenuRoot;
-	activeL1 = 'm1_manage_wads';
-	activeL2 = 'm2_wad_upload';
 
-	constructor(private menuService: MenuService, private eventBus: NgRxEventBusService, private changeDetectorRef: ChangeDetectorRef) {
+	@Output()
+	private selection = new EventEmitter<string>();
+
+	constructor(private menuService: MenuService, private menuState: MenuStateService, private eventBus: NgRxEventBusService) {
 	}
 
 	ngOnInit(): void {
@@ -26,6 +30,11 @@ export class MenuComponent implements OnInit {
 
 	private loadMenu(): void {
 		this.menuRoot = this.menuService.visibleMenu();
+	}
+
+	onL2Click(id: string): void {
+		this.menuState.activeL2 = id;
+		this.selection.emit(id);
 	}
 
 }

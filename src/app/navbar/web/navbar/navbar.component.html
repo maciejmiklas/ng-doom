@@ -1,23 +1,23 @@
-<div class="nav-container">
-	<nav class="sidebar" [ngbCollapse]="shouldSidebarCollapse()" [@sidebarAnimation]="sidebarState">
-		<div class="sidebar-header">
+<div class="app-nav-container">
+	<nav class="app-sidebar" [ngbCollapse]="shouldSidebarCollapse()" [@sidebarAnimation]="sidebarState">
+		<div class="app-sidebar-header">
 			<h3>NG-DOOM</h3>
 		</div>
 		<app-menu></app-menu>
 	</nav>
 
-	<nav class="sidebar" *ngIf="collapsedMenuVisible()" [@collapsedMenuAnimation]="sidebarState">
-		<div class="sidebar-header" style="visibility: hidden">
+	<nav class="app-sidebar" *ngIf="collapsedMenuVisible()" [@collapsedMenuAnimation]="sidebarState">
+		<div class="app-sidebar-header" style="visibility: hidden">
 			<h3>NG-DOOM</h3>
 		</div>
-		<div class="sidebar-menu-collapsed">
-			<app-menu></app-menu>
+		<div class="app-sidebar-menu-collapsed">
+			<app-menu (selection)="onOverlayMenuSelected()"></app-menu>
 		</div>
 	</nav>
 
 	<div class="app-content">
-		<nav class="navbar">
-			<button type="button" class="hide-sidebar-btn" (click)="toggleSidebarCollapse()">
+		<nav class="app-navbar">
+			<button type="button" class="app-hide-sidebar-btn" (click)="toggleSidebarCollapse()">
 				<i class="bi bi-box-arrow-in-left" *ngIf="isSidebarOpen()"></i>
 				<i class="bi bi-box-arrow-in-right" *ngIf="!isSidebarOpen()"></i>
 			</button>

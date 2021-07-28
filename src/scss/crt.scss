@@ -4,15 +4,15 @@
 @import "variables";
 
 @keyframes flicker {
-  @for $i from 0 through $flicker-steps {
-    #{percentage($i*(1/$flicker-steps))} {
+  @for $i from 0 through $app-flicker-steps {
+    #{percentage($i*(1/$app-flicker-steps))} {
       opacity: random();
     }
   }
 }
 
 .crt {
-  background: $screen-bg-color;
+  background: $app-screen-bg-color;
   position: relative;
 
   // flicker
@@ -24,7 +24,7 @@
     left: 0;
     bottom: 0;
     right: 0;
-    background: transparentize($screen-bg-color, 0.9);
+    background: transparentize($app-screen-bg-color, 0.9);
     opacity: 0;
     z-index: 2;
     pointer-events: none;
@@ -39,7 +39,7 @@
     left: 0;
     bottom: 0;
     right: 0;
-    background: linear-gradient(transparentize($screen-bg-color, 1) 50%, transparentize(darken($screen-bg-color, 10), 0.75) 50%), linear-gradient(90deg, transparentize($font-color, 0.94), transparentize(#00ff00, 0.98), transparentize(#0000ff, 0.94));
+    background: linear-gradient(transparentize($app-screen-bg-color, 1) 50%, transparentize(darken($app-screen-bg-color, 10), 0.75) 50%), linear-gradient(90deg, transparentize($app-font-color, 0.94), transparentize(#00ff00, 0.98), transparentize(#0000ff, 0.94));
     z-index: 2;
     background-size: 100% 2px, 3px 100%;
     pointer-events: none;
@@ -47,7 +47,7 @@
 }
 
 .crt::after {
-  animation: flicker $flicker-delay infinite;
+  animation: flicker $app-flicker-delay infinite;
 }
 
 

@@ -1,5 +1,5 @@
 import {AbstractType, Injectable, Injector} from '@angular/core';
-import {MenuDecorator, MenuRoot} from './menu_model';
+import {MenuDecorator, MenuRoot} from './menu-model';
 import menuJson from './menu.json';
 import {
 	WadListMenuDecorator,

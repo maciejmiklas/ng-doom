@@ -4,10 +4,6 @@
 @import "~bootstrap-icons/font/bootstrap-icons.css";
 @import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
 
-.nobr {
-	white-space: nowrap;
-}
-
 body {
 	font-family: 'Poppins', sans-serif;
 }
@@ -19,112 +15,14 @@ p {
 	line-height: 1.7em;
 }
 
-.sep-line {
+.app-sep-line {
 	width: 100%;
 	height: 1px;
-	border-bottom: 1px dashed $separator-line-color;
+	border-bottom: 1px dashed $app-separator-line-color;
 	margin: 40px 0;
 }
 
-.bg-image {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-
-	background-image: url("../assets/img/doom_logo.png");
-	filter: blur(10px);
-	-webkit-filter: blur(8px);
-
-	background-position: center;
-	background-repeat: no-repeat;
-	background-size: cover;
-	background-color: $screen-bg-color;
-	z-index: -100;
-}
-
-@mixin content-color {
-	background-color: $content-bg-color;
-	color: $font-color;
-}
-
-// ########### APP ##################
-.nav-container {
-	display: flex;
-	align-items: stretch;
-}
-
-.app-content {
-	width: 100%;
-	padding: 20px;
-	min-height: 100vh;
-}
-
-.main-container {
-	@include content-color;
-	padding: 10px;
-}
-
-// ########### NAVBAR ##################
-.app-content .navbar {
-	@extend .navbar-expand-lg;
-	@extend .navbar-light;
-	@include content-color;
-	padding: 15px 10px;
-	border: none;
-	border-radius: 0;
-	margin-bottom: 40px;
-	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.app-content .navbar {
-	@extend .container-fluid;
-}
-
-.app-content .navbar .hide-sidebar-btn {
-	@extend .btn;
-	@extend .btn-info;
-	z-index: 999;
-}
-
-// ########### SIDEBAR ##################
-.sidebar {
-	min-width: 250px;
-	max-width: 250px;
-}
-
-.sidebar-menu-collapsed {
-	@include content-color;
-	background-color: $content-bg-color-text-overlay;
-}
-
-.sidebar-menu {
-	@include content-color;
-}
-
-.sidebar-menu .card {
-	@include content-color;
-	border: 1px solid $separator-line-color;
-}
-
-.sidebar-menu .card .first-level {
-}
-
-.sidebar-menu .card .second-level {
-	@extend .list-group-item;
-	@extend .list-group-item-action;
-}
-
-.sidebar-header {
-	padding: 25px;
-	text-align: center;
-}
-
-.sidebar ul li a {
-	padding: 10px;
-	font-size: 1.1em;
-	display: block;
-}
-
-.sidebar ul li a i {
-	margin-right: 10px;
+@mixin app-content-color {
+	background-color: $app-content-bg-color;
+	color: $app-font-color;
 }

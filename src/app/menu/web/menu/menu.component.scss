@@ -1,0 +1,15 @@
+@import "/src/scss/ng-doom";
+
+.app-side-menu {
+	@include app-content-color;
+}
+
+.app-side-menu .app-card {
+	@include app-content-color;
+	border: 1px solid $app-separator-line-color;
+}
+
+.app-side-menu .app-card .app-menu-l2 {
+	@extend .list-group-item;
+	@extend .list-group-item-action;
+}

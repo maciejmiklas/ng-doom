@@ -3,13 +3,13 @@
 @import "variables";
 
 // bootstrap/scss/_variables.scss
-$primary: $font-color;
-$body-bg: $content-bg-color;
-$body-color: $font-color;
+$primary: $app-font-color;
+$body-bg: $app-content-bg-color;
+$body-color: $app-font-color;
 
 // bootstrap/scss/_list-group.scss
-$list-group-bg: $content-bg-color;
-$list-group-hover-bg: $list-hover-bg;
+$list-group-bg: $app-content-bg-color;
+$list-group-hover-bg: $app-list-hover-bg;
 
 // #############################################
 @import "~bootstrap/scss/bootstrap";

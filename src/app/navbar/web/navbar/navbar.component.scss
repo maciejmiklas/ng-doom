@@ -1,0 +1,60 @@
+@import "/src/scss/ng-doom";
+
+// ########### NAVBAR ##################
+.app-nav-container {
+	display: flex;
+	align-items: stretch;
+}
+
+.app-content .app-navbar {
+	@extend .navbar-expand-lg;
+	@extend .navbar-light;
+	@include app-content-color;
+	padding: 15px 10px;
+	border: none;
+	border-radius: 0;
+	margin-bottom: 40px;
+	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.app-content .app-navbar {
+	@extend .container-fluid;
+}
+
+.app-content .app-navbar .app-hide-sidebar-btn {
+	@extend .btn;
+	@extend .btn-info;
+	z-index: 999;
+}
+
+// ########### SIDEBAR ##################
+.app-sidebar {
+	min-width: 250px;
+	max-width: 250px;
+}
+
+.app-sidebar-menu-collapsed {
+	@include app-content-color;
+	background-color: $app-content-bg-color-text-overlay;
+}
+
+.app-sidebar-header {
+	padding: 25px;
+	text-align: center;
+}
+
+.app-sidebar ul li a {
+	padding: 10px;
+	font-size: 1.1em;
+	display: block;
+}
+
+.app-sidebar ul li a i {
+	margin-right: 10px;
+}
+
+.app-content {
+	width: 100%;
+	padding: 20px;
+	min-height: 100vh;
+}

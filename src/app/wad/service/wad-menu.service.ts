@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {MenuDecorator} from '../../menu/service/menu_model';
+import {MenuDecorator} from '../../menu/service/menu-model';
 import {CurrentWadService} from './current-wad.service';
 
 @Injectable({

@@ -4,6 +4,7 @@ import {animate, state, style, transition, trigger} from '@angular/animations';
 @Component({
 	selector: 'app-navbar',
 	templateUrl: './navbar.component.html',
+	styleUrls: ['./navbar.component.scss'],
 	animations: [
 		trigger('sidebarAnimation', [
 			state('open_overlay', style({'z-index': 999, position: 'fixed'})),
@@ -11,7 +12,7 @@ import {animate, state, style, transition, trigger} from '@angular/animations';
 			transition('* => *', [animate('100ms')])
 		]),
 		trigger('collapsedMenuAnimation', [
-			state('open_overlay', style({ position: 'fixed' })),
+			state('open_overlay', style({position: 'fixed'})),
 			transition('* => *', [animate('1ms')])
 		])
 	]
@@ -24,6 +25,7 @@ export class NavbarComponent implements OnInit {
 	private sidebarState;
 	private innerWidth = 1500;
 	private lastViewSmall;
+	private overlayMenuClicked = false;
 
 	constructor() {
 	}
@@ -67,6 +69,7 @@ export class NavbarComponent implements OnInit {
 	}
 
 	toggleSidebarCollapse(): void {
+		this.overlayMenuClicked = false;
 		if (this.isSidebarOpen()) {
 			this.sidebarState = SidebarState.COLLAPSED;
 		} else {
@@ -75,13 +78,16 @@ export class NavbarComponent implements OnInit {
 	}
 
 	shouldSidebarCollapse(): boolean {
-		const sh =  this.isViewSmall() || !this.isSidebarOpen();
-		console.log('SH', sh, this.sidebarState);
-		return sh;
+		return this.isViewSmall() || !this.isSidebarOpen();
 	}
 
 	collapsedMenuVisible(): boolean {
-		return this.isViewSmall() && this.sidebarState === SidebarState.OPEN_OVERLAY;
+		return this.isViewSmall() && !this.overlayMenuClicked && this.sidebarState === SidebarState.OPEN_OVERLAY;
+	}
+
+	onOverlayMenuSelected(): void {
+		this.overlayMenuClicked = true;
+		this.sidebarState = SidebarState.COLLAPSED;
 	}
 }
 
