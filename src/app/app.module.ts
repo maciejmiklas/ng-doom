@@ -16,6 +16,7 @@ import {MenuComponent} from './menu/web/menu/menu.component';
 import {EmptyComponent} from './common/web/empty/empty.component';
 import {NgRxEventBusModule} from 'ngrx-event-bus';
 import {NavbarComponent} from './navbar/web/navbar/navbar.component';
+import {NgxFileDropModule} from 'ngx-file-drop';
 
 @NgModule({
 	declarations: [
@@ -37,7 +38,8 @@ import {NavbarComponent} from './navbar/web/navbar/navbar.component';
 		ReactiveFormsModule,
 		NgbModule,
 		BrowserAnimationsModule,
-		NgRxEventBusModule
+		NgRxEventBusModule,
+		NgxFileDropModule
 	],
 	providers: [],
 	bootstrap: [AppComponent]

@@ -9,7 +9,7 @@ import {MenuStateService} from '../../service/menu-state.service';
 	selector: 'app-menu',
 	templateUrl: './menu.component.html',
 	styleUrls: ['./menu.component.scss'],
-	encapsulation : ViewEncapsulation.None // TODO - CSS is being ignored in Emulated, why?
+	encapsulation: ViewEncapsulation.None // TODO '<ngb-panel cardClass=....' does not support encapsulation?
 })
 export class MenuComponent implements OnInit {
 

@@ -1,10 +1,11 @@
-import {Component, HostListener, OnInit} from '@angular/core';
+import {Component, HostListener, OnInit, ViewEncapsulation} from '@angular/core';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 
 @Component({
 	selector: 'app-navbar',
 	templateUrl: './navbar.component.html',
 	styleUrls: ['./navbar.component.scss'],
+	encapsulation: ViewEncapsulation.None,
 	animations: [
 		trigger('sidebarAnimation', [
 			state('open_overlay', style({'z-index': 999, position: 'fixed'})),

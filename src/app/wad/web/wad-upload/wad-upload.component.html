@@ -1,2 +1,29 @@
-<label for="uploadWad">Upload WAD: </label>
-<input type="file" id="uploadWad" (change)="handleUploadWad($event)">
+<div class="app-upload-container">
+	<ngx-file-drop dropZoneLabel="Drop files here" (onFileDrop)="dropped($event)" directory="false"
+								 dropZoneClassName="app-upload-dropzone" contentClassName="app-upload-content" multiple="true">
+		<ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
+			<div (click)="openFileSelector()" class="app-upload-click">
+				<br><br><br><br><br>
+				<strong>CLICK HERE OR DROP FILE</strong>
+			</div>
+		</ng-template>
+
+	</ngx-file-drop>
+</div>
+
+XXXXXX
+XXXXXX
+<div class="upload-table">
+	<table class="table">
+		<thead>
+		<tr>
+			<th>Name</th>
+		</tr>
+		</thead>
+		<tbody class="upload-name-style">
+		<tr *ngFor="let item of files; let i=index">
+			<td><strong>{{ item.relativePath }}</strong></td>
+		</tr>
+		</tbody>
+	</table>
+</div>

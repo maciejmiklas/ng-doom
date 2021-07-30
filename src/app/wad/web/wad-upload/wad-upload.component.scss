@@ -1,6 +1,23 @@
 @import "/src/scss/ng-doom";
 
+.app-upload-container {
+	display: flex;
+	justify-content: center;
+}
+
 .app-upload-dropzone {
-	min-height: 600px;
+
+}
+
+.app-upload-content {
+	width: 640px;
+	height: 607px;
 	background: url("../../../../assets/img/floppy_disc.png") no-repeat center;
+}
+
+.app-upload-click {
+	height: 100%;
+	width: 100%;
+	text-align: center;
+	vertical-align: middle;
 }

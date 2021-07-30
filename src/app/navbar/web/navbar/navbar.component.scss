@@ -1,15 +1,22 @@
 @import "/src/scss/ng-doom";
 
+.app-content {
+	width: 100%;
+	padding: 20px;
+	min-height: 100vh;
+}
+
 // ########### NAVBAR ##################
 .app-nav-container {
 	display: flex;
 	align-items: stretch;
 }
 
-.app-content .app-navbar {
+.app-navbar {
 	@extend .navbar-expand-lg;
 	@extend .navbar-light;
 	@include app-content-color;
+	display: flex;
 	padding: 15px 10px;
 	border: none;
 	border-radius: 0;
@@ -17,11 +24,7 @@
 	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.app-content .app-navbar {
-	@extend .container-fluid;
-}
-
-.app-content .app-navbar .app-hide-sidebar-btn {
+.app-navbar .app-hide-sidebar-btn {
 	@extend .btn;
 	@extend .btn-info;
 	z-index: 999;
@@ -53,8 +56,4 @@
 	margin-right: 10px;
 }
 
-.app-content {
-	width: 100%;
-	padding: 20px;
-	min-height: 100vh;
-}
+
