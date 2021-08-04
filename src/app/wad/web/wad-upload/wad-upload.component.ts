@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewEncapsulation} from '@angular/core';
 import {CurrentWadService} from '../../service/current-wad.service';
-import {FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry} from 'ngx-file-drop';
+import {FileSystemFileEntry, NgxFileDropEntry} from 'ngx-file-drop';
+import {UploadInfo, UploadStatus} from './upload-model';
 
 @Component({
 	selector: 'app-wad-upload',
@@ -10,7 +11,9 @@ import {FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry} from 'n
 })
 export class WadUploadComponent implements OnInit {
 
-	public files: NgxFileDropEntry[] = [];
+	files: NgxFileDropEntry[] = [];
+	uploadInfo: UploadInfo[] = [];
+	uploading = false;
 
 	constructor(private currentWadService: CurrentWadService) {
 	}
@@ -25,24 +28,38 @@ export class WadUploadComponent implements OnInit {
 		});
 	}
 
-	public dropped(files: NgxFileDropEntry[]): void {
-		this.files = files;
-		for (const droppedFile of files) {
+	public onFileOver(): void {
+		this.uploading = true;
+	}
 
-			// Is it a file?
+	public onFileLeave(): void {
+		this.uploading = false;
+	}
+
+	public showUploadStatus(): boolean {
+		return !this.uploading && this.uploadInfo.length > 0;
+	}
+
+	private getUploadStatus(file: File): UploadStatus {
+		if (!file.name.toLocaleLowerCase().endsWith('.wad')) {
+			return UploadStatus.UNSUPPORTED_TYPE;
+		}
+		return UploadStatus.UPLOADED;
+	}
+
+	public onFileDrop(files: NgxFileDropEntry[]): void {
+		this.files = files;
+		this.uploadInfo = [];
+		for (const droppedFile of files) {
 			if (droppedFile.fileEntry.isFile) {
 				const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
 				fileEntry.file((file: File) => {
-
-					// Here you can access the real file
-					console.log('FILE:', droppedFile.relativePath, file);
+					this.uploadInfo.push({filePath: droppedFile.relativePath, status: this.getUploadStatus(file), file});
 				});
 			} else {
-				// It was a directory (empty directories are added, otherwise only files)
-				const fileEntry = droppedFile.fileEntry as FileSystemDirectoryEntry;
-				console.log('DIR:', droppedFile.relativePath, fileEntry);
+				this.uploadInfo.push({filePath: droppedFile.relativePath, status: UploadStatus.UNSUPPORTED_TYPE, file: null});
 			}
 		}
+		this.uploading = false;
 	}
-
 }

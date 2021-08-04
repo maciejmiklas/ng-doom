@@ -143,12 +143,14 @@ const parseBitmap = (bytes: number[]) => (dir: Directory): Either<PatchBitmap> =
 
 const postPixelAt = (columns: Column[]) => (x: number, y: number): number => {
 	return postAt(columns)(x, y)
-		.assert(p => Either.ofCondition(() => p.data.length > y - p.topdelta, () => 'Pixel out of range at:(' + x + ',' + y + ')->' + p.data.length + '<=' + y + '-' + p.topdelta, () => 'OK'))
+		.assert(p => Either.ofCondition(() => p.data.length > y - p.topdelta,
+			() => 'Pixel out of range at:(' + x + ',' + y + ')->' + p.data.length + '<=' + y + '-' + p.topdelta, () => 'OK'))
 		.map(p => p.data[y - p.topdelta]).orElseGet(() => 0);
 };
 
 const postAt = (columns: Column[]) => (x: number, y: number): Either<Post> =>
-	Either.ofNullable(R.find<Post>(p => y >= p.topdelta && y < p.topdelta + p.data.length)(columns[x].posts), () => 'Transparent pixel at (' + x + ',' + y + ')');
+	Either.ofNullable(R.find<Post>(p => y >= p.topdelta && y < p.topdelta + p.data.length)(columns[x].posts),
+		() => 'Transparent pixel at (' + x + ',' + y + ')');
 
 const toImageData = (bitmap: PatchBitmap) => (palette: Palette): ImageData => {
 	const image = patchToImg(bitmap)(palette);
