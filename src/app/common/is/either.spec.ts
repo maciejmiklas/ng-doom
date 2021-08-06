@@ -332,6 +332,20 @@ describe('Either#unitl', () => {
 	});
 });
 
+describe('Either#mapGet', () => {
+	it('left', () => {
+		const res = Either.ofLeft('Im left').mapGet(msg => TwoStrings.create(msg, 'left ret'), v => TwoStrings.create('right ret', 'right ret'));
+		expect(res.vv).toEqual('Im left');
+		expect(res.pp).toEqual('left ret');
+	});
+
+	it('right', () => {
+		const res = Either.ofRight(new OneString('right in')).mapGet(msg => TwoStrings.create(msg, 'left ret'), v => TwoStrings.create(v.vv, 'right ret'));
+		expect(res.vv).toEqual('right in');
+		expect(res.pp).toEqual('right ret');
+	});
+});
+
 describe('Either#ofCondition', () => {
 	const falsyInt = Either.ofCondition(() => false, () => 'cond false', () => 98);
 	const truthyInt = Either.ofCondition(() => true, () => 'cond true', () => 99);

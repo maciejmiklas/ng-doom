@@ -20,17 +20,23 @@
 		<table class="table table-striped">
 			<thead>
 			<tr>
-				<th scope="col">#</th>
+				<th scope="col"></th>
 				<th scope="col">Name</th>
-				<th scope="col">Imported</th>
-				<th scope="col">Message</th>
+				<th scope="col">Status</th>
 			</tr>
 			</thead>
 			<tbody>
-			<tr *ngFor="let file of uploadInfo; let i=index">
-				<th scope="row">{{ i + 1 }}</th>
-				<td>{{ file.filePath }}</td>
-				<td>OK</td>
+			<tr *ngFor="let result of uploadResult">
+				<td><ng-container [ngSwitch]="result.status">
+					<i *ngSwitchCase="statusEnum.UPLOADED" class="bi bi-emoji-sunglasses"></i>
+					<i *ngSwitchCase="statusEnum.FILE_ALREADY_EXISTS" class="bi bi-emoji-wink"></i>
+					<i *ngSwitchCase="statusEnum.UNSUPPORTED_TYPE" class="bi bi-emoji-neutral"></i>
+					<i *ngSwitchCase="statusEnum.PARSE_ERROR" class="bi bi-emoji-frown"></i>
+					<i *ngSwitchDefault class="bi bi-emoji-dizzy"></i>
+				</ng-container>
+				</td>
+				<td>{{ result.fileName }}</td>
+				<td>{{ result.status }} <span *ngIf="result.message !== undefined">:&nbsp;{{ result.message }}</span></td>
 			</tr>
 			</tbody>
 		</table>

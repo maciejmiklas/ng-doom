@@ -295,5 +295,6 @@ export type Wad = {
 	title: TitlePic,
 	maps: Map[],
 	dirs: Directory[]
+	bytes: number[]
 };
 

@@ -27,7 +27,7 @@ const findDirectoryByName = (dirs: Directory[]) => (name: string): Either<Direct
 	Either.ofNullable(dirs.find(d => d.name === name), () => 'Directory: ' + name + ' not found');
 
 const parseHeader = (bytes: number[]): Either<Header> => {
-	const headerStr: Either<string> = U.parseStrOp(bytes)(s => s === 'IWAD', (s) => 'WAD type not supported: ' + s)(0x00, 4);
+	const headerStr: Either<string> = U.parseStrOp(bytes)(s => s === 'IWAD', (s) => 'Missing: ' + s + ' header')(0x00, 4);
 	const intParser = U.parseInt(bytes);
 	return Either.ofTruth([headerStr], () =>
 		({

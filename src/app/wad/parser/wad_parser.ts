@@ -18,7 +18,7 @@ const parseTitlePic = (bytes: number[], dirs: Directory[]): Either<TitlePic> => 
 
 const parseWad = (bytes: number[]): Either<Wad> => {
 	const res = dp.parseHeader(bytes)
-		.map(header => ({header}))
+		.map(header => ({header, bytes}))
 		.append(w => dp.parseAllDirectories(w.header, bytes), (t, v) => t.dirs = v)
 		.append(w => parseTitlePic(bytes, w.dirs), (t, v) => t.title = v);
 	return res;

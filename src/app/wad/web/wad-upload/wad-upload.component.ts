@@ -1,7 +1,7 @@
-import {Component, OnInit, ViewEncapsulation} from '@angular/core';
-import {CurrentWadService} from '../../service/current-wad.service';
+import {Component, ViewEncapsulation} from '@angular/core';
 import {FileSystemFileEntry, NgxFileDropEntry} from 'ngx-file-drop';
-import {UploadInfo, UploadStatus} from './upload-model';
+import {WadStorageService} from '../../service/wad-storage.service';
+import {UploadResult, UploadStatus} from '../../service/wad-service-model';
 
 @Component({
 	selector: 'app-wad-upload',
@@ -9,23 +9,14 @@ import {UploadInfo, UploadStatus} from './upload-model';
 	styleUrls: ['./wad-upload.component.scss'],
 	encapsulation: ViewEncapsulation.None
 })
-export class WadUploadComponent implements OnInit {
+export class WadUploadComponent {
 
 	files: NgxFileDropEntry[] = [];
-	uploadInfo: UploadInfo[] = [];
+	uploadResult: UploadResult[] = [];
 	uploading = false;
+	statusEnum = UploadStatus;
 
-	constructor(private currentWadService: CurrentWadService) {
-	}
-
-	ngOnInit(): void {
-	}
-
-	handleUploadWad(event: Event): void {
-		const file = (event.target as HTMLInputElement).files[0];
-		file.arrayBuffer().then(buf => {
-			this.currentWadService.load(Array.from(new Uint8Array(buf)));
-		});
+	constructor(private wadStorage: WadStorageService) {
 	}
 
 	public onFileOver(): void {
@@ -37,28 +28,19 @@ export class WadUploadComponent implements OnInit {
 	}
 
 	public showUploadStatus(): boolean {
-		return !this.uploading && this.uploadInfo.length > 0;
-	}
-
-	private getUploadStatus(file: File): UploadStatus {
-		if (!file.name.toLocaleLowerCase().endsWith('.wad')) {
-			return UploadStatus.UNSUPPORTED_TYPE;
-		}
-		return UploadStatus.UPLOADED;
+		return !this.uploading && this.uploadResult.length > 0;
 	}
 
 	public onFileDrop(files: NgxFileDropEntry[]): void {
 		this.files = files;
-		this.uploadInfo = [];
+		this.uploadResult = [];
 		for (const droppedFile of files) {
-			if (droppedFile.fileEntry.isFile) {
-				const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
-				fileEntry.file((file: File) => {
-					this.uploadInfo.push({filePath: droppedFile.relativePath, status: this.getUploadStatus(file), file});
+			const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
+			fileEntry.file((file: File) => {
+				this.wadStorage.uploadWad(file).then(res => {
+					this.uploadResult.push(res);
 				});
-			} else {
-				this.uploadInfo.push({filePath: droppedFile.relativePath, status: UploadStatus.UNSUPPORTED_TYPE, file: null});
-			}
+			});
 		}
 		this.uploading = false;
 	}

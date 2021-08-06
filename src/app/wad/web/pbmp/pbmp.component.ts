@@ -1,8 +1,8 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {PatchBitmap} from '../../parser/wad_model';
 import {functions as bp} from '../../parser/bitmap_parser';
-import {CurrentWadService} from '../../service/current-wad.service';
 import {Log} from '../../../common/is/log';
+import {WadStorageService} from '../../service/wad-storage.service';
 
 @Component({
 	selector: 'app-pbmp',
@@ -20,11 +20,11 @@ export class PbmpComponent implements OnInit {
 	@ViewChild('canvas', { static: true })
 	canvasRef: ElementRef<HTMLCanvasElement>;
 
-	constructor(private currentWadService: CurrentWadService) {
+	constructor(private wadStorage: WadStorageService) {
 	}
 
 	ngOnInit(): void {
-		if (!this.currentWadService.isLoaded()) {
+		if (!this.wadStorage.isLoaded()) {
 			Log.error(PbmpComponent.CMP, 'WAD not Loaded');
 			return;
 		}
@@ -32,9 +32,8 @@ export class PbmpComponent implements OnInit {
 	}
 
 	private paint(): void {
-		const bytes = this.currentWadService.bytes;
-		const wad = this.currentWadService.wad;
-		const palette = bp.parsePlaypal(bytes, wad.dirs).palettes[this.palette];
+		const wad = this.wadStorage.getCurrent().get().wad;
+		const palette = bp.parsePlaypal(wad.bytes, wad.dirs).palettes[this.palette];
 		const canvas = this.canvasRef.nativeElement;
 		const ctx = canvas.getContext('2d');
 		const img = bp.toImageData(this.bitmap);

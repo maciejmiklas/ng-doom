@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {MenuDecorator} from '../../menu/service/menu-model';
-import {CurrentWadService} from './current-wad.service';
+import {WadStorageService} from './wad-storage.service';
 
 @Injectable({
 	providedIn: 'root'
@@ -16,11 +16,11 @@ export class WadUploadMenuDecorator implements MenuDecorator {
 })
 export class WadListMenuDecorator implements MenuDecorator {
 
-	constructor(private currentWadService: CurrentWadService) {
+	constructor(private wadStorage: WadStorageService) {
 	}
 
 	visible(): boolean {
-		return this.currentWadService.isLoaded();
+		return this.wadStorage.isLoaded();
 	}
 }
 
@@ -29,11 +29,11 @@ export class WadListMenuDecorator implements MenuDecorator {
 })
 export class WadSelectMenuDecorator implements MenuDecorator {
 
-	constructor(private currentWadService: CurrentWadService) {
+	constructor(private wadStorage: WadStorageService) {
 	}
 
 	visible(): boolean {
-		return this.currentWadService.isLoaded();
+		return this.wadStorage.isLoaded();
 	}
 }
 
@@ -41,11 +41,11 @@ export class WadSelectMenuDecorator implements MenuDecorator {
 	providedIn: 'root'
 })
 export class WadMapsMenuDecorator implements MenuDecorator {
-	constructor(private currentWadService: CurrentWadService) {
+	constructor(private wadStorage: WadStorageService) {
 	}
 
 	visible(): boolean {
-		return this.currentWadService.isLoaded();
+		return this.wadStorage.isLoaded();
 	}
 }
 
@@ -53,11 +53,11 @@ export class WadMapsMenuDecorator implements MenuDecorator {
 	providedIn: 'root'
 })
 export class WadPaletteMenuDecorator implements MenuDecorator {
-	constructor(private currentWadService: CurrentWadService) {
+	constructor(private wadStorage: WadStorageService) {
 	}
 
 	visible(): boolean {
-		return this.currentWadService.isLoaded();
+		return this.wadStorage.isLoaded();
 	}
 }
 
@@ -65,10 +65,10 @@ export class WadPaletteMenuDecorator implements MenuDecorator {
 	providedIn: 'root'
 })
 export class WadTitleImgMenuDecorator implements MenuDecorator {
-	constructor(private currentWadService: CurrentWadService) {
+	constructor(private wadStorage: WadStorageService) {
 	}
 
 	visible(): boolean {
-		return this.currentWadService.isLoaded();
+		return this.wadStorage.isLoaded();
 	}
 }

@@ -1,12 +1,11 @@
 import {Injectable} from '@angular/core';
-import {UploadResult, WadEntry} from './wad-model';
-import {UploadStatus} from '../web/wad-upload/upload-model';
+import {UploadResult, UploadStatus, WadEntry} from './wad-service-model';
 import * as R from 'ramda';
 import {Either} from '../../common/is/either';
 import {functions as wp} from '../parser/wad_parser';
-import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
-import {Events} from '../../common/is/Events';
 import {Wad} from '../parser/wad_model';
+import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
+import {Event} from '../../common/is/event';
 
 @Injectable({
 	providedIn: 'root'
@@ -19,20 +18,40 @@ export class WadStorageService {
 	constructor(private eventBus: NgRxEventBusService) {
 	}
 
-	public uploadWad(file: File): UploadResult {
-		if (!file.name.toLocaleLowerCase().endsWith('.wad')) {
-			return {fileName: file.name, status: UploadStatus.UNSUPPORTED_TYPE};
-		}
-		if (R.find(R.propEq('name', file.name))(this.wads) !== undefined) {
-			return {fileName: file.name, status: UploadStatus.FILE_ALREADY_EXISTS};
-		}
-		// this.load(file.arrayBuffer())
-		const status = {fileName: file.name, status: UploadStatus.UPLOADED};
-		this.eventBus.emit(new EmitEvent(Events.WAD_UPLOADED, status));
-		return status;
+	public async uploadWad(file: File): Promise<UploadResult> {
+		return this.uploadWadIntern(file).then(res => {
+			this.eventBus.emit(new EmitEvent(Event.WAD_UPLOAD, res));
+			return res;
+		});
 	}
 
-	public load(wadBuf: ArrayLike<number> | ArrayBufferLike): Either<Wad> {
+	private async uploadWadIntern(file: File): Promise<UploadResult> {
+		if (!file.name.toLocaleLowerCase().endsWith('.wad')) {
+			return {fileName: file.name, status: UploadStatus.UNSUPPORTED_TYPE, message: undefined};
+		}
+		if (R.find(R.propEq('name', file.name))(this.wads) !== undefined) {
+			return {fileName: file.name, status: UploadStatus.FILE_ALREADY_EXISTS, message: undefined};
+		}
+		return file.arrayBuffer().then(ab => {
+			return this.load(ab).mapGet<UploadResult>(message => {
+					return {fileName: file.name, status: UploadStatus.PARSE_ERROR, message};
+				},
+				wad => {
+					this.wads.push({wad, name: file.name, gameSave: []});
+					return {fileName: file.name, status: UploadStatus.UPLOADED, message: undefined};
+				});
+		});
+	}
+
+	public isLoaded(): boolean {
+		return this.wads.length > 0;
+	}
+
+	public getCurrent(): Either<WadEntry> {
+		return Either.ofCondition(this.isLoaded, () => 'No WADs', () => this.wads[this.currentWad]);
+	}
+
+	private load(wadBuf: ArrayBuffer): Either<Wad> {
 		const bytes = Either.ofRight(Array.from(new Uint8Array(wadBuf))).get();
 		return wp.parseWad(bytes);
 	}

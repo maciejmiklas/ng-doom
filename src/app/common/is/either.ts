@@ -60,6 +60,8 @@ export abstract class Either<T> {
 		return this.msg;
 	}
 
+	abstract mapGet<V>(left: (msg: string) => V, right: (v: T) => V): V;
+
 	abstract orElse(other: T): T;
 
 	abstract orElseGet(fn: () => T): T;
@@ -85,6 +87,10 @@ export class Left<T> extends Either<T> {
 		super(null as any, msg);
 	}
 
+	mapGet<V>(left: (msg: string) => V, right: (v: T) => V): V {
+		return left(this.msg);
+	}
+
 	assert(fn: (v: T) => Either<string>): Either<T> {
 		return this;
 	}
@@ -95,10 +101,6 @@ export class Left<T> extends Either<T> {
 
 	remap<V>(mf: (val: T) => Either<V>, jf: (v: V, t: T) => void): Either<V> {
 		return this as unknown as Either<V>;
-	}
-
-	remap1(mf: (val: T) => any, jf: (v: any, t: T) => void): Either<any> {
-		return this;
 	}
 
 	exec(fn: (v: T) => void): Either<T> {
@@ -181,7 +183,7 @@ export class Right<T> extends Either<T> {
 		const val = this.get();
 		const res = mf(val);
 		if (R.isNil(res) || res.isLeft()) {
-			return Either.ofLeft('append got null for ' + val);
+			return Either.ofLeft('remap got null for ' + val);
 		}
 		jf(res.get(), val);
 		return res;
@@ -201,5 +203,9 @@ export class Right<T> extends Either<T> {
 
 	toString(): string {
 		return `Right[${this.get()}]`;
+	}
+
+	mapGet<V>(left: (msg: string) => V, right: (v: T) => V): V {
+		return right(this.val);
 	}
 }

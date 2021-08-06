@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {CurrentWadService} from '../../service/current-wad.service';
 import {PatchBitmap, Wad} from '../../parser/wad_model';
 import {Log} from '../../../common/is/log';
+import {WadStorageService} from '../../service/wad-storage.service';
 
 @Component({
 	selector: 'app-wad-title-img',
@@ -12,15 +12,15 @@ export class WadTitleImgComponent implements OnInit {
 	wad: Wad;
 	bitmaps: PatchBitmap[];
 
-	constructor(private currentWadService: CurrentWadService) {
+	constructor(private wadStorage: WadStorageService) {
 	}
 
 	ngOnInit(): void {
-		if (!this.currentWadService.isLoaded()) {
+		if (!this.wadStorage.isLoaded()) {
 			Log.error(WadTitleImgComponent.CMP, 'WAD not Loaded');
 			return;
 		}
-		this.wad = this.currentWadService.wad;
+		this.wad = this.wadStorage.getCurrent().get().wad;
 		this.bitmaps = new Array<PatchBitmap>();
 		this.bitmaps.push(this.wad.title.title);
 		this.bitmaps.push(this.wad.title.credit);

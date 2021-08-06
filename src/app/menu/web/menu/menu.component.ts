@@ -2,7 +2,7 @@ import {Component, EventEmitter, OnInit, Output, ViewEncapsulation} from '@angul
 import {MenuService} from '../../service/menu.service';
 import {MenuRoot} from '../../service/menu-model';
 import {NgRxEventBusService} from 'ngrx-event-bus';
-import {Events} from '../../../common/is/Events';
+import {Event} from '../../../common/is/event';
 import {MenuStateService} from '../../service/menu-state.service';
 
 @Component({
@@ -23,7 +23,7 @@ export class MenuComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.loadMenu();
-		this.eventBus.on(Events.WAD_UPLOADED, () => {
+		this.eventBus.on(Event.WAD_UPLOAD, () => {
 			this.loadMenu();
 		});
 	}

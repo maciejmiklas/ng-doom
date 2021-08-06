@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {functions as bp} from '../../parser/bitmap_parser';
-import {CurrentWadService} from '../../service/current-wad.service';
 import {Palette} from '../../parser/wad_model';
 import {Log} from '../../../common/is/log';
+import {WadStorageService} from '../../service/wad-storage.service';
 
 @Component({
 	selector: 'app-wad-playpal',
@@ -12,17 +12,16 @@ export class WadPlaypalComponent implements OnInit {
 	static CMP = 'app-wad-playpal';
 	palettes: Palette[];
 
-	constructor(private currentWadService: CurrentWadService) {
+	constructor(private wadStorage: WadStorageService) {
 	}
 
 	ngOnInit(): void {
-		if (!this.currentWadService.isLoaded()) {
+		if (!this.wadStorage.isLoaded()) {
 			Log.error(WadPlaypalComponent.CMP, 'WAD not Loaded');
 			return;
 		}
-		const wad = this.currentWadService.wad;
-		const bytes = this.currentWadService.bytes;
-		this.palettes = bp.parsePlaypal(bytes, wad.dirs).palettes;
+		const wad = this.wadStorage.getCurrent().get();
+		this.palettes = bp.parsePlaypal(wad.wad.bytes, wad.wad.dirs).palettes;
 	}
 
 }
