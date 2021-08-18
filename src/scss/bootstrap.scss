@@ -11,6 +11,13 @@ $body-color: $app-font-color;
 $list-group-bg: $app-content-bg-color;
 $list-group-hover-bg: $app-list-hover-bg;
 
+// bootstrap/scss/_card.scss
+$card-bg: $app-content-bg-color;
+$card-cap-bg: $app-header-bg-color;
+
+// bootstrap/scss/_table.scss
+$table-border-color: $app-separator-line-color;
+
 // #############################################
 @import "~bootstrap/scss/bootstrap";
 // #############################################

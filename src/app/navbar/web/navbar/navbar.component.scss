@@ -38,7 +38,7 @@
 
 .app-sidebar-menu-collapsed {
 	@include app-content-color;
-	background-color: $app-content-bg-color-text-overlay;
+	background-color: $app-header-bg-color;
 }
 
 .app-sidebar-header {

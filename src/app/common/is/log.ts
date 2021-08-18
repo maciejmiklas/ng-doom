@@ -4,6 +4,10 @@ export class Log {
 		console.log('ERROR(' + cmp + '): ' + msg + ' - ', args);
 	}
 
+	static warn(cmp: string, msg: string, ...args: any[]): void {
+		console.log('ERROR(' + cmp + '): ' + msg + ' - ', args);
+	}
+
 	static info(cmp: string, msg: string, ...args: any[]): void {
 		// console.log('INFO(' + cmp + '): ' + msg + ' - ', args);
 	}

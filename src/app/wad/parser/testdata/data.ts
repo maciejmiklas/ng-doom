@@ -7,7 +7,7 @@ import jsonData from './doom.json';
 import U from '../../../common/is/util';
 
 let _wadBytes = null;
-export const getWadBytes = () => {
+export const getWadBytes = (): number[] => {
 	if (!_wadBytes) {
 		// @ts-ignore
 		_wadBytes = U.base64ToUint8Array(jsonData.doom);

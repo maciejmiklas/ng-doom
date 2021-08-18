@@ -6,12 +6,13 @@ import {functions as wp} from '../parser/wad_parser';
 import {Wad} from '../parser/wad_model';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {Event} from '../../common/is/event';
+import {Log} from '../../common/is/log';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class WadStorageService {
-
+	static CMP = 'WadStorageService';
 	private wads: WadEntry[] = [];
 	private currentWad = 0;
 
@@ -47,8 +48,22 @@ export class WadStorageService {
 		return this.wads.length > 0;
 	}
 
+	public removeAllWads(): void {
+		this.wads = [];
+		this.currentWad = 0;
+	}
+
+	public setCurrentWad(idx: number): boolean {
+		if (idx >= this.wads.length) {
+			Log.warn(WadStorageService.CMP, 'Cannot set current wad to: %1 > %2', idx, this.wads.length);
+			return false;
+		}
+		this.currentWad = idx;
+		return true;
+	}
+
 	public getCurrent(): Either<WadEntry> {
-		return Either.ofCondition(this.isLoaded, () => 'No WADs', () => this.wads[this.currentWad]);
+		return Either.ofCondition(() => this.isLoaded(), () => 'No WADs', () => this.wads[this.currentWad]);
 	}
 
 	private load(wadBuf: ArrayBuffer): Either<Wad> {
