@@ -21,10 +21,6 @@ describe('WadStorageService', () => {
 		service.removeAllWads();
 	});
 
-	it('should be created', () => {
-		expect(service).toBeTruthy();
-	});
-
 	it('#isLoaded - empty', () => {
 		expect(service.isLoaded()).toBeFalse();
 	});
@@ -58,7 +54,7 @@ describe('WadStorageService', () => {
 			expect(res.status).toEqual(UploadStatus.UPLOADED);
 
 			expect(service.isLoaded()).toBeTruthy();
-			expect(service.getCurrent().isRight).toBeTruthy();
+			expect(service.getCurrent().isRight()).toBeTruthy();
 			expect(service.getCurrent().get().name).toEqual('doom.wad');
 		});
 	});
