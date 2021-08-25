@@ -17,8 +17,14 @@ export class PbmpComponent implements OnInit {
 	@Input()
 	palette = 0;
 
-	@ViewChild('canvas', { static: true })
+	@Input()
+	scale = 1;
+
+	@ViewChild('canvas', {static: true})
 	canvasRef: ElementRef<HTMLCanvasElement>;
+
+	width = 960;
+	height = 600;
 
 	constructor(private wadStorage: WadStorageService) {
 	}
@@ -37,13 +43,13 @@ export class PbmpComponent implements OnInit {
 		const canvas = this.canvasRef.nativeElement;
 		const ctx = canvas.getContext('2d');
 		const img = bp.toImageData(this.bitmap);
-		canvas.width = 960;
-		canvas.height = 600;
+		canvas.width = this.bitmap.header.width * this.scale;
+		canvas.height = this.bitmap.header.height * this.scale;
 		ctx.putImageData(img(palette), 0, 0);
 
 		const imageObject = new Image();
 		imageObject.onload = () => {
-			ctx.scale(3, 3);
+			ctx.scale(this.scale, this.scale);
 			ctx.drawImage(imageObject, 0, 0);
 		};
 		imageObject.src = canvas.toDataURL();

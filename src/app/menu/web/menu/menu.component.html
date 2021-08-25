@@ -1,7 +1,7 @@
-<ngb-accordion [closeOthers]="true" class="app-side-menu" [activeIds]="menuState.activeL1">
+<ngb-accordion [closeOthers]="true" class="app-side-menu" [activeIds]="state.idL1">
 	<ngb-panel cardClass="app-card" *ngFor="let l1 of menuRoot.l1" [id]="l1.id">
 		<ng-template ngbPanelHeader>
-			<button ngbPanelToggle class="btn btn-link container-fluid text-left" (click)="menuState.activeL1 = l1.id">
+			<button ngbPanelToggle class="btn btn-link container-fluid text-left">
 				<i class="bi bi-archive-fill pr-2"></i>
 				{{l1.title}}
 			</button>
@@ -9,8 +9,8 @@
 		<ng-template ngbPanelContent>
 			<div class="list-group" role="tablist">
 				<ng-container *ngFor="let l2 of l1.l2">
-					<a routerLink="{{l2.path}}" routerLinkActive="active" class="app-menu-l2" data-toggle="list"
-						 role="tab" (click)="onL2Click(l2.id)">{{l2.title}}</a>
+					<a routerLink="{{l2.path}}" class="app-menu-l2" data-toggle="list" [ngClass]="{'active':state.idL2===l2.id}"
+						 role="tab" (click)="onL2Click({idL1:l1.id, idL2:l2.id})">{{l2.title}}</a>
 				</ng-container>
 			</div>
 		</ng-template>

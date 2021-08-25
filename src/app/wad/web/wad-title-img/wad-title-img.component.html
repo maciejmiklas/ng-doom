@@ -1,9 +1,10 @@
 <ngb-carousel>
 	<ng-template ngbSlide *ngFor="let bitmap of bitmaps">
-		<app-pbmp [bitmap]="bitmap"></app-pbmp>
+		<div class="pbmp-container">
+			<app-pbmp [bitmap]="bitmap" class="pbmp-slide" scale="2"></app-pbmp>
+		</div>
 		<div class="carousel-caption">
 			<h3>{{bitmap.header.dir.name}}</h3>
 		</div>
 	</ng-template>
-
 </ngb-carousel>

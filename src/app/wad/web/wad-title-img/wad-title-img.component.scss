@@ -1,0 +1,10 @@
+.pbmp-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+}
+
+.pbmp-slide {
+	flex-shrink: 0;
+}

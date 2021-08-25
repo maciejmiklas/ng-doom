@@ -1,6 +1,6 @@
 export type MenuRoot = {
 	l1: MenuL1[],
-	welcomeMid: string
+	initialState: MenuState
 };
 
 export type MenuL1 = {
@@ -19,3 +19,9 @@ export type MenuL2 = {
 export interface MenuDecorator {
 	visible(): boolean;
 }
+
+export type MenuState = {
+	idL1: string,
+	idL2: string;
+};
+

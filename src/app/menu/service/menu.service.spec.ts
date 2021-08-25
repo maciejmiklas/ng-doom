@@ -37,14 +37,14 @@ describe('MenuParserService - on Mock', () => {
 				l2: [
 					{id: 'mid_wad_maps', title: 'Maps', path: 'wad_maps', decorator: 'dec_wad_upload'}
 				]
-			}], welcomeMid: 'mid_wad_upload'
+			}], initialState: {idL1: 'm1_manage_wads', idL2: 'm2_wad_upload'}
 		});
 	});
 
 	it('Menu Visibility - all Visible', () => {
 		wadUploadMenuDecoratorSpy.visible.and.returnValue(true);
 		wadListMenuDecoratorSpy.visible.and.returnValue(true);
-		const root = menuService.visibleMenu();
+		const root = menuService.visibleMenu;
 		expect(root.l1[0].l2.length).toEqual(2);
 		expect(root.l1[1].l2.length).toEqual(1);
 		expect(root.l1[0].l2[0].id).toEqual('mid_wad_upload');
@@ -55,14 +55,14 @@ describe('MenuParserService - on Mock', () => {
 	it('Menu Visibility - all Hidden', () => {
 		wadUploadMenuDecoratorSpy.visible.and.returnValue(false);
 		wadListMenuDecoratorSpy.visible.and.returnValue(false);
-		const root = menuService.visibleMenu();
+		const root = menuService.visibleMenu;
 		expect(root.l1.length).toEqual(0);
 	});
 
 	it('Menu Visibility - partial Hidden', () => {
 		wadUploadMenuDecoratorSpy.visible.and.returnValue(false);
 		wadListMenuDecoratorSpy.visible.and.returnValue(true);
-		const root = menuService.visibleMenu();
+		const root = menuService.visibleMenu;
 		expect(root.l1.length).toEqual(1);
 		expect(root.l1[0].l2.length).toEqual(1);
 	});
@@ -70,10 +70,10 @@ describe('MenuParserService - on Mock', () => {
 	it('Menu Visibility - hide and show', () => {
 		wadUploadMenuDecoratorSpy.visible.and.returnValue(false);
 		wadListMenuDecoratorSpy.visible.and.returnValue(true);
-		expect(menuService.visibleMenu().l1[0].l2.length).toEqual(1);
+		expect(menuService.visibleMenu.l1[0].l2.length).toEqual(1);
 
 		wadUploadMenuDecoratorSpy.visible.and.returnValue(true);
-		expect(menuService.visibleMenu().l1[0].l2.length).toEqual(2);
+		expect(menuService.visibleMenu.l1[0].l2.length).toEqual(2);
 	});
 
 
@@ -91,8 +91,9 @@ describe('MenuParserService - on Real Data', () => {
 	});
 
 	it('Parse Menu Without Visibility', () => {
-		const root = menuService.menuFull();
-		expect(root.welcomeMid).toEqual('mid_wad_upload');
+		const root = menuService.initialMenu;
+		expect(root.initialState.idL2).toEqual('m1_manage_wads');
+		expect(root.initialState.idL2).toEqual('m2_wad_upload');
 		expect(root.l1.length).toEqual(3);
 		expect(root.l1[0].title).toEqual('Manage WADs');
 	});
@@ -125,7 +126,7 @@ describe('MenuParserService - on Real Data', () => {
 				{id: 'm2_save_manage', title: 'Manage', path: 'save_manage', decorator: 'dec_mid_save_manage'}]
 		};
 
-		const root: MenuRoot = {l1: [manage_wads, wad_viewer, saves], welcomeMid: 'mid_wad_upload'};
+		const root: MenuRoot = {l1: [manage_wads, wad_viewer, saves], initialState: {idL1: 'm1_manage_wads', idL2: 'm2_wad_upload'}};
 		const json = JSON.stringify(root);
 		expect(json).toContain('save_load');
 		expect(json).toContain('wad_palette');

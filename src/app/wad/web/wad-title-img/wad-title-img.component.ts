@@ -1,18 +1,21 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation} from '@angular/core';
 import {PatchBitmap, Wad} from '../../parser/wad_model';
 import {Log} from '../../../common/is/log';
 import {WadStorageService} from '../../service/wad-storage.service';
 
 @Component({
 	selector: 'app-wad-title-img',
-	templateUrl: './wad-title-img.component.html'
+	templateUrl: './wad-title-img.component.html',
+	styleUrls: ['./wad-title-img.component.scss'],
+	encapsulation: ViewEncapsulation.None
 })
 export class WadTitleImgComponent implements OnInit {
-	static CMP = 'app-title-img';
+	static CMP = 'app-wad-title-img';
 	wad: Wad;
 	bitmaps: PatchBitmap[];
 
 	constructor(private wadStorage: WadStorageService) {
+
 	}
 
 	ngOnInit(): void {
@@ -23,8 +26,8 @@ export class WadTitleImgComponent implements OnInit {
 		this.wad = this.wadStorage.getCurrent().get().wad;
 		this.bitmaps = new Array<PatchBitmap>();
 		this.bitmaps.push(this.wad.title.title);
-		this.bitmaps.push(this.wad.title.credit);
-		this.wad.title.help.exec(ba => ba.forEach(b => this.bitmaps.push(b)));
+		//this.bitmaps.push(this.wad.title.credit);
+	//	this.wad.title.help.exec(ba => ba.forEach(b => this.bitmaps.push(b)));
 	}
 
 }

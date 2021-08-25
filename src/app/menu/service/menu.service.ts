@@ -1,5 +1,5 @@
 import {AbstractType, Injectable, Injector} from '@angular/core';
-import {MenuDecorator, MenuRoot} from './menu-model';
+import {MenuDecorator, MenuRoot, MenuState} from './menu-model';
 import menuJson from './menu.json';
 import {
 	WadListMenuDecorator,
@@ -17,6 +17,8 @@ import {Either} from '../../common/is/either';
 export class MenuService {
 
 	private menuStr: string = JSON.stringify(menuJson);
+	_state: MenuState;
+	private readonly _initialMenu: MenuRoot;
 
 	private decoratorMap: Record<string, AbstractType<MenuDecorator>> = {
 		dec_wad_upload: WadUploadMenuDecorator,
@@ -31,9 +33,11 @@ export class MenuService {
 	};
 
 	constructor(private injector: Injector) {
+		this._initialMenu = this.copyMenu();
+		this._state = {...this._initialMenu.initialState};
 	}
 
-	visibleMenu(): MenuRoot {
+	get visibleMenu(): MenuRoot {
 		const copy = this.copyMenu();
 		// remove hidden elements on L2
 		copy.l1.forEach(l1 => {
@@ -52,12 +56,24 @@ export class MenuService {
 		return JSON.parse(this.menuStr);
 	}
 
-	menuFull(): MenuRoot {
-		return this.copyMenu();
+	get routePath(): string {
+		return this._initialMenu.l1.filter(e => e.id === this._state.idL1)[0].l2.filter(e => e.id === this._state.idL2)[0].path;
+	}
+
+	get initialMenu(): MenuRoot {
+		return this._initialMenu;
 	}
 
 	replaceMenu(menuRoot: MenuRoot): void {
 		this.menuStr = JSON.stringify(menuRoot);
+	}
+
+	set state(state: MenuState) {
+		this._state = {...state};
+	}
+
+	get state(): MenuState {
+		return this._state;
 	}
 }
 
