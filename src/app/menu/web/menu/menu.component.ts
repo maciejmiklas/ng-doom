@@ -1,7 +1,7 @@
 import {Component, EventEmitter, OnInit, Output, ViewEncapsulation} from '@angular/core';
 import {MenuService} from '../../service/menu.service';
-import {MenuRoot, MenuState} from '../../service/menu-model';
-import {NgRxEventBusService} from 'ngrx-event-bus';
+import {MenuRoot, MenuState} from '../../service/menu_model';
+import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {Event} from '../../../common/is/event';
 import {Router} from '@angular/router';
 
@@ -36,6 +36,7 @@ export class MenuComponent implements OnInit {
 	onL2Click(state: MenuState): void {
 		this.menuService.state = state;
 		this.selection.emit(state);
+		this.eventBus.emit(new EmitEvent(Event.MENU_SELECTED, state));
 	}
 
 	get state(): MenuState {

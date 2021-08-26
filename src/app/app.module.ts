@@ -17,6 +17,7 @@ import {EmptyComponent} from './common/web/empty/empty.component';
 import {NgRxEventBusModule} from 'ngrx-event-bus';
 import {NavbarComponent} from './navbar/web/navbar/navbar.component';
 import {NgxFileDropModule} from 'ngx-file-drop';
+import { NavbarPluginComponent } from './wad/web/wad-title-img/navbar-plugin/navbar-plugin.component';
 
 @NgModule({
 	declarations: [
@@ -31,6 +32,7 @@ import {NgxFileDropModule} from 'ngx-file-drop';
 		MenuComponent,
 		EmptyComponent,
 		NavbarComponent,
+  NavbarPluginComponent,
 	],
 	imports: [
 		BrowserModule,

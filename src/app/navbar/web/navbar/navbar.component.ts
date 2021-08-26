@@ -1,5 +1,8 @@
-import {Component, HostListener, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, ComponentFactoryResolver, HostListener, OnInit, ViewChild, ViewContainerRef, ViewEncapsulation} from '@angular/core';
 import {animate, state, style, transition, trigger} from '@angular/animations';
+import {Event} from '../../../common/is/event';
+import {NgRxEventBusService} from 'ngrx-event-bus';
+import {NavbarPluginFactory} from '../../service/navbar_plugin_factory';
 
 @Component({
 	selector: 'app-navbar',
@@ -28,13 +31,33 @@ export class NavbarComponent implements OnInit {
 	private lastViewSmall;
 	private overlayMenuClicked = false;
 
-	constructor() {
+	@ViewChild('navPluginRef', {read: ViewContainerRef})
+	navPluginRef: ViewContainerRef;
+
+	constructor(private resolver: ComponentFactoryResolver, private eventBus: NgRxEventBusService) {
 	}
 
 	ngOnInit(): void {
 		this.innerWidth = window.innerWidth;
 		this.lastViewSmall = this.isViewSmall();
 		this.sidebarState = this.isViewSmall() ? SidebarState.COLLAPSED : SidebarState.OPEN_FULL;
+
+		this.eventBus.on(Event.MENU_SELECTED, () => {
+			this.removePlugin();
+		});
+
+		this.eventBus.on(Event.SET_NAVBAR_PLUGIN, (navbarPluginFactory: NavbarPluginFactory) => {
+			this.loadPlugin(navbarPluginFactory);
+		});
+	}
+
+	private loadPlugin(navbarPluginFactory: NavbarPluginFactory): void {
+		const compFactory = this.resolver.resolveComponentFactory(navbarPluginFactory.component);
+		this.navPluginRef.createComponent(compFactory);
+	}
+
+	private removePlugin(): void {
+		this.navPluginRef.clear();
 	}
 
 	@HostListener('window:resize')

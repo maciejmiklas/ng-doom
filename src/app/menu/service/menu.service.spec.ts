@@ -1,7 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 
 import {MenuService} from './menu.service';
-import {MenuL1, MenuRoot} from './menu-model';
+import {MenuL1, MenuRoot} from './menu_model';
 import {WadListMenuDecorator, WadUploadMenuDecorator} from '../../wad/service/wad-menu.service';
 
 describe('MenuParserService - on Mock', () => {
