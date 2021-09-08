@@ -4,7 +4,7 @@ import {Log} from '../../../common/is/log';
 import {WadStorageService} from '../../service/wad-storage.service';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {Event} from '../../../common/is/event';
-import {NavbarPluginFactory} from '../../../navbar/service/navbar_plugin_factory';
+import {NavbarPluginFactory} from '../../../navbar/service/navbar_plugin';
 import {NavbarPluginComponent} from './navbar-plugin/navbar-plugin.component';
 
 @Component({
@@ -17,6 +17,7 @@ export class WadTitleImgComponent implements OnInit {
 	static CMP = 'app-wad-title-img';
 	wad: Wad;
 	bitmaps: PatchBitmap[];
+	scale = 2;
 
 	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService) {
 
@@ -32,7 +33,7 @@ export class WadTitleImgComponent implements OnInit {
 		this.bitmaps.push(this.wad.title.title);
 		this.bitmaps.push(this.wad.title.credit);
 		this.wad.title.help.exec(ba => ba.forEach(b => this.bitmaps.push(b)));
-		this.eventBus.emit(new EmitEvent(Event.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(NavbarPluginComponent, this.wad)));
+		this.eventBus.emit(new EmitEvent(Event.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(NavbarPluginComponent, this)));
 	}
 
 }

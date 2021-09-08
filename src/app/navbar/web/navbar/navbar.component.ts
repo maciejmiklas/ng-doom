@@ -2,7 +2,7 @@ import {Component, ComponentFactoryResolver, HostListener, OnInit, ViewChild, Vi
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {Event} from '../../../common/is/event';
 import {NgRxEventBusService} from 'ngrx-event-bus';
-import {NavbarPluginFactory} from '../../service/navbar_plugin_factory';
+import {NavbarPlugin, NavbarPluginFactory} from '../../service/navbar_plugin';
 
 @Component({
 	selector: 'app-navbar',
@@ -46,14 +46,15 @@ export class NavbarComponent implements OnInit {
 			this.removePlugin();
 		});
 
-		this.eventBus.on(Event.SET_NAVBAR_PLUGIN, (navbarPluginFactory: NavbarPluginFactory) => {
+		this.eventBus.on(Event.SET_NAVBAR_PLUGIN, (navbarPluginFactory: NavbarPluginFactory<any>) => {
 			this.loadPlugin(navbarPluginFactory);
 		});
 	}
 
-	private loadPlugin(navbarPluginFactory: NavbarPluginFactory): void {
-		const compFactory = this.resolver.resolveComponentFactory(navbarPluginFactory.component);
-		this.navPluginRef.createComponent(compFactory);
+	private loadPlugin(navbarPluginFactory: NavbarPluginFactory<any>): void {
+		const compClass = this.resolver.resolveComponentFactory(navbarPluginFactory.component);
+		const plugin = this.navPluginRef.createComponent<NavbarPlugin<any>>(compClass);
+		plugin.instance.setData(navbarPluginFactory.data);
 	}
 
 	private removePlugin(): void {

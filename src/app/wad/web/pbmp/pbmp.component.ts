@@ -6,7 +6,8 @@ import {WadStorageService} from '../../service/wad-storage.service';
 
 @Component({
 	selector: 'app-pbmp',
-	templateUrl: './pbmp.component.html'
+	templateUrl: './pbmp.component.html',
+	styleUrls: ['./pbmp.component.scss']
 })
 export class PbmpComponent implements OnInit {
 	static CMP = 'app-pbmp';
@@ -17,41 +18,59 @@ export class PbmpComponent implements OnInit {
 	@Input()
 	palette = 0;
 
-	@Input()
-	scale = 1;
-
 	@ViewChild('canvas', {static: true})
 	canvasRef: ElementRef<HTMLCanvasElement>;
 
-	width = 960;
-	height = 600;
+	_scale = 1;
+	private ctx;
+	private imageObject;
+	private canvas;
 
 	constructor(private wadStorage: WadStorageService) {
 	}
 
 	ngOnInit(): void {
+		this.paint();
+	}
+
+	@Input()
+	set scale(scale: number) {
+		if (this._scale !== scale) {
+			this._scale = scale;
+			this.rescale();
+		}
+	}
+
+	private rescale(): void {
+		if (this.canvas === undefined) {
+			return;
+		}
+		const canvas = this.canvasRef.nativeElement;
+		canvas.width = this.bitmap.header.width * this._scale;
+		canvas.height = this.bitmap.header.height * this._scale;
+		this.ctx.scale(this._scale, this._scale);
+		this.ctx.drawImage(this.imageObject, 0, 0);
+	}
+
+	private paint(): void {
 		if (!this.wadStorage.isLoaded()) {
 			Log.error(PbmpComponent.CMP, 'WAD not Loaded');
 			return;
 		}
-		this.paint();
-	}
-
-	private paint(): void {
 		const wad = this.wadStorage.getCurrent().get().wad;
 		const palette = bp.parsePlaypal(wad.bytes, wad.dirs).palettes[this.palette];
-		const canvas = this.canvasRef.nativeElement;
-		const ctx = canvas.getContext('2d');
+		this.canvas = this.canvasRef.nativeElement;
+		this.ctx = this.canvas.getContext('2d');
 		const img = bp.toImageData(this.bitmap);
-		canvas.width = this.bitmap.header.width * this.scale;
-		canvas.height = this.bitmap.header.height * this.scale;
-		ctx.putImageData(img(palette), 0, 0);
+		this.canvas.width = this.bitmap.header.width * this._scale;
+		this.canvas.height = this.bitmap.header.height * this._scale;
+		this.ctx.putImageData(img(palette), 0, 0);
 
-		const imageObject = new Image();
-		imageObject.onload = () => {
-			ctx.scale(this.scale, this.scale);
-			ctx.drawImage(imageObject, 0, 0);
+		this.imageObject = new Image();
+		this.imageObject.onload = () => {
+			this.ctx.scale(this._scale, this._scale);
+			this.ctx.drawImage(this.imageObject, 0, 0);
 		};
-		imageObject.src = canvas.toDataURL();
+		this.imageObject.src = this.canvas.toDataURL();
 	}
 }

@@ -1,7 +1,7 @@
 <div class="app-upload-container">
 	<ngx-file-drop dropZoneLabel="Drop files here" (onFileDrop)="onFileDrop($event)" (onFileOver)="onFileOver()"
 								 (onFileLeave)="onFileLeave()"
-								 dropZoneClassName="app-upload-dropzone" contentClassName="app-upload-content" multiple="true">
+								 dropZoneClassName="none" contentClassName="app-upload-content" multiple="true">
 		<ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
 			<div (click)="openFileSelector()" class="app-upload-click">
 				<br><br><br><br><br>

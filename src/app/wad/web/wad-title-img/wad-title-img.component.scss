@@ -1,10 +1,13 @@
-.pbmp-container {
+@import "/src/scss/ng-doom";
+
+.app-pbmp-container {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	width: 100%;
+	overflow: auto;
 }
 
-.pbmp-slide {
+.app-pbmp-slide {
 	flex-shrink: 0;
 }
