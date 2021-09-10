@@ -106,7 +106,8 @@ const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sided
 	});
 };
 
-const parseLinedefs = (bytes: number[], dirs: Directory[], vertexes: Vertex[], sidedefs: Sidedef[]) => (mapIdx: number): Either<Linedef[]> => {
+const parseLinedefs = (bytes: number[], dirs: Directory[], vertexes: Vertex[], sidedefs: Sidedef[]) => (mapIdx: number):
+	Either<Linedef[]> => {
 	const linedefsDir = dirs[mapIdx + MapLumpType.LINEDEFS];
 	const parser = parseLinedef(bytes, linedefsDir, vertexes, sidedefs);
 	const parsed = unfoldByDirectorySize(linedefsDir, 14).map((ofs, thingIdx) => parser(thingIdx)).filter(v => v.isRight()).map(v => v.get());
