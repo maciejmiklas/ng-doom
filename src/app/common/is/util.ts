@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import {Either} from './either';
+import {Either} from '@maciejmiklas/functional-ts';
 
 const uint8ArrayToBase64 = (bytes: number[]): string => {
 	let binary = '';

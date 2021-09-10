@@ -11,7 +11,7 @@
  */
 
 /** A WAD file always starts with a 12-byte header. */
-import {Either} from '../../common/is/either';
+import {Either} from '@maciejmiklas/functional-ts';
 
 export type Header = {
 	identification: WadType

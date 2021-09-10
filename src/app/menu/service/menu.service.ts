@@ -9,7 +9,7 @@ import {
 	WadTitleImgMenuDecorator,
 	WadUploadMenuDecorator
 } from '../../wad/service/wad-menu.service';
-import {Either} from '../../common/is/either';
+import {Either} from '@maciejmiklas/functional-ts';
 
 @Injectable({
 	providedIn: 'root'

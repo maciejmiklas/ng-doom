@@ -92,7 +92,7 @@ describe('MenuParserService - on Real Data', () => {
 
 	it('Parse Menu Without Visibility', () => {
 		const root = menuService.initialMenu;
-		expect(root.initialState.idL1).toEqual('m1_wad_upload');
+		expect(root.initialState.idL1).toEqual('m1_manage_wads');
 		expect(root.initialState.idL2).toEqual('m2_wad_upload');
 		expect(root.l1.length).toEqual(3);
 		expect(root.l1[0].title).toEqual('Manage WADs');

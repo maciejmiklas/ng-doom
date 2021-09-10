@@ -2,7 +2,7 @@ import {Directories, Directory, Header, WadType} from './wad_model';
 import * as R from 'ramda';
 import U from '../../common/is/util';
 import {Log} from '../../common/is/log';
-import {Either} from '../../common/is/either';
+import {Either} from '@maciejmiklas/functional-ts';
 
 const parseAllDirectories = (header: Header, bytes: number[]): Either<Directory[]> => {
 	const dirs = R.unfold(idx => idx > header.numlumps ? false : [header.infotableofs + idx * 16, idx + 1], 0)

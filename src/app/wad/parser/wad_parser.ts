@@ -1,5 +1,5 @@
 import {Directories, Directory, TitlePic, Wad} from './wad_model';
-import {Either} from '../../common/is/either';
+import {Either} from '@maciejmiklas/functional-ts';
 import {functions as dp} from './directory_parser';
 import {functions as bp} from './bitmap_parser';
 

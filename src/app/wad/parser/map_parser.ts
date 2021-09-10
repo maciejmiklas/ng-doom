@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import {Either} from '../../common/is/either';
+import {Either} from '@maciejmiklas/functional-ts';
 import {Directory, Linedef, MapLumpType, Sidedef, Thing, Vertex} from './wad_model';
 import {Log} from '../../common/is/log';
 import U from '../../common/is/util';
