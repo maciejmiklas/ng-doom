@@ -5,8 +5,8 @@ import {Either} from '@maciejmiklas/functional-ts';
 import {functions as wp} from '../parser/wad_parser';
 import {Wad} from '../parser/wad_model';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
-import {Event} from '../../common/is/event';
 import {Log} from '../../common/is/log';
+import {WadEvent} from './wad-event';
 
 @Injectable({
 	providedIn: 'root'
@@ -21,7 +21,7 @@ export class WadStorageService {
 
 	public async uploadWad(file: File): Promise<UploadResult> {
 		return this.uploadWadIntern(file).then(res => {
-			this.eventBus.emit(new EmitEvent(Event.WAD_UPLOAD, res));
+			this.eventBus.emit(new EmitEvent(WadEvent.WAD_UPLOAD, res));
 			return res;
 		});
 	}

@@ -13,7 +13,7 @@ const routes: Routes = [
 	{path: 'wad_title_img', component: WadTitleImgComponent},
 	{path: 'wad-dirs', component: WadDirsComponent},
 	{path: 'wad-playpal', component: WadPlaypalComponent},
-	{path: 'wad_palette', component: WadPaletteComponent},
+	{path: 'wad_playpal', component: WadPlaypalComponent},
 	{path: 'wad_upload', component: WadUploadComponent},
 
 	{path: 'wad_list', component: EmptyComponent},

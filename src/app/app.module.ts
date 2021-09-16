@@ -19,6 +19,7 @@ import {NavbarComponent} from './navbar/web/navbar/navbar.component';
 import {NgxFileDropModule} from 'ngx-file-drop';
 import { NavbarPluginComponent } from './wad/web/wad-title-img/navbar-plugin/navbar-plugin.component';
 import {NgxBootstrapSliderModule} from 'ngx-bootstrap-slider';
+import { CarouselComponent } from './common/web/carousel/carousel.component';
 
 @NgModule({
 	declarations: [
@@ -34,6 +35,7 @@ import {NgxBootstrapSliderModule} from 'ngx-bootstrap-slider';
 		EmptyComponent,
 		NavbarComponent,
   NavbarPluginComponent,
+  CarouselComponent,
 	],
 	imports: [
 		BrowserModule,

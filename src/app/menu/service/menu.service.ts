@@ -1,10 +1,10 @@
 import {AbstractType, Injectable, Injector} from '@angular/core';
-import {MenuDecorator, MenuRoot, MenuState} from './menu_model';
+import {MenuDecorator, MenuRoot, MenuState} from './menu-model';
 import menuJson from './menu.json';
 import {
 	WadListMenuDecorator,
 	WadMapsMenuDecorator,
-	WadPaletteMenuDecorator,
+	WadPlaypalMenuDecorator,
 	WadSelectMenuDecorator,
 	WadTitleImgMenuDecorator,
 	WadUploadMenuDecorator
@@ -25,7 +25,7 @@ export class MenuService {
 		dec_wad_list: WadListMenuDecorator,
 		dec_wad_select: WadSelectMenuDecorator,
 		dec_wad_maps: WadMapsMenuDecorator,
-		dec_wad_palette: WadPaletteMenuDecorator,
+		dec_wad_playpal: WadPlaypalMenuDecorator,
 		dec_wad_title_img: WadTitleImgMenuDecorator,
 		dec_mid_save_load: DummyMenuDecorator,
 		dec_mid_save_new: DummyMenuDecorator,

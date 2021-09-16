@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {MenuDecorator} from '../../menu/service/menu_model';
+import {MenuDecorator} from '../../menu/service/menu-model';
 import {WadStorageService} from './wad-storage.service';
 
 @Injectable({
@@ -52,7 +52,7 @@ export class WadMapsMenuDecorator implements MenuDecorator {
 @Injectable({
 	providedIn: 'root'
 })
-export class WadPaletteMenuDecorator implements MenuDecorator {
+export class WadPlaypalMenuDecorator implements MenuDecorator {
 	constructor(private wadStorage: WadStorageService) {
 	}
 

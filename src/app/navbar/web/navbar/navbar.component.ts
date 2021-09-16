@@ -1,8 +1,9 @@
 import {Component, ComponentFactoryResolver, HostListener, OnInit, ViewChild, ViewContainerRef, ViewEncapsulation} from '@angular/core';
 import {animate, state, style, transition, trigger} from '@angular/animations';
-import {Event} from '../../../common/is/event';
 import {NgRxEventBusService} from 'ngrx-event-bus';
 import {NavbarPlugin, NavbarPluginFactory} from '../../service/navbar_plugin';
+import {MenuEvent} from '../../../menu/service/menu-event';
+import {NavbarEvent} from '../../service/navbar-event';
 
 @Component({
 	selector: 'app-navbar',
@@ -42,11 +43,11 @@ export class NavbarComponent implements OnInit {
 		this.lastViewSmall = this.isViewSmall();
 		this.sidebarState = this.isViewSmall() ? SidebarState.COLLAPSED : SidebarState.OPEN_FULL;
 
-		this.eventBus.on(Event.MENU_SELECTED, () => {
+		this.eventBus.on(MenuEvent.MENU_SELECTED, () => {
 			this.removePlugin();
 		});
 
-		this.eventBus.on(Event.SET_NAVBAR_PLUGIN, (navbarPluginFactory: NavbarPluginFactory<any>) => {
+		this.eventBus.on(NavbarEvent.SET_NAVBAR_PLUGIN, (navbarPluginFactory: NavbarPluginFactory<any>) => {
 			this.loadPlugin(navbarPluginFactory);
 		});
 	}

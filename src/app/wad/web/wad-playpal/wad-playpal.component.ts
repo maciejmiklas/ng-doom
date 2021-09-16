@@ -6,7 +6,8 @@ import {WadStorageService} from '../../service/wad-storage.service';
 
 @Component({
 	selector: 'app-wad-playpal',
-	templateUrl: './wad-playpal.component.html'
+	templateUrl: './wad-playpal.component.html',
+	styleUrls: ['./wad-playpal.component.scss']
 })
 export class WadPlaypalComponent implements OnInit {
 	static CMP = 'app-wad-playpal';
@@ -16,10 +17,6 @@ export class WadPlaypalComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		if (!this.wadStorage.isLoaded()) {
-			Log.error(WadPlaypalComponent.CMP, 'WAD not Loaded');
-			return;
-		}
 		const wad = this.wadStorage.getCurrent().get();
 		this.palettes = bp.parsePlaypal(wad.wad.bytes, wad.wad.dirs).palettes;
 	}

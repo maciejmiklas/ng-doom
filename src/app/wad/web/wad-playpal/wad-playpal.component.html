@@ -1,1 +1,8 @@
-<app-wad-palette [palette]='palettes[0]'></app-wad-palette>
+<ngb-carousel>
+	<ng-template ngbSlide *ngFor="let palette of palettes;let idx = index">
+		<div class="app-carousel-container">
+			<app-wad-palette [palette]=palette></app-wad-palette>
+		</div>
+	</ng-template>
+</ngb-carousel>
+

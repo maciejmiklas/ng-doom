@@ -1,7 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 
 import {MenuService} from './menu.service';
-import {MenuL1, MenuRoot} from './menu_model';
+import {MenuL1, MenuRoot} from './menu-model';
 import {WadListMenuDecorator, WadUploadMenuDecorator} from '../../wad/service/wad-menu.service';
 
 describe('MenuParserService - on Mock', () => {
@@ -113,7 +113,7 @@ describe('MenuParserService - on Real Data', () => {
 			id: 'm1_wad_viewer',
 			l2: [
 				{id: 'm2_wad_maps', title: 'Maps', path: 'wad_maps', decorator: 'dec_wad_maps'},
-				{id: 'm2_wad_palette', title: 'Palette', path: 'wad_palette', decorator: 'dec_wad_palette'},
+				{id: 'm2_wad_playpal', title: 'Playpal', path: 'wad_playpal', decorator: 'dec_wad_playpal'},
 				{id: 'm2_wad_title_img', title: 'Title Images', path: 'wad_title_img', decorator: 'dec_wad_title_img'}]
 		};
 

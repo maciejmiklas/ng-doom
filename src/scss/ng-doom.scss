@@ -27,3 +27,17 @@ p {
 	background-color: $app-content-bg-color;
 	color: $app-font-color;
 }
+
+
+// carousel
+.app-carousel-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	overflow: auto;
+	margin-bottom: 3em;
+}
+.app-carousel-slide {
+	flex-shrink: 0;
+}
