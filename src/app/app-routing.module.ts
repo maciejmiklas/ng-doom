@@ -3,7 +3,6 @@ import {RouterModule, Routes} from '@angular/router';
 import {WadTitleImgComponent} from './wad/web/wad-title-img/wad-title-img.component';
 import {WadDirsComponent} from './wad/web/wad-dirs/wad-dirs.component';
 import {WadPlaypalComponent} from './wad/web/wad-playpal/wad-playpal.component';
-import {WadPaletteComponent} from './wad/web/wad-palette/wad-palette.component';
 import {WadUploadComponent} from './wad/web/wad-upload/wad-upload.component';
 import {EmptyComponent} from './common/web/empty/empty.component';
 

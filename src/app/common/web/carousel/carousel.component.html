@@ -1,1 +1,9 @@
-<p>carousel works!</p>
+<ngb-carousel #carousel [interval]="slideInterval" (slide)="onSlide($event)" [pauseOnHover]="pauseOnHover">
+	<ng-template ngbSlide *ngFor="let slide of slides">
+		<div class="app-carousel-container">
+			<ng-content class="app-carousel-slide"></ng-content>
+
+			<!-- <app-pbmp [bitmap]="bitmap" class="app-carousel-slide" [scale]="scale"></app-pbmp> -->
+		</div>
+	</ng-template>
+</ngb-carousel>
