@@ -1,7 +1,17 @@
-<span>{{title}}</span>
-
-<button type="button" (click)="togglePaused()" class="btn btn-outline-dark btn-sm">
-	{{parent.paused ? 'Cycle' : 'Pause' }}
-</button>
-
-<mv-slider [(value)]="zoom" [min]="1" [max]="8" [step]="1" [formatter]="formatter" tooltip="always" tooltipPosition="bottom"></mv-slider>
+<div class="container-fluid app-navp-container">
+	<div class="row">
+		<div class="col-7">
+			<span>{{title}}</span>
+		</div>
+		<div class="col-2">
+			<button type="button" (click)="togglePaused()" class="btn btn-outline-dark btn-sm">
+				{{parent.paused ? 'Cycle' : 'Pause' }}
+			</button>
+		</div>
+		<div class="col-3">
+			<mv-slider *ngIf="_zoom > 0" [(value)]="zoom" [min]="1" [max]="8" [step]="1" [formatter]="formatter"
+								 tooltip="always"
+								 tooltipPosition="bottom"></mv-slider>
+		</div>
+	</div>
+</div>

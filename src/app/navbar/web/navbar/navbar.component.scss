@@ -3,11 +3,10 @@
 .app-content {
 	width: 100%;
 	padding: 20px;
-	min-height: 100vh;
 }
 
 // ########### NAVBAR ##################
-.app-nav-container {
+.app-container {
 	display: flex;
 	align-items: stretch;
 	max-width: 100%;
@@ -15,15 +14,12 @@
 }
 
 .app-navbar {
-	@extend .navbar-expand-lg;
-	@extend .navbar-light;
 	@include app-content-color;
-	display: flex;
 	padding: 15px 10px;
 	border: none;
 	border-radius: 0;
 	margin-bottom: 20px;
-	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .app-navbar .app-hide-sidebar-btn {
@@ -57,10 +53,4 @@
 .app-sidebar ul li a i {
 	margin-right: 10px;
 }
-
-.app-nav-plugin {
-	@extend .ml-auto;
-	border-right: 20px;
-}
-
 

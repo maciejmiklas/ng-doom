@@ -12,13 +12,11 @@ import {NavbarEvent} from '../../service/navbar-event';
 	encapsulation: ViewEncapsulation.None,
 	animations: [
 		trigger('sidebarAnimation', [
-			state('open_overlay', style({'z-index': 999, position: 'fixed'})),
 			state('collapsed', style({transform: 'translateX(-100%)'})),
 			transition('* => *', [animate('100ms')])
 		]),
 		trigger('collapsedMenuAnimation', [
-			state('open_overlay', style({position: 'fixed'})),
-			transition('* => *', [animate('1ms')])
+			state('open_overlay', style({'z-index': 999, position: 'fixed'}))
 		])
 	]
 })

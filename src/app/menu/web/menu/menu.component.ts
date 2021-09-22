@@ -23,14 +23,14 @@ export class MenuComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.loadMenu();
+		this.reloadMenu();
 		this.eventBus.on(WadEvent.WAD_UPLOAD, () => {
-			this.loadMenu();
+			this.reloadMenu();
 		});
 		this.router.navigate([this.menuService.routePath]);
 	}
 
-	private loadMenu(): void {
+	private reloadMenu(): void {
 		this.menuRoot = this.menuService.visibleMenu;
 	}
 

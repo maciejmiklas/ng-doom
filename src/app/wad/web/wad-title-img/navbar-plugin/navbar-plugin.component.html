@@ -1,7 +1,0 @@
-<span>{{title}}</span>
-
-<button type="button" (click)="togglePaused()" class="btn btn-outline-dark btn-sm">
-	{{parent.paused ? 'Cycle' : 'Pause' }}
-</button>
-
-<mv-slider [(value)]="zoom" [min]="1" [max]="8" [step]="1" [formatter]="formatter" tooltip="always" tooltipPosition="bottom"></mv-slider>

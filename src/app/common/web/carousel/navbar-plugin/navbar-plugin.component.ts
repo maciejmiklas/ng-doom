@@ -25,6 +25,7 @@ export class NavbarCarouselPluginComponent implements NavbarPlugin<CarouselCompo
 
 	setData(data: CarouselComponent): void {
 		this.parent = data;
+		this._zoom = data.zoom;
 	}
 
 	set zoom(zoom: number) {

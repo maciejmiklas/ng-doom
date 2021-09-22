@@ -1,7 +1,5 @@
-<ngb-carousel #carousel [interval]="2000" (slide)="onSlide($event)" [pauseOnHover]="true">
-	<ng-template ngbSlide *ngFor="let bitmap of bitmaps">
-		<div class="app-carousel-container">
-			<app-pbmp [bitmap]="bitmap" class="app-carousel-slide" [scale]="scale"></app-pbmp>
-		</div>
+<app-carousel [slides]="bitmaps" [(zoom)]="zoom" [slideNames]="bitmapNames">
+	<ng-template let-slide>
+		<app-pbmp [bitmap]="slide" class="app-carousel-slide" [scale]="zoom"></app-pbmp>
 	</ng-template>
-</ngb-carousel>
+</app-carousel>

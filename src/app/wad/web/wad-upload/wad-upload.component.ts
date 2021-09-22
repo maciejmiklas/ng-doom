@@ -12,7 +12,7 @@ import {UploadResult, UploadStatus} from '../../service/wad-service-model';
 export class WadUploadComponent {
 
 	files: NgxFileDropEntry[] = [];
-	uploadResult: UploadResult[] = [];
+	uploadResults: UploadResult[] = [];
 	uploading = false;
 	statusEnum = UploadStatus;
 
@@ -28,17 +28,17 @@ export class WadUploadComponent {
 	}
 
 	public showUploadStatus(): boolean {
-		return !this.uploading && this.uploadResult.length > 0;
+		return !this.uploading && this.uploadResults.length > 0;
 	}
 
 	public onFileDrop(files: NgxFileDropEntry[]): void {
 		this.files = files;
-		this.uploadResult = [];
+		this.uploadResults = [];
 		for (const droppedFile of files) {
 			const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
 			fileEntry.file((file: File) => {
 				this.wadStorage.uploadWad(file).then(res => {
-					this.uploadResult.push(res);
+					this.uploadResults.push(res);
 				});
 			});
 		}
