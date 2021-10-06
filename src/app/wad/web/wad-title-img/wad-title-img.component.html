@@ -1,4 +1,4 @@
-<app-carousel [slides]="bitmaps" [(zoom)]="zoom" [slideNames]="bitmapNames">
+<app-carousel [slides]="slides" [(zoom)]="zoom">
 	<ng-template let-slide>
 		<app-pbmp [bitmap]="slide" class="app-carousel-slide" [scale]="zoom"></app-pbmp>
 	</ng-template>

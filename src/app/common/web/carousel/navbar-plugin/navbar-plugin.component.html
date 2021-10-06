@@ -7,7 +7,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-1">
+		<div [ngClass]="pauseClass()">
 			<div class="container d-flex h-100 justify-content-center">
 				<div class="align-self-center">
 					<button type="button" (click)="togglePaused()" class="btn btn-outline-dark btn-sm">
@@ -16,10 +16,10 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-3">
+		<div class="col-3" *ngIf="showZoom">
 			<div class="container d-flex h-100 justify-content-center">
 				<div class="align-self-center">
-					<mv-slider *ngIf="_zoom > 0" [(value)]="zoom" [min]="1" [max]="8" [step]="1" [formatter]="formatter"
+					<mv-slider *ngIf="_zoom > 0" [(value)]="zoom" [min]="1" [max]="8" [step]="1" [formatter]="zoomFormatter"
 										 tooltip="always"
 										 tooltipPosition="bottom"></mv-slider>
 				</div>

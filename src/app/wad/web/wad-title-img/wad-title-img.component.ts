@@ -1,7 +1,8 @@
 import {Component, OnInit, ViewEncapsulation} from '@angular/core';
-import {PatchBitmap, Wad} from '../../parser/wad_model';
+import {Wad} from '../../parser/wad_model';
 import {WadStorageService} from '../../service/wad-storage.service';
 import {NgRxEventBusService} from 'ngrx-event-bus';
+import {Slide} from '../../../common/web/carousel/carousel-model';
 
 @Component({
 	selector: 'app-wad-title-img',
@@ -11,8 +12,7 @@ import {NgRxEventBusService} from 'ngrx-event-bus';
 })
 export class WadTitleImgComponent implements OnInit {
 	wad: Wad;
-	bitmaps: PatchBitmap[];
-	bitmapNames: string[];
+	slides: Slide[];
 	zoom = 2;
 	paused = false;
 
@@ -22,11 +22,14 @@ export class WadTitleImgComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.wad = this.wadStorage.getCurrent().get().wad;
-		this.bitmaps = new Array<PatchBitmap>();
-		this.bitmaps.push(this.wad.title.title);
-		this.bitmaps.push(this.wad.title.credit);
-		this.wad.title.help.exec(ba => ba.forEach(b => this.bitmaps.push(b)));
+		this.slides = this.createSlides(this.wad);
+	}
 
-		this.bitmapNames = this.bitmaps.map(b => b.header.dir.name);
+	private createSlides(wad: Wad): Slide[] {
+		const bitmaps = new Array<Slide>();
+		bitmaps.push({item: wad.title.title, name: wad.title.title.header.dir.name});
+		bitmaps.push({item: wad.title.credit, name: wad.title.credit.header.dir.name});
+		wad.title.help.exec(ba => ba.forEach(b => bitmaps.push({item: b, name: b.header.dir.name})));
+		return bitmaps;
 	}
 }

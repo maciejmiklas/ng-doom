@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {NavbarPlugin} from '../../../../navbar/service/navbar_plugin';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {CarouselComponent} from '../carousel.component';
@@ -10,11 +10,20 @@ import {CarouselEvent} from '../carousel-event';
 	styleUrls: ['./navbar-plugin.component.scss'],
 })
 export class NavbarCarouselPluginComponent implements NavbarPlugin<CarouselComponent>, OnInit {
+
+	@Input()
+	showZoom = true;
+
 	_zoom = 2;
 	parent: CarouselComponent;
 	title = '';
-	formatter = (value) => {
+
+	zoomFormatter = (value) => {
 		return 'x ' + value;
+	};
+
+	pauseClass(): string {
+		return this.showZoom ? 'col-1' : 'col-4';
 	}
 
 	constructor(private eventBus: NgRxEventBusService) {
@@ -26,6 +35,7 @@ export class NavbarCarouselPluginComponent implements NavbarPlugin<CarouselCompo
 	setData(data: CarouselComponent): void {
 		this.parent = data;
 		this._zoom = data.zoom;
+		this.showZoom = data.showZoom;
 	}
 
 	set zoom(zoom: number) {

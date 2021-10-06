@@ -1,0 +1,14 @@
+@import "/src/scss/ng-doom";
+
+.app-wp-row {
+	@extend .d-flex;
+	@extend .flex-wrap;
+}
+
+.app-wp-row > div {
+	width: 50px;
+	line-height: 50px;
+	margin: 3px;
+	text-align: center;
+	font-weight: bold;
+}

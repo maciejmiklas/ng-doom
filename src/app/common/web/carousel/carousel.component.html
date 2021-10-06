@@ -1,8 +1,8 @@
-<ngb-carousel #carousel [interval]="slideInterval" (slide)="onSlide($event)" [pauseOnHover]="pauseOnHover">
-	<ng-template ngbSlide *ngFor="let slide of slides">
+<ngb-carousel #carousel [interval]="slideInterval" (slide)="onSlide($event)" [pauseOnHover]="pauseOnHover" >
+	<ng-template ngbSlide *ngFor="let slide of slides;let idx = index">
 		<div class="app-carousel-container">
 			<!-- Remember to add: class="app-carousel-slide" -->
-			<ng-template [ngTemplateOutlet]="templateRef" [ngTemplateOutletContext]="{$implicit: slide}"></ng-template>
+			<ng-template [ngTemplateOutlet]="templateRef" [ngTemplateOutletContext]="{$implicit: slide.item}"></ng-template>
 		</div>
 	</ng-template>
 </ngb-carousel>

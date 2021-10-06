@@ -1,8 +1,7 @@
-<ngb-carousel>
-	<ng-template ngbSlide *ngFor="let palette of palettes;let idx = index">
+<app-carousel [slides]="palettes" [showZoom]="false">
+	<ng-template let-slide>
 		<div class="app-carousel-container">
-			<app-wad-palette [palette]=palette></app-wad-palette>
+			<app-wad-palette [palette]=slide></app-wad-palette>
 		</div>
 	</ng-template>
-</ngb-carousel>
-
+</app-carousel>

@@ -1,8 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {functions as bp} from '../../parser/bitmap_parser';
-import {Palette} from '../../parser/wad_model';
-import {Log} from '../../../common/is/log';
 import {WadStorageService} from '../../service/wad-storage.service';
+import {Slide} from '../../../common/web/carousel/carousel-model';
 
 @Component({
 	selector: 'app-wad-playpal',
@@ -11,14 +10,14 @@ import {WadStorageService} from '../../service/wad-storage.service';
 })
 export class WadPlaypalComponent implements OnInit {
 	static CMP = 'app-wad-playpal';
-	palettes: Palette[];
+	palettes: Slide[];
 
 	constructor(private wadStorage: WadStorageService) {
 	}
 
 	ngOnInit(): void {
 		const wad = this.wadStorage.getCurrent().get();
-		this.palettes = bp.parsePlaypal(wad.wad.bytes, wad.wad.dirs).palettes;
+		this.palettes = bp.parsePlaypal(wad.wad.bytes, wad.wad.dirs).palettes.map((p, idx) => ({item: p, name: 'Palette[' + idx + ']'}));
 	}
 
 }

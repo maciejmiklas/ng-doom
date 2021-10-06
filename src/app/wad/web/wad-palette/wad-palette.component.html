@@ -1,5 +1,11 @@
-<span *ngFor="let rgb of palette.colors;let idx = index"
-			[ngStyle]="{'background-color': 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')'}">
-		<br *ngIf="idx % 16 ==0">
-		<span style="display: inline-block;width: 50px">&nbsp;&nbsp;&nbsp;{{idx}}&nbsp;&nbsp;&nbsp;</span>
-</span>
+<ng-container *ngFor="let row of rows;let rowIdx = index">
+	<div class="app-wp-row">
+		<ng-container *ngFor="let rgb of row;let rgbIdx = index">
+			<div [ngStyle]="{'background-color': 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')'}"
+					 ngbPopover="{{rowIdx + ' - ' +  rgbIdx}}" triggers="mouseenter:mouseleave"
+					 [placement]="rowIdx == 0 ? 'bottom':'top'">
+				{{rowIdx * row.length + rgbIdx}}
+			</div>
+		</ng-container>
+	</div>
+</ng-container>

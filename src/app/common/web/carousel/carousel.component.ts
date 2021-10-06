@@ -1,17 +1,18 @@
-import {Component, ContentChild, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ContentChild, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild} from '@angular/core';
 import {NgbCarousel, NgbSlideEvent} from '@ng-bootstrap/ng-bootstrap';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {CarouselEvent} from './carousel-event';
 import {NavbarEvent} from '../../../navbar/service/navbar-event';
 import {NavbarPluginFactory} from '../../../navbar/service/navbar_plugin';
 import {NavbarCarouselPluginComponent} from './navbar-plugin/navbar-plugin.component';
+import {Slide} from './carousel-model';
 
 @Component({
-	selector: 'app-carousel[slides][slideNames]',
+	selector: 'app-carousel[slides]',
 	templateUrl: './carousel.component.html',
 	styleUrls: ['./carousel.component.css']
 })
-export class CarouselComponent implements OnInit {
+export class CarouselComponent implements OnInit, AfterViewInit {
 
 	@Input()
 	slideInterval = 2000;
@@ -20,16 +21,18 @@ export class CarouselComponent implements OnInit {
 	pauseOnHover = true;
 
 	@Input()
+	showZoom = true;
+
+	@Input()
 	zoom = 2;
 
 	@Output()
 	zoomChange = new EventEmitter<number>();
 
 	@Input()
-	slides: any[];
+	slides: Slide[];
 
-	@Input()
-	slideNames: string[];
+	private startSlide = 0;
 
 	@ContentChild(TemplateRef) templateRef: TemplateRef<any>;
 
@@ -43,7 +46,6 @@ export class CarouselComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.carousel.cycle();
-
 		this.eventBus.on(CarouselEvent.CAROUSEL_PAUSE, () => {
 			this.togglePaused();
 		});
@@ -54,7 +56,7 @@ export class CarouselComponent implements OnInit {
 
 		this.eventBus.emit(new EmitEvent(NavbarEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(NavbarCarouselPluginComponent, this)));
 		if (this.slides.length > 0) {
-			this.eventBus.emit(new EmitEvent(CarouselEvent.IMG_CHANGED, this.slideNames[0]));
+			this.eventBus.emit(new EmitEvent(CarouselEvent.IMG_CHANGED, this.slides[0].name));
 		}
 	}
 
@@ -68,7 +70,15 @@ export class CarouselComponent implements OnInit {
 	}
 
 	onSlide(slideEvent: NgbSlideEvent): void {
-		const idx = parseInt(slideEvent.current.substr(10, slideEvent.current.length), 10);
-		this.eventBus.emit(new EmitEvent(CarouselEvent.IMG_CHANGED, this.slideNames[idx]));
+		const idx = this.parseSlideIdx(slideEvent.current) - this.startSlide;
+		this.eventBus.emit(new EmitEvent(CarouselEvent.IMG_CHANGED, this.slides[idx].name));
+	}
+
+	private parseSlideIdx(name: string): number {
+		return parseInt(name.substr(10, name.length), 10);
+	}
+
+	ngAfterViewInit(): void {
+		this.startSlide = this.parseSlideIdx(this.carousel.activeId);
 	}
 }
