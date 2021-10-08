@@ -1,7 +1,6 @@
 import {Directories, Directory, MapLumpType} from './wad_model';
 import {functions as dp} from './directory_parser';
 import {
-	getAllDirs,
 	E1M1_BLOCKMAP,
 	E1M1_LINEDEFS,
 	E1M1_THINGS,
@@ -9,9 +8,10 @@ import {
 	FD_E1M1,
 	FD_E1M2,
 	FIRST_MAP_DIR_OFFSET,
+	getAllDirs,
 	getHeader,
-	validateDir,
-	getWadBytes
+	getWadBytes,
+	validateDir
 } from './testdata/data';
 
 describe('directory_parser#findDirectoryByName', () => {
@@ -36,6 +36,30 @@ describe('directory_parser#findDirectoryByName', () => {
 		findAndCompare(Directories.TITLEPIC);
 	});
 });
+
+describe('directory_parser#findDirectoryByOffset', () => {
+	const find = dp.findDirectoryByOffset(getAllDirs().get());
+	const findAndCompare = (name: string, offset: number) => {
+		expect(find(name, offset).get().name).toEqual(name);
+	};
+
+	it('Find first', () => {
+		findAndCompare('PLAYPAL', 0);
+	});
+
+	it('Find last', () => {
+		findAndCompare('F_END', 100);
+	});
+
+	it('Find map 1', () => {
+		findAndCompare('E1M1', 10);
+	});
+
+	it('Find title', () => {
+		findAndCompare(Directories.TITLEPIC, 10);
+	});
+});
+
 
 const findDirectory = (dir: Directory, dirs: Directory[]) =>
 	dirs.find(d => (d.name === dir.name && d.filepos === dir.filepos && d.size === dir.size));

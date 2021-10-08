@@ -7,12 +7,14 @@ const parseTitlePic = (bytes: number[], dirs: Directory[]): Either<TitlePic> => 
 	const find = dp.findDirectoryByName(dirs);
 	const title = find(Directories.TITLEPIC).map(d => bp.parseBitmap(bytes)(d));
 	const credit = find(Directories.CREDIT).map(d => bp.parseBitmap(bytes)(d));
+	const md = find(Directories.M_DOOM).map(d => bp.parseBitmap(bytes)(d));
 	const help = Either.ofArray(find('HELP1').map(d => bp.parseBitmap(bytes)(d)), find('HELP2').map(d => bp.parseBitmap(bytes)(d)));
 
 	return Either.ofCondition(() => title.isRight() && credit.isRight() && credit.isRight(), () => 'Image Folders not found', () => ({
 		help,
 		title: title.get(),
 		credit: credit.get(),
+		mDoom: md.get()
 	}));
 };
 

@@ -61,14 +61,26 @@ const parseShortOp = (bytes: number[]) => (cnd: (val: number) => boolean, emsg: 
 	return Either.ofCondition(() => cnd(parsed), () => emsg(parsed), () => parsed);
 };
 
+/** iterate #from to #to increasing by one*/
 const itn = (from: number, to: number, func: (idx: number) => void): void => {
 	its(from, to, idx => ++idx, func);
 };
 
+/** iterate #from to #to increasing given by #step */
 const its = (from: number, to: number, step: (idx: number) => number, func: (idx: number) => void): void => {
 	for (let idx = from; idx < to; idx = step(idx)) {
 		func(idx);
 	}
+};
+
+const findFrom = <T>(arr: T[]) => (offset: number, pred: (T, idx: number) => boolean): Either<T> => {
+	for (let idx = offset; idx < arr.length; idx++) {
+		const val = arr[idx];
+		if (pred(val, idx)) {
+			return Either.ofRight(val);
+		}
+	}
+	return Either.ofLeft('Element not found from ' + offset + ' in ' + arr);
 };
 
 const U = {
@@ -83,7 +95,8 @@ const U = {
 	parseUint,
 	parseUbyte,
 	itn,
-	its
+	its,
+	findFrom
 };
 
 export default U;

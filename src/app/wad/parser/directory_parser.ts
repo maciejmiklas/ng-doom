@@ -26,6 +26,9 @@ const parseDirectory = (offset: number, idx: number, bytes: number[]): Directory
 const findDirectoryByName = (dirs: Directory[]) => (name: string): Either<Directory> =>
 	Either.ofNullable(dirs.find(d => d.name === name), () => 'Directory: ' + name + ' not found');
 
+const findDirectoryByOffset = (dirs: Directory[]) => (name: string, offset: number): Either<Directory> =>
+	U.findFrom(dirs)(offset, (d, i) => d.name === name);
+
 const parseHeader = (bytes: number[]): Either<Header> => {
 	const headerStr: Either<string> = U.parseStrOp(bytes)(s => s === 'IWAD', (s) => 'Missing: ' + s + ' header')(0x00, 4);
 	const intParser = U.parseInt(bytes);
@@ -42,5 +45,6 @@ export const functions = {
 	parseHeader,
 	parseDirectory,
 	parseAllDirectories,
-	findDirectoryByName
+	findDirectoryByName,
+	findDirectoryByOffset
 };

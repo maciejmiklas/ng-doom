@@ -129,7 +129,7 @@ describe('MenuParserService - on Real Data', () => {
 		const root: MenuRoot = {l1: [manage_wads, wad_viewer, saves], initialState: {idL1: 'm1_manage_wads', idL2: 'm2_wad_upload'}};
 		const json = JSON.stringify(root);
 		expect(json).toContain('save_load');
-		expect(json).toContain('wad_palette');
+		expect(json).toContain('m2_wad_playpal');
 		expect(json).toContain('Manage WADs');
 	});
 });

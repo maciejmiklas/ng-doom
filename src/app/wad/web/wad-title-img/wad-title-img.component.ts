@@ -29,6 +29,7 @@ export class WadTitleImgComponent implements OnInit {
 		const bitmaps = new Array<Slide>();
 		bitmaps.push({item: wad.title.title, name: wad.title.title.header.dir.name});
 		bitmaps.push({item: wad.title.credit, name: wad.title.credit.header.dir.name});
+		bitmaps.push({item: wad.title.mDoom, name: wad.title.mDoom.header.dir.name});
 		wad.title.help.exec(ba => ba.forEach(b => bitmaps.push({item: b, name: b.header.dir.name})));
 		return bitmaps;
 	}

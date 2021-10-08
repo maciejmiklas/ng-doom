@@ -51,7 +51,10 @@ export enum Directories {
 	PLAYPAL = 'PLAYPAL',
 	TITLEPIC = 'TITLEPIC',
 	VERTEXES = 'VERTEXES',
-	CREDIT = 'CREDIT'
+	CREDIT = 'CREDIT',
+	M_DOOM = 'M_DOOM',
+	S_START = 'S_START',
+	S_END = 'S_END'
 }
 
 /**
@@ -287,7 +290,29 @@ export type PatchBitmap = {
 export type TitlePic = {
 	help: Either<PatchBitmap[]>
 	title: PatchBitmap,
-	credit: PatchBitmap
+	credit: PatchBitmap,
+	mDoom: PatchBitmap
+};
+
+/**
+ * Sprites represent graphics used in Things, for example: gun, monster, pickup, power up.
+ *
+ * Directory Name not only provides name for the Sprite, but also info about animation frames and angle: first 4-characters are the
+ * Sprite's name, 5-th character is the frame number for animation (A-Z), following characters define angle.
+ * Example: SHTGA0,SHTGB0,SHTGAC0 -> Sprite SHTG, single angle 0, 3 frames: A, B, C.
+ *
+ * Some sprites can have mirrored image, for example: SARGC3C7 -> this represents two frames: SARGC3 and SARGC7 as mirror image of the
+ * first one.
+ *
+ * @see https://doomwiki.org/wiki/Sprite
+ */
+export type Sprite = Lump & {
+
+	/** 4 character upper case name of sprite. */
+	name: string,
+
+	/** K: angle, V: frames for animation. */
+	animations: Record<number, PatchBitmap[]>
 };
 
 export type Wad = {

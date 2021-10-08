@@ -272,3 +272,32 @@ describe('util#itn', () => {
 		expect(loops).toEqual(10);
 	});
 });
+
+
+describe('util#findFrom', () => {
+	const arr = [1, 2, 4, 66, 5, 23];
+	it('found from 0', () => {
+		expect(U.findFrom(arr)(0, (val, idx) => val === 4).get()).toEqual(4);
+	});
+
+	it('found from 1', () => {
+		expect(U.findFrom(arr)(0, (val, idx) => val === 4).get()).toEqual(4);
+	});
+
+	it('found from starting', () => {
+		expect(U.findFrom(arr)(2, (val, idx) => val === 4).get()).toEqual(4);
+	});
+
+	it('found 66', () => {
+		expect(U.findFrom(arr)(2, (val, idx) => val === 66).get()).toEqual(66);
+	});
+
+	it('not found from 0', () => {
+		expect(U.findFrom(arr)(0, (val, idx) => val === 99).isLeft).toBeTruthy();
+	});
+
+	it('not found from 5', () => {
+		expect(U.findFrom(arr)(5, (val, idx) => val === 99).isLeft).toBeTruthy();
+	});
+
+});

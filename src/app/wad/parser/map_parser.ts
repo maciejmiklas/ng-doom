@@ -10,7 +10,7 @@ const isMapName = (name: string): boolean =>
 
 /** Finds next map in directory */
 const findNextMapDir = (dirs: Directory[]) => (offset: number): Either<Directory> =>
-	Either.ofNullable(dirs.find(d => d.idx >= offset && isMapName(d.name)), () => 'No Map-Directory on offset:' + offset);
+	U.findFrom(dirs)(offset, (d, idx) => isMapName(d.name));
 
 const unfoldByDirectorySize = (dir: Directory, size: number): number[] =>
 	R.unfold((idx) => idx === dir.size / size ? false : [dir.filepos + idx * 10, idx + 1], 0);

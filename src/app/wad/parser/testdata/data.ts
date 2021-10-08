@@ -5,6 +5,7 @@ import {Column, Directory, Header, MapLumpType, PatchHeader, Post, Vertex} from 
 
 import jsonData from './doom.json';
 import U from '../../../common/is/util';
+import {Either} from '@maciejmiklas/functional-ts';
 
 let _wadBytes = null;
 export const getWadBytes = (): number[] => {
@@ -24,7 +25,7 @@ export const getHeader = () => {
 };
 
 let _allDirs = null;
-export const getAllDirs = () => {
+export const getAllDirs = (): Either<Directory[]> => {
 	if (!_allDirs) {
 		_allDirs = getHeader().map(header => dp.parseAllDirectories(header, getWadBytes()).get());
 	}
