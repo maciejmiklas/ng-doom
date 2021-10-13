@@ -311,8 +311,23 @@ export type Sprite = Lump & {
 	/** 4 character upper case name of sprite. */
 	name: string,
 
-	/** K: angle, V: frames for animation. */
+	/**
+	 * K: angle, V: frames for animation. Each entry in PatchBitmap[] represents single frame,
+	 * for example: PatchBitmap[0] -> A, PatchBitmap[1] -> B
+	 */
 	animations: Record<number, PatchBitmap[]>
+};
+
+export type FrameDir = {
+	frame: string,
+	angle: number,
+	mirror: boolean,
+	dir: Directory,
+};
+
+export type AngleDir = {
+	angle: number,
+	frames: FrameDir[]
 };
 
 export type Wad = {
