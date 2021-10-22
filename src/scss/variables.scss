@@ -6,7 +6,8 @@ $app-separator-line-color: rgba(252, 0, 0, 0.8);
 
 $app-screen-bg-color: black;
 $app-content-bg-color: rgba($app-screen-bg-color, 0.6);
-$app-header-bg-color: rgba($app-screen-bg-color, 0.8);
+$app-content-bg-dark-color: rgba($app-screen-bg-color, 0.8);
+$app-component-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 $app-list-hover-bg: rgba($app-font-color, 0.7);
 
 $_error-color: rgb(249, 255, 0);

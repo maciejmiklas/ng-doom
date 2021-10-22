@@ -5,7 +5,7 @@ import {
 	WadListMenuDecorator,
 	WadMapsMenuDecorator,
 	WadPlaypalMenuDecorator,
-	WadSelectMenuDecorator,
+	WadSelectMenuDecorator, WadSpritesMenuDecorator,
 	WadTitleImgMenuDecorator,
 	WadUploadMenuDecorator
 } from '../../wad/service/wad-menu.service';
@@ -22,6 +22,7 @@ export class MenuService {
 
 	private decoratorMap: Record<string, AbstractType<MenuDecorator>> = {
 		dec_wad_upload: WadUploadMenuDecorator,
+		dec_wad_sprites:WadSpritesMenuDecorator,
 		dec_wad_list: WadListMenuDecorator,
 		dec_wad_select: WadSelectMenuDecorator,
 		dec_wad_maps: WadMapsMenuDecorator,

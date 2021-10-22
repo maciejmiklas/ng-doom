@@ -97,7 +97,8 @@ export type Palette = {
 export type RGB = {
 	r: number,
 	g: number,
-	b: number
+	b: number,
+	a: number
 };
 
 /**
@@ -304,9 +305,11 @@ export type TitlePic = {
  * Some sprites can have mirrored image, for example: SARGC3C7 -> this represents two frames: SARGC3 and SARGC7 as mirror image of the
  * first one.
  *
+ * Each sprite consists of multiple directories, where each one provides info for a single frame.
+ *
  * @see https://doomwiki.org/wiki/Sprite
  */
-export type Sprite = Lump & {
+export type Sprite = {
 
 	/** 4 character upper case name of sprite. */
 	name: string,
@@ -315,20 +318,19 @@ export type Sprite = Lump & {
 	 * K: angle, V: frames for animation. Each entry in PatchBitmap[] represents single frame,
 	 * for example: PatchBitmap[0] -> A, PatchBitmap[1] -> B
 	 */
-	animations: Record<number, PatchBitmap[]>
+	animations: Record<string, FrameDir[]>
 };
 
 export type FrameDir = {
-	frame: string,
+	/** A, B, C,....F */
+	frameName: string,
+	spriteName: string,
 	angle: number,
 	mirror: boolean,
+	bitmap: Either<PatchBitmap>,
 	dir: Directory,
 };
 
-export type AngleDir = {
-	angle: number,
-	frames: FrameDir[]
-};
 
 export type Wad = {
 	header: Header,

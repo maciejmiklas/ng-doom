@@ -1,7 +1,6 @@
 import {Component, OnInit, ViewEncapsulation} from '@angular/core';
 import {Wad} from '../../parser/wad_model';
 import {WadStorageService} from '../../service/wad-storage.service';
-import {NgRxEventBusService} from 'ngrx-event-bus';
 import {Slide} from '../../../common/web/carousel/carousel-model';
 
 @Component({
@@ -11,12 +10,12 @@ import {Slide} from '../../../common/web/carousel/carousel-model';
 	encapsulation: ViewEncapsulation.None
 })
 export class WadTitleImgComponent implements OnInit {
-	wad: Wad;
+	private wad: Wad;
 	slides: Slide[];
 	zoom = 2;
 	paused = false;
 
-	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService) {
+	constructor(private wadStorage: WadStorageService) {
 
 	}
 

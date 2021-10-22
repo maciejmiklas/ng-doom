@@ -103,27 +103,28 @@ describe('MenuParserService - on Real Data', () => {
 			title: 'Manage WADs',
 			id: 'm1_manage_wads',
 			l2: [
-				{id: 'm2_wad_upload', title: 'Upload new', path: 'wad_upload', decorator: 'dec_wad_upload'},
-				{id: 'm2_wad_list', title: 'My WADs', path: 'wad_list', decorator: 'dec_wad_list'},
-				{id: 'm2_wad_select', title: 'Select WAD', path: 'wad_select', decorator: 'dec_wad_select'}]
+				{id: 'm2_wad_upload', title: 'Upload new', path: 'path_wad_upload', decorator: 'dec_wad_upload'},
+				{id: 'm2_wad_list', title: 'My WADs', path: 'path_wad_list', decorator: 'dec_wad_list'},
+				{id: 'm2_wad_select', title: 'Select WAD', path: 'path_wad_select', decorator: 'dec_wad_select'}]
 		};
 
 		const wad_viewer: MenuL1 = {
 			title: 'WAD Viewer',
 			id: 'm1_wad_viewer',
 			l2: [
-				{id: 'm2_wad_maps', title: 'Maps', path: 'wad_maps', decorator: 'dec_wad_maps'},
-				{id: 'm2_wad_playpal', title: 'Playpal', path: 'wad_playpal', decorator: 'dec_wad_playpal'},
-				{id: 'm2_wad_title_img', title: 'Title Images', path: 'wad_title_img', decorator: 'dec_wad_title_img'}]
+				{id: 'm2_wad_maps', title: 'Maps', path: 'path_wad_maps', decorator: 'dec_wad_maps'},
+				{id: 'm2_wad_playpal', title: 'Playpal', path: 'path_wad_playpal', decorator: 'dec_wad_playpal'},
+				{id: 'm2_wad_title_img', title: 'Title Images', path: 'path_wad_title_img', decorator: 'dec_wad_title_img'},
+				{id: 'm2_wad_sprites', title: 'Sprites', path: 'path_wad_sprites', decorator: 'dec_wad_sprites'}]
 		};
 
 		const saves: MenuL1 = {
 			title: 'Save/Load',
 			id: 'm1_saves',
 			l2: [
-				{id: 'm2_save_load', title: 'Load', path: 'save_load', decorator: 'dec_mid_save_load'},
-				{id: 'm2_save_new', title: 'Save', path: 'save_new', decorator: 'dec_mid_save_new'},
-				{id: 'm2_save_manage', title: 'Manage', path: 'save_manage', decorator: 'dec_mid_save_manage'}]
+				{id: 'm2_save_load', title: 'Load', path: 'path_save_load', decorator: 'dec_mid_save_load'},
+				{id: 'm2_save_new', title: 'Save', path: 'path_save_new', decorator: 'dec_mid_save_new'},
+				{id: 'm2_save_manage', title: 'Manage', path: 'path_save_manage', decorator: 'dec_mid_save_manage'}]
 		};
 
 		const root: MenuRoot = {l1: [manage_wads, wad_viewer, saves], initialState: {idL1: 'm1_manage_wads', idL2: 'm2_wad_upload'}};

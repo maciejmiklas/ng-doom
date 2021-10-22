@@ -1,6 +1,7 @@
-import {testFunctions as tf} from './sprite_parser';
-import {getAllDirs} from './testdata/data';
-import {AngleDir, Directory, FrameDir} from './wad_model';
+import {functions as sp, testFunctions as tf} from './sprite_parser';
+
+import {getAllDirs, getWadBytes} from './testdata/data';
+import {Directory, FrameDir, Sprite} from './wad_model';
 
 describe('sprite_parser#findStartDir', () => {
 	it('S_START', () => {
@@ -41,32 +42,31 @@ describe('sprite_parser#findSpriteDirs', () => {
 
 describe('sprite_parser#groupDirsBySpriteName', () => {
 	const sd: Directory[] = tf.findSpriteDirs(getAllDirs().get());
-	const sprites = tf.groupDirsBySpriteName(sd);
+	const sprites: Directory[][] = tf.groupDirsBySpriteName(sd);
 	it('Sprites Size', () => {
-		expect(Object.entries(sprites).length).toEqual(61);
+		expect(Object.entries(sprites).length).toEqual(62);
 	});
 
 	it('Names for Each Sprite', () => {
-		Object.entries(sprites).forEach((record) => {
-			const name = record[0];
-			record[1].forEach(d => expect(d.name.substr(0, 4)).toEqual(name));
+		sprites.forEach(dirs => {
+			dirs.forEach(d => expect(d.name.substr(0, 4)).toEqual(dirs[0].name.substr(0, 4)));
 		});
 	});
 
 	it('Sprite POSS', () => {
-		const dirs = sprites.POSS;
+		const dirs = sprites.find(d => d[0].name.startsWith('POSS'));
 		expect(dirs.length).toEqual(49);
 		dirs.forEach(d => expect(d.name.substr(0, 4)).toEqual('POSS'));
 	});
 
 	it('Sprite BOSS', () => {
-		const dirs = sprites.BOSS;
+		const dirs = sprites.find(d => d[0].name.startsWith('BOSS'));
 		expect(dirs.length).toEqual(59);
 		dirs.forEach(d => expect(d.name.substr(0, 4)).toEqual('BOSS'));
 	});
 
 	it('Sprite CHGG', () => {
-		const dirs = sprites.CHGG;
+		const dirs = sprites.find(d => d[0].name.startsWith('CHGG'));
 		expect(dirs.length).toEqual(2);
 		dirs.forEach(d => expect(d.name.substr(0, 4)).toEqual('CHGG'));
 	});
@@ -112,71 +112,115 @@ describe('sprite_parser#hasMirrorFrame', () => {
 
 describe('sprite_parser#toFrameDirs', () => {
 	const sd: Directory[] = tf.findSpriteDirs(getAllDirs().get());
-	const sprites: Record<string, Directory[]> = tf.groupDirsBySpriteName(sd);
+	const sprites = tf.groupDirsBySpriteName(sd);
 
 	it('Sprite POSS - Normal and Mirror', () => {
-		const dirs = sprites.POSS;
-		const fd: FrameDir[] = tf.toFrameDirs(dirs);
+		const dirs = sprites.find(d => d[0].name.startsWith('POSS'));
+		const fd: FrameDir[] = tf.toFrameDirs(getWadBytes())(dirs);
 		expect(fd.length).toEqual(70);
 		expect(fd.filter(f => !f.mirror).length).toEqual(49);
 		expect(fd.filter(f => f.mirror).length).toEqual(21);
 	});
 
 	it('Sprite CHGG - Normal without Mirror', () => {
-		const dirs = sprites.CHGG;
-		const fd: FrameDir[] = tf.toFrameDirs(dirs);
+		const dirs = sprites.find(d => d[0].name.startsWith('CHGG'));
+		const fd: FrameDir[] = tf.toFrameDirs(getWadBytes())(dirs);
 		expect(fd.length).toEqual(2);
 		expect(fd.filter(f => !f.mirror).length).toEqual(2);
 		expect(fd.filter(f => f.mirror).length).toEqual(0);
 	});
+
+	it('Has bitmaps', () => {
+		const dirs = sprites.find(d => d[0].name.startsWith('CHGG'));
+		const fd: FrameDir[] = tf.toFrameDirs(getWadBytes())(dirs);
+		fd.forEach(f => {
+			expect(f.bitmap.isRight).toBeTruthy();
+		});
+	});
 });
 
-describe('sprite_parser#toDirsByAngle', () => {
+describe('sprite_parser#toFramesByAngle', () => {
 	const sd: Directory[] = tf.findSpriteDirs(getAllDirs().get());
-	const sprites: Record<string, Directory[]> = tf.groupDirsBySpriteName(sd);
+	const sprites = tf.groupDirsBySpriteName(sd);
+	const poss = sprites.find(d => d[0].name.startsWith('POSS'));
 
 	it('Sprite POSS - Angles', () => {
-		const fd: FrameDir[] = tf.toFrameDirs(sprites.POSS);
-		const de: AngleDir[] = tf.toDirsByAngle(fd);
-		expect(de.length).toEqual(9);
+		const fd: FrameDir[] = tf.toFrameDirs(getWadBytes())(poss);
+		const de = tf.toFramesByAngle(fd);
+		expect(Object.entries(de).length).toEqual(9);
 	});
 
 	it('Sprite POSS - Names', () => {
-		const fd: FrameDir[] = tf.toFrameDirs(sprites.POSS);
-		const de: AngleDir[] = tf.toDirsByAngle(fd);
-		de.forEach(ad => {
-			ad.frames.forEach(f => f.dir.name.startsWith('POSS'));
-		});
+		const fd: FrameDir[] = tf.toFrameDirs(getWadBytes())(poss);
+		const byAngle: Record<string, FrameDir[]> = tf.toFramesByAngle(fd);
+		for (let angle in byAngle) {
+			const frames: FrameDir[] = byAngle[angle];
+			frames.forEach(f => expect(f.dir.name.startsWith('POSS')).toBeTruthy());
+		}
 	});
 
-	it('Sprite POSS - Angles', () => {
-		const fd: FrameDir[] = tf.toFrameDirs(sprites.POSS);
-		const de: AngleDir[] = tf.toDirsByAngle(fd);
-		de.forEach(ad => {
-			ad.frames.forEach(f => f.angle === ad.angle);
-		});
+	it('Sprite POSS - Angles of the Child', () => {
+		const fd: FrameDir[] = tf.toFrameDirs(getWadBytes())(poss);
+		const byAngle: Record<string, FrameDir[]> = tf.toFramesByAngle(fd);
+		for (let angle in byAngle) {
+			byAngle[angle].forEach(f => expect(f.angle).toEqual(Number(angle)));
+		}
+	});
+
+	it('Sprite POSS - Names of the Child Dir', () => {
+		const fd: FrameDir[] = tf.toFrameDirs(getWadBytes())(poss);
+		const byAngle: Record<string, FrameDir[]> = tf.toFramesByAngle(fd);
+		for (let angle in byAngle) {
+			byAngle[angle].forEach(f => expect(f.dir.name).toContain('POSS'));
+		}
+	});
+
+	it('Sprite POSS - Names of the Child', () => {
+		const fd: FrameDir[] = tf.toFrameDirs(getWadBytes())(poss);
+		const byAngle: Record<string, FrameDir[]> = tf.toFramesByAngle(fd);
+		for (let angle in byAngle) {
+			byAngle[angle].forEach(f => expect(f.spriteName).toEqual('POSS'));
+		}
 	});
 
 	it('Sprite POSS - Sort angle 0', () => {
-		const fd: FrameDir[] = tf.toFrameDirs(sprites.POSS);
-		const an: AngleDir = tf.toDirsByAngle(fd)[0];
-		expect(an.frames[0].frame).toEqual('H');
-		expect(an.frames[1].frame).toEqual('I');
-		expect(an.frames[2].frame).toEqual('J');
-		expect(an.frames[3].frame).toEqual('K');
-		expect(an.frames[4].frame).toEqual('L');
-		expect(an.frames[5].frame).toEqual('M');
+		const fd: FrameDir[] = tf.toFrameDirs(getWadBytes())(poss);
+		const frames: FrameDir[] = tf.toFramesByAngle(fd)['0'];
+		expect(frames[0].frameName).toEqual('H');
+		expect(frames[1].frameName).toEqual('I');
+		expect(frames[2].frameName).toEqual('J');
+		expect(frames[3].frameName).toEqual('K');
+		expect(frames[4].frameName).toEqual('L');
+		expect(frames[5].frameName).toEqual('M');
 	});
 
 	it('Sprite POSS - Sort angle 0', () => {
-		const fd: FrameDir[] = tf.toFrameDirs(sprites.POSS);
-		const an: AngleDir = tf.toDirsByAngle(fd)[1];
-		expect(an.frames[0].frame).toEqual('A');
-		expect(an.frames[1].frame).toEqual('B');
-		expect(an.frames[2].frame).toEqual('C');
-		expect(an.frames[3].frame).toEqual('D');
-		expect(an.frames[4].frame).toEqual('E');
-		expect(an.frames[5].frame).toEqual('F');
-		expect(an.frames[6].frame).toEqual('G');
+		const fd: FrameDir[] = tf.toFrameDirs(getWadBytes())(poss);
+		const frames: FrameDir[] = tf.toFramesByAngle(fd)['1'];
+		expect(frames[0].frameName).toEqual('A');
+		expect(frames[1].frameName).toEqual('B');
+		expect(frames[2].frameName).toEqual('C');
+		expect(frames[3].frameName).toEqual('D');
+		expect(frames[4].frameName).toEqual('E');
+		expect(frames[5].frameName).toEqual('F');
+		expect(frames[6].frameName).toEqual('G');
+	});
+
+});
+
+
+describe('sprite_parser#parseSprites', () => {
+	it('Keys correspond to names', () => {
+		const sprites: Record<string, Sprite> = sp.parseSpritesAsMap(getWadBytes(), getAllDirs().get());
+		for (let spriteName in sprites) {
+			const sprite: Sprite = sprites[spriteName];
+			for (let angle in sprite.animations) {
+				const frame: FrameDir[] = sprite.animations[angle];
+				frame.forEach(f => {
+					expect(f.spriteName).toEqual(spriteName);
+					expect(f.dir.name).toContain(spriteName);
+				});
+			}
+		}
 	});
 });

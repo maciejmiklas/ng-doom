@@ -1,0 +1,27 @@
+@import "/src/scss/ng-doom";
+
+.app-sprites {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-around;
+	align-items: center;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+.app-sprite {
+	background: $app-content-bg-dark-color;
+	padding: 5px;
+	width: 200px;
+	height: 200px;
+	margin-top: 10px;
+	line-height: 200px;
+	font-weight: bold;
+	text-align: center;
+
+	// .app-sprites is flex container for .app-sprite and .app-sprite is again flex container for ist child
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+}

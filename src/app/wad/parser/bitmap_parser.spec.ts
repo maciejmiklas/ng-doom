@@ -90,17 +90,6 @@ describe('bitmap_parser#parseColumn', () => {
 	});
 });
 
-describe('bitmap_parser#pixelToImg', () => {
-
-	it('One Pixel', () => {
-		const pix = tf.pixelToImg(211);
-		expect(pix[0]).toEqual(192);
-		expect(pix[1]).toEqual(128);
-		expect(pix[2]).toEqual(192);
-		expect(pix[3]).toEqual(255);
-	});
-});
-
 describe('bitmap_parser#parsePost', () => {
 	const findDir = dp.findDirectoryByName(getAllDirs().get());
 	const dir = findDir(Directories.TITLEPIC);
@@ -215,65 +204,18 @@ describe('bitmap_parser#postAt', () => {
 	});
 });
 
-describe('bitmap_parser#postPixelAt', () => {
-	const pix = tf.postPixelAt(simpleDoomImage());
-	it('column[0] at post[0]', () => {
-		expect(pix(0, 0)).toEqual(11);
-		expect(pix(0, 1)).toEqual(12);
-		expect(pix(0, 2)).toEqual(13);
-	});
-
-	it('column[0] between post[0] and post[1]', () => {
-		for (let y = 3; y < 20; y++) {
-			expect(pix(0, y)).toEqual(0);
-		}
-	});
-
-	it('column[0] at post[1]', () => {
-		expect(pix(0, 20)).toEqual(21);
-		expect(pix(0, 21)).toEqual(22);
-		expect(pix(0, 22)).toEqual(31);
-		expect(pix(0, 23)).toEqual(32);
-		expect(pix(0, 24)).toEqual(34);
-	});
-
-	it('column[1] at post[0]', () => {
-		expect(pix(1, 0)).toEqual(101);
-		expect(pix(1, 1)).toEqual(102);
-		expect(pix(1, 2)).toEqual(103);
-	});
-
-	it('column[1] between post[0] and post[1]', () => {
-		for (let y = 3; y < 60; y++) {
-			expect(pix(1, y)).toEqual(0);
-		}
-	});
-
-	it('column[1] at post[1]', () => {
-		expect(pix(1, 60)).toEqual(110);
-		expect(pix(1, 61)).toEqual(111);
-	});
-
-	it('column[2] at post[0]', () => {
-		expect(pix(2, 0)).toEqual(201);
-		expect(pix(2, 1)).toEqual(202);
-		expect(pix(2, 2)).toEqual(203);
-		expect(pix(2, 3)).toEqual(204);
-	});
-});
-
 describe('bitmap_parser#parseRBG', () => {
 	const parse = tf.parseRBG([1, 2, 3, 44, 55, 66]);
 	it('parse at 0', () => {
-		expect(parse(0)).toEqual({r: 1, g: 2, b: 3});
+		expect(parse(0)).toEqual({r: 1, g: 2, b: 3, a: 255});
 	});
 
 	it('parse at 1', () => {
-		expect(parse(1)).toEqual({r: 2, g: 3, b: 44});
+		expect(parse(1)).toEqual({r: 2, g: 3, b: 44, a: 255});
 	});
 
 	it('parse at 3', () => {
-		expect(parse(3)).toEqual({r: 44, g: 55, b: 66});
+		expect(parse(3)).toEqual({r: 44, g: 55, b: 66, a: 255});
 	});
 });
 
@@ -303,45 +245,9 @@ describe('bitmap_parser#parsePlaypal', () => {
 
 	it('palette[0] - few random colors', () => {
 		const palette = playpal.palettes[0].colors;
-		expect(palette[0]).toEqual({r: 0, g: 0, b: 0});
-		expect(palette[4]).toEqual({r: 255, g: 255, b: 255});
-		expect(palette[10]).toEqual({r: 35, g: 43, b: 15});
-		expect(palette[31]).toEqual({r: 163, g: 59, b: 59});
-	});
-});
-
-describe('bitmap_parser#toImageData', () => {
-	const playpal = bp.parsePlaypal(getWadBytes(), getAllDirs().get());
-	const findDir = dp.findDirectoryByName(getAllDirs().get());
-	const titleDir = findDir(Directories.TITLEPIC).get();
-	const titleBitmap = bp.parseBitmap(getWadBytes())(titleDir).get();
-	const imageData = bp.toImageData(titleBitmap)(playpal.palettes[0]);
-
-	it('TITLEPIC - image data size', () => {
-		expect(imageData.data.length).toEqual(320 * 200 * 4);
-	});
-
-	it('TITLEPIC - image data - 4th pixel', () => {
-		for (let idx = 3; idx < 320 * 200 * 4; idx += 4) {
-			const pix = imageData.data[idx];
-			if (pix !== 0 && pix !== 255) {
-				fail('pix: ' + pix + ' on ' + idx);
-				return;
-			}
-		}
-	});
-
-	it('TITLEPIC - randoom pixels', () => {
-		const data = imageData.data;
-		expect(data[0]).toEqual(115);
-		expect(data[22]).toEqual(71);
-		expect(data[19]).toEqual(255);
-		expect(data[37]).toEqual(179);
-		expect(data[44]).toEqual(159);
-		expect(data[89]).toEqual(0);
-		expect(data[112]).toEqual(239);
-		expect(data[120]).toEqual(179);
-		expect(data[124]).toEqual(159);
-		expect(data[396]).toEqual(179);
+		expect(palette[0]).toEqual({r: 0, g: 0, b: 0, a: 255});
+		expect(palette[4]).toEqual({r: 255, g: 255, b: 255, a: 255});
+		expect(palette[10]).toEqual({r: 35, g: 43, b: 15, a: 255});
+		expect(palette[31]).toEqual({r: 163, g: 59, b: 59, a: 255});
 	});
 });

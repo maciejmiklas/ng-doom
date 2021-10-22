@@ -27,6 +27,19 @@ export class WadListMenuDecorator implements MenuDecorator {
 @Injectable({
 	providedIn: 'root'
 })
+export class WadSpritesMenuDecorator implements MenuDecorator {
+
+	constructor(private wadStorage: WadStorageService) {
+	}
+
+	visible(): boolean {
+		return this.wadStorage.isLoaded();
+	}
+}
+
+@Injectable({
+	providedIn: 'root'
+})
 export class WadSelectMenuDecorator implements MenuDecorator {
 
 	constructor(private wadStorage: WadStorageService) {

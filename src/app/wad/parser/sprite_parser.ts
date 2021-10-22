@@ -1,7 +1,8 @@
-import {AngleDir, Directories, Directory, FrameDir} from './wad_model';
+import {Directories, Directory, FrameDir, Sprite} from './wad_model';
 import {Either} from '@maciejmiklas/functional-ts';
 import {functions as dp} from './directory_parser';
 import * as R from 'ramda';
+import {functions as bp} from './bitmap_parser';
 
 const findStartDir = (dirs: Directory[]): Either<Directory> => dp.findDirectoryByName(dirs)(Directories.S_START);
 
@@ -14,9 +15,8 @@ const findSpriteDirs = (dirs: Directory[]): Directory[] => {
 };
 
 /** #sprites contains only Dirs declaring sprites. */
-const groupDirsBySpriteName = (sprites: Directory[]): Record<string, Directory[]> => {
-	return R.groupBy(parseDirSpriteName)(sprites);
-};
+const groupDirsBySpriteName = (sprites: Directory[]): Directory[][] =>
+	R.groupWith((d1: Directory, d2: Directory) => parseDirSpriteName(d1) === parseDirSpriteName(d2))(sprites);
 
 const parseDirSpriteName = (dir: Directory): string => dir.name.substr(0, 4);
 const parseDirFrameName = (dir: Directory): string => dir.name.substr(4, 1);
@@ -25,39 +25,50 @@ const parseDirMirrorFrameName = (dir: Directory): string => dir.name.substr(6, 1
 const parseDirMirrorAngle = (dir: Directory): number => Number(dir.name.substr(7, 1));
 const hasMirrorFrame = (dir: Directory): number => Number(dir.name.length === 8);
 
-
 /** #dirs contains all dirs for single sprite */
-const toFrameDirs = (dirs: Directory[]): FrameDir[] => {
-	const fd: FrameDir[] = dirs.map(toFrameDir);
-	const fdMirror: FrameDir[] = dirs.filter(hasMirrorFrame).map(toMirrorFrameDir);
+const toFrameDirs = (wadBytes: number[]) => (dirs: Directory[]): FrameDir[] => {
+	const fd: FrameDir[] = dirs.map(toFrameDir(wadBytes));
+	const fdMirror: FrameDir[] = dirs.filter(hasMirrorFrame).map(toMirrorFrameDir(wadBytes));
 	return fd.concat(fdMirror);
 };
 
-const toFrameDir = (dir: Directory): FrameDir => {
+const toFrameDir = (wadBytes: number[]) => (dir: Directory): FrameDir => {
 	return {
-		frame: parseDirFrameName(dir),
+		frameName: parseDirFrameName(dir),
+		spriteName: parseDirSpriteName(dir),
 		dir,
 		angle: parseDirAngle(dir),
-		mirror: false
+		mirror: false,
+		bitmap: bp.parseBitmap(wadBytes)(dir)
 	};
 };
 
-const toMirrorFrameDir = (dir: Directory): FrameDir => {
+const toMirrorFrameDir = (wadBytes: number[]) => (dir: Directory): FrameDir => {
 	return {
-		frame: parseDirMirrorFrameName(dir),
+		frameName: parseDirMirrorFrameName(dir),
+		spriteName: parseDirSpriteName(dir),
 		dir,
 		angle: parseDirMirrorAngle(dir),
-		mirror: true
+		mirror: true,
+		bitmap: bp.parseBitmap(wadBytes)(dir)
 	};
 };
 
-// https://ramdajs.com/docs/#reduceBy
 /** #dirs contains all dirs for single sprite */
-const toDirsByAngle = (dirs: FrameDir[]): AngleDir[] => {
-	const byAngle: Record<number, FrameDir[]> = R.groupBy((d: FrameDir) => d.angle.toString())(dirs);
-	return Object.entries(byAngle).map(e => ({angle: Number(e[0]), frames: e[1]}));
+const toFramesByAngle = (dirs: FrameDir[]): Record<string, FrameDir[]> => {
+	return R.groupBy((d: FrameDir) => d.angle.toString())(dirs);
 };
 
+/** K: Sprite's name, V: the Sprite */
+const parseSpritesAsArray = (wadBytes: number[], dirs: Directory[]): Sprite[] => {
+	return groupDirsBySpriteName(findSpriteDirs(dirs)).map(toFrameDirs(wadBytes)).map(frames => {
+		return {name: frames[0].spriteName, animations: toFramesByAngle(frames)};
+	});
+};
+
+/** K: Sprite's name, V: the Sprite */
+const parseSpritesAsMap = (wadBytes: number[], dirs: Directory[]): Record<string, Sprite> =>
+	R.mapAccum((acc: {}, s: Sprite) => [acc, acc[s.name] = s], {}, parseSpritesAsArray(wadBytes, dirs))[0];
 
 // ############################ EXPORTS ############################
 export const testFunctions = {
@@ -65,7 +76,7 @@ export const testFunctions = {
 	findEndDir,
 	groupDirsBySpriteName,
 	findSpriteDirs,
-	toDirsByAngle,
+	toFramesByAngle,
 	parseDirSpriteName,
 	parseDirFrameName,
 	parseDirAngle,
@@ -73,5 +84,10 @@ export const testFunctions = {
 	parseDirMirrorAngle,
 	hasMirrorFrame,
 	toFrameDirs
+};
+
+export const functions = {
+	parseSpritesAsMap,
+	parseSpritesAsArray
 };
 

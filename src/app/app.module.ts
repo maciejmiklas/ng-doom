@@ -20,6 +20,8 @@ import {NgxFileDropModule} from 'ngx-file-drop';
 import {NgxBootstrapSliderModule} from 'ngx-bootstrap-slider';
 import {CarouselComponent} from './common/web/carousel/carousel.component';
 import {NavbarCarouselPluginComponent} from './common/web/carousel/navbar-plugin/navbar-plugin.component';
+import { WadSpritesComponent } from './wad/web/wad-sprites/wad-sprites.component';
+import { PbmpAnimationComponent } from './wad/web/pbmp-animation/pbmp-animation.component';
 
 @NgModule({
 	declarations: [
@@ -36,6 +38,8 @@ import {NavbarCarouselPluginComponent} from './common/web/carousel/navbar-plugin
 		NavbarComponent,
 		NavbarCarouselPluginComponent,
 		CarouselComponent,
+  WadSpritesComponent,
+  PbmpAnimationComponent,
 	],
 	imports: [
 		BrowserModule,

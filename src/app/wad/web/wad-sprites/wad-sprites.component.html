@@ -1,0 +1,7 @@
+<div class="app-sprites">
+	<ng-container *ngFor="let sprite of sprites;let i=index">
+		<app-pbmp-animation [bitmaps]="sprite[0].frames" class="app-sprite" [scale]="scale[i]"
+												ngbPopover="{{sprite[0].name}} -> Angle:{{sprite[0].angle}} Frames:{{sprite[0].frames.length}}"
+												triggers="mouseenter:mouseleave"></app-pbmp-animation>
+	</ng-container>
+</div>
