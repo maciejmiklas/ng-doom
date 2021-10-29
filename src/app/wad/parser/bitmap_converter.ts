@@ -85,15 +85,8 @@ const paintOnCanvasForZoom = (bitmap: PatchBitmap, canvas: HTMLCanvasElement) =>
 	return imageObject;
 };
 
-const paintOnCanvas = (bitmap: PatchBitmap, canvas: HTMLCanvasElement) => (palette: Palette) => (scale: number): void => {
-	const width = bitmap.header.width * scale;
-	const height = bitmap.header.height * scale;
-	const ctx = canvas.getContext('2d');
-	canvas.width = width;
-	canvas.height = height;
-	createImageBitmap(toImageData(bitmap)(palette), {resizeWidth: width, resizeHeight: height}).then(r => {
-		ctx.drawImage(r, 0, 0);
-	});
+const toImageBitmap = (bitmap: PatchBitmap) => (width: number, height: number) => (palette: Palette): Promise<ImageBitmap> => {
+	return createImageBitmap(toImageData(bitmap)(palette), {resizeWidth: width, resizeHeight: height});
 };
 
 export const testFunctions = {
@@ -102,6 +95,6 @@ export const testFunctions = {
 
 export const functions = {
 	toImageData,
-	paintOnCanvas,
+	toImageBitmap,
 	paintOnCanvasForZoom
 };

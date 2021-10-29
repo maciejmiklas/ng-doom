@@ -5,6 +5,7 @@ import {WadPlaypalComponent} from './wad/web/wad-playpal/wad-playpal.component';
 import {WadUploadComponent} from './wad/web/wad-upload/wad-upload.component';
 import {EmptyComponent} from './common/web/empty/empty.component';
 import {WadSpritesComponent} from './wad/web/wad-sprites/wad-sprites.component';
+import {AppSetupService} from './app-setup.service';
 
 
 const routes: Routes = [
@@ -27,4 +28,9 @@ const routes: Routes = [
 	exports: [RouterModule]
 })
 export class AppRoutingModule {
+
+	constructor(private appSetupService: AppSetupService) {
+		appSetupService.setup();
+	}
+
 }

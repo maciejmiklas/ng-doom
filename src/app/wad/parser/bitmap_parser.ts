@@ -3,6 +3,7 @@ import * as R from 'ramda';
 import U from '../../common/is/util';
 import {Either} from '@maciejmiklas/functional-ts';
 import {functions as dp} from './directory_parser';
+import {Log} from '../../common/is/log';
 
 /**
  * @see https://doomwiki.org/wiki/Picture_format
@@ -17,6 +18,7 @@ const LAST_POST_MARKER = 0XFF;
 const RBG_BYTES = 3;
 const PLAYPAL_COLORS = 256;
 const PLAYPAL_BYTES = RBG_BYTES * 256;
+const CMP = 'BPA';
 
 const parseRBG = (bytes: number[]) => (idx: number): RGB => {
 	return {
@@ -73,17 +75,27 @@ const parsePost = (wadBytes: number[]) => (filepos: number): Either<Post> => {
 };
 
 /** #wadBytes - whole WAD */
-const parseColumn = (wadBytes: number[]) => (filepos: number): Either<Column> => {
+const parseColumn = (wadBytes: number[], dir: Directory) => (filepos: number): Either<Column> => {
 	const postParser = parsePost(wadBytes);
-	return Either.until<Post>(
+	const either = Either.until<Post>(
 		p => postParser(p.filepos + p.data.length + POST_PADDING_BYTES), // p here is the previous post
-		postParser(filepos)).map(posts => ({posts}));
+		postParser(filepos), () => dir.name + ' has Empty Column at: ' + filepos).map(posts => ({posts}));
+	return either;
 };
 
 const parseBitmap = (wadBytes: number[]) => (dir: Directory): Either<PatchBitmap> => {
+	Log.debug(CMP, 'Parse Bitmap:', dir);
 	const header = parsePatchHeader(wadBytes)(dir);
-	const columnParser = parseColumn(wadBytes);
-	const columns = header.columnofs.map(colOfs => columnParser(colOfs)).filter(c => c.isRight()).map(c => c.get());
+	const columnParser = parseColumn(wadBytes, dir);
+	const columns = header.columnofs.map(colOfs => columnParser(colOfs)).filter(c => {
+		if (c.isLeft()) {
+			console.log('>LEFT>', c);
+		}
+		return c.isRight();
+	}).map(c => c.get());
+	if (columns.length !== header.width) {
+		console.log('sss', header);
+	}
 	return Either.ofCondition(
 		() => columns.length === header.width,
 		() => 'Some columns (' + columns.length + '/' + header.width + ') are missing in Picture : ' + dir.name + ' at ' + dir.filepos,
