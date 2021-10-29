@@ -279,8 +279,8 @@ export type Column = {
 export type PatchBitmap = {
 	header: PatchHeader
 
-	/** Picture in Doom format consists of columns (x-axis) going downward on the screen (y-axis) */
-	columns: Column[]
+	/** Picture in Doom format consists of columns (x-axis) going downward on the screen (y-axis). */
+	columns: Either<Column>[]
 };
 
 /**
@@ -321,6 +321,12 @@ export type Sprite = {
 	animations: Record<string, FrameDir[]>
 };
 
+export type BitmapSprite = {
+	name: string,
+	angle: string,
+	frames: PatchBitmap[]
+}
+
 export type FrameDir = {
 	/** A, B, C,....F */
 	frameName: string,
@@ -330,7 +336,6 @@ export type FrameDir = {
 	bitmap: Either<PatchBitmap>,
 	dir: Directory,
 };
-
 
 export type Wad = {
 	header: Header,

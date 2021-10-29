@@ -1,4 +1,4 @@
-import {Column, Palette, PatchBitmap, Post, RGB} from './wad_model';
+import {BitmapSprite, Column, FrameDir, Palette, PatchBitmap, Post, RGB, Sprite} from './wad_model';
 import * as R from 'ramda';
 import U from '../../common/is/util';
 import {Either} from '@maciejmiklas/functional-ts';
@@ -53,16 +53,16 @@ const pixelToImgBuf = (img: Uint8ClampedArray, palette: Palette) => (idx: number
 	return idx;
 };
 
-const postPixelAt = (columns: Column[]) => (x: number, y: number): number => {
+const postPixelAt = (columns: Either<Column>[]) => (x: number, y: number): number => {
 	return postAt(columns)(x, y)
 		.assert(p => Either.ofCondition(() => p.data.length > y - p.topdelta,
 			() => 'Pixel out of range at:(' + x + ',' + y + ')->' + p.data.length + '<=' + y + '-' + p.topdelta, () => 'OK'))
 		.map(p => p.data[y - p.topdelta]).orElseGet(() => TRANSPARENT_PIXEL);
 };
 
-const postAt = (columns: Column[]) => (x: number, y: number): Either<Post> =>
-	Either.ofNullable(R.find<Post>(p => y >= p.topdelta && y < p.topdelta + p.data.length)(columns[x].posts),
-		() => 'Transparent pixel at (' + x + ',' + y + ')');
+const postAt = (columns: Either<Column>[]) => (x: number, y: number): Either<Post> =>
+	columns[x].map(c => Either.ofNullable(R.find<Post>(p => y >= p.topdelta && y < p.topdelta + p.data.length)(c.posts),
+		() => 'Transparent pixel at (' + x + ',' + y + ')'));
 
 const toImageData = (bitmap: PatchBitmap) => (palette: Palette): ImageData => {
 	const image = patchToImg(bitmap)(palette);
@@ -85,16 +85,46 @@ const paintOnCanvasForZoom = (bitmap: PatchBitmap, canvas: HTMLCanvasElement) =>
 	return imageObject;
 };
 
+const maxSpriteSize = (sprite: BitmapSprite): number => Math.max(
+	sprite.frames.map(s => s.header.width).reduce((prev, cur) => prev > cur ? prev : cur),
+	sprite.frames.map(s => s.header.height).reduce((prev, cur) => prev > cur ? prev : cur));
+
+const calcScale = (maxScale: number) => (sprite: BitmapSprite): number => {
+	let scale = maxScale / maxSpriteSize(sprite);
+	return scale - scale % 1;
+};
+
+const mapSprite = (sprite: Sprite): Either<BitmapSprite[]> => {
+	const sprites = Object.keys(sprite.animations).map(angle => sprite.animations[angle]).map((d: FrameDir[]) => mapFrameDirs(d))
+		.filter(md => md.isRight()).map(md => md.get());
+	return Either.ofCondition(() => sprites.length > 0, () => sprite.name + ' has no sprites', () => sprites);
+};
+
+const mapFrameDirs = (frame: FrameDir[]): Either<BitmapSprite> => {
+	const frames: PatchBitmap[] = frame.filter(f => f.bitmap.isRight()).map(f => f.bitmap.get());
+	const first = frame[0];
+	return Either.ofCondition(() => frames.length > 0, () => first.spriteName + ' has no frames', () => ({
+		name: first.spriteName,
+		angle: first.angle.toString(),
+		frames
+	}));
+};
+
 const toImageBitmap = (bitmap: PatchBitmap) => (width: number, height: number) => (palette: Palette): Promise<ImageBitmap> => {
 	return createImageBitmap(toImageData(bitmap)(palette), {resizeWidth: width, resizeHeight: height});
 };
 
 export const testFunctions = {
-	postPixelAt
+	postPixelAt,
+	mapFrameDirs,
+	maxSpriteSize,
+	mapSprite
 };
 
 export const functions = {
 	toImageData,
 	toImageBitmap,
-	paintOnCanvasForZoom
+	paintOnCanvasForZoom,
+	calcScale,
+	mapSprite
 };

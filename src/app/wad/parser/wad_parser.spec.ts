@@ -1,10 +1,11 @@
 import {functions as wp, testFunctions as tf} from './wad_parser';
-import {getAllDirs, validateTitleColumn, validateTitlePatchHeader, getWadBytes} from './testdata/data';
+import {getAllDirs, getWadBytes, validateTitleColumn, validateTitlePatchHeader} from './testdata/data';
 import {functions as dp} from './directory_parser';
-import {Directories, WadType} from './wad_model';
+import {Directories, TitlePic, WadType} from './wad_model';
+import {Either} from '@maciejmiklas/functional-ts';
 
 describe('wad_parser#parseTitlePic', () => {
-	const tp = tf.parseTitlePic(getWadBytes(), getAllDirs().get());
+	const tp: Either<TitlePic> = tf.parseTitlePic(getWadBytes(), getAllDirs().get());
 	it('Found Pictures', () => {
 		expect(tp.isRight()).toBeTruthy();
 		expect(tp.get().credit).toBeTruthy();
@@ -15,8 +16,8 @@ describe('wad_parser#parseTitlePic', () => {
 
 	it('TITLE', () => {
 		validateTitlePatchHeader(tp.get().title.header);
-		validateTitleColumn(tp.get().title.columns[0]);
-		validateTitleColumn(tp.get().title.columns[7]);
+		validateTitleColumn(tp.get().title.columns[0].get());
+		validateTitleColumn(tp.get().title.columns[7].get());
 	});
 });
 

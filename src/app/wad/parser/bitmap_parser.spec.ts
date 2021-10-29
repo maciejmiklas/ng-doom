@@ -75,7 +75,7 @@ describe('bitmap_parser#parseColumn', () => {
 	const titleDir = findDir(Directories.TITLEPIC).get();
 	const patchParser = tf.parsePatchHeader(getWadBytes());
 	const titlePatch = patchParser(titleDir);
-	const parseColumn = tf.parseColumn(getWadBytes());
+	const parseColumn = tf.parseColumn(getWadBytes(), titleDir);
 
 	it('TITLEPIC - column 0', () => {
 		validateTitleColumn(parseColumn(titlePatch.columnofs[0]).get());
@@ -134,17 +134,17 @@ describe('bitmap_parser#parseBitmap', () => {
 
 	it('TITLEPIC - column height', () => {
 		for (const col of bitmap.columns) {
-			expect(R.reduce(R.add, 0, col.posts.map(p => p.data.length))).toEqual(200);
+			expect(R.reduce(R.add, 0, col.get().posts.map(p => p.data.length))).toEqual(200);
 		}
 	});
 
 	it('TITLEPIC - posts top delta', () => {
 		bitmap.columns.forEach(c => {
-			expect(c.posts[0].topdelta).toEqual(0);
-			expect(c.posts[0].data.length).toEqual(128);
+			expect(c.get().posts[0].topdelta).toEqual(0);
+			expect(c.get().posts[0].data.length).toEqual(128);
 
-			expect(c.posts[1].topdelta).toEqual(128);
-			expect(c.posts[1].data.length).toEqual(72);
+			expect(c.get().posts[1].topdelta).toEqual(128);
+			expect(c.get().posts[1].data.length).toEqual(72);
 		});
 	});
 
@@ -251,3 +251,6 @@ describe('bitmap_parser#parsePlaypal', () => {
 		expect(palette[31]).toEqual({r: 163, g: 59, b: 59, a: 255});
 	});
 });
+
+
+

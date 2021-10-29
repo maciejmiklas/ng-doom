@@ -77,25 +77,17 @@ const parsePost = (wadBytes: number[]) => (filepos: number): Either<Post> => {
 /** #wadBytes - whole WAD */
 const parseColumn = (wadBytes: number[], dir: Directory) => (filepos: number): Either<Column> => {
 	const postParser = parsePost(wadBytes);
-	const either = Either.until<Post>(
+	return Either.until<Post>(
 		p => postParser(p.filepos + p.data.length + POST_PADDING_BYTES), // p here is the previous post
 		postParser(filepos), () => dir.name + ' has Empty Column at: ' + filepos).map(posts => ({posts}));
-	return either;
 };
 
 const parseBitmap = (wadBytes: number[]) => (dir: Directory): Either<PatchBitmap> => {
 	Log.debug(CMP, 'Parse Bitmap:', dir);
 	const header = parsePatchHeader(wadBytes)(dir);
 	const columnParser = parseColumn(wadBytes, dir);
-	const columns = header.columnofs.map(colOfs => columnParser(colOfs)).filter(c => {
-		if (c.isLeft()) {
-			console.log('>LEFT>', c);
-		}
-		return c.isRight();
-	}).map(c => c.get());
-	if (columns.length !== header.width) {
-		console.log('sss', header);
-	}
+	const columns: Either<Column>[] = header.columnofs.map(colOfs => columnParser(colOfs));
+
 	return Either.ofCondition(
 		() => columns.length === header.width,
 		() => 'Some columns (' + columns.length + '/' + header.width + ') are missing in Picture : ' + dir.name + ' at ' + dir.filepos,
@@ -108,7 +100,6 @@ const parseBitmap = (wadBytes: number[]) => (dir: Directory): Either<PatchBitmap
 const postAt = (columns: Column[]) => (x: number, y: number): Either<Post> =>
 	Either.ofNullable(R.find<Post>(p => y >= p.topdelta && y < p.topdelta + p.data.length)(columns[x].posts),
 		() => 'Transparent pixel at (' + x + ',' + y + ')');
-
 
 export const testFunctions = {
 	postAt,

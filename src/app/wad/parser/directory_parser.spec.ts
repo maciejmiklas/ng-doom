@@ -52,7 +52,7 @@ describe('directory_parser#findDirectoryByOffset', () => {
 	});
 
 	it('Find map 1', () => {
-		findAndCompare('E1M1', 10);
+		findAndCompare('E1M1', 5);
 	});
 
 	it('Find title', () => {

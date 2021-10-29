@@ -3,6 +3,7 @@ import {functions as bc, testFunctions as tf} from './bitmap_converter';
 import {getAllDirs, getWadBytes, simpleDoomImage} from './testdata/data';
 import {functions as dp} from './directory_parser';
 import {Directories} from './wad_model';
+import {Either} from '@maciejmiklas/functional-ts';
 
 
 describe('bitmap_converter#toImageData', () => {
@@ -42,7 +43,7 @@ describe('bitmap_converter#toImageData', () => {
 });
 
 describe('bitmap_parser#postPixelAt', () => {
-	const pix = tf.postPixelAt(simpleDoomImage());
+	const pix = tf.postPixelAt(simpleDoomImage().map(Either.ofRight));
 	it('column[0] at post[0]', () => {
 		expect(pix(0, 0)).toEqual(11);
 		expect(pix(0, 1)).toEqual(12);
@@ -51,7 +52,7 @@ describe('bitmap_parser#postPixelAt', () => {
 
 	it('column[0] between post[0] and post[1]', () => {
 		for (let y = 3; y < 20; y++) {
-			expect(pix(0, y)).toEqual(0);
+			expect(pix(0, y)).toEqual(-1);
 		}
 	});
 
@@ -71,7 +72,7 @@ describe('bitmap_parser#postPixelAt', () => {
 
 	it('column[1] between post[0] and post[1]', () => {
 		for (let y = 3; y < 60; y++) {
-			expect(pix(1, y)).toEqual(0);
+			expect(pix(1, y)).toEqual(-1);
 		}
 	});
 
