@@ -1,7 +1,7 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {PatchBitmap} from '../../parser/wad_model';
 import {functions as bp} from '../../parser/bitmap_parser';
-import {functions as bc} from '../../parser/bitmap_converter';
+import {functions as ic} from '../../parser/image_converter';
 import {WadStorageService} from '../../service/wad-storage.service';
 
 @Component({
@@ -56,6 +56,6 @@ export class PbmpComponent implements OnInit {
 		const palette = bp.parsePlaypal(wad.bytes, wad.dirs).palettes[this.palette];
 		this.canvas = this.canvasRef.nativeElement;
 		this.ctx = this.canvas.getContext('2d');
-		this.imageObject = bc.paintOnCanvasForZoom(this.bitmap, this.canvas)(palette)(this._scale);
+		this.imageObject = ic.paintOnCanvasForZoom(this.bitmap, this.canvas)(palette)(this._scale);
 	}
 }

@@ -208,7 +208,6 @@ describe('sprite_parser#toFramesByAngle', () => {
 
 });
 
-
 describe('sprite_parser#parseSprites', () => {
 	it('Keys correspond to names', () => {
 		const sprites: Record<string, Sprite> = sp.parseSpritesAsMap(getWadBytes(), getAllDirs().get());
@@ -222,5 +221,23 @@ describe('sprite_parser#parseSprites', () => {
 				});
 			}
 		}
+	});
+});
+
+describe('sprite_parser#parseSpritesAsArray', () => {
+	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs().get());
+
+	it('Sprites Size', () => {
+		expect(sprites.length).toEqual(62);
+	});
+
+	it('sprites[0]', () => {
+		expect(sprites[0].name).toEqual('CHGG');
+		expect(sprites[0].animations[0].length).toEqual(2);
+	});
+
+	it('sprites[10]', () => {
+		expect(sprites[10].name).toEqual('TFOG');
+		expect(sprites[10].animations[0].length).toEqual(10);
 	});
 });

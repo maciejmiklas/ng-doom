@@ -1,17 +1,18 @@
 import {functions as bp} from './bitmap_parser';
-import {functions as bc, testFunctions as tf} from './bitmap_converter';
+import {functions as ic, testFunctions as tf} from './image_converter';
 import {getAllDirs, getWadBytes, simpleDoomImage} from './testdata/data';
 import {functions as dp} from './directory_parser';
-import {Directories} from './wad_model';
+import {BitmapSprite, Directories, Sprite} from './wad_model';
 import {Either} from '@maciejmiklas/functional-ts';
+import {functions as sp} from './sprite_parser';
 
 
-describe('bitmap_converter#toImageData', () => {
+describe('image_converter#toImageData', () => {
 	const playpal = bp.parsePlaypal(getWadBytes(), getAllDirs().get());
 	const findDir = dp.findDirectoryByName(getAllDirs().get());
 	const titleDir = findDir(Directories.TITLEPIC).get();
 	const titleBitmap = bp.parseBitmap(getWadBytes())(titleDir).get();
-	const imageData = bc.toImageData(titleBitmap)(playpal.palettes[0]);
+	const imageData = ic.toImageData(titleBitmap)(playpal.palettes[0]);
 
 	it('TITLEPIC - image data size', () => {
 		expect(imageData.data.length).toEqual(320 * 200 * 4);
@@ -42,7 +43,7 @@ describe('bitmap_converter#toImageData', () => {
 	});
 });
 
-describe('bitmap_parser#postPixelAt', () => {
+describe('image_converter#postPixelAt', () => {
 	const pix = tf.postPixelAt(simpleDoomImage().map(Either.ofRight));
 	it('column[0] at post[0]', () => {
 		expect(pix(0, 0)).toEqual(11);
@@ -88,3 +89,54 @@ describe('bitmap_parser#postPixelAt', () => {
 		expect(pix(2, 3)).toEqual(204);
 	});
 });
+
+
+describe('image_converter#toBitmapSprite', () => {
+	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs().get());
+
+	it('CHGG', () => {
+		const bs: BitmapSprite = tf.toBitmapSprite(sprites[0].animations[0]).get();
+		expect(bs.name).toEqual('CHGG');
+		expect(bs.angle).toEqual('0');
+		bs.frames.forEach(f => {
+			expect(f.header.dir.name).toContain('CHGG');
+		});
+	});
+
+	it('TFOG', () => {
+		const bs: BitmapSprite = tf.toBitmapSprite(sprites[10].animations[0]).get();
+		expect(bs.name).toEqual('TFOG');
+		expect(bs.angle).toEqual('0');
+		bs.frames.forEach(f => {
+			expect(f.header.dir.name).toContain('TFOG');
+		});
+	});
+});
+
+describe('image_converter#maxSpriteSize', () => {
+	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs().get());
+
+	it('CHGG', () => {
+		const bs: BitmapSprite = tf.toBitmapSprite(sprites[0].animations[0]).get();
+		expect(bs.name).toEqual('CHGG');
+		expect(tf.maxSpriteSize(bs)).toEqual(114);
+
+		bs.frames.forEach(f => {
+			expect(f.header.width).toBeLessThanOrEqual(114);
+			expect(f.header.height).toBeLessThanOrEqual(114);
+		});
+	});
+
+	it('TFOG', () => {
+		const bs: BitmapSprite = tf.toBitmapSprite(sprites[10].animations[0]).get();
+		expect(bs.name).toEqual('TFOG');
+		expect(tf.maxSpriteSize(bs)).toEqual(56);
+		bs.frames.forEach(f => {
+			expect(f.header.width).toBeLessThanOrEqual(56);
+			expect(f.header.height).toBeLessThanOrEqual(56);
+		});
+	});
+});
+
+
+

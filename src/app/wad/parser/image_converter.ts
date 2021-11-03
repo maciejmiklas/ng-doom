@@ -94,13 +94,13 @@ const calcScale = (maxScale: number) => (sprite: BitmapSprite): number => {
 	return scale - scale % 1;
 };
 
-const mapSprite = (sprite: Sprite): Either<BitmapSprite[]> => {
-	const sprites = Object.keys(sprite.animations).map(angle => sprite.animations[angle]).map((d: FrameDir[]) => mapFrameDirs(d))
+const toBitmapSprites = (sprite: Sprite): Either<BitmapSprite[]> => {
+	const sprites = Object.keys(sprite.animations).map(angle => sprite.animations[angle]).map((d: FrameDir[]) => toBitmapSprite(d))
 		.filter(md => md.isRight()).map(md => md.get());
 	return Either.ofCondition(() => sprites.length > 0, () => sprite.name + ' has no sprites', () => sprites);
 };
 
-const mapFrameDirs = (frame: FrameDir[]): Either<BitmapSprite> => {
+const toBitmapSprite = (frame: FrameDir[]): Either<BitmapSprite> => {
 	const frames: PatchBitmap[] = frame.filter(f => f.bitmap.isRight()).map(f => f.bitmap.get());
 	const first = frame[0];
 	return Either.ofCondition(() => frames.length > 0, () => first.spriteName + ' has no frames', () => ({
@@ -116,9 +116,8 @@ const toImageBitmap = (bitmap: PatchBitmap) => (width: number, height: number) =
 
 export const testFunctions = {
 	postPixelAt,
-	mapFrameDirs,
-	maxSpriteSize,
-	mapSprite
+	toBitmapSprite,
+	maxSpriteSize
 };
 
 export const functions = {
@@ -126,5 +125,5 @@ export const functions = {
 	toImageBitmap,
 	paintOnCanvasForZoom,
 	calcScale,
-	mapSprite
+	toBitmapSprites
 };

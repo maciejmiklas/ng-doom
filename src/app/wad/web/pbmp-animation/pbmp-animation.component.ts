@@ -1,9 +1,6 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {Palette, PatchBitmap} from '../../parser/wad_model';
-import {functions as bp} from '../../parser/bitmap_parser';
-import {functions as bc} from '../../parser/bitmap_converter';
-import {WadStorageService} from '../../service/wad-storage.service';
-import {Either} from '@maciejmiklas/functional-ts';
+import {functions as ic} from '../../parser/image_converter';
 
 @Component({
 	selector: 'app-pbmp-animation',
@@ -15,7 +12,7 @@ export class PbmpAnimationComponent implements OnInit {
 	bitmaps: PatchBitmap[];
 
 	@Input()
-	paletteIdx = 0;
+	palette: Palette;
 
 	@Input()
 	scale = 1;
@@ -31,19 +28,19 @@ export class PbmpAnimationComponent implements OnInit {
 
 	private images: BitmapPromise[];
 
-	constructor(private wadStorage: WadStorageService) {
+	constructor() {
 	}
 
 	ngOnInit(): void {
-		const wad = this.wadStorage.getCurrent().get().wad;
-		const palette = bp.parsePlaypal(wad.bytes, wad.dirs).palettes[this.paletteIdx];
-		this.images = this.bitmaps.map(b => this.createBitmap(b, palette));
+		this.images = this.bitmaps.map(b => this.createBitmap(b, this.palette));
 
 		this.paintNext();
 
-		setInterval(() => {
-			this.paintNext();
-		}, this.frameDelayMs);
+		if (this.images.length > 1) {
+			setInterval(() => {
+				this.paintNext();
+			}, this.frameDelayMs);
+		}
 	}
 
 	private paintNext(): void {
@@ -57,19 +54,18 @@ export class PbmpAnimationComponent implements OnInit {
 		this.canvas = this.canvasRef.nativeElement;
 		this.canvas.width = bp.width;
 		this.canvas.height = bp.height;
-
 		const ctx = this.canvas.getContext('2d');
-
 		bp.bitmap.then(r => {
 			ctx.drawImage(r, 0, 0);
-		}).catch(e => {} /* FIXME console.log('PAINT ERR in:', bp.patch.header.dir.name, ' -> ', e)*/);
+		}).catch(e => {/* FIXME console.log('PAINT ERR in:', bp.patch.header.dir.name, ' -> ', e)*/
+		});
 	}
 
 	private createBitmap(patch: PatchBitmap, palette: Palette): BitmapPromise {
 		const width = patch.header.width * this.scale;
-		const height = patch.header.width * this.scale;
+		const height = patch.header.height * this.scale;
 		return {
-			bitmap: bc.toImageBitmap(patch)(width, height)(palette),
+			bitmap: ic.toImageBitmap(patch)(width, height)(palette),
 			patch,
 			width,
 			height,
