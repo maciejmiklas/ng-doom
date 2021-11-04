@@ -3,18 +3,28 @@ import {NgRxEventBusService} from 'ngrx-event-bus';
 import {MenuEvent} from '../../menu/service/menu-event';
 import {NavbarEvent} from '../service/navbar-event';
 import {NavbarPlugin, NavbarPluginFactory} from '../service/navbar_plugin';
+import {animate, state, style, transition, trigger} from '@angular/animations';
 
 @Component({
 	selector: 'app-root',
 	templateUrl: './main.component.html',
 	styleUrls: ['./main.component.scss'],
 	encapsulation: ViewEncapsulation.None,
+	animations: [
+		trigger('sidebarAnimation', [
+			state('collapsed', style({transform: 'translateX(-100%)'})),
+			transition('* => *', [animate('100ms')])
+		]),
+		trigger('collapsedMenuAnimation', [
+			state('open_overlay', style({'z-index': 999, position: 'fixed'}))
+		])
+	]
 })
 export class MainComponent {
 	static readonly MENU_COLLAPSE_WIDTH = 800;
 	title = 'ng-doom';
 	active = 'app-wad-upload';
-	private sidebarState;
+	sidebarState;
 	private innerWidth = 1500;
 	private lastViewSmall;
 	private overlayMenuClicked = false;
