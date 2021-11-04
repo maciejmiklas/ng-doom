@@ -19,19 +19,19 @@
 	</div>
 
 	<div class="app-main">
-		<div class="app-navbar container-fluid">
-			<div class="row">
-				<div class="col-1">
-					<button type="button" class="app-hide-sidebar-btn" (click)="toggleSidebarCollapse()">
-						<i class="bi bi-box-arrow-in-left" *ngIf="isSidebarOpen()"></i>
-						<i class="bi bi-box-arrow-in-right" *ngIf="!isSidebarOpen()"></i>
-					</button>
-				</div>
-				<div class="col-11">
-					<ng-template #navPluginRef></ng-template>
+			<div class="app-navbar">
+				<div class="row">
+					<div class="col-1">
+						<button type="button" class="app-hide-sidebar-btn" (click)="toggleSidebarCollapse()">
+							<i class="bi bi-box-arrow-in-left" *ngIf="isSidebarOpen()"></i>
+							<i class="bi bi-box-arrow-in-right" *ngIf="!isSidebarOpen()"></i>
+						</button>
+					</div>
+					<div class="col-11">
+						<ng-template #navPluginRef></ng-template>
+					</div>
 				</div>
 			</div>
-		</div>
 		<router-outlet></router-outlet>
 	</div>
 </div>

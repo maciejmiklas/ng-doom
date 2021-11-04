@@ -16,42 +16,39 @@
 	z-index: -100;
 }
 
-.app-main {
-	width: 100%;
-	padding-top: 10px;
-	padding-right: 10px;
-	max-width: 100%;
-	overflow-x: hidden;
-}
-
-// ########### NAVBAR ##################
 .app-container {
 	display: flex;
 	max-width: 100%;
 	max-height: 100%;
 }
 
-.app-navbar {
-	@extend .rounded-lg;
-	@include app-content-color;
-	padding: 15px 10px;
-	border: none;
-	border-radius: 0;
-	margin-bottom: 10px;
-	box-shadow: $app-component-shadow;
-	position: sticky;
-	position: -webkit-sticky;
-	top: 0;
+.app-container .app-main {
+	width: 100%;
+	padding-top: 10px;
+	padding-right: 10px;
+	max-width: 100%;
 }
 
-.app-navbar .app-hide-sidebar-btn {
+// ########### NAVBAR ##################
+.app-navbar {
+	@include app-content-color;
+	@extend .rounded-lg;
+	@extend .container-fluid;
+	@extend .sticky-top;
+	padding: 15px 10px;
+	border: none;
+	margin-bottom: 10px;
+	box-shadow: $app-component-shadow;
+}
+
+.app-hide-sidebar-btn {
 	@extend .btn;
 	@extend .btn-info;
 	z-index: 999;
 }
 
 // ########### SIDEBAR ##################
-.app-sidebar {
+.app-container .app-sidebar {
 	min-width: 250px;
 	max-width: 250px;
 }
