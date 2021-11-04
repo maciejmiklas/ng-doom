@@ -1,3 +1,5 @@
+<div class="app-bg-image"></div>
+
 <div class="app-container">
 	<div class="app-sidebar" *ngIf="!collapsedMenuVisible()" [ngbCollapse]="shouldSidebarCollapse()"
 			 [@sidebarAnimation]="sidebarState">
@@ -30,6 +32,6 @@
 				</div>
 			</div>
 		</div>
-			<ng-content></ng-content>
+		<router-outlet></router-outlet>
 	</div>
 </div>

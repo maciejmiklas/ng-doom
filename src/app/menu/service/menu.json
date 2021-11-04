@@ -22,5 +22,5 @@
 			{"id": "m2_save_manage", "title": "Manage", "path": "path_save_manage", "decorator": "dec_mid_save_manage"}
 		]
 		}
-	], "initialState": {"idL1": "m1_manage_wads", "idL2": "m2_wad_upload"}
+	], "initialState": {"idL1": "m1_saves", "idL2": "m2_save_load"}
 }

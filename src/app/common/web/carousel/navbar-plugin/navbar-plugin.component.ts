@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {NavbarPlugin} from '../../../../navbar/service/navbar_plugin';
+import {NavbarPlugin} from '../../../../main/service/navbar_plugin';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {CarouselComponent} from '../carousel.component';
 import {CarouselEvent} from '../carousel-event';

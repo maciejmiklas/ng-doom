@@ -1,27 +1,16 @@
-import {Component, ComponentFactoryResolver, HostListener, OnInit, ViewChild, ViewContainerRef, ViewEncapsulation} from '@angular/core';
-import {animate, state, style, transition, trigger} from '@angular/animations';
+import {Component, ComponentFactoryResolver, HostListener, ViewChild, ViewContainerRef, ViewEncapsulation} from '@angular/core';
 import {NgRxEventBusService} from 'ngrx-event-bus';
-import {NavbarPlugin, NavbarPluginFactory} from '../../service/navbar_plugin';
-import {MenuEvent} from '../../../menu/service/menu-event';
-import {NavbarEvent} from '../../service/navbar-event';
+import {MenuEvent} from '../../menu/service/menu-event';
+import {NavbarEvent} from '../service/navbar-event';
+import {NavbarPlugin, NavbarPluginFactory} from '../service/navbar_plugin';
 
 @Component({
-	selector: 'app-navbar',
-	templateUrl: './navbar.component.html',
-	styleUrls: ['./navbar.component.scss'],
+	selector: 'app-root',
+	templateUrl: './main.component.html',
+	styleUrls: ['./main.component.scss'],
 	encapsulation: ViewEncapsulation.None,
-	animations: [
-		trigger('sidebarAnimation', [
-			state('collapsed', style({transform: 'translateX(-100%)'})),
-			transition('* => *', [animate('100ms')])
-		]),
-		trigger('collapsedMenuAnimation', [
-			state('open_overlay', style({'z-index': 999, position: 'fixed'}))
-		])
-	]
 })
-
-export class NavbarComponent implements OnInit {
+export class MainComponent {
 	static readonly MENU_COLLAPSE_WIDTH = 800;
 	title = 'ng-doom';
 	active = 'app-wad-upload';
@@ -74,7 +63,7 @@ export class NavbarComponent implements OnInit {
 	}
 
 	isViewSmall(): boolean {
-		return this.innerWidth < NavbarComponent.MENU_COLLAPSE_WIDTH;
+		return this.innerWidth < MainComponent.MENU_COLLAPSE_WIDTH;
 	}
 
 	isSidebarOpen(): boolean {
@@ -83,10 +72,10 @@ export class NavbarComponent implements OnInit {
 
 	private getTransition(oldWidth: number, newWidth: number): Transition {
 		let trans = Transition.NONE;
-		if (oldWidth > NavbarComponent.MENU_COLLAPSE_WIDTH && newWidth < NavbarComponent.MENU_COLLAPSE_WIDTH) {
+		if (oldWidth > MainComponent.MENU_COLLAPSE_WIDTH && newWidth < MainComponent.MENU_COLLAPSE_WIDTH) {
 			trans = Transition.COLLAPSE;
 
-		} else if (oldWidth < NavbarComponent.MENU_COLLAPSE_WIDTH && newWidth > NavbarComponent.MENU_COLLAPSE_WIDTH) {
+		} else if (oldWidth < MainComponent.MENU_COLLAPSE_WIDTH && newWidth > MainComponent.MENU_COLLAPSE_WIDTH) {
 			trans = Transition.EXPAND;
 		}
 		return trans;
@@ -126,4 +115,3 @@ enum SidebarState {
 	OPEN_OVERLAY = 'open_overlay',
 	COLLAPSED = 'collapsed'
 }
-

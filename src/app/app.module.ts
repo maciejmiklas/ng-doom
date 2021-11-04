@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 
 import {AppRoutingModule} from './app-routing.module';
-import {AppComponent} from './main/app.component';
+import {MainComponent} from './main/web/main.component';
 import {ReactiveFormsModule} from '@angular/forms';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {WadDirsComponent} from './wad/web/wad-dirs/wad-dirs.component';
@@ -15,7 +15,6 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MenuComponent} from './menu/web/menu/menu.component';
 import {EmptyComponent} from './common/web/empty/empty.component';
 import {NgRxEventBusModule} from 'ngrx-event-bus';
-import {NavbarComponent} from './navbar/web/navbar/navbar.component';
 import {NgxFileDropModule} from 'ngx-file-drop';
 import {NgxBootstrapSliderModule} from 'ngx-bootstrap-slider';
 import {CarouselComponent} from './common/web/carousel/carousel.component';
@@ -25,7 +24,7 @@ import {PbmpAnimationComponent} from './wad/web/pbmp-animation/pbmp-animation.co
 
 @NgModule({
 	declarations: [
-		AppComponent,
+		MainComponent,
 		WadDirsComponent,
 		WadTitleImgComponent,
 		WadPlaypalComponent,
@@ -35,7 +34,6 @@ import {PbmpAnimationComponent} from './wad/web/pbmp-animation/pbmp-animation.co
 		WadDirsComponent,
 		MenuComponent,
 		EmptyComponent,
-		NavbarComponent,
 		NavbarCarouselPluginComponent,
 		CarouselComponent,
 		WadSpritesComponent,
@@ -52,7 +50,7 @@ import {PbmpAnimationComponent} from './wad/web/pbmp-animation/pbmp-animation.co
 		NgxFileDropModule
 	],
 	providers: [],
-	bootstrap: [AppComponent]
+	bootstrap: [MainComponent]
 })
 export class AppModule {
 

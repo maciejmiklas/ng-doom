@@ -2,8 +2,8 @@ import {AfterViewInit, Component, ContentChild, EventEmitter, Input, OnInit, Out
 import {NgbCarousel, NgbSlideEvent} from '@ng-bootstrap/ng-bootstrap';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {CarouselEvent} from './carousel-event';
-import {NavbarEvent} from '../../../navbar/service/navbar-event';
-import {NavbarPluginFactory} from '../../../navbar/service/navbar_plugin';
+import {NavbarEvent} from '../../../main/service/navbar-event';
+import {NavbarPluginFactory} from '../../../main/service/navbar_plugin';
 import {NavbarCarouselPluginComponent} from './navbar-plugin/navbar-plugin.component';
 import {Slide} from './carousel-model';
 
