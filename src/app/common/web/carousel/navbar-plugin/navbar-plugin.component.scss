@@ -1,3 +1,5 @@
+@import "/src/scss/ng-doom";
+
 .app-nav-pl-container {
 	margin: 0;
 	position: absolute;
@@ -8,7 +10,7 @@
 
 .app-nav-pl-text-container {
 	height: 100%;
-	display: flex;
+	@extend .d-flex;
 	align-items: center;
 	justify-content: center;
 }

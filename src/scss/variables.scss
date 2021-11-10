@@ -4,9 +4,11 @@ $app-flicker-delay: 0.5s;
 $app-font-color: rgb(27, 180, 20);
 $app-separator-line-color: rgba(252, 0, 0, 0.8);
 
-$app-screen-bg-color: black;
-$app-content-bg-color: rgba($app-screen-bg-color, 0.6);
-$app-content-bg-dark-color: rgba($app-screen-bg-color, 0.8);
+$app-screen-bg-color: rgb(106, 0, 0);
+$app-transparency-bg-color: black;
+$app-content-bg-color: rgba($app-transparency-bg-color, 0.6);
+$app-content-bg-dark-color: rgba($app-transparency-bg-color, 0.8);
+$app-content-bg-light-color: rgba($app-transparency-bg-color, 0.3);
 $app-component-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 $app-list-hover-bg: rgba($app-font-color, 0.7);
 

@@ -1,8 +1,10 @@
+@import "/src/scss/ng-doom";
+
 .app-carousel-container {
-	display: flex;
+	@extend .d-flex;
+	@extend .w-100;
 	justify-content: center;
 	align-items: center;
-	width: 100%;
 	overflow: auto;
 	margin-bottom: 3em;
 }

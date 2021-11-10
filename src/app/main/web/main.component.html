@@ -1,12 +1,12 @@
-<div class="app-bg-image"></div>
-
 <div class="app-container">
 	<div class="app-sidebar" *ngIf="!collapsedMenuVisible()" [ngbCollapse]="shouldSidebarCollapse()"
 			 [@sidebarAnimation]="sidebarState">
 		<div class="app-sidebar-header">
 			<h3>NG-DOOM</h3>
 		</div>
-		<app-menu></app-menu>
+		<div class="app-sidebar-menu">
+			<app-menu></app-menu>
+		</div>
 	</div>
 
 	<div class="app-sidebar" *ngIf="collapsedMenuVisible()" [@collapsedMenuAnimation]="sidebarState">
@@ -19,19 +19,21 @@
 	</div>
 
 	<div class="app-main">
-			<div class="app-navbar">
-				<div class="row">
-					<div class="col-1">
-						<button type="button" class="app-hide-sidebar-btn" (click)="toggleSidebarCollapse()">
-							<i class="bi bi-box-arrow-in-left" *ngIf="isSidebarOpen()"></i>
-							<i class="bi bi-box-arrow-in-right" *ngIf="!isSidebarOpen()"></i>
-						</button>
-					</div>
-					<div class="col-11">
-						<ng-template #navPluginRef></ng-template>
-					</div>
+		<div class="app-navbar">
+			<div class="row">
+				<div class="col-1">
+					<button type="button" class="app-hide-sidebar-btn" (click)="toggleSidebarCollapse()">
+						<i class="bi bi-box-arrow-in-left" *ngIf="isSidebarOpen()"></i>
+						<i class="bi bi-box-arrow-in-right" *ngIf="!isSidebarOpen()"></i>
+					</button>
+				</div>
+				<div class="col-11">
+					<ng-template #navPluginRef></ng-template>
 				</div>
 			</div>
-		<router-outlet></router-outlet>
+		</div>
+		<div class="app-content">
+			<router-outlet></router-outlet>
+		</div>
 	</div>
 </div>
