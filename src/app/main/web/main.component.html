@@ -18,7 +18,7 @@
 		</div>
 	</div>
 
-	<div class="app-main">
+	<div appMainOverflow class="app-main">
 		<div class="app-navbar">
 			<div class="row">
 				<div class="col-1">
@@ -33,7 +33,7 @@
 			</div>
 		</div>
 		<div class="app-content">
-			<router-outlet></router-outlet>
+			<router-outlet (activate)="switchRoute()"></router-outlet>
 		</div>
 	</div>
 </div>

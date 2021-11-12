@@ -1,7 +1,7 @@
 import {Component, ComponentFactoryResolver, HostListener, ViewChild, ViewContainerRef, ViewEncapsulation} from '@angular/core';
-import {NgRxEventBusService} from 'ngrx-event-bus';
+import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {MenuEvent} from '../../menu/service/menu-event';
-import {NavbarEvent} from '../service/navbar-event';
+import {MainEvent} from '../service/main-event';
 import {NavbarPlugin, NavbarPluginFactory} from '../service/navbar_plugin';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 
@@ -44,7 +44,7 @@ export class MainComponent {
 			this.removePlugin();
 		});
 
-		this.eventBus.on(NavbarEvent.SET_NAVBAR_PLUGIN, (navbarPluginFactory: NavbarPluginFactory<any>) => {
+		this.eventBus.on(MainEvent.SET_NAVBAR_PLUGIN, (navbarPluginFactory: NavbarPluginFactory<any>) => {
 			this.loadPlugin(navbarPluginFactory);
 		});
 	}
@@ -57,6 +57,10 @@ export class MainComponent {
 
 	private removePlugin(): void {
 		this.navPluginRef.clear();
+	}
+
+	switchRoute(): void {
+		this.eventBus.emit(new EmitEvent(MainEvent.SET_MAIN_OVERFLOW, 'visible'));
 	}
 
 	@HostListener('window:resize')

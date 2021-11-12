@@ -21,6 +21,7 @@ import {CarouselComponent} from './common/web/carousel/carousel.component';
 import {NavbarCarouselPluginComponent} from './common/web/carousel/navbar-plugin/navbar-plugin.component';
 import {WadSpritesComponent} from './wad/web/wad-sprites/wad-sprites.component';
 import {PbmpAnimationComponent} from './wad/web/pbmp-animation/pbmp-animation.component';
+import { MainOverflowDirective } from './main/web/main-overflow.directive';
 
 @NgModule({
 	declarations: [
@@ -38,6 +39,7 @@ import {PbmpAnimationComponent} from './wad/web/pbmp-animation/pbmp-animation.co
 		CarouselComponent,
 		WadSpritesComponent,
 		PbmpAnimationComponent,
+  MainOverflowDirective,
 	],
 	imports: [
 		BrowserModule,

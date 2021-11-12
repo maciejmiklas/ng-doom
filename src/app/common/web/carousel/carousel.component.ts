@@ -2,7 +2,7 @@ import {AfterViewInit, Component, ContentChild, EventEmitter, Input, OnInit, Out
 import {NgbCarousel, NgbSlideEvent} from '@ng-bootstrap/ng-bootstrap';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {CarouselEvent} from './carousel-event';
-import {NavbarEvent} from '../../../main/service/navbar-event';
+import {MainEvent} from '../../../main/service/main-event';
 import {NavbarPluginFactory} from '../../../main/service/navbar_plugin';
 import {NavbarCarouselPluginComponent} from './navbar-plugin/navbar-plugin.component';
 import {Slide} from './carousel-model';
@@ -54,7 +54,7 @@ export class CarouselComponent implements OnInit, AfterViewInit {
 			this.zoomChange.emit(zoom);
 		});
 
-		this.eventBus.emit(new EmitEvent(NavbarEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(NavbarCarouselPluginComponent, this)));
+		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(NavbarCarouselPluginComponent, this)));
 		if (this.slides.length > 0) {
 			this.eventBus.emit(new EmitEvent(CarouselEvent.IMG_CHANGED, this.slides[0].name));
 		}
