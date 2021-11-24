@@ -23,7 +23,6 @@ export class WadTitleImgComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.eventBus.emit(new EmitEvent(MainEvent.SET_MAIN_OVERFLOW, 'hidden'));
-
 		this.wad = this.wadStorage.getCurrent().get().wad;
 		this.slides = this.createSlides(this.wad);
 	}

@@ -1,9 +1,21 @@
-import {Component, ComponentFactoryResolver, HostListener, ViewChild, ViewContainerRef, ViewEncapsulation} from '@angular/core';
+import {
+	ChangeDetectorRef,
+	Component,
+	ComponentFactoryResolver,
+	HostListener,
+	ViewChild,
+	ViewContainerRef,
+	ViewEncapsulation
+} from '@angular/core';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {MenuEvent} from '../../menu/service/menu-event';
 import {MainEvent} from '../service/main-event';
 import {NavbarPlugin, NavbarPluginFactory} from '../service/navbar_plugin';
 import {animate, state, style, transition, trigger} from '@angular/animations';
+import {PatchBitmap} from '../../wad/parser/wad_model';
+import {WadEvent} from '../../wad/service/wad-event';
+import {UploadResult, UploadStatus} from '../../wad/service/wad-service-model';
+import {WadStorageService} from '../../wad/service/wad-storage.service';
 
 @Component({
 	selector: 'app-root',
@@ -25,6 +37,7 @@ export class MainComponent {
 	title = 'ng-doom';
 	active = 'app-wad-upload';
 	sidebarState;
+	headerImage: PatchBitmap = null;
 	private innerWidth = 1500;
 	private lastViewSmall;
 	private overlayMenuClicked = false;
@@ -32,7 +45,15 @@ export class MainComponent {
 	@ViewChild('navPluginRef', {read: ViewContainerRef})
 	navPluginRef: ViewContainerRef;
 
-	constructor(private resolver: ComponentFactoryResolver, private eventBus: NgRxEventBusService) {
+	constructor(private resolver: ComponentFactoryResolver,
+							private eventBus: NgRxEventBusService,
+							private wadStorage: WadStorageService,
+							private detector: ChangeDetectorRef) {
+	}
+
+
+	headerImageLoaded(): boolean {
+		return this.headerImage !== null;
 	}
 
 	ngOnInit(): void {
@@ -47,12 +68,19 @@ export class MainComponent {
 		this.eventBus.on(MainEvent.SET_NAVBAR_PLUGIN, (navbarPluginFactory: NavbarPluginFactory<any>) => {
 			this.loadPlugin(navbarPluginFactory);
 		});
+
+		this.eventBus.on(WadEvent.WAD_UPLOADED, (result: UploadResult) => {
+			if (result.status === UploadStatus.UPLOADED) {
+				this.headerImage = this.wadStorage.getCurrent().map(c => c.wad).map(w => w.title.mDoom).orElseGet(() => null);
+			}
+		});
 	}
 
 	private loadPlugin(navbarPluginFactory: NavbarPluginFactory<any>): void {
 		const compClass = this.resolver.resolveComponentFactory(navbarPluginFactory.component);
 		const plugin = this.navPluginRef.createComponent<NavbarPlugin<any>>(compClass);
 		plugin.instance.setData(navbarPluginFactory.data);
+		this.detector.detectChanges();
 	}
 
 	private removePlugin(): void {
@@ -108,7 +136,7 @@ export class MainComponent {
 		return this.isViewSmall() || !this.isSidebarOpen();
 	}
 
-	collapsedMenuVisible(): boolean {
+	menuCollapsed(): boolean {
 		return this.isViewSmall() && !this.overlayMenuClicked && this.sidebarState === SidebarState.OPEN_OVERLAY;
 	}
 

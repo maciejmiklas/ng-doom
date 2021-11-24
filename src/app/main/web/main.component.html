@@ -1,17 +1,17 @@
 <div class="app-container">
-	<div class="app-sidebar" *ngIf="!collapsedMenuVisible()" [ngbCollapse]="shouldSidebarCollapse()"
+	<div class="app-sidebar" *ngIf="!menuCollapsed()" [ngbCollapse]="shouldSidebarCollapse()"
 			 [@sidebarAnimation]="sidebarState">
 		<div class="app-sidebar-header">
-			<h3>NG-DOOM</h3>
+			<h3 *ngIf="!headerImageLoaded()">NG-DOOM</h3>
+			<app-pbmp *ngIf="headerImageLoaded()" [bitmap]="headerImage" [scale]="1" [reloadBitmap]="true"></app-pbmp>
 		</div>
 		<div class="app-sidebar-menu">
 			<app-menu></app-menu>
 		</div>
 	</div>
 
-	<div class="app-sidebar" *ngIf="collapsedMenuVisible()" [@collapsedMenuAnimation]="sidebarState">
+	<div class="app-sidebar" *ngIf="menuCollapsed()" [@collapsedMenuAnimation]="sidebarState">
 		<div class="app-sidebar-header" style="visibility: hidden">
-			<h3>NG-DOOM</h3>
 		</div>
 		<div class="app-sidebar-menu-collapsed">
 			<app-menu (selection)="onOverlayMenuSelected()"></app-menu>

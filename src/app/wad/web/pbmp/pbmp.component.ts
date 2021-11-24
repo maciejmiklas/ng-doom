@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, DoCheck, ElementRef, Input, KeyValueDiffer, KeyValueDiffers, OnInit, ViewChild} from '@angular/core';
 import {PatchBitmap} from '../../parser/wad_model';
 import {functions as bp} from '../../parser/bitmap_parser';
 import {functions as ic} from '../../parser/image_converter';
@@ -8,7 +8,7 @@ import {WadStorageService} from '../../service/wad-storage.service';
 	selector: 'app-pbmp',
 	templateUrl: './pbmp.component.html'
 })
-export class PbmpComponent implements OnInit {
+export class PbmpComponent implements OnInit, DoCheck {
 	static CMP = 'app-pbmp';
 
 	@Input()
@@ -20,16 +20,23 @@ export class PbmpComponent implements OnInit {
 	@ViewChild('canvas', {static: true})
 	canvasRef: ElementRef<HTMLCanvasElement>;
 
+	@Input()
+	reloadBitmap = false;
+
 	_scale = 1;
 	private ctx;
 	private imageObject;
 	private canvas: HTMLCanvasElement;
+	private bitmapDiffer: KeyValueDiffer<PatchBitmap, any>;
 
-	constructor(private wadStorage: WadStorageService) {
+	constructor(private wadStorage: WadStorageService, private differ: KeyValueDiffers) {
 	}
 
 	ngOnInit(): void {
-		this.paint();
+		if (!this.reloadBitmap) {
+			this.paint();
+		}
+		this.bitmapDiffer = this.differ.find(this.bitmap).create();
 	}
 
 	@Input()
@@ -57,5 +64,11 @@ export class PbmpComponent implements OnInit {
 		this.canvas = this.canvasRef.nativeElement;
 		this.ctx = this.canvas.getContext('2d');
 		this.imageObject = ic.paintOnCanvasForZoom(this.bitmap, this.canvas)(palette)(this._scale);
+	}
+
+	ngDoCheck(): void {
+		if (this.reloadBitmap && this.bitmapDiffer.diff(this.bitmap)) {
+			this.paint();
+		}
 	}
 }

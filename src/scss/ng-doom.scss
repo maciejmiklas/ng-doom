@@ -9,6 +9,12 @@
 	background-color: $app-content-bg-color;
 	color: $app-font-color;
 }
+
+@mixin align-center {
+	@extend .justify-content-center;
+	align-items: center;
+}
+
 body {
 	background-image: url("../assets/img/doom_logo.png");
 	background-attachment: fixed;

@@ -3,11 +3,8 @@
 .app-carousel-container {
 	@extend .d-flex;
 	@extend .w-100;
-	justify-content: center;
+	@include align-center;
 	align-items: center;
 	overflow: auto;
 	margin-bottom: 3em;
-}
-.app-carousel-slide {
-	flex-shrink: 0;
 }

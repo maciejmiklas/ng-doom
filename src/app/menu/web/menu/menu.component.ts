@@ -24,7 +24,7 @@ export class MenuComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.reloadMenu();
-		this.eventBus.on(WadEvent.WAD_UPLOAD, () => {
+		this.eventBus.on(WadEvent.WAD_UPLOADED, () => {
 			this.reloadMenu();
 		});
 		this.router.navigate([this.menuService.routePath]);

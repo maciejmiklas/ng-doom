@@ -2,9 +2,8 @@
 
 .app-sprites {
 	@extend .d-flex;
+	@include align-center;
 	flex-flow: row wrap;
-	justify-content: space-around;
-	align-items: center;
 	padding: 0;
 	margin: 0;
 	list-style: none;
@@ -12,11 +11,10 @@
 
 .app-sprite {
 	background: $app-content-bg-light-color;
-	padding: 5px;
-	width: 200px;
-	height: 200px;
-	margin-top: 10px;
-	line-height: 200px;
+	width: $wad-sprite-box-size;
+	height: $wad-sprite-box-size;
+	margin: $wad-sprite-box-margin;
+	line-height: $wad-sprite-box-size;
 	font-weight: bold;
 	text-align: center;
 

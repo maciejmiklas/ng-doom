@@ -11,8 +11,7 @@
 .app-nav-pl-text-container {
 	height: 100%;
 	@extend .d-flex;
-	align-items: center;
-	justify-content: center;
+	@include align-center;
 }
 
 .app-nav-pl-text-body {

@@ -3,7 +3,7 @@
 		<div class="col-8 h-100">
 			<div class="container d-flex h-100 justify-content-center">
 				<div class="align-self-center">
-					{{title}}
+					{{control.getTitle()}}
 				</div>
 			</div>
 		</div>
@@ -11,15 +11,15 @@
 			<div class="container d-flex h-100 justify-content-center">
 				<div class="align-self-center">
 					<button type="button" (click)="togglePaused()" class="btn btn-outline-dark btn-sm">
-						{{parent.paused ? 'Cycle' : 'Pause' }}
+						{{control.isPaused() ? 'Cycle' : 'Pause' }}
 					</button>
 				</div>
 			</div>
 		</div>
-		<div class="col-3" *ngIf="showZoom">
+		<div class="col-3" *ngIf="control.zoomVisible()">
 			<div class="container d-flex h-100 justify-content-center">
 				<div class="align-self-center">
-					<mv-slider *ngIf="_zoom > 0" [(value)]="zoom" [min]="1" [max]="8" [step]="1" [formatter]="zoomFormatter"
+					<mv-slider *ngIf="zoom > 0" [(value)]="zoom" [min]="1" [max]="8" [step]="1" [formatter]="zoomFormatter"
 										 tooltip="always"
 										 tooltipPosition="bottom"></mv-slider>
 				</div>

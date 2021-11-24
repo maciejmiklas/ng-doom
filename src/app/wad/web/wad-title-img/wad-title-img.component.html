@@ -1,5 +1,5 @@
 <app-carousel [slides]="slides" [(zoom)]="zoom">
 	<ng-template let-slide>
-		<app-pbmp [bitmap]="slide" class="app-carousel-slide" [scale]="zoom"></app-pbmp>
+		<app-pbmp [bitmap]="slide" [scale]="zoom"></app-pbmp>
 	</ng-template>
 </app-carousel>

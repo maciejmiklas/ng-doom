@@ -21,7 +21,7 @@ export class WadStorageService {
 
 	public async uploadWad(file: File): Promise<UploadResult> {
 		return this.uploadWadIntern(file).then(res => {
-			this.eventBus.emit(new EmitEvent(WadEvent.WAD_UPLOAD, res));
+			this.eventBus.emit(new EmitEvent(WadEvent.WAD_UPLOADED, res));
 			return res;
 		});
 	}
@@ -39,6 +39,7 @@ export class WadStorageService {
 				},
 				wad => {
 					this.wads.push({wad, name: file.name, gameSave: []});
+					this.currentWad = this.wads.length - 1;
 					return {fileName: file.name, status: UploadStatus.UPLOADED, message: undefined};
 				});
 		});

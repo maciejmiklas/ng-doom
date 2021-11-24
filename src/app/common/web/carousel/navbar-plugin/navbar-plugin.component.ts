@@ -1,57 +1,42 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {NavbarPlugin} from '../../../../main/service/navbar_plugin';
-import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
-import {CarouselComponent} from '../carousel.component';
-import {CarouselEvent} from '../carousel-event';
+import {CarouselControl} from '../carousel.component';
 
 @Component({
 	selector: 'app-navbar-plugin',
 	templateUrl: './navbar-plugin.component.html',
 	styleUrls: ['./navbar-plugin.component.scss'],
 })
-export class NavbarCarouselPluginComponent implements NavbarPlugin<CarouselComponent>, OnInit {
+export class NavbarCarouselPluginComponent implements NavbarPlugin<CarouselControl> {
 
-	@Input()
-	showZoom = true;
+	control: CarouselControl;
 
-	_zoom = 2;
-	parent: CarouselComponent;
-	title = '';
+	constructor() {
+	}
 
 	zoomFormatter = (value) => {
 		return 'x ' + value;
 	};
 
 	pauseClass(): string {
-		return this.showZoom ? 'col-1' : 'col-4';
+		return this.control.zoomVisible() ? 'col-1' : 'col-4';
 	}
 
-	constructor(private eventBus: NgRxEventBusService) {
-		this.eventBus.on(CarouselEvent.IMG_CHANGED, (name: string) => {
-			this.title = name;
-		});
-	}
-
-	setData(data: CarouselComponent): void {
-		this.parent = data;
-		this._zoom = data.zoom;
-		this.showZoom = data.showZoom;
+	setData(carouselControl: CarouselControl): void {
+		this.control = carouselControl;
 	}
 
 	set zoom(zoom: number) {
-		this._zoom = zoom;
-		this.eventBus.emit(new EmitEvent(CarouselEvent.ZOOM_CHANGED, zoom));
+		this.control.setZoom(zoom);
 	}
 
 	get zoom(): number {
-		return this._zoom;
+		return this.control.getZoom();
 	}
 
 	togglePaused(): void {
-		this.eventBus.emit(new EmitEvent(CarouselEvent.CAROUSEL_PAUSE));
+		this.control.togglePaused();
 	}
 
-	ngOnInit(): void {
-	}
 
 }

@@ -36,7 +36,6 @@ const parseNumber = (bytes: number[]) => (pos: number): number =>
 	R.pipe<number[], number[], number[], number>(
 		R.slice(pos, pos + 4),
 		R.reverse,
-		// TODO replace unknown with something that compiles
 		R.curry(R.reduce)((acc: unknown, cur: unknown) => acc as number << 8 | cur as number, 0)
 	)(bytes);
 
