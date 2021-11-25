@@ -21,7 +21,8 @@ import {CarouselComponent} from './common/web/carousel/carousel.component';
 import {NavbarCarouselPluginComponent} from './common/web/carousel/navbar-plugin/navbar-plugin.component';
 import {WadSpritesComponent} from './wad/web/wad-sprites/wad-sprites.component';
 import {PbmpAnimationComponent} from './wad/web/pbmp-animation/pbmp-animation.component';
-import { MainOverflowDirective } from './main/web/main-overflow.directive';
+import {MainOverflowDirective} from './main/web/main-overflow.directive';
+import {HighchartsChartModule} from 'highcharts-angular';
 
 @NgModule({
 	declarations: [
@@ -39,7 +40,7 @@ import { MainOverflowDirective } from './main/web/main-overflow.directive';
 		CarouselComponent,
 		WadSpritesComponent,
 		PbmpAnimationComponent,
-  MainOverflowDirective,
+		MainOverflowDirective,
 	],
 	imports: [
 		BrowserModule,
@@ -49,7 +50,8 @@ import { MainOverflowDirective } from './main/web/main-overflow.directive';
 		NgbModule,
 		BrowserAnimationsModule,
 		NgRxEventBusModule,
-		NgxFileDropModule
+		NgxFileDropModule,
+		HighchartsChartModule
 	],
 	providers: [],
 	bootstrap: [MainComponent]

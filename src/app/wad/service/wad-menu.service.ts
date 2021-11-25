@@ -85,3 +85,15 @@ export class WadTitleImgMenuDecorator implements MenuDecorator {
 		return this.wadStorage.isLoaded();
 	}
 }
+
+@Injectable({
+	providedIn: 'root'
+})
+export class WadDirsMenuDecorator implements MenuDecorator {
+	constructor(private wadStorage: WadStorageService) {
+	}
+
+	visible(): boolean {
+		return this.wadStorage.isLoaded();
+	}
+}

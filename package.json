@@ -29,6 +29,8 @@
 		"bootstrap-icons": "^1.4.1",
 		"bootstrap-slider": "^11.0.2",
 		"compass-mixins": "^0.12.10",
+		"highcharts": "^9.3.1",
+		"highcharts-angular": "^2.10.0",
 		"jquery": "^3.6.0",
 		"js-yaml": "^4.1.0",
 		"ngrx-event-bus": "^2.1.1",

@@ -2,6 +2,7 @@ import {AbstractType, Injectable, Injector} from '@angular/core';
 import {MenuDecorator, MenuRoot, MenuState} from './menu-model';
 import menuJson from './menu.json';
 import {
+	WadDirsMenuDecorator,
 	WadListMenuDecorator,
 	WadMapsMenuDecorator,
 	WadPlaypalMenuDecorator,
@@ -26,8 +27,10 @@ export class MenuService {
 		dec_wad_list: WadListMenuDecorator,
 		dec_wad_select: WadSelectMenuDecorator,
 		dec_wad_maps: WadMapsMenuDecorator,
+		dec_wad_dirs: WadDirsMenuDecorator,
 		dec_wad_playpal: WadPlaypalMenuDecorator,
 		dec_wad_title_img: WadTitleImgMenuDecorator,
+		dec_wad_folders: WadDirsMenuDecorator,
 		dec_mid_save_load: DummyMenuDecorator,
 		dec_mid_save_new: DummyMenuDecorator,
 		dec_mid_save_manage: DummyMenuDecorator
