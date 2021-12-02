@@ -37,7 +37,7 @@ const validateStbarPatchHeader = (header: PatchHeader) => {
 };
 
 describe('bitmap_parser#parsePatchHeader', () => {
-	const findDir = dp.findDirectoryByName(getAllDirs().get());
+	const findDir = dp.findDirectoryByName(getAllDirs());
 	const patchParser = tf.parsePatchHeader(getWadBytes());
 	const titleDir = findDir(Directories.TITLEPIC).get();
 
@@ -71,7 +71,7 @@ describe('bitmap_parser#parsePatchHeader', () => {
 });
 
 describe('bitmap_parser#parseColumn', () => {
-	const findDir = dp.findDirectoryByName(getAllDirs().get());
+	const findDir = dp.findDirectoryByName(getAllDirs());
 	const titleDir = findDir(Directories.TITLEPIC).get();
 	const patchParser = tf.parsePatchHeader(getWadBytes());
 	const titlePatch = patchParser(titleDir);
@@ -91,7 +91,7 @@ describe('bitmap_parser#parseColumn', () => {
 });
 
 describe('bitmap_parser#parsePost', () => {
-	const findDir = dp.findDirectoryByName(getAllDirs().get());
+	const findDir = dp.findDirectoryByName(getAllDirs());
 	const dir = findDir(Directories.TITLEPIC);
 	const header = tf.parsePatchHeader(getWadBytes())(dir.get());
 	const parsePost = tf.parsePost(getWadBytes());
@@ -120,7 +120,7 @@ describe('bitmap_parser#parsePost', () => {
 });
 
 describe('bitmap_parser#parseBitmap', () => {
-	const findDir = dp.findDirectoryByName(getAllDirs().get());
+	const findDir = dp.findDirectoryByName(getAllDirs());
 	const dir = findDir(Directories.TITLEPIC);
 	const bitmap = bp.parseBitmap(getWadBytes())(dir.get()).get();
 
@@ -220,7 +220,7 @@ describe('bitmap_parser#parseRBG', () => {
 });
 
 describe('bitmap_parser#parsePlaypal', () => {
-	const playpal = bp.parsePlaypal(getWadBytes(), getAllDirs().get());
+	const playpal = bp.parsePlaypal(getWadBytes(), getAllDirs());
 
 	it('palettes amount', () => {
 		expect(playpal.palettes.length).toEqual(13);

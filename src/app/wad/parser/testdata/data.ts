@@ -25,17 +25,22 @@ export const getHeader = () => {
 };
 
 let _allDirs = null;
-export const getAllDirs = (): Either<Directory[]> => {
+export const getAllDirs = (): Directory[] => {
 	if (!_allDirs) {
 		_allDirs = getHeader().map(header => dp.parseAllDirectories(header, getWadBytes()).get());
 	}
+	return _allDirs.get();
+};
+
+export const getAllDirsOp = (): Either<Directory[]> => {
+	getAllDirs();
 	return _allDirs;
 };
 
 let _firstMap = null;
 export const getFirstMap = () => {
 	if (!_firstMap) {
-		_firstMap = getAllDirs().map(dirs => mpt.findNextMapDir(dirs)).get()(0).get();
+		_firstMap = getAllDirsOp().map(dirs => mpt.findNextMapDir(dirs)).get()(0).get();
 	}
 	return _firstMap;
 };

@@ -5,7 +5,7 @@ import {Directories, TitlePic, WadType} from './wad_model';
 import {Either} from '@maciejmiklas/functional-ts';
 
 describe('wad_parser#parseTitlePic', () => {
-	const tp: Either<TitlePic> = tf.parseTitlePic(getWadBytes(), getAllDirs().get());
+	const tp: Either<TitlePic> = tf.parseTitlePic(getWadBytes(), getAllDirs());
 	it('Found Pictures', () => {
 		expect(tp.isRight()).toBeTruthy();
 		expect(tp.get().credit).toBeTruthy();

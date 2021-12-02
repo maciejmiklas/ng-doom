@@ -8,8 +8,8 @@ import {functions as sp} from './sprite_parser';
 
 
 describe('image_converter#toImageData', () => {
-	const playpal = bp.parsePlaypal(getWadBytes(), getAllDirs().get());
-	const findDir = dp.findDirectoryByName(getAllDirs().get());
+	const playpal = bp.parsePlaypal(getWadBytes(), getAllDirs());
+	const findDir = dp.findDirectoryByName(getAllDirs());
 	const titleDir = findDir(Directories.TITLEPIC).get();
 	const titleBitmap = bp.parseBitmap(getWadBytes())(titleDir).get();
 	const imageData = ic.toImageData(titleBitmap)(playpal.palettes[0]);
@@ -92,7 +92,7 @@ describe('image_converter#postPixelAt', () => {
 
 
 describe('image_converter#toBitmapSprite', () => {
-	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs().get());
+	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs());
 
 	it('CHGG', () => {
 		const bs: BitmapSprite = tf.toBitmapSprite(sprites[0].animations[0]).get();
@@ -114,7 +114,7 @@ describe('image_converter#toBitmapSprite', () => {
 });
 
 describe('image_converter#maxSpriteSize', () => {
-	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs().get());
+	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs());
 
 	it('CHGG', () => {
 		const bs: BitmapSprite = tf.toBitmapSprite(sprites[0].animations[0]).get();

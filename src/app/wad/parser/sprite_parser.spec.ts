@@ -5,20 +5,20 @@ import {Directory, FrameDir, Sprite} from './wad_model';
 
 describe('sprite_parser#findStartDir', () => {
 	it('S_START', () => {
-		const dir = tf.findStartDir(getAllDirs().get()).get();
+		const dir = tf.findStartDir(getAllDirs()).get();
 		expect(dir.name).toEqual('S_START');
 	});
 });
 
 describe('sprite_parser#findEndDir', () => {
 	it('S_END', () => {
-		const dir = tf.findEndDir(getAllDirs().get(), tf.findStartDir(getAllDirs().get()).get().idx).get();
+		const dir = tf.findEndDir(getAllDirs(), tf.findStartDir(getAllDirs()).get().idx).get();
 		expect(dir.name).toEqual('S_END');
 	});
 });
 
 describe('sprite_parser#findSpriteDirs', () => {
-	const sprites: Directory[] = tf.findSpriteDirs(getAllDirs().get());
+	const sprites: Directory[] = tf.findSpriteDirs(getAllDirs());
 	it('First Sprite', () => {
 		expect(sprites[0].name).toEqual('CHGGA0');
 	});
@@ -41,7 +41,7 @@ describe('sprite_parser#findSpriteDirs', () => {
 });
 
 describe('sprite_parser#groupDirsBySpriteName', () => {
-	const sd: Directory[] = tf.findSpriteDirs(getAllDirs().get());
+	const sd: Directory[] = tf.findSpriteDirs(getAllDirs());
 	const sprites: Directory[][] = tf.groupDirsBySpriteName(sd);
 	it('Sprites Size', () => {
 		expect(Object.entries(sprites).length).toEqual(62);
@@ -111,7 +111,7 @@ describe('sprite_parser#hasMirrorFrame', () => {
 });
 
 describe('sprite_parser#toFrameDirs', () => {
-	const sd: Directory[] = tf.findSpriteDirs(getAllDirs().get());
+	const sd: Directory[] = tf.findSpriteDirs(getAllDirs());
 	const sprites = tf.groupDirsBySpriteName(sd);
 
 	it('Sprite POSS - Normal and Mirror', () => {
@@ -140,7 +140,7 @@ describe('sprite_parser#toFrameDirs', () => {
 });
 
 describe('sprite_parser#toFramesByAngle', () => {
-	const sd: Directory[] = tf.findSpriteDirs(getAllDirs().get());
+	const sd: Directory[] = tf.findSpriteDirs(getAllDirs());
 	const sprites = tf.groupDirsBySpriteName(sd);
 	const poss = sprites.find(d => d[0].name.startsWith('POSS'));
 
@@ -210,7 +210,7 @@ describe('sprite_parser#toFramesByAngle', () => {
 
 describe('sprite_parser#parseSprites', () => {
 	it('Keys correspond to names', () => {
-		const sprites: Record<string, Sprite> = sp.parseSpritesAsMap(getWadBytes(), getAllDirs().get());
+		const sprites: Record<string, Sprite> = sp.parseSpritesAsMap(getWadBytes(), getAllDirs());
 		for (let spriteName in sprites) {
 			const sprite: Sprite = sprites[spriteName];
 			for (let angle in sprite.animations) {
@@ -225,7 +225,7 @@ describe('sprite_parser#parseSprites', () => {
 });
 
 describe('sprite_parser#parseSpritesAsArray', () => {
-	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs().get());
+	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs());
 
 	it('Sprites Size', () => {
 		expect(sprites.length).toEqual(62);
@@ -241,3 +241,6 @@ describe('sprite_parser#parseSpritesAsArray', () => {
 		expect(sprites[10].animations[0].length).toEqual(10);
 	});
 });
+
+
+

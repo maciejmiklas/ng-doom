@@ -15,7 +15,7 @@ import {
 } from './testdata/data';
 
 describe('directory_parser#findDirectoryByName', () => {
-	const find = dp.findDirectoryByName(getAllDirs().get());
+	const find = dp.findDirectoryByName(getAllDirs());
 	const findAndCompare = (name: string) => {
 		expect(find(name).get().name).toEqual(name);
 	};
@@ -38,7 +38,7 @@ describe('directory_parser#findDirectoryByName', () => {
 });
 
 describe('directory_parser#findDirectoryByOffset', () => {
-	const find = dp.findDirectoryByOffset(getAllDirs().get());
+	const find = dp.findDirectoryByOffset(getAllDirs());
 	const findAndCompare = (name: string, offset: number) => {
 		expect(find(name, offset).get().name).toEqual(name);
 	};

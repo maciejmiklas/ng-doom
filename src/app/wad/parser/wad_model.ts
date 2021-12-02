@@ -202,12 +202,10 @@ export type Sector = MapLump & {
  </pre>
  * Each Map contains those directories in exact this order.
  */
-export type Map = {
-	nameDir: Directory
+export type WadMap = {
+	mapDirs: Directory[]
 	things: Thing[]
 	linedefs: Linedef[]
-	sidedefs: Sidedef[]
-	vertexes: Vertexe[]
 	segs: Seg[]
 	ssectors: Ssector[]
 	nodes: Node[]
@@ -340,7 +338,7 @@ export type FrameDir = {
 export type Wad = {
 	header: Header,
 	title: TitlePic,
-	maps: Map[],
+	maps: WadMap[],
 	dirs: Directory[]
 	bytes: number[]
 };
