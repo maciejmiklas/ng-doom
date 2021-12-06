@@ -22,7 +22,9 @@ import {NavbarCarouselPluginComponent} from './common/web/carousel/navbar-plugin
 import {WadSpritesComponent} from './wad/web/wad-sprites/wad-sprites.component';
 import {PbmpAnimationComponent} from './wad/web/pbmp-animation/pbmp-animation.component';
 import {MainOverflowDirective} from './main/web/main-overflow.directive';
-import {HighchartsChartModule} from 'highcharts-angular';
+import {WadDirComponent} from './wad/web/wad-dir/wad-dir.component';
+import {WadDirElementComponent} from './wad/web/wad-dir-element/wad-dir-element.component';
+import {WadDirsNavbarPluginComponent} from './wad/web/wad-dirs/wad-dirs-navbar-plugin/wad-dirs-navbar-plugin.component';
 
 @NgModule({
 	declarations: [
@@ -33,7 +35,6 @@ import {HighchartsChartModule} from 'highcharts-angular';
 		WadPaletteComponent,
 		PbmpComponent,
 		WadUploadComponent,
-		WadDirsComponent,
 		MenuComponent,
 		EmptyComponent,
 		NavbarCarouselPluginComponent,
@@ -41,6 +42,9 @@ import {HighchartsChartModule} from 'highcharts-angular';
 		WadSpritesComponent,
 		PbmpAnimationComponent,
 		MainOverflowDirective,
+		WadDirComponent,
+		WadDirElementComponent,
+		WadDirsNavbarPluginComponent,
 	],
 	imports: [
 		BrowserModule,
@@ -50,8 +54,7 @@ import {HighchartsChartModule} from 'highcharts-angular';
 		NgbModule,
 		BrowserAnimationsModule,
 		NgRxEventBusModule,
-		NgxFileDropModule,
-		HighchartsChartModule
+		NgxFileDropModule
 	],
 	providers: [],
 	bootstrap: [MainComponent]

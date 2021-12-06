@@ -113,7 +113,7 @@ describe('MenuParserService - on Real Data', () => {
 			title: 'WAD Viewer',
 			l2: [
 				{id: 'm2_wad_maps', title: 'Maps', path: 'path_wad_maps', decorator: 'dec_wad_maps'},
-				{id: 'm2_wad_dirs', title: 'Dirs', path: 'path_wad_dirs', decorator: 'dec_wad_dirs'},
+				{id: 'm2_wad_dirs', title: 'Directories', path: 'path_wad_dirs', decorator: 'dec_wad_dirs'},
 				{id: 'm2_wad_playpal', title: 'Playpal', path: 'path_wad_playpal', decorator: 'dec_wad_playpal'},
 				{id: 'm2_wad_title_img', title: 'Title Images', path: 'path_wad_title_img', decorator: 'dec_wad_title_img'},
 				{id: 'm2_wad_sprites', title: 'Sprites', path: 'path_wad_sprites', decorator: 'dec_wad_sprites'}]

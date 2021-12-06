@@ -28,7 +28,7 @@
 		"bootstrap": "^4.6.0",
 		"bootstrap-icons": "^1.4.1",
 		"bootstrap-slider": "^11.0.2",
-		"compass-mixins": "^0.12.10"
+		"compass-mixins": "^0.12.10",
 		"jquery": "^3.6.0",
 		"js-yaml": "^4.1.0",
 		"ngrx-event-bus": "^2.1.1",
