@@ -9,26 +9,39 @@ import {WadDirsNavbarPluginComponent} from './wad-dirs-navbar-plugin/wad-dirs-na
 
 @Component({
 	selector: 'app-wad-dirs',
-	templateUrl: './wad-dirs.component.html'
+	templateUrl: './wad-dirs.component.html',
+	styleUrls: ['./wad-dirs.component.scss']
 })
 export class WadDirsComponent implements OnInit, DirsListControl {
+	initDirs: Directory[];
 	allDirs: Directory[];
-	dirs: Directory[];
+	pageDirs: Directory[];
 	pageSize = 20;
 
 	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService) {
 	}
 
 	ngOnInit(): void {
-		this.allDirs = this.wadStorage.getCurrent().get().wad.dirs;
+		this.initDirs = this.wadStorage.getCurrent().get().wad.dirs;
+		this.allDirs = this.initDirs;
 		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadDirsNavbarPluginComponent, this)));
 		this.onPageChange(1);
+	}
+
+	setFilter(filter: string) {
+		if (R.isEmpty(filter)) {
+			this.allDirs = this.initDirs;
+		} else {
+			const filterFun = filterDir(filter);
+			this.allDirs = R.filter(filterFun, this.initDirs);
+			this.onPageChange(1);
+		}
 	}
 
 	onPageChange(page: number) {
 		const from = (page - 1) * this.pageSize;
 		const to = from + this.pageSize;
-		this.dirs = R.slice(from, to)(this.allDirs);
+		this.pageDirs = R.slice(from, to)(this.allDirs);
 	}
 
 	getListSize(): number {
@@ -40,11 +53,17 @@ export class WadDirsComponent implements OnInit, DirsListControl {
 	}
 }
 
+const filterDir = (filter: string) => (dir: Directory): boolean =>
+	(dir.filepos + ',' + dir.name + ',' + dir.idx + ',' + dir.size).toLowerCase().includes(filter);
+
+
 export interface DirsListControl {
 	onPageChange(page: number);
 
 	getListSize(): number;
 
 	getPageSize(): number;
+
+	setFilter(filter: string);
 
 }

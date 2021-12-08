@@ -3,7 +3,7 @@ import {BrowserModule} from '@angular/platform-browser';
 
 import {AppRoutingModule} from './app-routing.module';
 import {MainComponent} from './main/web/main.component';
-import {ReactiveFormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {WadDirsComponent} from './wad/web/wad-dirs/wad-dirs.component';
 import {WadTitleImgComponent} from './wad/web/wad-title-img/wad-title-img.component';
@@ -54,7 +54,8 @@ import {WadDirsNavbarPluginComponent} from './wad/web/wad-dirs/wad-dirs-navbar-p
 		NgbModule,
 		BrowserAnimationsModule,
 		NgRxEventBusModule,
-		NgxFileDropModule
+		NgxFileDropModule,
+		FormsModule
 	],
 	providers: [],
 	bootstrap: [MainComponent]

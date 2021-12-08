@@ -1,7 +1,8 @@
 <div class="container">
-
-	<ng-container *ngFor="let dir of dirs">
-		<app-wad-dir [dir]=dir></app-wad-dir>
+	<ng-container *ngFor="let dir of pageDirs;let idx = index">
+		<div class="row app-dir-row" app-wad-dir [dir]=dir>
+		</div>
 	</ng-container>
 </div>
+
 

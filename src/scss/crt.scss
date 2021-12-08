@@ -12,7 +12,7 @@
 }
 
 .crt {
-  background: $app-transparency-bg-color;
+  background: $app-bg-transparency-color;
   position: relative;
 
   // flicker
@@ -24,7 +24,7 @@
     left: 0;
     bottom: 0;
     right: 0;
-    background: transparentize($app-transparency-bg-color, 0.9);
+    background: transparentize($app-bg-transparency-color, 0.9);
     opacity: 0;
     z-index: 2;
     pointer-events: none;
@@ -39,7 +39,7 @@
     left: 0;
     bottom: 0;
     right: 0;
-    background: linear-gradient(transparentize($app-transparency-bg-color, 1) 50%, transparentize(darken($app-transparency-bg-color, 10), 0.75) 50%), linear-gradient(90deg, transparentize($app-font-color, 0.94), transparentize(#00ff00, 0.98), transparentize(#0000ff, 0.94));
+    background: linear-gradient(transparentize($app-bg-transparency-color, 1) 50%, transparentize(darken($app-bg-transparency-color, 10), 0.75) 50%), linear-gradient(90deg, transparentize($app-font-color, 0.94), transparentize(#00ff00, 0.98), transparentize(#0000ff, 0.94));
     z-index: 2;
     background-size: 100% 2px, 3px 100%;
     pointer-events: none;

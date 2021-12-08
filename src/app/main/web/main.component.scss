@@ -27,10 +27,11 @@
 	box-shadow: $app-component-shadow;
 }
 
-.app-hide-sidebar-btn {
+.app-button {
 	@extend .btn;
-	@extend .btn-info;
 	z-index: 999;
+	border-color: $app-button-border-color;
+	background-color: $app-button-background-color;
 }
 
 // ########### SIDEBAR ##################

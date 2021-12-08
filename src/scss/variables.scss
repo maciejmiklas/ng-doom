@@ -1,29 +1,34 @@
 $app-flicker-steps: 50;
 $app-flicker-delay: 0.5s;
 
-$app-font-color: rgb(27, 180, 20);
-$app-separator-line-color: rgba(252, 0, 0, 0.8);
+// ######### MAIN COLORS #########
+$app-bg-transparency-color: black;
+$app-bg-light: rgba($app-bg-transparency-color, 0.3);
+$app-bg-middle: rgba($app-bg-transparency-color, 0.6);
+$app-bg-dark: rgba($app-bg-transparency-color, 0.8);
 
-$app-screen-bg-color: rgb(106, 0, 0);
-$app-transparency-bg-color: black;
-$app-content-bg-color: rgba($app-transparency-bg-color, 0.6);
-$app-content-bg-dark-color: rgba($app-transparency-bg-color, 0.8);
-$app-content-bg-light-color: rgba($app-transparency-bg-color, 0.3);
+$app-red-bright: rgba(252, 0, 0, 0.8);
+$app-red-dark: rgb(106, 0, 0);
+
+// ######### MIX #########
+$app-font-color: rgb(27, 180, 20);
+$app-font-readonly-color: #495057;
+$app-separator-line-color: $app-red-bright;
+$app-border-color: $app-red-dark;
+$app-screen-bg-color: $app-red-dark;
+$app-content-bg-color: $app-bg-middle;
+$app-content-bg-dark-color: $app-bg-dark;
+$app-content-bg-light-color: $app-bg-light;
 $app-component-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 $app-list-hover-bg: rgba($app-font-color, 0.7);
 
-$_error-color: rgb(249, 255, 0);
-$_dialog-bg-color: rgba(102, 0, 0, 0.8);
-$_dialog-bg-tr-color: rgba(102, 0, 0, 0.8);
-$_dialog-bg-hover-bg-color: rgba(102, 0, 0, 0.8);
-$_dialog-border-color: rgba(252, 0, 0, 0.8);
-$_nav-bg-color: rgb(40, 44, 52);
-$_navbar-font-color: #6c757d;
-$_navbar-border-color: #6c757d;
-$_input-active-bg: #cbcbcb;
-$_input-inactive-bg: #91adca;
-$_input-font-color: black;
+// ######### BUTTON #########
+$app-button-border-color: $app-red-dark;
+$app-button-background-color: $app-bg-middle;
 
+// ######### INPUT #########
+$app-input-text-color: $app-font-color;
+$app-input-text-bg: $app-content-bg-light-color;
 
 // ########### SIDEBAR ##################
 $sidebar-width: 250px;

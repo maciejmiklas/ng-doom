@@ -16,12 +16,38 @@ $card-bg: $app-content-bg-color;
 $card-cap-bg: $app-content-bg-dark-color;
 
 // bootstrap/scss/_table.scss
-$table-border-color: $app-separator-line-color;
+$table-border-color: $app-border-color;
+
+// bootstrap/scss/_form.scss
+$input-bg: $app-input-text-bg;
+$input-border-color: $app-border-color;
+$input-color: $app-font-color;
+$input-disabled-bg: $app-font-readonly-color;
 
 // bootstrap/scss/_carousel.scss
 $carousel-caption-color: $app-font-color;
 $carousel-control-color: $app-font-color;
 $carousel-indicator-active-bg: $app-font-color;
+
+// bootstrap/scss/_input-group.scss
+$input-group-addon-color: $app-font-readonly-color;
+$input-group-addon-bg: $app-content-bg-color;
+$input-group-addon-border-color: $app-border-color;
+
+// bootstrap/scss/_pagination.scss
+$pagination-hover-bg: $app-list-hover-bg;
+$pagination-bg: $app-content-bg-color;
+$pagination-border-color: $app-border-color;
+$pagination-hover-border-color: $app-border-color;
+$pagination-active-border-color: $app-border-color;
+$pagination-disabled-border-color: $app-border-color;
+$pagination-disabled-bg: $app-content-bg-color;
+$pagination-disabled-color: $app-font-readonly-color;
+
+.pagination > ol, ul, dl {
+	margin-top: 0 !important;
+	margin-bottom: 0 !important;
+}
 
 // #############################################
 @import "~bootstrap/scss/bootstrap";
