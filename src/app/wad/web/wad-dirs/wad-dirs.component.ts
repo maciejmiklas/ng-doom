@@ -28,7 +28,7 @@ export class WadDirsComponent implements OnInit, DirsListControl {
 		this.onPageChange(1);
 	}
 
-	setFilter(filter: string) {
+	applyFilter(filter: string) {
 		if (R.isEmpty(filter)) {
 			this.allDirs = this.initDirs;
 		} else {
@@ -54,7 +54,7 @@ export class WadDirsComponent implements OnInit, DirsListControl {
 }
 
 const filterDir = (filter: string) => (dir: Directory): boolean =>
-	(dir.filepos + ',' + dir.name + ',' + dir.idx + ',' + dir.size).toLowerCase().includes(filter);
+	(dir.filepos + ',' + dir.name + ',' + dir.idx + ',' + dir.size).toLowerCase().includes(filter.toLowerCase());
 
 
 export interface DirsListControl {
@@ -64,6 +64,6 @@ export interface DirsListControl {
 
 	getPageSize(): number;
 
-	setFilter(filter: string);
+	applyFilter(filter: string);
 
 }

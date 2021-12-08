@@ -20,7 +20,7 @@ export class WadDirsNavbarPluginComponent implements NavbarPlugin<DirsListContro
 	}
 
 	set filter(val: string) {
-		this.dirsListControl.setFilter(val);
+		this.dirsListControl.applyFilter(val);
 	}
 
 }
