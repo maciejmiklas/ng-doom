@@ -1,21 +1,37 @@
-import {Component, Input, OnInit} from '@angular/core';
-import { PaperScope, Project, Path, Point } from 'paper';
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import * as paper from 'paper';
+import {PaperScope, Project} from 'paper';
+
 @Component({
-  selector: 'app-paper',
-  templateUrl: './paper.component.html',
-  styleUrls: ['./paper.component.css']
+	selector: 'app-paper',
+	templateUrl: './paper.component.html',
+	styleUrls: ['./paper.component.css']
 })
+// http://paperjs.org/tutorials/getting-started/working-with-paper-js
 export class PaperComponent implements OnInit {
 
 	@Input()
 	width = 800;
 
 	@Input()
-	height = 800;
+	height = 600;
 
-	constructor() { }
+	@ViewChild('canvas', {static: true})
+	canvasRef: ElementRef<HTMLCanvasElement>;
 
-  ngOnInit(): void {
-  }
+	@Output()
+	project = new EventEmitter<paper.Project>();
+
+	scope: paper.PaperScope;
+	projectRef: paper.Project;
+
+	constructor() {
+	}
+
+	ngOnInit(): void {
+		this.scope = new PaperScope();
+		this.projectRef = new Project('cv');
+		this.project.emit(this.projectRef);
+	}
 
 }

@@ -34,7 +34,7 @@ export class WadStorageService {
 			return {fileName: file.name, status: UploadStatus.FILE_ALREADY_EXISTS, message: undefined};
 		}
 		return file.arrayBuffer().then(ab => {
-			return this.load(ab).mapGet<UploadResult>(message => {
+			return this.load(ab).mapGet<UploadResult, UploadResult>(message => {
 					return {fileName: file.name, status: UploadStatus.PARSE_ERROR, message};
 				},
 				wad => {

@@ -25,6 +25,8 @@ import {MainOverflowDirective} from './main/web/main-overflow.directive';
 import {WadDirComponent} from './wad/web/wad-dir/wad-dir.component';
 import {WadDirElementComponent} from './wad/web/wad-dir-element/wad-dir-element.component';
 import {WadDirsNavbarPluginComponent} from './wad/web/wad-dirs/wad-dirs-navbar-plugin/wad-dirs-navbar-plugin.component';
+import {PaperComponent} from './common/web/paper/paper.component';
+import { WadMapComponent } from './wad/web/wad-map/wad-map.component';
 
 @NgModule({
 	declarations: [
@@ -45,6 +47,8 @@ import {WadDirsNavbarPluginComponent} from './wad/web/wad-dirs/wad-dirs-navbar-p
 		WadDirComponent,
 		WadDirElementComponent,
 		WadDirsNavbarPluginComponent,
+		PaperComponent,
+  WadMapComponent
 	],
 	imports: [
 		BrowserModule,

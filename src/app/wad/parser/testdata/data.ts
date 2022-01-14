@@ -40,7 +40,7 @@ export const getAllDirsOp = (): Either<Directory[]> => {
 let _firstMap = null;
 export const getFirstMap = () => {
 	if (!_firstMap) {
-		_firstMap = getAllDirsOp().map(dirs => mpt.findNextMapDir(dirs)).get()(0).get();
+		_firstMap = getAllDirsOp().map(dirs => mpt.findNextMapStartingDir(dirs)).get()(0).get();
 	}
 	return _firstMap;
 };

@@ -7,6 +7,7 @@ import {EmptyComponent} from './common/web/empty/empty.component';
 import {WadSpritesComponent} from './wad/web/wad-sprites/wad-sprites.component';
 import {AppSetupService} from './app-setup.service';
 import {WadDirsComponent} from './wad/web/wad-dirs/wad-dirs.component';
+import {WadMapComponent} from './wad/web/wad-map/wad-map.component';
 
 
 const routes: Routes = [
@@ -18,7 +19,7 @@ const routes: Routes = [
 	{path: 'path_wad_dirs', component: WadDirsComponent},
 	{path: 'path_wad_list', component: EmptyComponent},
 	{path: 'path_wad_select', component: EmptyComponent},
-	{path: 'path_wad_maps', component: EmptyComponent},
+	{path: 'path_wad_maps', component: WadMapComponent},
 	{path: 'path_save_load', component: EmptyComponent},
 	{path: 'path_save_new', component: EmptyComponent},
 	{path: 'path_save_manage', component: EmptyComponent},

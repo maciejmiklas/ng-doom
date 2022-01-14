@@ -21,7 +21,7 @@ import {
 	VERTEX_466
 } from './testdata/data';
 
-const getE1M1Dirs = () => tf.parseMapDirs(getAllDirs())(tf.findNextMapDir(getAllDirs())(0).get()).get();
+const getE1M1Dirs = () => tf.parseMapDirs(getAllDirs())(tf.findNextMapStartingDir(getAllDirs())(0).get()).get();
 
 describe('map_parser#parseHeader', () => {
 	it('IWAD', () => {
@@ -411,7 +411,7 @@ describe('map_parser -> Parse Map Directory', () => {
 });
 
 describe('map_parser#findNextMapDir', () => {
-	const nextDirEi = getAllDirsOp().map(dirs => tf.findNextMapDir(dirs));
+	const nextDirEi = getAllDirsOp().map(dirs => tf.findNextMapStartingDir(dirs));
 	const nextDir = nextDirEi.get();
 
 	it('Validate Next Dir ', () => {
@@ -474,7 +474,7 @@ describe('map_parser#isMapName', () => {
 });
 
 describe('sprite_parser#findNextMapDir', () => {
-	const finder = tf.findNextMapDir(getAllDirs());
+	const finder = tf.findNextMapStartingDir(getAllDirs());
 
 	it('E1M1', () => {
 		expect(finder(0).get().name).toEqual('E1M1');
@@ -499,7 +499,7 @@ describe('sprite_parser#findNextMapDir', () => {
 });
 
 describe('map_parser#parseMapDirs', () => {
-	const finder = tf.findNextMapDir(getAllDirs());
+	const finder = tf.findNextMapStartingDir(getAllDirs());
 
 	it('E1M1', () => {
 		const e1m1 = finder(0).get();
@@ -518,8 +518,48 @@ describe('map_parser#parseMapDirs', () => {
 
 });
 
+describe('map_parser#findAllMapStartDirs', () => {
+	const dirs: Directory[] = tf.findAllMapStartDirs(getAllDirs());
+	it('E1M1', () => {
+		expect(dirs[0].name).toEqual('E1M1');
+	});
+
+	it('E1M2', () => {
+		expect(dirs[1].name).toEqual('E1M2');
+	});
+
+	it('E1M3', () => {
+		expect(dirs[2].name).toEqual('E1M3');
+	});
+
+	it('E1M4', () => {
+		expect(dirs[3].name).toEqual('E1M4');
+	});
+
+	it('E1M5', () => {
+		expect(dirs[4].name).toEqual('E1M5');
+	});
+
+	it('E1M6', () => {
+		expect(dirs[5].name).toEqual('E1M6');
+	});
+
+	it('E1M7', () => {
+		expect(dirs[6].name).toEqual('E1M7');
+	});
+
+	it('E1M8', () => {
+		expect(dirs[7].name).toEqual('E1M8');
+	});
+
+	it('E1M9', () => {
+		expect(dirs[8].name).toEqual('E1M9');
+	});
+
+});
+
 describe('map_parser#parseMap', () => {
-	const map: WadMap = mp.parseMap(getWadBytes())(getE1M1Dirs());
+	const map: WadMap = tf.parseMap(getWadBytes())(getE1M1Dirs());
 
 	it('Map Dirs', () => {
 		validateE1M1Dirs(map.mapDirs);
@@ -552,6 +592,41 @@ describe('map_parser#parseMap', () => {
 	it('Things Amount', () => {
 		expect(map.things.length).toEqual(138);
 	});
+});
+
+describe('map_parser#parseMapsDirs', () => {
+	const dirs: Directory[] = tf.findAllMapStartDirs(getAllDirs());
+	const all: Directory[][] = tf.parseMapsDirs(getAllDirs(), dirs);
+
+	it('Maps Found', () => {
+		expect(all.length).toEqual(9);
+	});
+
+	it('E1M1', () => {
+		validateE1M1Dirs(all[0]);
+	});
+
+	it('Validate Each Map Dirs', () => {
+		all.forEach(validateMapDirs);
+	});
+
+});
+
+describe('map_parser#parseMaps', () => {
+	const maps: WadMap[] = mp.parseMaps(getWadBytes(), getAllDirs()).get();
+
+	it('Maps Found', () => {
+		expect(maps.length).toEqual(9);
+	});
+
+	it('E1M1', () => {
+		validateE1M1Dirs(maps[0].mapDirs);
+	});
+
+	it('Validate Each Map Dirs', () => {
+		maps.map(m => m.mapDirs).forEach(validateMapDirs);
+	});
+
 });
 
 

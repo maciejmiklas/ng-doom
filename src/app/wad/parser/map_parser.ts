@@ -12,6 +12,13 @@ const isMapName = (name: string): boolean =>
 const findNextMapStartingDir = (dirs: Directory[]) => (dirOffset: number): Either<Directory> =>
 	U.findFrom(dirs)(dirOffset, (d, idx) => isMapName(d.name));
 
+/** fins all starting dirs for all maps. */
+const findAllMapStartDirs = (dirs: Directory[]): Directory[] => {
+	const findNext = findNextMapStartingDir(dirs);
+	return R.unfold((dirIdx: number) => findNext(dirIdx).mapGet(msg => false, d => [d, d.idx + 1]), 1);
+};
+
+/** parse all dir for single map */
 const parseMapDirs = (dirs: Directory[]) => (mapDir: Directory): Either<Directory[]> => {
 	const mapDirs: Directory[] = R.slice(mapDir.idx, mapDir.idx + MapLumpType.BLOCKMAP + 1, dirs);
 	return Either.ofCondition(
@@ -28,6 +35,14 @@ const parseMapDirs = (dirs: Directory[]) => (mapDir: Directory): Either<Director
 			mapDirs[MapLumpType.REJECT].name === 'REJECT' &&
 			mapDirs[MapLumpType.BLOCKMAP].name === 'BLOCKMAP',
 		() => 'Incorrect map folders: ' + mapDir + ' -> ' + mapDirs, () => mapDirs);
+};
+
+const parseMapsDirs = (allDirs: Directory[], startMapDirs: Directory[]): Directory[][] =>
+	R.mapAccum((acc, dir) =>
+		[acc, parseMapDirs(allDirs)(dir).orElseGet(() => null)], [], startMapDirs)[1].filter(v => !R.isNil(v));
+
+const parseMaps = (bytes: number[], dirs: Directory[]): Either<WadMap[]> => {
+	return Either.ofArray(parseMapsDirs(dirs, findAllMapStartDirs(dirs)).map(parseMap(bytes)), () => 'No maps found');
 };
 
 const parseMap = (bytes: number[]) => (mapDirs: Directory[]): WadMap =>
@@ -150,7 +165,7 @@ const parseVertexes = (bytes: number[]) => (mapDirs: Directory[]): Vertex[] => {
 // ############################ EXPORTS ############################
 export const testFunctions = {
 	isMapName,
-	findNextMapDir: findNextMapStartingDir,
+	findNextMapStartingDir,
 	parseThing,
 	parseThings,
 	parseVertex,
@@ -159,9 +174,10 @@ export const testFunctions = {
 	parseLinedefs,
 	parseSidedef,
 	parseSidedefs,
-	parseMapDirs
+	parseMapDirs,
+	parseMap,
+	findAllMapStartDirs,
+	parseMapsDirs
 };
 
-export const functions = {
-	parseMap
-};
+export const functions = {parseMaps};
