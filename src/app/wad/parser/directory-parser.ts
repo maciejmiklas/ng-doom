@@ -1,4 +1,4 @@
-import {Directories, Directory, Header, WadType} from './wad_model';
+import {Directories, Directory, Header, WadType} from './wad-model';
 import * as R from 'ramda';
 import U from '../../common/is/util';
 import {Log} from '../../common/is/log';

@@ -1,8 +1,8 @@
-import {Directories, Directory, FrameDir, Sprite} from './wad_model';
+import {Directories, Directory, FrameDir, Sprite} from './wad-model';
 import {Either} from '@maciejmiklas/functional-ts';
-import {functions as dp} from './directory_parser';
+import {functions as dp} from './directory-parser';
 import * as R from 'ramda';
-import {functions as bp} from './bitmap_parser';
+import {functions as bp} from './bitmap-parser';
 
 const findStartDir = (dirs: Directory[]): Either<Directory> => dp.findDirectoryByName(dirs)(Directories.S_START);
 

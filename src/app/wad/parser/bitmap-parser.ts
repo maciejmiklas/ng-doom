@@ -1,8 +1,8 @@
-import {Column, Directories, Directory, Palette, PatchBitmap, PatchHeader, Playpal, Post, RGB} from './wad_model';
+import {Column, Directories, Directory, Palette, PatchBitmap, PatchHeader, Playpal, Post, RGB} from './wad-model';
 import * as R from 'ramda';
 import U from '../../common/is/util';
 import {Either} from '@maciejmiklas/functional-ts';
-import {functions as dp} from './directory_parser';
+import {functions as dp} from './directory-parser';
 import {Log} from '../../common/is/log';
 
 /**

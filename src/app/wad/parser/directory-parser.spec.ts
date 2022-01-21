@@ -1,5 +1,5 @@
-import {Directories, Directory, MapLumpType} from './wad_model';
-import {functions as dp} from './directory_parser';
+import {Directories, Directory, MapLumpType} from './wad-model';
+import {functions as dp} from './directory-parser';
 import {
 	E1M1_BLOCKMAP,
 	E1M1_LINEDEFS,

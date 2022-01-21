@@ -1,8 +1,8 @@
-import {Directories, Directory, TitlePic, Wad} from './wad_model';
+import {Directories, Directory, TitlePic, Wad} from './wad-model';
 import {Either} from '@maciejmiklas/functional-ts';
-import {functions as dp} from './directory_parser';
-import {functions as bp} from './bitmap_parser';
-import {functions as mp} from './map_parser';
+import {functions as dp} from './directory-parser';
+import {functions as bp} from './bitmap-parser';
+import {functions as mp} from './map-parser';
 
 const parseTitlePic = (bytes: number[], dirs: Directory[]): Either<TitlePic> => {
 	const find = dp.findDirectoryByName(dirs);

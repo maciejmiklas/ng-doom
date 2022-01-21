@@ -1,5 +1,5 @@
-import {functions as dp} from './directory_parser';
-import {functions as bp, testFunctions as tf} from './bitmap_parser';
+import {functions as dp} from './directory-parser';
+import {functions as bp, testFunctions as tf} from './bitmap-parser';
 import {
 	getAllDirs,
 	getWadBytes,
@@ -13,7 +13,7 @@ import {
 	verifySimpleDoomImageAt1x1,
 	verifySimpleDoomImageAt2x0
 } from './testdata/data';
-import {Directories, PatchHeader} from './wad_model';
+import {Directories, PatchHeader} from './wad-model';
 import * as R from 'ramda';
 
 describe('bitmap_parser#unfoldColumnofs', () => {

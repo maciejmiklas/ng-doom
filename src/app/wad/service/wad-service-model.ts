@@ -1,4 +1,4 @@
-import {Wad} from '../parser/wad_model';
+import {Wad} from '../parser/wad-model';
 
 export type WadEntry = {
 	wad: Wad;

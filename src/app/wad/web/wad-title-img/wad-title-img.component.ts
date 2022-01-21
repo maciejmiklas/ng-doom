@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewEncapsulation} from '@angular/core';
-import {Wad} from '../../parser/wad_model';
+import {Wad} from '../../parser/wad-model';
 import {WadStorageService} from '../../service/wad-storage.service';
 import {Slide} from '../../../common/web/carousel/carousel-model';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';

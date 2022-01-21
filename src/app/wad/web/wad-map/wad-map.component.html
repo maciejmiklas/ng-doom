@@ -1,1 +1,2 @@
-<app-paper (project)="onPapertInit($event)" width="1280" height="1024"></app-paper>
+<app-paper (paperInitialized)="onPapertInit($event)" (mouseDrag)="onMouseDrag($event)"
+					 (mouseDragEnd)="onMouseDragEnd($event)"></app-paper>

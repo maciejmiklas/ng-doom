@@ -1,6 +1,6 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import {Palette, PatchBitmap} from '../../parser/wad_model';
-import {functions as ic} from '../../parser/image_converter';
+import {Palette, PatchBitmap} from '../../parser/wad-model';
+import {functions as ic} from '../../parser/image-converter';
 
 @Component({
 	selector: 'app-pbmp-animation',

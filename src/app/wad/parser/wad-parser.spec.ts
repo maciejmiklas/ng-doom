@@ -1,7 +1,7 @@
-import {functions as wp, testFunctions as tf} from './wad_parser';
+import {functions as wp, testFunctions as tf} from './wad-parser';
 import {getAllDirs, getWadBytes, validateTitleColumn, validateTitlePatchHeader} from './testdata/data';
-import {functions as dp} from './directory_parser';
-import {Directories, TitlePic, WadType} from './wad_model';
+import {functions as dp} from './directory-parser';
+import {Directories, TitlePic, WadType} from './wad-model';
 import {Either} from '@maciejmiklas/functional-ts';
 
 describe('wad_parser#parseTitlePic', () => {

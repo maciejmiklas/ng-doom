@@ -1,6 +1,6 @@
-import {functions as mp, testFunctions as tf} from './map_parser';
+import {functions as mp, testFunctions as tf} from './map-parser';
 
-import {Directory, Linedef, MapLumpType, Sidedef, Thing, Vertex, WadMap, WadType} from './wad_model';
+import {Directory, Linedef, MapLumpType, Sidedef, Thing, Vertex, WadMap, WadType} from './wad-model';
 import {
 	E1M1_BLOCKMAP,
 	E1M1_LINEDEFS,

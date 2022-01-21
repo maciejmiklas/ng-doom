@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {WadStorageService} from '../../service/wad-storage.service';
-import {Directory} from '../../parser/wad_model';
+import {Directory} from '../../parser/wad-model';
 import * as R from 'ramda';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {MainEvent} from '../../../main/service/main-event';

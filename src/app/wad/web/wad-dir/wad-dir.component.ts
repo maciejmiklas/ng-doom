@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Directory} from '../../parser/wad_model';
+import {Directory} from '../../parser/wad-model';
 
 @Component({
 	selector: '[app-wad-dir]',

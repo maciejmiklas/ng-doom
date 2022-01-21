@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {functions as bp} from '../../parser/bitmap_parser';
+import {functions as bp} from '../../parser/bitmap-parser';
 import {WadStorageService} from '../../service/wad-storage.service';
 import {Slide} from '../../../common/web/carousel/carousel-model';
 

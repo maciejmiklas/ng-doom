@@ -1,9 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {WadStorageService} from '../../service/wad-storage.service';
-import {functions as sp} from '../../parser/sprite_parser';
-import {functions as ic} from '../../parser/image_converter';
-import {BitmapSprite, Palette} from '../../parser/wad_model';
-import {functions as bp} from '../../parser/bitmap_parser';
+import {functions as sp} from '../../parser/sprite-parser';
+import {functions as ic} from '../../parser/image-converter';
+import {BitmapSprite, Palette} from '../../parser/wad-model';
+import {functions as bp} from '../../parser/bitmap-parser';
 
 @Component({
 	selector: 'app-wad-sprite',

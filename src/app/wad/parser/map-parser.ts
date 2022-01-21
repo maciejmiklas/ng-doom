@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 import {Either} from '@maciejmiklas/functional-ts';
-import {Directory, Linedef, MapLumpType, Sidedef, Thing, Vertex, WadMap} from './wad_model';
+import {Directory, Linedef, MapLumpType, Sidedef, Thing, Vertex, WadMap} from './wad-model';
 import {Log} from '../../common/is/log';
 import U from '../../common/is/util';
 

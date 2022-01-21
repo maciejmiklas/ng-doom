@@ -1,0 +1,21 @@
+<div class="container-fluid h-100">
+	<div class="row h-100">
+		<div class="col-6 h-100">
+		</div>
+		<div class="col-3">
+			<div class="d-inline-block" ngbDropdown #myDrop="ngbDropdown">
+				<select #mapDropdown (change)="onMapSelect(mapDropdown.value)">
+					<option *ngFor="let map of maps">{{map}}</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-3">
+			<div class="container d-flex h-100 justify-content-center">
+				<div class="align-self-center">
+					<mv-slider [(value)]="zoom" [min]="1" [max]="8" [step]="1" [formatter]="zoomFormatter"
+										 tooltip="always" tooltipPosition="bottom"></mv-slider>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

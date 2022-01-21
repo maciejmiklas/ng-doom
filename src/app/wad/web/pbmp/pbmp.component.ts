@@ -1,7 +1,7 @@
 import {Component, DoCheck, ElementRef, Input, KeyValueDiffer, KeyValueDiffers, OnInit, ViewChild} from '@angular/core';
-import {PatchBitmap} from '../../parser/wad_model';
-import {functions as bp} from '../../parser/bitmap_parser';
-import {functions as ic} from '../../parser/image_converter';
+import {PatchBitmap} from '../../parser/wad-model';
+import {functions as bp} from '../../parser/bitmap-parser';
+import {functions as ic} from '../../parser/image-converter';
 import {WadStorageService} from '../../service/wad-storage.service';
 
 @Component({

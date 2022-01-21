@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import * as R from 'ramda';
-import {Palette, RGB} from '../../parser/wad_model';
+import {Palette, RGB} from '../../parser/wad-model';
 
 @Component({
 	selector: 'app-wad-palette',

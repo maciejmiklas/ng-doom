@@ -3,7 +3,7 @@ import {DirsListControl} from '../wad-dirs.component';
 import {NavbarPlugin} from '../../../../main/service/navbar_plugin';
 
 @Component({
-	selector: 'app-wad-dirs-navbar-plugin',
+	selector: 'app-wad-dirs-navbar-map-plugin',
 	templateUrl: './wad-dirs-navbar-plugin.component.html',
 	styleUrls: ['./wad-dirs-navbar-plugin.component.scss']
 })

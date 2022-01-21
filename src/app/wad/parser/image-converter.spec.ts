@@ -1,10 +1,10 @@
-import {functions as bp} from './bitmap_parser';
-import {functions as ic, testFunctions as tf} from './image_converter';
+import {functions as bp} from './bitmap-parser';
+import {functions as ic, testFunctions as tf} from './image-converter';
 import {getAllDirs, getWadBytes, simpleDoomImage} from './testdata/data';
-import {functions as dp} from './directory_parser';
-import {BitmapSprite, Directories, Sprite} from './wad_model';
+import {functions as dp} from './directory-parser';
+import {BitmapSprite, Directories, Sprite} from './wad-model';
 import {Either} from '@maciejmiklas/functional-ts';
-import {functions as sp} from './sprite_parser';
+import {functions as sp} from './sprite-parser';
 
 
 describe('image_converter#toImageData', () => {

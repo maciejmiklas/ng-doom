@@ -1,4 +1,4 @@
-import {BitmapSprite, Column, FrameDir, Palette, PatchBitmap, Post, RGB, Sprite} from './wad_model';
+import {BitmapSprite, Column, FrameDir, Palette, PatchBitmap, Post, RGB, Sprite} from './wad-model';
 import * as R from 'ramda';
 import U from '../../common/is/util';
 import {Either} from '@maciejmiklas/functional-ts';

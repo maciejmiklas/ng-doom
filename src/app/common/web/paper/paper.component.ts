@@ -1,36 +1,57 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
-import {PaperScope, Project} from 'paper';
+import {Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
+import {PaperScope, Point} from 'paper';
 
 @Component({
 	selector: 'app-paper',
 	templateUrl: './paper.component.html',
 	styleUrls: ['./paper.component.css']
 })
-// http://paperjs.org/tutorials/getting-started/working-with-paper-js
 export class PaperComponent implements OnInit {
 
-	@Input()
-	width = 800;
-
-	@Input()
-	height = 600;
-
 	@ViewChild('canvas', {static: true})
-	canvasRef: ElementRef<HTMLCanvasElement>;
+	private canvasRef: ElementRef<HTMLCanvasElement>;
+	private canvas: HTMLCanvasElement;
 
 	@Output()
-	project = new EventEmitter<paper.Project>();
+	private paperInitialized = new EventEmitter<paper.PaperScope>();
 
-	scope: paper.PaperScope;
-	projectRef: paper.Project;
+	@Output()
+	private mouseDrag = new EventEmitter<paper.Point>();
+
+	@Output()
+	private mouseDragEnd = new EventEmitter<paper.Point>();
+
+	private mouseDown = false;
+	private scope: paper.PaperScope;
 
 	constructor() {
 	}
 
+	private getMousePosition(event: MouseEvent): paper.Point {
+		const rect = this.canvas.getBoundingClientRect();
+		return new Point(event.clientX - rect.x, event.clientY - rect.y);
+	}
+
 	ngOnInit(): void {
+		this.canvas = this.canvasRef.nativeElement;
 		this.scope = new PaperScope();
-		this.projectRef = new Project('cv');
-		this.project.emit(this.projectRef);
+		this.scope.setup(this.canvas);
+		this.paperInitialized.emit(this.scope);
+
+		this.canvas.addEventListener('mousedown', () => {
+			this.mouseDown = true;
+		});
+
+		this.canvas.addEventListener('mousemove', (event: MouseEvent) => {
+			if (this.mouseDown) {
+				this.mouseDrag.emit(this.getMousePosition(event));
+			}
+		});
+
+		this.canvas.addEventListener('mouseup', (event: MouseEvent) => {
+			this.mouseDown = false;
+			this.mouseDragEnd.emit(this.getMousePosition(event));
+		});
 	}
 
 }

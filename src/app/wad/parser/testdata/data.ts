@@ -1,7 +1,7 @@
-import {testFunctions as mpt} from '../map_parser';
-import {functions as dp} from '../directory_parser';
+import {testFunctions as mpt} from '../map-parser';
+import {functions as dp} from '../directory-parser';
 
-import {Column, Directory, Header, MapLumpType, PatchHeader, Post, Vertex} from '../wad_model';
+import {Column, Directory, Header, MapLumpType, PatchHeader, Post, Vertex} from '../wad-model';
 
 import jsonData from './doom.json';
 import U from '../../../common/is/util';

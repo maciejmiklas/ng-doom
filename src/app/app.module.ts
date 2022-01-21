@@ -27,6 +27,7 @@ import {WadDirElementComponent} from './wad/web/wad-dir-element/wad-dir-element.
 import {WadDirsNavbarPluginComponent} from './wad/web/wad-dirs/wad-dirs-navbar-plugin/wad-dirs-navbar-plugin.component';
 import {PaperComponent} from './common/web/paper/paper.component';
 import { WadMapComponent } from './wad/web/wad-map/wad-map.component';
+import { NavbarMapPluginComponent } from './wad/web/wad-map/navbar-map-plugin/navbar-map-plugin.component';
 
 @NgModule({
 	declarations: [
@@ -48,7 +49,8 @@ import { WadMapComponent } from './wad/web/wad-map/wad-map.component';
 		WadDirElementComponent,
 		WadDirsNavbarPluginComponent,
 		PaperComponent,
-  WadMapComponent
+  WadMapComponent,
+  NavbarMapPluginComponent
 	],
 	imports: [
 		BrowserModule,

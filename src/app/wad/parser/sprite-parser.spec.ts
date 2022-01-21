@@ -1,7 +1,7 @@
-import {functions as sp, testFunctions as tf} from './sprite_parser';
+import {functions as sp, testFunctions as tf} from './sprite-parser';
 
 import {getAllDirs, getWadBytes} from './testdata/data';
-import {Directory, FrameDir, Sprite} from './wad_model';
+import {Directory, FrameDir, Sprite} from './wad-model';
 
 describe('sprite_parser#findStartDir', () => {
 	it('S_START', () => {
