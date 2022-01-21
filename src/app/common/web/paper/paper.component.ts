@@ -1,5 +1,4 @@
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
-import * as paper from 'paper';
 import {PaperScope, Project} from 'paper';
 
 @Component({

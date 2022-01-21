@@ -1,9 +1,9 @@
 import {Component, OnInit} from '@angular/core';
+import * as paper from 'paper';
 import {Path, Point} from 'paper';
 import {WadStorageService} from '../../service/wad-storage.service';
 import {WadEntry} from '../../service/wad-service-model';
 import {Linedef, WadMap} from '../../parser/wad_model';
-import Project = paper.Project;
 
 @Component({
 	selector: 'app-wad-map',
@@ -54,8 +54,7 @@ export class WadMapComponent implements OnInit {
 		return Math.round((y + Math.abs(this.minY)) / this.scale);
 	}
 
-	// https://stackoverflow.com/questions/42881347/install-paper-js-and-typings-file-in-angular-2
-	onPapertInit(project: Project): void {
+	onPapertInit(project: paper.Project): void {
 		const wad: WadEntry = this.wadStorage.getCurrent().get();
 		const map: WadMap = wad.wad.maps[3];
 
@@ -63,23 +62,21 @@ export class WadMapComponent implements OnInit {
 		this.minY = this.findMinY(map.linedefs);
 		const max = this.findMax(map.linedefs) + Math.max(Math.abs(this.minX), Math.abs(this.minY));
 		this.scale = max / 1000;
+
 		map.linedefs.forEach(ld => {
 			const path = new Path({
 				strokeColor: '#66ff00',
 				strokeWidth: 2,
 				strokeCap: 'round'
 			});
-			const sx = this.mapX(ld.start.x);
-			const sy = this.mapY(ld.start.y);
-			const ex = this.mapX(ld.end.x);
-			const ey = this.mapY(ld.end.y);
-			console.log('S:', sx, sy, 'E:', ex, ey);
-			path.moveTo(new Point(sx, sy));
-			path.lineTo(new Point(ex, ey));
-			project.activeLayer.addChild(path);
+			path.add(
+				new Point(this.mapX(ld.start.x), this.mapY(ld.start.y)),
+				new Point(this.mapX(ld.end.x), this.mapY(ld.end.y)));
 		});
 
+		project.activeLayer.children.forEach(path => {
+			//path.rotate(45, new Point(0, 0));
+			//path.scale(0.5, new Point(0, 0));
+		});
 	}
-
-
 }
