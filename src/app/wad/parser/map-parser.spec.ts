@@ -1,5 +1,4 @@
 import {functions as mp, testFunctions as tf} from './map-parser';
-
 import {Directory, Linedef, MapLumpType, Sidedef, Thing, Vertex, WadMap, WadType} from './wad-model';
 import {
 	E1M1_BLOCKMAP,
@@ -626,11 +625,63 @@ describe('map_parser#parseMaps', () => {
 	it('Validate Each Map Dirs', () => {
 		maps.map(m => m.mapDirs).forEach(validateMapDirs);
 	});
+});
 
+describe('map_parser#findMinX', () => {
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs()).get()[0].linedefs;
+	it('findMinX', () => {
+		expect(tf.findMinX(defs)).toEqual(-768);
+	});
+});
+
+describe('map_parser#findMinY', () => {
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs()).get()[0].linedefs;
+
+	it('findMinY', () => {
+		expect(tf.findMinY(defs)).toEqual(-4864);
+	});
 });
 
 
+describe('map_parser#normalizeMap', () => {
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs()).get()[0].linedefs;
 
+	it('findMax', () => {
+		expect(tf.findMax(defs)).toEqual(3808);
+	});
+});
 
+describe('map_parser#scale', () => {
+	const scale = tf.scale(10, 3);
 
+	it('0', () => {
+		expect(scale(1)).toEqual(0);
+	});
 
+	it('2', () => {
+		expect(scale(20)).toEqual(2);
+	});
+
+	it('8', () => {
+		expect(scale(80)).toEqual(8);
+	});
+
+});
+
+export type XY = {
+	start: Vertex
+	end: Vertex
+}
+
+describe('map_parser#normalizeLinedefs', () => {
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs()).get()[0].linedefs;
+
+	it('positive values', () => {
+		mp.normalizeLinedefs(defs).forEach(ld => {
+			expect(ld.start.x).toBeGreaterThanOrEqual(0);
+			expect(ld.start.y).toBeGreaterThanOrEqual(0);
+			expect(ld.end.x).toBeGreaterThanOrEqual(0);
+			expect(ld.end.y).toBeGreaterThanOrEqual(0);
+		});
+	});
+});

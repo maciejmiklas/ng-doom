@@ -8,6 +8,7 @@ import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {MainEvent} from '../../../main/service/main-event';
 import {NavbarPluginFactory} from '../../../main/service/navbar_plugin';
 import {NavbarMapPluginComponent} from './navbar-map-plugin/navbar-map-plugin.component';
+import {functions as mp} from '../../parser/map-parser';
 
 @Component({
 	selector: 'app-wad-map',
@@ -104,15 +105,15 @@ export class WadMapComponent implements OnInit, MapControl {
 		const max = this.findMax(map.linedefs) + Math.max(Math.abs(this.minX), Math.abs(this.minY));
 		this.mappingMultiplier = max / 1000;
 
-		map.linedefs.forEach(ld => {
+		mp.normalizeLinedefs(map.linedefs).forEach(ld => {
 			const path = new Path({
 				strokeColor: '#66ff00',
 				strokeWidth: 2,
 				strokeCap: 'round'
 			});
 			path.add(
-				new Point(this.mapX(ld.start.x), this.mapY(ld.start.y)),
-				new Point(this.mapX(ld.end.x), this.mapY(ld.end.y)));
+				new Point(ld.start.x, ld.start.y),
+				new Point(ld.end.x, ld.end.y));
 		});
 	}
 

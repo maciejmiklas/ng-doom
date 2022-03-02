@@ -162,6 +162,57 @@ const parseVertexes = (bytes: number[]) => (mapDirs: Directory[]): Vertex[] => {
 	return unfoldByDirectorySize(vertexDir, 4).map((ofs, thingIdx) => parser(thingIdx));
 };
 
+const findMin = () => (linedefs: Linedef[]): number => {
+	let min = 0;
+	linedefs.forEach(ld => {
+		min = Math.min(min, ld.start.x, ld.end.x);
+	});
+	return min;
+};
+
+const findMinX = (linedefs: Linedef[]): number => {
+	let min = 0;
+	linedefs.forEach(ld => {
+		min = Math.min(min, ld.start.x, ld.end.x);
+	});
+	return min;
+};
+
+const findMinY = (linedefs: Linedef[]): number => {
+	let min = 0;
+	linedefs.forEach(ld => {
+		min = Math.min(min, ld.start.y, ld.end.y);
+	});
+	return min;
+};
+
+const findMax = (linedefs: Linedef[]): number => {
+	let min = 0;
+	linedefs.forEach(ld => {
+		min = Math.max(min, ld.start.x, ld.start.y, ld.end.x, ld.end.y);
+	});
+	return min;
+};
+
+const scale = (mappingMultiplier: number, min: number) => (pos: number): number => {
+	return Math.round((pos + Math.abs(min)) / mappingMultiplier);
+};
+
+const normalizeLinedefs = (linedefs: Linedef[]): Linedef[] => {
+	const minX = findMinX(linedefs);
+	const minY = findMinY(linedefs);
+	const max = findMax(linedefs) + Math.max(Math.abs(minX), Math.abs(minY));
+	const mappingMultiplier = max / 1000;
+	const scaleX = scale(mappingMultiplier, minX);
+	const scaleY = scale(mappingMultiplier, minY);
+	return R.map(ld => {
+		const nld = {...ld};
+		nld.start = {x: scaleX(ld.start.x), y: scaleY(ld.start.y)};
+		nld.end = {x: scaleX(ld.end.x), y: scaleY(ld.end.y)};
+		return nld;
+	}, linedefs);
+};
+
 // ############################ EXPORTS ############################
 export const testFunctions = {
 	isMapName,
@@ -177,7 +228,11 @@ export const testFunctions = {
 	parseMapDirs,
 	parseMap,
 	findAllMapStartDirs,
-	parseMapsDirs
+	parseMapsDirs,
+	findMinX,
+	findMinY,
+	findMax,
+	scale,
 };
 
-export const functions = {parseMaps};
+export const functions = {parseMaps, normalizeLinedefs};
