@@ -16,10 +16,6 @@ import {functions as mp} from '../../parser/map-parser';
 	styleUrls: ['./wad-map.component.css']
 })
 export class WadMapComponent implements OnInit, MapControl {
-
-	private minX = -1;
-	private minY = -1;
-	private mappingMultiplier = 1;
 	private zoom = 1;
 	private scope: paper.PaperScope;
 	private lastDragPos: paper.Point;
@@ -48,38 +44,6 @@ export class WadMapComponent implements OnInit, MapControl {
 		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(NavbarMapPluginComponent, this)));
 	}
 
-	private findMinX(linedefs: Linedef[]): number {
-		let min = 0;
-		linedefs.forEach(ld => {
-			min = Math.min(min, ld.start.x, ld.end.x);
-		});
-		return min;
-	}
-
-	private findMinY(linedefs: Linedef[]): number {
-		let min = 0;
-		linedefs.forEach(ld => {
-			min = Math.min(min, ld.start.y, ld.end.y);
-		});
-		return min;
-	}
-
-	private findMax(linedefs: Linedef[]): number {
-		let min = 0;
-		linedefs.forEach(ld => {
-			min = Math.max(min, ld.start.x, ld.start.y, ld.end.x, ld.end.y);
-		});
-		return min;
-	}
-
-	private mapX(x: number): number {
-		return Math.round((x + Math.abs(this.minX)) / this.mappingMultiplier);
-	}
-
-	private mapY(y: number): number {
-		return Math.round((y + Math.abs(this.minY)) / this.mappingMultiplier);
-	}
-
 	onMouseDrag(point: paper.Point): void {
 		if (this.lastDragPos != null) {
 			this.scope.view.translate(new Point(point.x - this.lastDragPos.x, point.y - this.lastDragPos.y));
@@ -99,13 +63,7 @@ export class WadMapComponent implements OnInit, MapControl {
 
 	private plotMap(map: WadMap): void {
 		this.scope.project.activeLayer.removeChildren();
-
-		this.minX = this.findMinX(map.linedefs);
-		this.minY = this.findMinY(map.linedefs);
-		const max = this.findMax(map.linedefs) + Math.max(Math.abs(this.minX), Math.abs(this.minY));
-		this.mappingMultiplier = max / 1000;
-
-		mp.normalizeLinedefs(map.linedefs).forEach(ld => {
+		mp.normalizeLinedefs(1000)(map.linedefs).forEach(ld => {
 			const path = new Path({
 				strokeColor: '#66ff00',
 				strokeWidth: 2,

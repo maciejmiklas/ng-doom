@@ -652,7 +652,7 @@ describe('map_parser#normalizeMap', () => {
 });
 
 describe('map_parser#scale', () => {
-	const scale = tf.scale(10, 3);
+	const scale = tf.scale(10)(3);
 
 	it('0', () => {
 		expect(scale(1)).toEqual(0);
@@ -668,20 +668,19 @@ describe('map_parser#scale', () => {
 
 });
 
-export type XY = {
-	start: Vertex
-	end: Vertex
-}
-
 describe('map_parser#normalizeLinedefs', () => {
 	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs()).get()[0].linedefs;
 
 	it('positive values', () => {
-		mp.normalizeLinedefs(defs).forEach(ld => {
+		mp.normalizeLinedefs(1000)(defs).forEach(ld => {
 			expect(ld.start.x).toBeGreaterThanOrEqual(0);
 			expect(ld.start.y).toBeGreaterThanOrEqual(0);
 			expect(ld.end.x).toBeGreaterThanOrEqual(0);
 			expect(ld.end.y).toBeGreaterThanOrEqual(0);
 		});
+	});
+
+	it('to json', () => {
+		console.log(JSON.stringify(mp.normalizeLinedefs(500)(defs).map(d => ({s: d.start, e: d.end}))));
 	});
 });

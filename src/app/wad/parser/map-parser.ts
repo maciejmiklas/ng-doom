@@ -162,49 +162,26 @@ const parseVertexes = (bytes: number[]) => (mapDirs: Directory[]): Vertex[] => {
 	return unfoldByDirectorySize(vertexDir, 4).map((ofs, thingIdx) => parser(thingIdx));
 };
 
-const findMin = () => (linedefs: Linedef[]): number => {
-	let min = 0;
-	linedefs.forEach(ld => {
-		min = Math.min(min, ld.start.x, ld.end.x);
-	});
-	return min;
+const findMinX = (linedefs: Linedef[]): number =>
+	R.reduce((min: number, ld: Linedef) => Math.min(min, ld.start.x, ld.end.x), Number.MAX_SAFE_INTEGER, linedefs);
+
+const findMinY = (linedefs: Linedef[]): number =>
+	R.reduce((min: number, ld: Linedef) => Math.min(min, ld.start.y, ld.end.y), Number.MAX_SAFE_INTEGER, linedefs);
+
+const findMax = (linedefs: Linedef[]): number =>
+	R.reduce((max: number, ld: Linedef) => Math.max(max, ld.start.x, ld.start.y, ld.end.x, ld.end.y),
+		Number.MIN_SAFE_INTEGER, linedefs);
+
+const scale = (mappingBase: number) => (min: number) => (pos: number): number => {
+	return Math.round((pos + min) / mappingBase);
 };
 
-const findMinX = (linedefs: Linedef[]): number => {
-	let min = 0;
-	linedefs.forEach(ld => {
-		min = Math.min(min, ld.start.x, ld.end.x);
-	});
-	return min;
-};
-
-const findMinY = (linedefs: Linedef[]): number => {
-	let min = 0;
-	linedefs.forEach(ld => {
-		min = Math.min(min, ld.start.y, ld.end.y);
-	});
-	return min;
-};
-
-const findMax = (linedefs: Linedef[]): number => {
-	let min = 0;
-	linedefs.forEach(ld => {
-		min = Math.max(min, ld.start.x, ld.start.y, ld.end.x, ld.end.y);
-	});
-	return min;
-};
-
-const scale = (mappingMultiplier: number, min: number) => (pos: number): number => {
-	return Math.round((pos + Math.abs(min)) / mappingMultiplier);
-};
-
-const normalizeLinedefs = (linedefs: Linedef[]): Linedef[] => {
-	const minX = findMinX(linedefs);
-	const minY = findMinY(linedefs);
-	const max = findMax(linedefs) + Math.max(Math.abs(minX), Math.abs(minY));
-	const mappingMultiplier = max / 1000;
-	const scaleX = scale(mappingMultiplier, minX);
-	const scaleY = scale(mappingMultiplier, minY);
+const normalizeLinedefs = (scaleVal: number) => (linedefs: Linedef[]): Linedef[] => {
+	const minX = Math.abs(findMinX(linedefs));
+	const minY = Math.abs(findMinY(linedefs));
+	const scaleFunc = scale((findMax(linedefs) + Math.max(minX, minY)) / scaleVal);
+	const scaleX = scaleFunc(minX);
+	const scaleY = scaleFunc(minY);
 	return R.map(ld => {
 		const nld = {...ld};
 		nld.start = {x: scaleX(ld.start.x), y: scaleY(ld.start.y)};
