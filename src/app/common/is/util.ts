@@ -10,14 +10,18 @@ const uint8ArrayToBase64 = (bytes: number[]): string => {
 	return window.btoa(binary);
 };
 
-const base64ToUint8Array = (base64: string): number[] => {
+const base64ToUint8Array = (base64: string): Uint8Array => {
 	const binary = window.atob(base64);
 	const len = binary.length;
 	const bytes = new Uint8Array(len);
 	for (let i = 0; i < len; i++) {
 		bytes[i] = binary.charCodeAt(i);
 	}
-	return [].slice.call(bytes);
+	return bytes;
+};
+
+const base64ToArray = (base64: string): number[] => {
+	return [].slice.call(base64ToUint8Array(base64));
 };
 
 const trim0Padding = (bytes: number[], pos: number) =>
@@ -84,7 +88,7 @@ const findFrom = <T>(arr: T[]) => (offset: number, pred: (T, idx: number) => boo
 
 const U = {
 	uint8ArrayToBase64,
-	base64ToUint8Array,
+	base64ToUint8Array: base64ToArray,
 	trim0Padding,
 	parseStr,
 	parseStrOp,
