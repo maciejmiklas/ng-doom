@@ -172,14 +172,14 @@ const findMax = (linedefs: Linedef[]): number =>
 	R.reduce((max: number, ld: Linedef) => Math.max(max, ld.start.x, ld.start.y, ld.end.x, ld.end.y),
 		Number.MIN_SAFE_INTEGER, linedefs);
 
-const scale = (mappingBase: number) => (min: number) => (pos: number): number => {
-	return Math.round((pos + min) / mappingBase);
+const scalePos = (scale: number) => (min: number) => (pos: number): number => {
+	return Math.round((pos + min) / scale);
 };
 
-const normalizeLinedefs = (scaleVal: number) => (linedefs: Linedef[]): Linedef[] => {
+const normalizeLinedefs = (scale: number) => (linedefs: Linedef[]): Linedef[] => {
 	const minX = Math.abs(findMinX(linedefs));
 	const minY = Math.abs(findMinY(linedefs));
-	const scaleFunc = scale((findMax(linedefs) + Math.max(minX, minY)) / scaleVal);
+	const scaleFunc = scalePos(scale);
 	const scaleX = scaleFunc(minX);
 	const scaleY = scaleFunc(minY);
 	return R.map(ld => {
@@ -209,7 +209,7 @@ export const testFunctions = {
 	findMinX,
 	findMinY,
 	findMax,
-	scale,
+	scalePos,
 };
 
 export const functions = {parseMaps, normalizeLinedefs};

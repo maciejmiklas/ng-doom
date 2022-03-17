@@ -1,4 +1,5 @@
 import {functions as mp, testFunctions as tf} from './map-parser';
+import * as R from 'ramda';
 import {Directory, Linedef, MapLumpType, Sidedef, Thing, Vertex, WadMap, WadType} from './wad-model';
 import {
 	E1M1_BLOCKMAP,
@@ -651,28 +652,29 @@ describe('map_parser#normalizeMap', () => {
 	});
 });
 
-describe('map_parser#scale', () => {
-	const scale = tf.scale(10)(3);
+describe('map_parser#scalePos', () => {
+	const scale = tf.scalePos(4)(3);
 
 	it('0', () => {
-		expect(scale(1)).toEqual(0);
+		expect(scale(1)).toEqual(1); // (3 + 1)/4 = 1
 	});
 
 	it('2', () => {
-		expect(scale(20)).toEqual(2);
+		expect(scale(20)).toEqual(6);
 	});
 
 	it('8', () => {
-		expect(scale(80)).toEqual(8);
+		expect(scale(80)).toEqual(21);
 	});
 
 });
 
 describe('map_parser#normalizeLinedefs', () => {
 	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs()).get()[0].linedefs;
+	const nt = (scale: number) => (xy: boolean) =>  R.reduce(R.max, Number.MIN_SAFE_INTEGER, mp.normalizeLinedefs(scale)(defs).map(d => xy ? d.start.x : d.start.y));
 
 	it('positive values', () => {
-		mp.normalizeLinedefs(1000)(defs).forEach(ld => {
+		mp.normalizeLinedefs(3)(defs).forEach(ld => {
 			expect(ld.start.x).toBeGreaterThanOrEqual(0);
 			expect(ld.start.y).toBeGreaterThanOrEqual(0);
 			expect(ld.end.x).toBeGreaterThanOrEqual(0);
@@ -680,7 +682,26 @@ describe('map_parser#normalizeLinedefs', () => {
 		});
 	});
 
+	it('max values for 2x', () => {
+		const nt3 = nt(2);
+		expect(nt3(true)).toEqual(2288);
+		expect(nt3(false)).toEqual(1408);
+	});
+
+	it('max values for 3x', () => {
+		const nt3 = nt(3);
+		expect(nt3(true)).toEqual(1525);
+		expect(nt3(false)).toEqual(939);
+	});
+
+
+	it('max values for 10x', () => {
+		const nt3 = nt(10);
+		expect(nt3(true)).toEqual(458);
+		expect(nt3(false)).toEqual(282);
+	});
+
 	it('to json', () => {
-		console.log(JSON.stringify(mp.normalizeLinedefs(500)(defs).map(d => ({s: d.start, e: d.end}))));
+		console.log(JSON.stringify(mp.normalizeLinedefs(12)(defs).map(d => ({s: d.start, e: d.end}))));
 	});
 });
