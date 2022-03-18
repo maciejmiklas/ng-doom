@@ -25,6 +25,7 @@
 		"@maciejmiklas/functional-ts": "^1.5.0",
 		"@ng-bootstrap/ng-bootstrap": "^9.1.0",
 		"@types/ramda": "^0.27.38",
+		"@types/three": "^0.138.0",
 		"bootstrap": "^4.6.0",
 		"bootstrap-icons": "^1.4.1",
 		"bootstrap-slider": "^11.0.2",
@@ -38,6 +39,7 @@
 		"popper.js": "^1.16.1",
 		"ramda": "^0.27.1",
 		"rxjs": "~6.6.0",
+		"three": "^0.138.3",
 		"tslib": "^2.0.0",
 		"zone.js": "~0.11.3"
 	},

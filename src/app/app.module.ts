@@ -28,6 +28,7 @@ import {WadDirsNavbarPluginComponent} from './wad/web/wad-dirs/wad-dirs-navbar-p
 import {PaperComponent} from './common/web/paper/paper.component';
 import { WadMapComponent } from './wad/web/wad-map/wad-map.component';
 import { NavbarMapPluginComponent } from './wad/web/wad-map/navbar-map-plugin/navbar-map-plugin.component';
+import { PlayComponent } from './game/web/play/play.component';
 
 @NgModule({
 	declarations: [
@@ -50,7 +51,8 @@ import { NavbarMapPluginComponent } from './wad/web/wad-map/navbar-map-plugin/na
 		WadDirsNavbarPluginComponent,
 		PaperComponent,
   WadMapComponent,
-  NavbarMapPluginComponent
+  NavbarMapPluginComponent,
+  PlayComponent
 	],
 	imports: [
 		BrowserModule,

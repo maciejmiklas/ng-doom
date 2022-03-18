@@ -10,7 +10,6 @@ export class PaperComponent implements OnInit {
 
 	@ViewChild('canvas', {static: true})
 	private canvasRef: ElementRef<HTMLCanvasElement>;
-	private canvas: HTMLCanvasElement;
 
 	@Output()
 	private paperInitialized = new EventEmitter<paper.PaperScope>();
@@ -27,13 +26,16 @@ export class PaperComponent implements OnInit {
 	constructor() {
 	}
 
+	private get canvas(): HTMLCanvasElement {
+		return this.canvasRef.nativeElement;
+	}
+
 	private getMousePosition(event: MouseEvent): paper.Point {
 		const rect = this.canvas.getBoundingClientRect();
 		return new Point(event.clientX - rect.x, event.clientY - rect.y);
 	}
 
 	ngOnInit(): void {
-		this.canvas = this.canvasRef.nativeElement;
 		this.scope = new PaperScope();
 		this.scope.setup(this.canvas);
 		this.paperInitialized.emit(this.scope);

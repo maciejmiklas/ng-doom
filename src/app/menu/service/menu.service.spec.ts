@@ -120,12 +120,13 @@ describe('MenuParserService - on Real Data', () => {
 		};
 
 		const saves: MenuL1 = {
-			id: 'm1_saves',
-			title: 'Save/Load',
+			id: 'm1_game',
+			title: 'Game',
 			l2: [
-				{id: 'm2_save_load', title: 'Load', path: 'path_save_load', decorator: 'dec_mid_save_load'},
-				{id: 'm2_save_new', title: 'Save', path: 'path_save_new', decorator: 'dec_mid_save_new'},
-				{id: 'm2_save_manage', title: 'Manage', path: 'path_save_manage', decorator: 'dec_mid_save_manage'}]
+				{id: 'm2_game_new', title: 'New', path: 'path_game_new', decorator: 'dec_game_new'},
+				{id: 'm2_game_load', title: 'Load', path: 'path_game_load', decorator: 'dec_game_load'},
+				{id: 'm2_game_save', title: 'Save', path: 'path_game_save', decorator: 'dec_game_save'},
+				{id: 'm2_game_manage', title: 'Manage Saves', path: 'path_game_manage', decorator: 'dec_game_manage'}]
 		};
 
 		const root: MenuRoot = {l1: [manage_wads, wad_viewer, saves], initialState: {idL1: 'm1_manage_wads', idL2: 'm2_wad_upload'}};

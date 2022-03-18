@@ -2,6 +2,7 @@ import {AbstractType, Injectable, Injector} from '@angular/core';
 import {MenuDecorator, MenuRoot, MenuState} from './menu-model';
 import menuJson from './menu.json';
 import {
+	GameNewMenuDecorator,
 	WadDirsMenuDecorator,
 	WadListMenuDecorator,
 	WadMapsMenuDecorator,
@@ -31,9 +32,10 @@ export class MenuService {
 		dec_wad_playpal: WadPlaypalMenuDecorator,
 		dec_wad_title_img: WadTitleImgMenuDecorator,
 		dec_wad_folders: WadDirsMenuDecorator,
-		dec_mid_save_load: DummyMenuDecorator,
-		dec_mid_save_new: DummyMenuDecorator,
-		dec_mid_save_manage: DummyMenuDecorator
+		dec_game_new: GameNewMenuDecorator,
+		dec_game_load: DummyMenuDecorator,
+		dec_game_save: DummyMenuDecorator,
+		dec_game_manage: DummyMenuDecorator,
 	};
 
 	constructor(private injector: Injector) {

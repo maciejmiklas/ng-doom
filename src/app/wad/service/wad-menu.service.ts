@@ -97,3 +97,15 @@ export class WadDirsMenuDecorator implements MenuDecorator {
 		return this.wadStorage.isLoaded();
 	}
 }
+
+@Injectable({
+	providedIn: 'root'
+})
+export class GameNewMenuDecorator implements MenuDecorator {
+	constructor(private wadStorage: WadStorageService) {
+	}
+
+	visible(): boolean {
+		return this.wadStorage.isLoaded();
+	}
+}
