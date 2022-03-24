@@ -343,3 +343,13 @@ export type Wad = {
 	bytes: number[]
 };
 
+export type WadEntry = {
+	wad: Wad;
+	name: string;
+	gameSave: GameSave[];
+};
+
+export type GameSave = {
+	name: string;
+};
+

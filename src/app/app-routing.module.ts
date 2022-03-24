@@ -1,14 +1,14 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {WadTitleImgComponent} from './wad/web/wad-title-img/wad-title-img.component';
-import {WadPlaypalComponent} from './wad/web/wad-playpal/wad-playpal.component';
-import {WadUploadComponent} from './wad/web/wad-upload/wad-upload.component';
-import {EmptyComponent} from './common/web/empty/empty.component';
-import {WadSpritesComponent} from './wad/web/wad-sprites/wad-sprites.component';
+import {WadTitleImgComponent} from './wad/wad-title-img/wad-title-img.component';
+import {WadPlaypalComponent} from './wad/wad-playpal/wad-playpal.component';
+import {WadUploadComponent} from './wad/wad-upload/wad-upload.component';
+import {EmptyComponent} from './common/empty/empty.component';
+import {WadSpritesComponent} from './wad/wad-sprites/wad-sprites.component';
 import {AppSetupService} from './app-setup.service';
-import {WadDirsComponent} from './wad/web/wad-dirs/wad-dirs.component';
-import {WadMapComponent} from './wad/web/wad-map/wad-map.component';
-import {PlayComponent} from './game/web/play/play.component';
+import {WadDirsComponent} from './wad/wad-dirs/wad-dirs.component';
+import {WadMapComponent} from './wad/wad-map/wad-map.component';
+import {PlayComponent} from './game/play/play.component';
 
 
 const routes: Routes = [

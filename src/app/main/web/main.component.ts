@@ -8,14 +8,14 @@ import {
 	ViewEncapsulation
 } from '@angular/core';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
-import {MenuEvent} from '../../menu/service/menu-event';
+import {MenuEvent} from '../../menu/menu-event';
 import {MainEvent} from '../service/main-event';
 import {NavbarPlugin, NavbarPluginFactory} from '../service/navbar_plugin';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {PatchBitmap} from '../../wad/parser/wad-model';
-import {WadEvent} from '../../wad/service/wad-event';
-import {UploadResult, UploadStatus} from '../../wad/service/wad-service-model';
-import {WadStorageService} from '../../wad/service/wad-storage.service';
+import {WadEvent} from '../../wad/wad-event';
+import {UploadResult, UploadStatus} from '../../wad/wad-upload/wad-upload-model';
+import {WadStorageService} from '../../wad/wad-storage.service';
 
 @Component({
 	selector: 'app-root',

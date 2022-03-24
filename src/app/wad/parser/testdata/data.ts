@@ -4,7 +4,7 @@ import {functions as dp} from '../directory-parser';
 import {Column, Directory, Header, MapLumpType, PatchHeader, Post, Vertex} from '../wad-model';
 
 import jsonData from './doom.json';
-import U from '../../../common/is/util';
+import U from '../../../common/util';
 import {Either} from '@maciejmiklas/functional-ts';
 
 let _wadBytes = null;

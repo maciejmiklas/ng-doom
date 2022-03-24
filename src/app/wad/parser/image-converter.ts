@@ -1,6 +1,6 @@
 import {BitmapSprite, Column, FrameDir, Palette, PatchBitmap, Post, RGB, Sprite} from './wad-model';
 import * as R from 'ramda';
-import U from '../../common/is/util';
+import U from '../../common/util';
 import {Either} from '@maciejmiklas/functional-ts';
 
 const IMG_BYTES = 4;

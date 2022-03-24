@@ -1,9 +1,9 @@
 import {Column, Directories, Directory, Palette, PatchBitmap, PatchHeader, Playpal, Post, RGB} from './wad-model';
 import * as R from 'ramda';
-import U from '../../common/is/util';
+import U from '../../common/util';
 import {Either} from '@maciejmiklas/functional-ts';
 import {functions as dp} from './directory-parser';
-import {Log} from '../../common/is/log';
+import {Log} from '../../common/log';
 
 /**
  * @see https://doomwiki.org/wiki/Picture_format

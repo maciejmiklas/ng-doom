@@ -1,0 +1,19 @@
+@import "/src/scss/ng-doom";
+
+.app-upload-container {
+	@extend .d-flex;
+	justify-content: center;
+}
+
+.app-upload-content {
+	width: 640px;
+	height: 607px;
+	background: url("../../../assets/img/floppy_disc.png") no-repeat center;
+}
+
+.app-upload-click {
+	@extend .w-100;
+	@extend .h-100;
+	text-align: center;
+	vertical-align: middle;
+}

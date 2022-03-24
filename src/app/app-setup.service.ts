@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
 import {Either} from '@maciejmiklas/functional-ts';
-import U from './common/is/util';
+import U from './common/util';
 
 import wadJson from './wad/parser/testdata/doom.json';
-import {WadStorageService} from './wad/service/wad-storage.service';
+import {WadStorageService} from './wad/wad-storage.service';
 
 @Injectable({
 	providedIn: 'root'

@@ -1,8 +1,8 @@
 import * as R from 'ramda';
 import {Either} from '@maciejmiklas/functional-ts';
 import {Directory, Linedef, MapLumpType, Sidedef, Thing, Vertex, WadMap} from './wad-model';
-import {Log} from '../../common/is/log';
-import U from '../../common/is/util';
+import {Log} from '../../common/log';
+import U from '../../common/util';
 
 /** The type of the map has to be in the form ExMy or MAPxx */
 const isMapName = (name: string): boolean =>

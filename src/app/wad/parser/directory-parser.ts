@@ -1,7 +1,7 @@
 import {Directories, Directory, Header, WadType} from './wad-model';
 import * as R from 'ramda';
-import U from '../../common/is/util';
-import {Log} from '../../common/is/log';
+import U from '../../common/util';
+import {Log} from '../../common/log';
 import {Either} from '@maciejmiklas/functional-ts';
 
 const parseAllDirectories = (header: Header, bytes: number[]): Either<Directory[]> => {
