@@ -1,6 +1,7 @@
 import U from './util';
 
-const IWAD_STR = [73, 87, 65, 68];
+const IWAD_STR = [73, 87, 65, 68]; // IWAD
+const BROWN98_STR = [66, 82, 79, 87, 78, 57, 56, 45, 65]; // BROWN96-A
 
 describe('util#parseUint', () => {
 
@@ -232,6 +233,32 @@ describe('util#parseStr', () => {
 	});
 });
 
+describe('util#parseTextureName', () => {
+	it('whole', () => {
+		expect(U.parseTextureName(IWAD_STR)(0, 4).get()).toEqual('IWAD');
+	});
+
+	it('sub string', () => {
+		expect(U.parseTextureName(IWAD_STR)(1, 2).get()).toEqual('WA');
+	});
+
+	it('length out of range', () => {
+		expect(U.parseTextureName(IWAD_STR)(0, 5).get()).toEqual('IWAD');
+	});
+
+	it('out of range', () => {
+		expect(U.parseTextureName(IWAD_STR)(6, 2).isLeft).toBeTruthy();
+	});
+
+	it('BROWN98-A', () => {
+		expect(U.parseTextureName(BROWN98_STR)(0, 10).get()).toEqual('BROWN98-A');
+	});
+
+	it('-', () => {
+		expect(U.parseTextureName([45])(6, 2).isLeft).toBeTruthy();
+	});
+});
+
 describe('util#parseStrOp', () => {
 	it('found', () => {
 		expect(U.parseStrOp(IWAD_STR)(str => str === 'IWAD', () => '?')(0, 4).get()).toEqual('IWAD');
@@ -299,5 +326,4 @@ describe('util#findFrom', () => {
 	it('not found from 5', () => {
 		expect(U.findFrom(arr)(5, (val, idx) => val === 99).isLeft).toBeTruthy();
 	});
-
 });

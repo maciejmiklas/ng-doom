@@ -1,7 +1,6 @@
 import * as R from 'ramda';
 import {Either} from '@maciejmiklas/functional-ts';
-import {Directory, Linedef, MapLumpType, Sidedef, Thing, Vertex, WadMap} from './wad-model';
-import {Log} from '../../common/log';
+import {Directory, Linedef, MapLumpType, Sector, Sidedef, Thing, Vertex, WadMap} from './wad-model';
 import U from '../../common/util';
 
 /** The type of the map has to be in the form ExMy or MAPxx */
@@ -62,7 +61,7 @@ const unfoldByDirectorySize = (dir: Directory, size: number): number[] =>
 const parseThing = (bytes: number[], thingDir: Directory) => (thingIdx: number): Thing => {
 	const offset = thingDir.filepos + 10 * thingIdx;
 	const shortParser = U.parseShort(bytes);
-	const thing = {
+	return {
 		dir: thingDir,
 		position: {
 			x: shortParser(offset),
@@ -74,8 +73,6 @@ const parseThing = (bytes: number[], thingDir: Directory) => (thingIdx: number):
 		type: shortParser(offset + 6),
 		flags: shortParser(offset + 8),
 	};
-	Log.trace('mod_parser#parseThing', 'Parsed Thing on %1 -> %2', thingIdx, thing);
-	return thing;
 };
 
 const parseThings = (bytes: number[]) => (mapDirs: Directory[]): Thing[] => {
@@ -84,11 +81,27 @@ const parseThings = (bytes: number[]) => (mapDirs: Directory[]): Thing[] => {
 	return unfoldByDirectorySize(thingDir, 10).map((ofs, thingIdx) => parser(thingIdx)).map(th => th);
 };
 
-const parseSidedef = (bytes: number[], dir: Directory) => (mapDirIdx: number): Sidedef => {
-	const offset = dir.filepos + 30 * mapDirIdx;
+const parseSector = (bytes: number[], dir: Directory) => (thingIdx: number): Sector => {
+	const offset = dir.filepos + 26 * thingIdx;
 	const shortParser = U.parseShort(bytes);
-	const strOpParser = U.parseStrOp(bytes)(v => v !== '-', () => '');
-	const sidedef = {
+	const strOpParser = U.parseTextureName(bytes);
+	return {
+		dir,
+		type: MapLumpType.SECTORS,
+		floorHeight: shortParser(offset),
+		ceilingHeight: shortParser(offset + 2),
+		floorTexture: null,
+		cellingTexture: null,
+		specialType: null,
+		tagNumber: null
+	};
+};
+
+const parseSidedef = (bytes: number[], dir: Directory) => (thingIdx: number): Sidedef => {
+	const offset = dir.filepos + 30 * thingIdx;
+	const shortParser = U.parseShort(bytes);
+	const strOpParser = U.parseTextureName(bytes);
+	return {
 		dir,
 		type: MapLumpType.SIDEDEFS,
 		offset: {
@@ -100,14 +113,18 @@ const parseSidedef = (bytes: number[], dir: Directory) => (mapDirIdx: number): S
 		middleTexture: strOpParser(offset + 20, 8),
 		sector: shortParser(offset + 28)
 	};
-	Log.trace('mod_parser#parseSidedef', 'Parsed Sidedef on %1 -> %2', mapDirIdx, sidedef);
-	return sidedef;
 };
 
 const parseSidedefs = (bytes: number[]) => (mapDirs: Directory[]): Sidedef[] => {
 	const thingDir = mapDirs[MapLumpType.SIDEDEFS];
 	const parser = parseSidedef(bytes, thingDir);
 	return unfoldByDirectorySize(thingDir, 30).map((ofs, thingIdx) => parser(thingIdx)).map(th => th);
+};
+
+const parseLinedefs = (bytes: number[]) => (mapDirs: Directory[], vertexes: Vertex[], sidedefs: Sidedef[]): Linedef[] => {
+	const linedefsDir = mapDirs[MapLumpType.LINEDEFS];
+	const parser = parseLinedef(bytes, linedefsDir, vertexes, sidedefs);
+	return unfoldByDirectorySize(linedefsDir, 14).map((ofs, thingIdx) => parser(thingIdx)).filter(v => v.isRight()).map(v => v.get());
 };
 
 const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sidedefs: Sidedef[]) => (thingIdx: number): Either<Linedef> => {
@@ -136,15 +153,7 @@ const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sided
 			sectorTag: shortParser(offset + 8),
 			frontSide: frontSide.get(),
 			backSide
-		})).exec(v => {
-		Log.trace('mod_parser#parseLinedef', 'Parsed Linedef on %1 -> %2', thingIdx, v);
-	});
-};
-
-const parseLinedefs = (bytes: number[]) => (mapDirs: Directory[], vertexes: Vertex[], sidedefs: Sidedef[]): Linedef[] => {
-	const linedefsDir = mapDirs[MapLumpType.LINEDEFS];
-	const parser = parseLinedef(bytes, linedefsDir, vertexes, sidedefs);
-	return unfoldByDirectorySize(linedefsDir, 14).map((ofs, thingIdx) => parser(thingIdx)).filter(v => v.isRight()).map(v => v.get());
+		}));
 };
 
 const parseVertex = (bytes: number[], vertexDir: Directory) => (thingIdx: number): Vertex => {

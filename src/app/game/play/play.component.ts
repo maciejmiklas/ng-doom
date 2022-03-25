@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import * as THREE from 'three';
 import {Controls} from './controls';
 import {WadStorageService} from '../../wad/wad-storage.service';
@@ -18,6 +18,9 @@ export class PlayComponent implements OnInit {
 	private scene: THREE.Scene;
 	private renderer: THREE.WebGLRenderer;
 	private controls: Controls;
+
+	@Input()
+	scaleLinedefs = 12;
 
 	constructor(private wadStorage: WadStorageService) {
 	}
@@ -51,11 +54,11 @@ export class PlayComponent implements OnInit {
 		//simpleWall(scene);
 		const brickTexture = createTexture('../../../assets/textures/brick.jpg');
 		const linedefsOrg: Linedef[] = this.wadStorage.getCurrent().get().wad.maps[0].linedefs;
-		const linedefs = mp.normalizeLinedefs(12)(linedefsOrg);
+		const linedefs = mp.normalizeLinedefs(this.scaleLinedefs)(linedefsOrg);
 		const mesh = meshTexture(brickTexture);
-		linedefs.forEach(ld=> {
-			scene.add(wall(ld.start.x, ld.start.y, ld.end.x, ld.end.y, mesh))
-		})
+		linedefs.forEach(ld => {
+			scene.add(wall(ld.start.x, ld.start.y, ld.end.x, ld.end.y, mesh));
+		});
 		scene.add(createGround());
 	};
 }

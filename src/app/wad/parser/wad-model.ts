@@ -139,7 +139,10 @@ export type Vertex = Position & {
 };
 
 /**
- * Linedef represents single wall on the map.
+ * Linedef represents single wall on the map. Wall is more like a line between #start and #end. Textures for the wall are defined by Sidedef.
+ * A few Linedef with the same #sectorTag belong to the same Sector, which makes up a closed space - a room. Sector defines textures for
+ * flor and celling, height of the celling and lighting in this Sector (room)
+ *
  * @see https://doomwiki.org/wiki/Linedef
  */
 export type Linedef = MapLump & {
@@ -156,6 +159,7 @@ export type Linedef = MapLump & {
  * Sidedef contains textures for each wall on the map (Linedef)
  *
  * @see https://doomwiki.org/wiki/Sidedef
+ * @see https://doomwiki.org/wiki/Texture_alignment
  */
 export type Sidedef = MapLump & {
 	offset: Position
@@ -163,6 +167,21 @@ export type Sidedef = MapLump & {
 	lowerTexture: Either<string>
 	middleTexture: Either<string>
 	sector: number
+};
+
+/**
+ * A Sector is an area defined by a few Sidedef (wall) building a room. Each Sector has a height of the celling, texture on celling and flor,
+ * and lighting.
+ *
+ * @see https://doomwiki.org/wiki/Sector
+ */
+export type Sector = MapLump & {
+	floorHeight: number
+	ceilingHeight: number
+	floorTexture: string
+	cellingTexture: string
+	specialType: number
+	tagNumber: number
 };
 
 export type Vertexe = MapLump & {
@@ -178,10 +197,6 @@ export type Ssector = MapLump & {
 };
 
 export type Node = MapLump & {
-	xxx: number
-};
-
-export type Sector = MapLump & {
 	xxx: number
 };
 
