@@ -229,7 +229,7 @@ export type WadMap = {
 	sectors: Sector[]
 
 	// K: Sector index based on #sectors, V: Linedef belonging to the same sector
-	linedefsBySector: Map<number, Linedef[]>
+	linedefsBySector: { [sector: number]: Linedef[] }
 };
 
 export enum WadType {

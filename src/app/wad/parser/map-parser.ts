@@ -55,8 +55,7 @@ const parseMap = (bytes: number[]) => (mapDirs: Directory[]): WadMap => {
 		ssectors: null,// TODO
 		nodes: null,// TODO
 		sectors,
-		linedefsBySector: null// TODO
-		//linedefsBySector: groupSectors(linedefs, sectors)
+		linedefsBySector: groupBySector(linedefs)
 	};
 };
 
