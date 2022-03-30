@@ -180,8 +180,10 @@ export type Sector = MapLump & {
 	ceilingHeight: number
 	floorTexture: string
 	cellingTexture: string
+	lightLevel: number
 	specialType: number
 	tagNumber: number
+	sectorNumber:number
 };
 
 export type Vertexe = MapLump & {
@@ -225,6 +227,9 @@ export type WadMap = {
 	ssectors: Ssector[]
 	nodes: Node[]
 	sectors: Sector[]
+
+	// K: Sector index based on #sectors, V: Linedef belonging to the same sector
+	linedefsBySector: Map<number, Linedef[]>
 };
 
 export enum WadType {

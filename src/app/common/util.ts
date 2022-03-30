@@ -36,7 +36,7 @@ const parseStrOp = (bytes: number[]) => (cnd: (val: string) => boolean, emsg: (v
 };
 
 const parseTextureName = (bytes: number[]) => (pos: number, length: number): Either<string> => {
-	return parseStrOp(bytes)(v => v !== '-', () => '')(pos, length).exec(v => console.log('TN', v));
+	return parseStrOp(bytes)(v => v !== '-', () => '')(pos, length);
 };
 
 /** Converts given signed 4-byte array to number. Notation: little-endian (two's complement) */

@@ -44,16 +44,30 @@ const parseMaps = (bytes: number[], dirs: Directory[]): Either<WadMap[]> => {
 	return Either.ofArray(parseMapsDirs(dirs, findAllMapStartDirs(dirs)).map(parseMap(bytes)), () => 'No maps found');
 };
 
-const parseMap = (bytes: number[]) => (mapDirs: Directory[]): WadMap =>
-	({
+const parseMap = (bytes: number[]) => (mapDirs: Directory[]): WadMap => {
+	const linedefs = parseLinedefs(bytes)(mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes)(mapDirs));
+	const sectors = parseSectors(bytes)(mapDirs);
+	return {
 		mapDirs,
 		things: parseThings(bytes)(mapDirs),
-		linedefs: parseLinedefs(bytes)(mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes)(mapDirs)),
+		linedefs,
 		segs: null,// TODO
 		ssectors: null,// TODO
 		nodes: null,// TODO
-		sectors: null// TODO
-	});
+		sectors,
+		linedefsBySector: null// TODO
+		//linedefsBySector: groupSectors(linedefs, sectors)
+	};
+};
+
+/** @return Map -> K: sector number, V:Linedef array where each Linedef has the same sector number. */
+const groupBySector = (linedefs: Linedef[]): { [sector: number]: Linedef[] } => {
+	// group Linedef by Sector
+	const bySector: Linedef[][] = R.groupWith((a: Linedef, b: Linedef) => a.frontSide.sector === b.frontSide.sector, linedefs);
+
+	// transfer Linedef[][] into Map, where Key is the sector number
+	return R.indexBy((ld: Linedef[]) => ld[0].frontSide.sector, bySector);
+};
 
 const unfoldByDirectorySize = (dir: Directory, size: number): number[] =>
 	R.unfold((idx) => idx === dir.size / size ? false : [dir.filepos + idx * 10, idx + 1], 0);
@@ -84,17 +98,25 @@ const parseThings = (bytes: number[]) => (mapDirs: Directory[]): Thing[] => {
 const parseSector = (bytes: number[], dir: Directory) => (thingIdx: number): Sector => {
 	const offset = dir.filepos + 26 * thingIdx;
 	const shortParser = U.parseShort(bytes);
-	const strOpParser = U.parseTextureName(bytes);
+	const strParser = U.parseStr(bytes);
 	return {
 		dir,
 		type: MapLumpType.SECTORS,
 		floorHeight: shortParser(offset),
 		ceilingHeight: shortParser(offset + 2),
-		floorTexture: null,
-		cellingTexture: null,
-		specialType: null,
-		tagNumber: null
+		floorTexture: strParser(offset + 4, 8),
+		cellingTexture: strParser(offset + 12, 8),
+		lightLevel: shortParser(offset + 20),
+		specialType: shortParser(offset + 22),
+		tagNumber: shortParser(offset + 24),
+		sectorNumber:thingIdx
 	};
+};
+
+const parseSectors = (bytes: number[]) => (mapDirs: Directory[]): Sector[] => {
+	const thingDir = mapDirs[MapLumpType.SECTORS];
+	const parser = parseSector(bytes, thingDir);
+	return unfoldByDirectorySize(thingDir, 26).map((ofs, thingIdx) => parser(thingIdx)).map(th => th);
 };
 
 const parseSidedef = (bytes: number[], dir: Directory) => (thingIdx: number): Sidedef => {
@@ -219,6 +241,9 @@ export const testFunctions = {
 	findMinY,
 	findMax,
 	scalePos,
+	parseSector,
+	parseSectors,
+	groupBySector
 };
 
 export const functions = {parseMaps, normalizeLinedefs};
