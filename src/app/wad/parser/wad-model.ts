@@ -183,7 +183,7 @@ export type Sector = MapLump & {
 	lightLevel: number
 	specialType: number
 	tagNumber: number
-	sectorNumber:number
+	sectorNumber: number
 };
 
 export type Vertexe = MapLump & {
@@ -373,3 +373,11 @@ export type GameSave = {
 	name: string;
 };
 
+export type WadParseOptions = {
+	linedefScale?: number
+	abc?: string
+};
+
+export const WadParseOptionsDef: WadParseOptions = {
+	linedefScale: 12
+}

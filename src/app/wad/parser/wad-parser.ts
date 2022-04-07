@@ -1,4 +1,4 @@
-import {Directories, Directory, TitlePic, Wad} from './wad-model';
+import {Directories, Directory, TitlePic, Wad, WadParseOptions, WadParseOptionsDef} from './wad-model';
 import {Either} from '@maciejmiklas/functional-ts';
 import {functions as dp} from './directory-parser';
 import {functions as bp} from './bitmap-parser';
@@ -19,13 +19,12 @@ const parseTitlePic = (bytes: number[], dirs: Directory[]): Either<TitlePic> => 
 	}));
 };
 
-// TODO append will not append if it's null resulting in nullpointer later on
-const parseWad = (bytes: number[]): Either<Wad> =>
+const parseWad = (bytes: number[], options: WadParseOptions = WadParseOptionsDef): Either<Wad> =>
 	dp.parseHeader(bytes)
 		.map(header => ({header, bytes}))
 		.append(w => dp.parseAllDirectories(w.header, bytes), (w, v) => w.dirs = v)
 		.append(w => parseTitlePic(bytes, w.dirs), (w, v) => w.title = v)
-		.append(w => mp.parseMaps(bytes, w.dirs), (w, v) => w.maps = v);
+		.append(w => mp.parseMaps(bytes, w.dirs, options), (w, v) => w.maps = v);
 
 // ############################ EXPORTS ############################
 export const testFunctions = {

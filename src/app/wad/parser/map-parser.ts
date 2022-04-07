@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 import {Either} from '@maciejmiklas/functional-ts';
-import {Directory, Linedef, MapLumpType, Sector, Sidedef, Thing, Vertex, WadMap} from './wad-model';
+import {Directory, Linedef, MapLumpType, Sector, Sidedef, Thing, Vertex, WadMap, WadParseOptions, WadParseOptionsDef} from './wad-model';
 import U from '../../common/util';
 
 /** The type of the map has to be in the form ExMy or MAPxx */
@@ -40,12 +40,13 @@ const parseMapsDirs = (allDirs: Directory[], startMapDirs: Directory[]): Directo
 	R.mapAccum((acc, dir) =>
 		[acc, parseMapDirs(allDirs)(dir).orElseGet(() => null)], [], startMapDirs)[1].filter(v => !R.isNil(v));
 
-const parseMaps = (bytes: number[], dirs: Directory[]): Either<WadMap[]> => {
-	return Either.ofArray(parseMapsDirs(dirs, findAllMapStartDirs(dirs)).map(parseMap(bytes)), () => 'No maps found');
+const parseMaps = (bytes: number[], dirs: Directory[], options: WadParseOptions = WadParseOptionsDef): Either<WadMap[]> => {
+	return Either.ofArray(parseMapsDirs(dirs, findAllMapStartDirs(dirs)).map(parseMap(bytes, options)), () => 'No maps found');
 };
 
-const parseMap = (bytes: number[]) => (mapDirs: Directory[]): WadMap => {
-	const linedefs = parseLinedefs(bytes)(mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes)(mapDirs));
+const parseMap = (bytes: number[], options: WadParseOptions = WadParseOptionsDef) => (mapDirs: Directory[]): WadMap => {
+	let linedefs = parseLinedefs(bytes)(mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes)(mapDirs));
+	linedefs = R.isNil(options.linedefScale) ? linedefs : normalizeLinedefs(options.linedefScale)(linedefs);
 	const sectors = parseSectors(bytes)(mapDirs);
 	return {
 		mapDirs,
@@ -108,7 +109,7 @@ const parseSector = (bytes: number[], dir: Directory) => (thingIdx: number): Sec
 		lightLevel: shortParser(offset + 20),
 		specialType: shortParser(offset + 22),
 		tagNumber: shortParser(offset + 24),
-		sectorNumber:thingIdx
+		sectorNumber: thingIdx
 	};
 };
 
@@ -242,7 +243,8 @@ export const testFunctions = {
 	scalePos,
 	parseSector,
 	parseSectors,
-	groupBySector
+	groupBySector,
+	normalizeLinedefs
 };
 
-export const functions = {parseMaps, normalizeLinedefs};
+export const functions = {parseMaps};
