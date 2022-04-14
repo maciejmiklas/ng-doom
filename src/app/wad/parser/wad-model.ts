@@ -375,9 +375,7 @@ export type GameSave = {
 
 export type WadParseOptions = {
 	linedefScale?: number
-	abc?: string
 };
 
 export const WadParseOptionsDef: WadParseOptions = {
-	linedefScale: 12
 }

@@ -1,9 +1,8 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import * as THREE from 'three';
 import {Controls} from './controls';
 import {WadStorageService} from '../../wad/wad-storage.service';
-import {Linedef} from '../../wad/parser/wad-model';
-import {functions as mp} from '../../wad/parser/map-parser';
+import {Linedef, Vertex} from '../../wad/parser/wad-model';
 
 @Component({
 	selector: 'app-play',
@@ -51,10 +50,28 @@ export class PlayComponent implements OnInit {
 		const brickTexture = createTexture('../../../assets/textures/brick.jpg');
 		const linedefs: Linedef[] = this.wadStorage.getCurrent().get().wad.maps[0].linedefs;
 		const mesh = meshTexture(brickTexture);
+
 		linedefs.forEach(ld => {
-			scene.add(wall(ld.start.x, ld.start.y, ld.end.x, ld.end.y, mesh));
+			scene.add(wall(ld.start, ld.end, mesh));
 		});
-		scene.add(createGround());
+		//scene.add(createGround());
+
+		/*
+
+		wall({x: 1376, y: -3200}, {x: 1376, y: -3104}, mesh, '1.5707963267948966 -1376 204 -3152');
+		wall({x: 1376, y: -3360}, {x: 1376, y: -3264}, mesh, '1.5707963267948966 -1376 204 -3312');
+		wall({x: 1856, y: -2880}, {x: 1920, y: -2920}, mesh, '-0.5585993153435624 -1888 108 -2900');
+		wall({x: 2736, y: -3112}, {x: 2736, y: -3360}, mesh, '-1.5707963267948966 -2736 176 -3236');
+		wall({x: 1376, y: -3520}, {x: 1376, y: -3392}, mesh, '1.5707963267948966 -1376 108 -3456');
+		wall({x: 2048, y: -3872}, {x: 2176, y: -3872}, mesh, '0 -2112 16 -3872');
+		wall({x: 2176, y: -3680}, {x: 2048, y: -3680}, mesh, '3.141592653589793 -2112 40 -3680');
+		wall({x: 1664, y: -2112}, {x: 2496, y: -2112}, mesh, '0 -2080 156 -2112');
+		wall({x: 1784, y: -2552}, {x: 1784, y: -2632}, mesh, '-1.5707963267948966 -1784 224 -2592');
+		wall({x: 1792, y: -2304}, {x: 1984, y: -2304}, mesh, '0 -1888 160 -2304');
+		wall({x: 256, y: -3136}, {x: 320, y: -3136}, mesh, '0 -288 204 -3136');
+		wall({x: -208, y: -3264}, {x: -192, y: -3248}, mesh, '0.7853981633974483 200 264 -3256');
+		wall({x: 3328, y: -3968}, {x: 3328, y: -3744}, mesh, '1.5707963267948966 -3328 68 -3856');
+*/
 	};
 }
 
@@ -83,14 +100,14 @@ const createTexture = (path: string): THREE.Texture => {
 const createScene = (): THREE.Scene => {
 	const scene = new THREE.Scene();
 	scene.background = new THREE.Color('skyblue');
-	scene.add(new THREE.AxesHelper(500));
+	scene.add(new THREE.AxesHelper(500).setColors(new THREE.Color('red'), new THREE.Color('black'), new THREE.Color('green')));
 	scene.add(new THREE.HemisphereLight(0xffffcc, 0x19bbdc, 2.5));
 	return scene;
 };
 
 const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera => {
-	const cam = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 10000);
-	cam.position.set(350, 50, -100);
+	const cam = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, -1000, 2000);
+	cam.position.set(0, 2000, 2000);
 	return cam;
 };
 
@@ -102,10 +119,10 @@ const createRenderer = (canvas: HTMLCanvasElement): THREE.WebGLRenderer => {
 	return renderer;
 };
 
-const wall = (x1: number, y1: number, x2: number, y2: number, meshFunction): THREE.Mesh => {
-	const height = 3;
-	const thickness = 0.5;
-	const width = Math.hypot(x2 - x1, y2 - y1);
+const wall = (vs: Vertex, ve: Vertex, meshFunction, text?: string): THREE.Mesh => {
+	const height = 50;
+	const thickness = 5;
+	const width = Math.hypot(ve.x - vs.x, ve.y - vs.y);
 
 	const shape = new THREE.Shape();
 	shape.moveTo(0, 0);
@@ -119,11 +136,7 @@ const wall = (x1: number, y1: number, x2: number, y2: number, meshFunction): THR
 	});
 
 	const mesh = meshFunction(tiltWallGeometry);
-	mesh.position.x = x1;
-	mesh.position.y = 0;
-	mesh.position.z = -y1;
-
-	let angle = Math.atan2(y2 - y1, x2 - x1);
-	mesh.rotateY(angle);
+	mesh.position.set(vs.x , 0, -vs.y);
+	mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x));
 	return mesh;
 };

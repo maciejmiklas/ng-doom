@@ -713,10 +713,10 @@ describe('map_parser#scalePos', () => {
 
 describe('map_parser#normalizeLinedefs', () => {
 	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs()).get()[0].linedefs;
-	const nt = (scale: number) => (xy: boolean) => R.reduce(R.max, Number.MIN_SAFE_INTEGER, tf.normalizeLinedefs(scale)(defs).map(d => xy ? d.start.x : d.start.y));
+	const nt = (scale: number) => (xy: boolean) => R.reduce(R.max, Number.MIN_SAFE_INTEGER, mp.normalizeLinedefs(scale)(defs).map(d => xy ? d.start.x : d.start.y));
 
 	it('positive values', () => {
-		tf.normalizeLinedefs(3)(defs).forEach(ld => {
+		mp.normalizeLinedefs(3)(defs).forEach(ld => {
 			expect(ld.start.x).toBeGreaterThanOrEqual(0);
 			expect(ld.start.y).toBeGreaterThanOrEqual(0);
 			expect(ld.end.x).toBeGreaterThanOrEqual(0);
@@ -744,7 +744,7 @@ describe('map_parser#normalizeLinedefs', () => {
 	});
 
 	it('to json', () => {
-		console.log(JSON.stringify(tf.normalizeLinedefs(12)(defs).map(d => ({s: d.start, e: d.end}))));
+		console.log(JSON.stringify(mp.normalizeLinedefs(12)(defs).map(d => ({s: d.start, e: d.end}))));
 	});
 });
 

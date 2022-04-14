@@ -62,7 +62,7 @@ export class WadMapComponent implements OnInit, MapControl {
 
 	private plotMap(map: WadMap): void {
 		this.scope.project.activeLayer.removeChildren();
-		map.linedefs.forEach(ld => {
+		mp.normalizeLinedefs(6)(map.linedefs).forEach(ld => {
 			const path = new Path({
 				strokeColor: '#66ff00',
 				strokeWidth: 2,

@@ -243,8 +243,7 @@ export const testFunctions = {
 	scalePos,
 	parseSector,
 	parseSectors,
-	groupBySector,
-	normalizeLinedefs
+	groupBySector
 };
 
-export const functions = {parseMaps};
+export const functions = {parseMaps, normalizeLinedefs};
