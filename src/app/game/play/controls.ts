@@ -7,18 +7,20 @@ export class Controls {
 	private moveX = MoveX.NO;
 	private moveY = MoveY.NO;
 	private readonly controls: PointerLockControls;
-	moveSpeed = 100;
+	private camera: THREE.PerspectiveCamera;
+	moveSlow = 5;
 
 	constructor(camera: THREE.PerspectiveCamera, canvas: HTMLCanvasElement) {
 		window.addEventListener('keydown', this.onKeyDown.bind(this));
 		window.addEventListener('keyup', this.onKeyUp.bind(this));
 		canvas.addEventListener('click', this.onClick.bind(this));
+		this.camera = camera;
 		this.controls = new PointerLockControls(camera, canvas);
 	}
 
 	onRender(): void {
 		const time = performance.now();
-		const mf = (time - this.prevTime) / this.moveSpeed;
+		const mf = (time - this.prevTime) / this.moveSlow;
 
 		if (this.moveY === MoveY.FORWARD) {
 			this.controls.moveForward(mf);
@@ -32,6 +34,7 @@ export class Controls {
 			this.controls.moveRight(mf);
 		}
 		this.prevTime = time;
+		//console.log('>', this.camera.position)
 	}
 
 	private onClick() {

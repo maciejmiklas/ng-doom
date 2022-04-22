@@ -12,7 +12,7 @@ describe('image_converter#toImageData', () => {
 	const findDir = dp.findDirectoryByName(getAllDirs());
 	const titleDir = findDir(Directories.TITLEPIC).get();
 	const titleBitmap = bp.parseBitmap(getWadBytes())(titleDir).get();
-	const imageData = ic.toImageData(titleBitmap)(playpal.palettes[0]);
+	const imageData = tf.toImageData(titleBitmap)(playpal.palettes[0]);
 
 	it('TITLEPIC - image data size', () => {
 		expect(imageData.data.length).toEqual(320 * 200 * 4);

@@ -54,9 +54,9 @@ const parsePatchHeader = (wadBytes: number[]) => (dir: Directory): PatchHeader =
 	return {
 		dir,
 		width,
-		height: shortParser(filepos + 2),
-		xOffset: shortParser(filepos + 4),
-		yOffset: shortParser(filepos + 6),
+		height: shortParser(filepos + 0x02),
+		xOffset: shortParser(filepos + 0x04),
+		yOffset: shortParser(filepos + 0x06),
 		columnofs: unfoldColumnofs(filepos + 8, width).map((offset) => filepos + uintParser(offset))
 	};
 };

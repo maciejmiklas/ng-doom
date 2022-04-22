@@ -40,7 +40,7 @@ export type Directory = {
 	/** Lump size in bytes. Lump position int WAD: [#filepos,....,#filepos + size] */
 	size: number
 
-	/** Lump's name. Map contains of few predefined Lumps (MapLumpType), but there are also other types of Lumps */
+	/** Lump's name. Map contains of few predefined Lumps (MapLumpType), but there are also types of Lumps. */
 	name: string
 };
 
@@ -54,7 +54,16 @@ export enum Directories {
 	CREDIT = 'CREDIT',
 	M_DOOM = 'M_DOOM',
 	S_START = 'S_START',
-	S_END = 'S_END'
+	S_END = 'S_END',
+	PNAMES = 'PNAMES'
+}
+
+/**
+ * Names of static directories
+ */
+export enum TextureDir {
+	TEXTURE1 = 'TEXTURE1',
+	TEXTURE2 = 'TEXTURE2'
 }
 
 /**
@@ -116,7 +125,12 @@ export type Position = {
 };
 
 /**
- * Things represent monsters, pick-ups, and projectiles.
+ * Things represent players, monsters, pick-ups, and projectiles. Inside the game, these are known as actors, or mobjs. They also represent
+ * obstacles, certain decorations, player start positions and teleport landing sites.
+ *
+ * While some mobjs, such as projectiles and special effects, can only be created during play, most things can be placed in a map from a
+ * map editor through an associated editor number. When the map is loaded, an actor that corresponds to that number will be spawned at the
+ * location of that map thing. See thing types for a listing of all things that have an associated editor number.
  *
  * see: https://doomwiki.org/wiki/Thing
  */
@@ -339,6 +353,54 @@ export type Sprite = {
 	animations: Record<string, FrameDir[]>
 };
 
+/**
+ * Contains names for all patches (texture name) for single wall texture.
+ * @see https://doomwiki.org/wiki/PNAMES
+ */
+export type Pnames = Lump & {
+	/** An integer holding the number of following patches.  */
+	nummappatches: number,
+
+	/**
+	 * Eight-character ASCII strings defining the lump names of the patches. Only the characters A-Z (uppercase), 0-9, and [ ] - _ should
+	 * be used in lump names[citation needed]. When a string is less than 8 bytes long, it should be null-padded to the eighth byte.
+	 */
+	names: string[]
+}
+
+/**
+ * Defines a texture for the wall
+ *
+ * @see https://doomwiki.org/wiki/TEXTURE1_and_TEXTURE2
+ * @see https://doomwiki.org/wiki/Texture_alignment
+ */
+export type Texture = Lump & {
+	name: string,
+	width: number,
+	height: number,
+	patchCount: number
+	patches: MapPatch[]
+}
+
+/**
+ * MapPatch defines how the patch should be drawn inside the texture.
+ *
+ * @see https://doomwiki.org/wiki/TEXTURE1_and_TEXTURE2
+ */
+export type MapPatch = {
+	/** A short int defining the horizontal offset of the patch relative to the upper-left of the texture.  */
+	originX: number,
+
+	/** A short int defining the vertical offset of the patch relative to the upper-left of the texture.  */
+	originY: number,
+
+	/** A short int defining the patch number (as listed in PNAMES) to draw.  */
+	patchIdx: number
+
+	/** Patch name from PNAMES. */
+	patchName: string
+}
+
 export type BitmapSprite = {
 	name: string,
 	angle: string,
@@ -360,7 +422,10 @@ export type Wad = {
 	title: TitlePic,
 	maps: WadMap[],
 	dirs: Directory[]
-	bytes: number[]
+	bytes: number[],
+
+	/** Texture for single wall consist of patches and references patch by its ID in this array. */
+	patches: Pnames[]
 };
 
 export type WadEntry = {
@@ -377,5 +442,4 @@ export type WadParseOptions = {
 	linedefScale?: number
 };
 
-export const WadParseOptionsDef: WadParseOptions = {
-}
+export const WadParseOptionsDef: WadParseOptions = {};

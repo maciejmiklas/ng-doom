@@ -103,12 +103,12 @@ const parseSector = (bytes: number[], dir: Directory) => (thingIdx: number): Sec
 		dir,
 		type: MapLumpType.SECTORS,
 		floorHeight: shortParser(offset),
-		ceilingHeight: shortParser(offset + 2),
-		floorTexture: strParser(offset + 4, 8),
-		cellingTexture: strParser(offset + 12, 8),
-		lightLevel: shortParser(offset + 20),
-		specialType: shortParser(offset + 22),
-		tagNumber: shortParser(offset + 24),
+		ceilingHeight: shortParser(offset + 0x02),
+		floorTexture: strParser(offset + 0x04, 8),
+		cellingTexture: strParser(offset + 0x0C, 8),
+		lightLevel: shortParser(offset + 0x14),
+		specialType: shortParser(offset + 0x16),
+		tagNumber: shortParser(offset + 0x18),
 		sectorNumber: thingIdx
 	};
 };
@@ -130,10 +130,10 @@ const parseSidedef = (bytes: number[], dir: Directory) => (thingIdx: number): Si
 			x: shortParser(offset),
 			y: shortParser(offset + 2),
 		},
-		upperTexture: strOpParser(offset + 4, 8),
-		lowerTexture: strOpParser(offset + 12, 8),
-		middleTexture: strOpParser(offset + 20, 8),
-		sector: shortParser(offset + 28)
+		upperTexture: strOpParser(offset + 0x04, 8),
+		lowerTexture: strOpParser(offset + 0x0C, 8),
+		middleTexture: strOpParser(offset + 0x14, 8),
+		sector: shortParser(offset + 0x1C)
 	};
 };
 
@@ -170,9 +170,9 @@ const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sided
 			type: MapLumpType.LINEDEFS,
 			start: startVertex.get(),
 			end: endVertex.get(),
-			flags: shortParser(offset + 4),
-			specialType: shortParser(offset + 6),
-			sectorTag: shortParser(offset + 8),
+			flags: shortParser(offset + 0x04),
+			specialType: shortParser(offset + 0x06),
+			sectorTag: shortParser(offset + 0x08),
 			frontSide: frontSide.get(),
 			backSide
 		}));
@@ -183,7 +183,7 @@ const parseVertex = (bytes: number[], vertexDir: Directory) => (thingIdx: number
 	const shortParser = U.parseShort(bytes);
 	return {
 		x: shortParser(offset),
-		y: shortParser(offset + 2),
+		y: shortParser(offset + 0x02),
 	};
 };
 

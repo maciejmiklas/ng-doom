@@ -117,11 +117,11 @@ const toImageBitmap = (bitmap: PatchBitmap) => (width: number, height: number) =
 export const testFunctions = {
 	postPixelAt,
 	toBitmapSprite,
+	toImageData,
 	maxSpriteSize
 };
 
 export const functions = {
-	toImageData,
 	toImageBitmap,
 	paintOnCanvasForZoom,
 	calcScale,
