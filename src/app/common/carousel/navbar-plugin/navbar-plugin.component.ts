@@ -3,7 +3,7 @@ import {NavbarPlugin} from '../../../main/service/navbar_plugin';
 import {CarouselControl} from '../carousel.component';
 
 @Component({
-	selector: 'app-navbar-map-plugin',
+	selector: 'app-wad-map-navbar',
 	templateUrl: './navbar-plugin.component.html',
 	styleUrls: ['./navbar-plugin.component.scss'],
 })

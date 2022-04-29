@@ -3,11 +3,11 @@ import {DirsListControl} from '../wad-dirs.component';
 import {NavbarPlugin} from '../../../main/service/navbar_plugin';
 
 @Component({
-	selector: 'app-wad-dirs-navbar-map-plugin',
-	templateUrl: './wad-dirs-navbar-plugin.component.html',
-	styleUrls: ['./wad-dirs-navbar-plugin.component.scss']
+	selector: 'app-wad-dirs-wad-map-navbar',
+	templateUrl: './wad-dirs-navbar.component.html',
+	styleUrls: ['./wad-dirs-navbar.component.scss']
 })
-export class WadDirsNavbarPluginComponent implements NavbarPlugin<DirsListControl> {
+export class WadDirsNavbarComponent implements NavbarPlugin<DirsListControl> {
 	maxSize = 10;
 
 	private dirsListControl: DirsListControl;
@@ -21,6 +21,10 @@ export class WadDirsNavbarPluginComponent implements NavbarPlugin<DirsListContro
 
 	set filter(val: string) {
 		this.dirsListControl.applyFilter(val);
+	}
+
+	get filter(): string {
+		return '';
 	}
 
 }

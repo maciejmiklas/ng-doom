@@ -6,7 +6,7 @@ import {WadEntry, WadMap} from '../parser/wad-model';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {MainEvent} from '../../main/service/main-event';
 import {NavbarPluginFactory} from '../../main/service/navbar_plugin';
-import {NavbarMapPluginComponent} from './navbar-map-plugin/navbar-map-plugin.component';
+import {WadMapNavbarComponent} from './wad-map-navbar/wad-map-navbar.component';
 import {functions as mp} from '../parser/map-parser';
 
 @Component({
@@ -40,7 +40,7 @@ export class WadMapComponent implements OnInit, MapControl {
 	ngOnInit(): void {
 		this.wad = this.wadStorage.getCurrent().get();
 		this._mapNames = this.wad.wad.maps.map(m => m.mapDirs[0].name);
-		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(NavbarMapPluginComponent, this)));
+		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadMapNavbarComponent, this)));
 	}
 
 	onMouseDrag(point: paper.Point): void {

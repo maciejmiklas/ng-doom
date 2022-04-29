@@ -379,15 +379,15 @@ export type Texture = Lump & {
 	width: number,
 	height: number,
 	patchCount: number
-	patches: MapPatch[]
+	patches: Patch[]
 }
 
 /**
- * MapPatch defines how the patch should be drawn inside the texture.
+ * Patch defines how the patch should be drawn inside the texture.
  *
  * @see https://doomwiki.org/wiki/TEXTURE1_and_TEXTURE2
  */
-export type MapPatch = {
+export type Patch = {
 	/** A short int defining the horizontal offset of the patch relative to the upper-left of the texture.  */
 	originX: number,
 
@@ -399,6 +399,8 @@ export type MapPatch = {
 
 	/** Patch name from PNAMES. */
 	patchName: string
+
+	bitmap: PatchBitmap
 }
 
 export type BitmapSprite = {

@@ -1,5 +1,5 @@
 import {functions as bp} from './bitmap-parser';
-import {functions as ic, testFunctions as tf} from './image-converter';
+import {testFunctions as tf} from './image-converter';
 import {getAllDirs, getWadBytes, simpleDoomImage} from './testdata/data';
 import {functions as dp} from './directory-parser';
 import {BitmapSprite, Directories, Sprite} from './wad-model';

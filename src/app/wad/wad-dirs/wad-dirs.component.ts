@@ -5,7 +5,7 @@ import * as R from 'ramda';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {MainEvent} from '../../main/service/main-event';
 import {NavbarPluginFactory} from '../../main/service/navbar_plugin';
-import {WadDirsNavbarPluginComponent} from './wad-dirs-navbar-plugin/wad-dirs-navbar-plugin.component';
+import {WadDirsNavbarComponent} from './wad-dirs-navbar/wad-dirs-navbar.component';
 
 @Component({
 	selector: 'app-wad-dirs',
@@ -24,7 +24,7 @@ export class WadDirsComponent implements OnInit, DirsListControl {
 	ngOnInit(): void {
 		this.initDirs = this.wadStorage.getCurrent().get().wad.dirs;
 		this.allDirs = this.initDirs;
-		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadDirsNavbarPluginComponent, this)));
+		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadDirsNavbarComponent, this)));
 		this.onPageChange(1);
 	}
 

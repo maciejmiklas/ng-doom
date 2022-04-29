@@ -24,7 +24,7 @@ const parseDirectory = (offset: number, idx: number, bytes: number[]): Directory
 };
 
 const findDirectoryByName = (dirs: Directory[]) => (name: string): Either<Directory> =>
-	Either.ofNullable(dirs.find(d => d.name === name), () => 'Directory: ' + name + ' not found');
+	Either.ofNullable(dirs.find(d => d.name.toUpperCase() === name.toUpperCase()), () => 'Directory: ' + name + ' not found');
 
 const findDirectoryByOffset = (dirs: Directory[]) => (name: string, offset: number): Either<Directory> =>
 	U.findFrom(dirs)(offset, (d, i) => d.name === name);

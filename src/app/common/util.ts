@@ -47,17 +47,17 @@ const parseNumber = (bytes: number[]) => (pos: number): number =>
 		R.curry(R.reduce)((acc: unknown, cur: unknown) => acc as number << 8 | cur as number, 0)
 	)(bytes);
 
-/** little-endian 32bit signed int. Notation: little-endian (two's complement) */
+/** little-endian 4-byte signed int. Notation: little-endian (two's complement) */
 const parseInt = (bytes: number[]) => (pos: number): number => parseNumber(bytes)(pos);
 
-/** little-endian 32bit int without sign. Notation: little-endian (two's complement) */
+/** little-endian 4-byte int without sign. Notation: little-endian (two's complement) */
 const parseUint = (bytes: number[]) => (pos: number): number => parseNumber(bytes)(pos) >>> 0;
 
 const parseUbyte = (bytes: number[]) => (pos: number): number => bytes[pos] >>> 0;
 
 const signedByte = (byte: number) => (byte & 0x80) === 0x80;
 
-/** little-endian 16bit signed short. Notation: little-endian (two's complement) */
+/** little-endian 2-byte signed short. Notation: little-endian (two's complement) */
 const parseShort = (bytes: number[]) => (pos: number): number => {
 	const padding = signedByte(bytes[pos + 1]) ? 0xFF : 0x00;
 	return parseNumber([bytes[pos], bytes[pos + 1], padding, padding])(0);
