@@ -28,7 +28,7 @@ export class WadSpritesComponent implements OnInit, SpritesListControl {
 		const wad = this.wadStorage.getCurrent().get().wad;
 		this.sprites = this.readSprites(() => true);
 		this.scale = this.sprites.map(s => s[0]).map(ic.calcScale(this.ZOOM_MAX_SIZE));
-		this.palette = bp.parsePlaypal(wad.bytes, wad.dirs).palettes[0];
+		this.palette = wad.playpal.palettes[0];
 		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadSpritesNavbarComponent, this)));
 	}
 

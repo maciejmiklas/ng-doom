@@ -3,22 +3,23 @@
 		{
 			"id": "m1_manage_wads", "title": "Manage WADs", "l2": [
 			{"id": "m2_wad_upload", "title": "Upload new", "path": "path_wad_upload", "decorator": "dec_wad_upload"},
-			{"id": "m2_wad_list", "title": "My WADs", "path": "path_wad_list", "decorator": "dec_wad_list"},
-			{"id": "m2_wad_select", "title": "Select WAD", "path": "path_wad_select", "decorator": "dec_wad_select"}
+			{"id": "m2_wad_list", "title": "My WADs", "path": "path_wad_list", "decorator": "dec_wad_loaded"},
+			{"id": "m2_wad_select", "title": "Select WAD", "path": "path_wad_select", "decorator": "dec_wad_loaded"}
 		]
 		},
 		{
 			"id": "m1_wad_viewer", "title": "WAD Viewer", "l2": [
-			{"id": "m2_wad_maps", "title": "Maps", "path": "path_wad_maps", "decorator": "dec_wad_maps"},
-			{"id": "m2_wad_dirs", "title": "Directories", "path": "path_wad_dirs", "decorator": "dec_wad_dirs"},
-			{"id": "m2_wad_playpal", "title": "Playpal", "path": "path_wad_playpal", "decorator": "dec_wad_playpal"},
-			{"id": "m2_wad_title_img", "title": "Title Images", "path": "path_wad_title_img", "decorator": "dec_wad_title_img"},
-			{"id": "m2_wad_sprites", "title": "Sprites", "path": "path_wad_sprites", "decorator": "dec_wad_sprites"}
+			{"id": "m2_wad_maps", "title": "Maps", "path": "path_wad_maps", "decorator": "dec_wad_loaded"},
+			{"id": "m2_wad_dirs", "title": "Directories", "path": "path_wad_dirs", "decorator": "dec_wad_loaded"},
+			{"id": "m2_wad_playpal", "title": "Playpal", "path": "path_wad_playpal", "decorator": "dec_wad_loaded"},
+			{"id": "m2_wad_title_img", "title": "Title Images", "path": "path_wad_title_img", "decorator": "dec_wad_loaded"},
+			{"id": "m2_wad_sprites", "title": "Sprites", "path": "path_wad_sprites", "decorator": "dec_wad_loaded"},
+			{"id": "m2_wad_patches", "title": "Patches", "path": "path_wad_patches", "decorator": "dec_wad_loaded"}
 		]
 		},
 		{
 			"id": "m1_game", "title": "Game", "l2": [
-			{"id": "m2_game_new", "title": "New", "path": "path_game_new", "decorator": "dec_game_new"},
+			{"id": "m2_game_new", "title": "New", "path": "path_game_new", "decorator": "dec_wad_loaded"},
 			{"id": "m2_game_load", "title": "Load", "path": "path_game_load", "decorator": "dec_game_load"},
 			{"id": "m2_game_save", "title": "Save", "path": "path_game_save", "decorator": "dec_game_save"},
 			{"id": "m2_game_manage", "title": "Manage Saves", "path": "path_game_manage", "decorator": "dec_game_manage"}

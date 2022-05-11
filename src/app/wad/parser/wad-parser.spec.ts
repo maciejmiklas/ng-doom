@@ -35,4 +35,23 @@ describe('wad_parser#parseWad', () => {
 		expect(df('E1M1').isRight()).toBeTruthy();
 		expect(df(Directories.VERTEXES).isRight()).toBeTruthy();
 	});
+
+	it('wad.title', () => {
+		expect(wad.title.title.header.dir.name).toEqual('TITLEPIC');
+		expect(wad.title.title.header.width).toEqual(320);
+		expect(wad.title.title.header.height).toEqual(200);
+
+		expect(wad.title.help.get().length).toEqual(2);
+		expect(wad.title.credit.header.width).toEqual(320);
+		expect(wad.title.credit.header.height).toEqual(200);
+	});
+
+	it('wad.maps', () => {
+		expect(wad.maps.length).toEqual(9)
+		expect(wad.maps[0].mapDirs[0].name).toEqual('E1M1');
+	});
+
+	it('wad.playpal', () => {
+		expect(wad.playpal.palettes.length).toEqual(13)
+	});
 });

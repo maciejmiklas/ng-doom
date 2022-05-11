@@ -1,6 +1,18 @@
 import * as R from 'ramda';
 import {Either} from '@maciejmiklas/functional-ts';
-import {Directory, Linedef, MapLumpType, Sector, Sidedef, Thing, Vertex, WadMap, WadParseOptions, WadParseOptionsDef} from './wad-model';
+import {
+	Directory,
+	Linedef,
+	MapLumpType,
+	Sector,
+	Sidedef,
+	Texture,
+	Thing,
+	Vertex,
+	WadMap,
+	WadParseOptions,
+	WadParseOptionsDef
+} from './wad-model';
 import U from '../../common/util';
 
 /** The type of the map has to be in the form ExMy or MAPxx */
@@ -40,12 +52,12 @@ const parseMapsDirs = (allDirs: Directory[], startMapDirs: Directory[]): Directo
 	R.mapAccum((acc, dir) =>
 		[acc, parseMapDirs(allDirs)(dir).orElseGet(() => null)], [], startMapDirs)[1].filter(v => !R.isNil(v));
 
-const parseMaps = (bytes: number[], dirs: Directory[], options: WadParseOptions = WadParseOptionsDef): Either<WadMap[]> => {
-	return Either.ofArray(parseMapsDirs(dirs, findAllMapStartDirs(dirs)).map(parseMap(bytes, options)), () => 'No maps found');
+const parseMaps = (bytes: number[], dirs: Directory[], options: WadParseOptions = WadParseOptionsDef, textureLoader: (name: string) => Either<Texture>): Either<WadMap[]> => {
+	return Either.ofArray(parseMapsDirs(dirs, findAllMapStartDirs(dirs)).map(parseMap(bytes, options, textureLoader)), () => 'No maps found');
 };
 
-const parseMap = (bytes: number[], options: WadParseOptions = WadParseOptionsDef) => (mapDirs: Directory[]): WadMap => {
-	let linedefs = parseLinedefs(bytes)(mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes)(mapDirs));
+const parseMap = (bytes: number[], options: WadParseOptions = WadParseOptionsDef, textureLoader: (name: string) => Either<Texture>) => (mapDirs: Directory[]): WadMap => {
+	let linedefs = parseLinedefs(bytes)(mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes, textureLoader)(mapDirs));
 	linedefs = R.isNil(options.linedefScale) ? linedefs : normalizeLinedefs(options.linedefScale)(linedefs);
 	const sectors = parseSectors(bytes)(mapDirs);
 	return {
@@ -119,7 +131,7 @@ const parseSectors = (bytes: number[]) => (mapDirs: Directory[]): Sector[] => {
 	return unfoldByDirectorySize(thingDir, 26).map((ofs, thingIdx) => parser(thingIdx)).map(th => th);
 };
 
-const parseSidedef = (bytes: number[], dir: Directory) => (thingIdx: number): Sidedef => {
+const parseSidedef = (bytes: number[], dir: Directory, textureLoader: (name: string) => Either<Texture>) => (thingIdx: number): Sidedef => {
 	const offset = dir.filepos + 30 * thingIdx;
 	const shortParser = U.parseShort(bytes);
 	const strOpParser = U.parseTextureName(bytes);
@@ -130,16 +142,16 @@ const parseSidedef = (bytes: number[], dir: Directory) => (thingIdx: number): Si
 			x: shortParser(offset),
 			y: shortParser(offset + 2),
 		},
-		upperTexture: strOpParser(offset + 0x04, 8),
-		lowerTexture: strOpParser(offset + 0x0C, 8),
-		middleTexture: strOpParser(offset + 0x14, 8),
+		upperTexture: strOpParser(offset + 0x04, 8).map(textureLoader),
+		lowerTexture: strOpParser(offset + 0x0C, 8).map(textureLoader),
+		middleTexture: strOpParser(offset + 0x14, 8).map(textureLoader),
 		sector: shortParser(offset + 0x1C)
 	};
 };
 
-const parseSidedefs = (bytes: number[]) => (mapDirs: Directory[]): Sidedef[] => {
+const parseSidedefs = (bytes: number[], textureLoader: (name: string) => Either<Texture>) => (mapDirs: Directory[]): Sidedef[] => {
 	const thingDir = mapDirs[MapLumpType.SIDEDEFS];
-	const parser = parseSidedef(bytes, thingDir);
+	const parser = parseSidedef(bytes, thingDir, textureLoader);
 	return unfoldByDirectorySize(thingDir, 30).map((ofs, thingIdx) => parser(thingIdx)).map(th => th);
 };
 

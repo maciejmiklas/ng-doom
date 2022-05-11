@@ -1,16 +1,7 @@
 import {AbstractType, Injectable, Injector} from '@angular/core';
 import {MenuDecorator, MenuRoot, MenuState} from './menu-model';
 import menuJson from './menu.json';
-import {
-	GameNewMenuDecorator,
-	WadDirsMenuDecorator,
-	WadListMenuDecorator,
-	WadMapsMenuDecorator,
-	WadPlaypalMenuDecorator,
-	WadSelectMenuDecorator, WadSpritesMenuDecorator,
-	WadTitleImgMenuDecorator,
-	WadUploadMenuDecorator
-} from '../wad/wad-menu.service';
+import {WadUploadMenuDecorator, WasLoadedMenuDecorator} from '../wad/wad-menu.service';
 import {Either} from '@maciejmiklas/functional-ts';
 
 @Injectable({
@@ -24,15 +15,7 @@ export class MenuService {
 
 	private decoratorMap: Record<string, AbstractType<MenuDecorator>> = {
 		dec_wad_upload: WadUploadMenuDecorator,
-		dec_wad_sprites:WadSpritesMenuDecorator,
-		dec_wad_list: WadListMenuDecorator,
-		dec_wad_select: WadSelectMenuDecorator,
-		dec_wad_maps: WadMapsMenuDecorator,
-		dec_wad_dirs: WadDirsMenuDecorator,
-		dec_wad_playpal: WadPlaypalMenuDecorator,
-		dec_wad_title_img: WadTitleImgMenuDecorator,
-		dec_wad_folders: WadDirsMenuDecorator,
-		dec_game_new: GameNewMenuDecorator,
+		dec_wad_loaded: WasLoadedMenuDecorator,
 		dec_game_load: DummyMenuDecorator,
 		dec_game_save: DummyMenuDecorator,
 		dec_game_manage: DummyMenuDecorator,

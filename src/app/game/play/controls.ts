@@ -18,7 +18,7 @@ export class Controls {
 		this.controls = new PointerLockControls(camera, canvas);
 	}
 
-	onRender(): void {
+	render(): void {
 		const time = performance.now();
 		const mf = (time - this.prevTime) / this.moveSlow;
 

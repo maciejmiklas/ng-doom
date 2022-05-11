@@ -21,10 +21,11 @@ const parseTitlePic = (bytes: number[], dirs: Directory[]): Either<TitlePic> => 
 
 const parseWad = (bytes: number[], options: WadParseOptions = WadParseOptionsDef): Either<Wad> =>
 	dp.parseHeader(bytes)
-		.map(header => ({header, bytes}))
-		.append(w => dp.parseAllDirectories(w.header, bytes), (w, v) => w.dirs = v)
-		.append(w => parseTitlePic(bytes, w.dirs), (w, v) => w.title = v)
-		.append(w => mp.parseMaps(bytes, w.dirs, options), (w, v) => w.maps = v);
+		.map(header => ({header, bytes}))// header + bytes
+		.append(w => dp.parseAllDirectories(w.header, bytes), (w, v) => w.dirs = v) // dirs
+		.append(w => parseTitlePic(bytes, w.dirs), (w, v) => w.title = v)// title
+		.append(w => mp.parseMaps(bytes, w.dirs, options), (w, v) => w.maps = v) //maps
+		.append(w => Either.ofRight(bp.parsePlaypal(bytes, w.dirs)), (w, v) => w.playpal = v); //playpal
 
 // ############################ EXPORTS ############################
 export const testFunctions = {

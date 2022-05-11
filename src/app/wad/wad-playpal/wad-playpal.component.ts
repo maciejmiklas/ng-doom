@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {functions as bp} from '../parser/bitmap-parser';
 import {WadStorageService} from '../wad-storage.service';
 import {Slide} from '../../common/carousel/carousel-model';
 
@@ -17,7 +16,7 @@ export class WadPlaypalComponent implements OnInit {
 
 	ngOnInit(): void {
 		const wad = this.wadStorage.getCurrent().get();
-		this.palettes = bp.parsePlaypal(wad.wad.bytes, wad.wad.dirs).palettes.map((p, idx) => ({item: p, name: 'Palette[' + idx + ']'}));
+		this.palettes = wad.wad.playpal.palettes.map((p, idx) => ({item: p, name: 'Palette[' + idx + ']'}));
 	}
 
 }

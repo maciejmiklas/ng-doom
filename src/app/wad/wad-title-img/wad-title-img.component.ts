@@ -15,7 +15,6 @@ export class WadTitleImgComponent implements OnInit {
 	private wad: Wad;
 	slides: Slide[];
 	zoom = 2;
-	paused = false;
 
 	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService) {
 

@@ -4,7 +4,7 @@ import {getAllDirs, getWadBytes} from './testdata/data';
 import {Directory, PatchBitmap, Pnames, Texture, TextureDir} from './wad-model';
 
 describe('texture-parser#findPatchDir', () => {
-	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs());
+	const pn: Pnames = tf.parsePnames(getWadBytes(), getAllDirs());
 	const finder = tf.findPatchDir(getAllDirs());
 
 	it('Find dirs for pnames', () => {
@@ -20,7 +20,7 @@ describe('texture-parser#findPatchDir', () => {
 });
 
 describe('texture-parser#parsePnames', () => {
-	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs());
+	const pn: Pnames = tf.parsePnames(getWadBytes(), getAllDirs());
 
 	it('Directory', () => {
 		expect(pn.dir.name).toEqual('PNAMES');
@@ -46,7 +46,7 @@ describe('texture-parser#parsePnames', () => {
 });
 
 describe('texture-parser#parseTextures', () => {
-	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs());
+	const pn: Pnames = tf.parsePnames(getWadBytes(), getAllDirs());
 	const tx: Texture[] = tp.parseTextures(getWadBytes(), getAllDirs())(TextureDir.TEXTURE1);
 
 	it('Textures amount', () => {

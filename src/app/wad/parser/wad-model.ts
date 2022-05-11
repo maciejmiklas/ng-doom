@@ -177,9 +177,9 @@ export type Linedef = MapLump & {
  */
 export type Sidedef = MapLump & {
 	offset: Position
-	upperTexture: Either<string>
-	lowerTexture: Either<string>
-	middleTexture: Either<string>
+	upperTexture: Either<Texture>
+	lowerTexture: Either<Texture>
+	middleTexture: Either<Texture>
 	sector: number
 };
 
@@ -388,13 +388,13 @@ export type Texture = Lump & {
  * @see https://doomwiki.org/wiki/TEXTURE1_and_TEXTURE2
  */
 export type Patch = {
-	/** A short int defining the horizontal offset of the patch relative to the upper-left of the texture.  */
+	/** The horizontal offset of the patch relative to the upper-left of the texture.  */
 	originX: number,
 
-	/** A short int defining the vertical offset of the patch relative to the upper-left of the texture.  */
+	/** The vertical offset of the patch relative to the upper-left of the texture.  */
 	originY: number,
 
-	/** A short int defining the patch number (as listed in PNAMES) to draw.  */
+	/** The patch number (as listed in PNAMES) to draw.  */
 	patchIdx: number
 
 	/** Patch name from PNAMES. */
@@ -425,9 +425,7 @@ export type Wad = {
 	maps: WadMap[],
 	dirs: Directory[]
 	bytes: number[],
-
-	/** Texture for single wall consist of patches and references patch by its ID in this array. */
-	patches: Pnames[]
+	playpal: Playpal
 };
 
 export type WadEntry = {

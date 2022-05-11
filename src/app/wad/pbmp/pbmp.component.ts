@@ -1,6 +1,5 @@
 import {Component, DoCheck, ElementRef, Input, KeyValueDiffer, KeyValueDiffers, OnInit, ViewChild} from '@angular/core';
 import {PatchBitmap} from '../parser/wad-model';
-import {functions as bp} from '../parser/bitmap-parser';
 import {functions as ic} from '../parser/image-converter';
 import {WadStorageService} from '../wad-storage.service';
 
@@ -22,6 +21,9 @@ export class PbmpComponent implements OnInit, DoCheck {
 
 	@Input()
 	reloadBitmap = false;
+
+	@Input()
+	maxSize = 1000;
 
 	_scale = 1;
 	private ctx;
@@ -60,10 +62,10 @@ export class PbmpComponent implements OnInit, DoCheck {
 
 	private paint(): void {
 		const wad = this.wadStorage.getCurrent().get().wad;
-		const palette = bp.parsePlaypal(wad.bytes, wad.dirs).palettes[this.palette];
+		const palette = wad.playpal.palettes[this.palette];
 		this.canvas = this.canvasRef.nativeElement;
 		this.ctx = this.canvas.getContext('2d');
-		this.imageObject = ic.paintOnCanvasForZoom(this.bitmap, this.canvas)(palette)(this._scale);
+		this.imageObject = ic.paintOnCanvasForZoom(this.bitmap, this.canvas)(palette)(this._scale, this.maxSize);
 	}
 
 	ngDoCheck(): void {

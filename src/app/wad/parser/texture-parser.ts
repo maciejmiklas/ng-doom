@@ -31,7 +31,7 @@ const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pna
 	const strParser = U.parseStr(wadBytes);
 	const shortParser = U.parseShort(wadBytes);
 	const patchCountWad = shortParser(offset + 0x14);
-	const patchMapParser = parseMapPatch(wadBytes, dirs, pnames);
+	const patchMapParser = parsePatch(wadBytes, dirs, pnames);
 	const patches = R
 		.range(0, patchCountWad)// ()=> patches amount
 		.map(pn => offset + 22 + pn * 10)//(patch number) => patch offset
@@ -48,7 +48,7 @@ const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pna
 	};
 };
 
-const parseMapPatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames) => (offset: number): Either<Patch> => {
+const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames) => (offset: number): Either<Patch> => {
 	const shortParser = U.parseShort(wadBytes);
 	const patchIdx = shortParser(offset + 0x04);
 	const patchName = Either.ofCondition(
@@ -82,5 +82,5 @@ const parsePatches = (wadBytes: number[], dirs: Directory[]): PatchBitmap[] => {
 };
 
 // ############################ EXPORTS ############################
-export const testFunctions = {findPatchDir};
-export const functions = {parsePnames, parseTextures, parsePatches};
+export const testFunctions = {findPatchDir,parsePnames};
+export const functions = {parseTextures, parsePatches};

@@ -31,7 +31,7 @@ const TRANSPARENT_RGB: RGB = {
   </tr>
 </table>
  */
-const patchToImg = (bitmap: PatchBitmap) => (palette: Palette): Uint8ClampedArray => {
+const patchToRGBA = (bitmap: PatchBitmap) => (palette: Palette): Uint8ClampedArray => {
 	const pixAtCol = postPixelAt(bitmap.columns);
 	const array = new Uint8ClampedArray(bitmap.header.width * bitmap.header.height * IMG_BYTES);
 	const pixelToImg = pixelToImgBuf(array, palette);
@@ -65,13 +65,20 @@ const postAt = (columns: Either<Column>[]) => (x: number, y: number): Either<Pos
 		() => 'Transparent pixel at (' + x + ',' + y + ')'));
 
 const toImageData = (bitmap: PatchBitmap) => (palette: Palette): ImageData => {
-	const image = patchToImg(bitmap)(palette);
+	const image = patchToRGBA(bitmap)(palette);
 	return new ImageData(image, bitmap.header.width, bitmap.header.height);
 };
 
-const paintOnCanvasForZoom = (bitmap: PatchBitmap, canvas: HTMLCanvasElement) => (palette: Palette) => (scale: number): HTMLImageElement => {
+const paintOnCanvasForZoom = (bitmap: PatchBitmap, canvas: HTMLCanvasElement) => (palette: Palette) => (scale: number, maxSize = 300): HTMLImageElement => {
 	const ctx = canvas.getContext('2d');
 	const img = toImageData(bitmap);
+
+	const maxOrgSize = Math.max(bitmap.header.width, bitmap.header.height);
+	const curSize = scale * maxOrgSize;
+	if (curSize > maxSize) {
+		scale = maxSize / maxOrgSize;
+	}
+
 	canvas.width = bitmap.header.width * scale;
 	canvas.height = bitmap.header.height * scale;
 	ctx.putImageData(img(palette), 0, 0);
@@ -122,6 +129,7 @@ export const testFunctions = {
 };
 
 export const functions = {
+	patchToRGBA,
 	toImageBitmap,
 	paintOnCanvasForZoom,
 	calcScale,

@@ -1,1 +1,7 @@
-<p>wad-patches works!</p>
+<div class="app-sprites">
+	<ng-container *ngFor="let patch of patches;let i=index">
+		<app-pbmp class="app-patch" [bitmap]="patch" [scale]="zoom" [maxSize]="maxSize"
+							ngbPopover="{{i}}: {{patch.header.dir.name}} -> {{patch.header.width}}x{{patch.header.height}}"
+							triggers="mouseenter:mouseleave"></app-pbmp>
+	</ng-container>
+</div>

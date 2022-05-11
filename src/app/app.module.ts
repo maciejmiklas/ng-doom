@@ -31,6 +31,7 @@ import { WadMapNavbarComponent } from './wad/wad-map/wad-map-navbar/wad-map-navb
 import { PlayComponent } from './game/play/play.component';
 import { WadSpritesNavbarComponent } from './wad/wad-sprites/wad-sprites-navbar/wad-sprites-navbar.component';
 import { WadPatchesComponent } from './wad/wad-patches/wad-patches.component';
+import { WadPatchesNavbarComponent } from './wad/wad-patches/wad-patches-navbar/wad-patches-navbar.component';
 
 @NgModule({
 	declarations: [
@@ -56,7 +57,8 @@ import { WadPatchesComponent } from './wad/wad-patches/wad-patches.component';
   WadMapNavbarComponent,
   PlayComponent,
   WadSpritesNavbarComponent,
-  WadPatchesComponent
+  WadPatchesComponent,
+  WadPatchesNavbarComponent
 	],
 	imports: [
 		BrowserModule,
