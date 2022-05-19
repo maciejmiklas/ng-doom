@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import * as paper from 'paper';
 import {Path, Point} from 'paper';
 import {WadStorageService} from '../wad-storage.service';
-import {WadEntry, WadMap} from '../parser/wad-model';
+import {WadEntry, DoomMap} from '../parser/wad-model';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {MainEvent} from '../../main/service/main-event';
 import {NavbarPluginFactory} from '../../main/service/navbar_plugin';
@@ -60,7 +60,7 @@ export class WadMapComponent implements OnInit, MapControl {
 		this.plotMap(wad.wad.maps[0]);
 	}
 
-	private plotMap(map: WadMap): void {
+	private plotMap(map: DoomMap): void {
 		this.scope.project.activeLayer.removeChildren();
 		mp.normalizeLinedefs(6)(map.linedefs).forEach(ld => {
 			const path = new Path({

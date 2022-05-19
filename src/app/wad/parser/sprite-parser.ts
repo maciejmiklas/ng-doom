@@ -15,8 +15,10 @@ const findSpriteDirs = (dirs: Directory[]): Directory[] => {
 };
 
 /** #sprites contains only Dirs declaring sprites. */
-const groupDirsBySpriteName = (sprites: Directory[]): Directory[][] =>
-	R.groupWith((d1: Directory, d2: Directory) => parseDirSpriteName(d1) === parseDirSpriteName(d2))(sprites);
+const groupDirsBySpriteName = (sprites: Directory[]): Directory[][] => {
+	const sorted = R.sortBy(parseDirSpriteName)(sprites); // sort by #sectorId in order to be able to group by it
+	return R.groupWith((d1: Directory, d2: Directory) => parseDirSpriteName(d1) === parseDirSpriteName(d2))(sorted);
+}
 
 const parseDirSpriteName = (dir: Directory): string => dir.name.substr(0, 4);
 const parseDirFrameName = (dir: Directory): string => dir.name.substr(4, 1);
@@ -55,9 +57,8 @@ const toMirrorFrameDir = (wadBytes: number[]) => (dir: Directory): FrameDir => {
 };
 
 /** #dirs contains all dirs for single sprite */
-const toFramesByAngle = (dirs: FrameDir[]): Record<string, FrameDir[]> => {
-	return R.groupBy((d: FrameDir) => d.angle.toString())(dirs);
-};
+const toFramesByAngle = (dirs: FrameDir[]): Record<string, FrameDir[]> =>
+	R.groupBy((d: FrameDir) => d.angle.toString())(dirs);
 
 /** K: Sprite's name, V: the Sprite */
 const parseSpritesAsArray = (wadBytes: number[], dirs: Directory[]): Sprite[] => {

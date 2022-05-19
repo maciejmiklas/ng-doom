@@ -100,6 +100,7 @@ export type Playpal = Lump & {
 };
 
 export type Palette = {
+	idx: number
 	colors: RGB[]
 };
 
@@ -160,11 +161,15 @@ export type Vertex = Position & {
  * @see https://doomwiki.org/wiki/Linedef
  */
 export type Linedef = MapLump & {
+	id: number
 	start: Vertex
 	end: Vertex
 	flags: number
 	specialType: number
 	sectorTag: number
+
+	/** offset in sectors array. */
+	sectorId: number
 	frontSide: Sidedef
 	backSide: Either<Sidedef>
 };
@@ -177,9 +182,9 @@ export type Linedef = MapLump & {
  */
 export type Sidedef = MapLump & {
 	offset: Position
-	upperTexture: Either<Texture>
-	lowerTexture: Either<Texture>
-	middleTexture: Either<Texture>
+	upperTexture: Either<DoomTexture>
+	lowerTexture: Either<DoomTexture>
+	middleTexture: Either<DoomTexture>
 	sector: number
 };
 
@@ -200,22 +205,6 @@ export type Sector = MapLump & {
 	sectorNumber: number
 };
 
-export type Vertexe = MapLump & {
-	xxx: number
-};
-
-export type Seg = MapLump & {
-	xxx: number
-};
-
-export type Ssector = MapLump & {
-	xxx: number
-};
-
-export type Node = MapLump & {
-	xxx: number
-};
-
 /**
  * Map can be found within WAD as a directory with Name following syntax: ExMy or MAPxx. This directory is being followed by:
  * <pre>
@@ -233,15 +222,11 @@ export type Node = MapLump & {
  </pre>
  * Each Map contains those directories in exact this order.
  */
-export type WadMap = {
+export type DoomMap = {
 	mapDirs: Directory[]
 	things: Thing[]
-	linedefs: Linedef[]
-	segs: Seg[]
-	ssectors: Ssector[]
-	nodes: Node[]
 	sectors: Sector[]
-
+	linedefs: Linedef[]
 	// K: Sector index based on #sectors, V: Linedef belonging to the same sector
 	linedefsBySector: { [sector: number]: Linedef[] }
 };
@@ -374,7 +359,7 @@ export type Pnames = Lump & {
  * @see https://doomwiki.org/wiki/TEXTURE1_and_TEXTURE2
  * @see https://doomwiki.org/wiki/Texture_alignment
  */
-export type Texture = Lump & {
+export type DoomTexture = Lump & {
 	name: string,
 	width: number,
 	height: number,
@@ -422,10 +407,13 @@ export type FrameDir = {
 export type Wad = {
 	header: Header,
 	title: TitlePic,
-	maps: WadMap[],
-	dirs: Directory[]
+	maps: DoomMap[],
+	dirs: Directory[],
+	pnames: Pnames,
+	patches: PatchBitmap[]
 	bytes: number[],
-	playpal: Playpal
+	playpal: Playpal,
+	textures: DoomTexture[]
 };
 
 export type WadEntry = {
@@ -437,9 +425,3 @@ export type WadEntry = {
 export type GameSave = {
 	name: string;
 };
-
-export type WadParseOptions = {
-	linedefScale?: number
-};
-
-export const WadParseOptionsDef: WadParseOptions = {};

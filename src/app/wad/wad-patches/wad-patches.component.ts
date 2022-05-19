@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import {WadStorageService} from '../wad-storage.service';
-import {functions as tp} from '../parser/texture-parser';
 import {PatchBitmap} from '../parser/wad-model';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {MainEvent} from '../../main/service/main-event';
@@ -13,7 +12,6 @@ import {WadPatchesNavbarComponent} from './wad-patches-navbar/wad-patches-navbar
 	styleUrls: ['./wad-patches.component.scss']
 })
 export class WadPatchesComponent implements OnInit, PatchesListControl {
-
 	zoom = 4;
 	maxSize = 300;
 	patches: PatchBitmap[];
@@ -23,13 +21,12 @@ export class WadPatchesComponent implements OnInit, PatchesListControl {
 
 	ngOnInit(): void {
 		const wad = this.wadStorage.getCurrent().get().wad;
-		this.patches = tp.parsePatches(wad.bytes, wad.dirs);
+		this.patches = wad.patches;
 		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadPatchesNavbarComponent, this)));
 	}
 
 	applyFilter(filter: string) {
-		const wad = this.wadStorage.getCurrent().get().wad;
-		this.patches = tp.parsePatches(wad.bytes, wad.dirs).filter(pb => pb.header.dir.name.toUpperCase().includes(filter.toUpperCase()));
+		this.patches = this.wadStorage.getCurrent().get().wad.patches.filter(pb => pb.header.dir.name.toUpperCase().includes(filter.toUpperCase()));
 	}
 
 }

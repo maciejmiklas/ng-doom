@@ -1,6 +1,6 @@
 import {functions as mp, testFunctions as tf} from './map-parser';
 import * as R from 'ramda';
-import {Directory, Linedef, MapLumpType, Sector, Sidedef, Thing, Vertex, WadMap, WadType} from './wad-model';
+import {Directory, DoomMap, Linedef, MapLumpType, Sector, Sidedef, Thing, Vertex, WadType} from './wad-model';
 import {
 	E1M1_BLOCKMAP,
 	E1M1_LINEDEFS,
@@ -10,6 +10,7 @@ import {
 	getAllDirsOp,
 	getFirstMap,
 	getHeader,
+	getTextures,
 	getWadBytes,
 	validateDir,
 	VERTEX_0,
@@ -116,7 +117,7 @@ describe('map_parser#parseThing', () => {
 	const thingsDir = getAllDirs()[getFirstMap().idx + 1];
 	const parser = tf.parseThing(getWadBytes(), thingsDir);
 
-	it('Validate Things Dir', () => {
+	it('Validate Things dir', () => {
 		validateThingsDir(thingsDir);
 	});
 
@@ -168,7 +169,7 @@ const validateSidedef0 = (thing: Sidedef) => {
 	expect(thing.offset.y).toEqual(0);
 	expect(thing.upperTexture.isLeft()).toBeTruthy();
 	expect(thing.lowerTexture.isLeft()).toBeTruthy();
-	expect(thing.middleTexture.get()).toEqual('DOOR3');
+	expect(thing.middleTexture.get().name).toEqual('DOOR3');
 	expect(thing.sector).toEqual(40);
 };
 
@@ -178,7 +179,7 @@ const validateSidedef2 = (thing: Sidedef) => {
 	expect(thing.offset.y).toEqual(0);
 	expect(thing.upperTexture.isLeft()).toBeTruthy();
 	expect(thing.lowerTexture.isLeft()).toBeTruthy();
-	expect(thing.middleTexture.get()).toEqual('LITE3');
+	expect(thing.middleTexture.get().name).toEqual('LITE3');
 	expect(thing.sector).toEqual(40);
 };
 
@@ -186,8 +187,8 @@ const validateSidedef26 = (thing: Sidedef) => {
 	validateSidedefDir(thing.dir);
 	expect(thing.offset.x).toEqual(0);
 	expect(thing.offset.y).toEqual(0);
-	expect(thing.upperTexture.get()).toEqual('STARTAN3');
-	expect(thing.lowerTexture.get()).toEqual('STARTAN3');
+	expect(thing.upperTexture.get().name).toEqual('STARTAN3');
+	expect(thing.lowerTexture.get().name).toEqual('STARTAN3');
 	expect(thing.middleTexture.isLeft()).toBeTruthy();
 	expect(thing.sector).toEqual(39);
 };
@@ -206,8 +207,8 @@ const validateSidedef189 = (thing: Sidedef) => {
 	validateSidedefDir(thing.dir);
 	expect(thing.offset.x).toEqual(0);
 	expect(thing.offset.y).toEqual(0);
-	expect(thing.upperTexture.get()).toEqual('TEKWALL4');
-	expect(thing.lowerTexture.get()).toEqual('TEKWALL4');
+	expect(thing.upperTexture.get().name).toEqual('TEKWALL4');
+	expect(thing.lowerTexture.get().name).toEqual('TEKWALL4');
 	expect(thing.middleTexture.isLeft()).toBeTruthy();
 	expect(thing.sector).toEqual(24);
 };
@@ -218,7 +219,7 @@ const validateSidedef211 = (thing: Sidedef) => {
 	expect(thing.offset.y).toEqual(56);
 	expect(thing.upperTexture.isLeft()).toBeTruthy();
 	expect(thing.lowerTexture.isLeft()).toBeTruthy();
-	expect(thing.middleTexture.get()).toEqual('STARTAN3');
+	expect(thing.middleTexture.get().name).toEqual('STARTAN3');
 	expect(thing.sector).toEqual(3);
 };
 
@@ -228,7 +229,7 @@ const validateSidedef442 = (thing: Sidedef) => {
 	expect(thing.offset.y).toEqual(0);
 	expect(thing.upperTexture.isLeft()).toBeTruthy();
 	expect(thing.lowerTexture.isLeft()).toBeTruthy();
-	expect(thing.middleTexture.get()).toEqual('EXITDOOR');
+	expect(thing.middleTexture.get().name).toEqual('EXITDOOR');
 	expect(thing.sector).toEqual(84);
 };
 
@@ -238,7 +239,7 @@ const validateSidedefDir = (dir: Directory) => {
 
 describe('map_parser#parseSidedef', () => {
 	const thingsDir = getAllDirs()[getFirstMap().idx + +MapLumpType.SIDEDEFS];
-	const parser = tf.parseSidedef(getWadBytes(), thingsDir);
+	const parser = tf.parseSidedef(getWadBytes(), thingsDir, tf.createTextureLoader(getTextures()));
 
 	it('Sidedef Nr. 0', () => {
 		validateSidedef0(parser(0));
@@ -262,7 +263,7 @@ describe('map_parser#parseSidedef', () => {
 });
 
 describe('map_parser#parseSidedefs', () => {
-	const parsed = tf.parseSidedefs(getWadBytes())(getE1M1Dirs());
+	const parsed = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
 
 	it('Sidedef Nr. 0', () => {
 		validateSidedef0(parsed[0]);
@@ -333,7 +334,7 @@ describe('map_parser#parseVertex', () => {
 		validateThirdVertex(parser(2));
 	});
 
-	it('last Vertex', () => {
+	it('Last Vertex', () => {
 		validateLastVertex(parser(466));
 	});
 });
@@ -349,7 +350,7 @@ describe('map_parser#parseVertexes', () => {
 		validateThirdVertex(vertexes[2]);
 	});
 
-	it('last Vertex', () => {
+	it('Last Vertex', () => {
 		validateLastVertex(vertexes[466]);
 	});
 });
@@ -388,7 +389,7 @@ const validateLindedef26 = (lindedef: Linedef) => {
 describe('map_parser#parseLinedef', () => {
 	const linedefDir = getAllDirs()[getFirstMap().idx + MapLumpType.LINEDEFS];
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
-	const sidedefs = tf.parseSidedefs(getWadBytes())(getE1M1Dirs());
+	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
 	const parser = tf.parseLinedef(getWadBytes(), linedefDir, vertexes, sidedefs);
 
 	it('Validate Lindedefs Dir', () => {
@@ -407,12 +408,13 @@ describe('map_parser#parseLinedef', () => {
 	it('27th Linedef', () => {
 		validateLindedef26(parser(26).get());
 	});
+
 });
 
 describe('map_parser#parseLinedefs', () => {
 	const linedefDir = getAllDirs()[getFirstMap().idx + MapLumpType.LINEDEFS];
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
-	const sidedefs = tf.parseSidedefs(getWadBytes())(getE1M1Dirs());
+	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
 	const linedefs = tf.parseLinedefs(getWadBytes())(getE1M1Dirs(), vertexes, sidedefs);
 
 	it('Validate Lindedefs Dir', () => {
@@ -430,6 +432,7 @@ describe('map_parser#parseLinedefs', () => {
 	it('27th Linedef', () => {
 		validateLindedef26(linedefs[26]);
 	});
+
 });
 
 describe('map_parser -> Parse Map Directory', () => {
@@ -476,7 +479,7 @@ describe('map_parser#findNextMapDir', () => {
 		expect(mapDir.isLeft()).toBeTruthy();
 	});
 
-	it('loop', () => {
+	it('Loop', () => {
 		let offs = 0;
 		for (let i = 0; i < 8; i++) {
 			const mapDir = nextDir(offs).get();
@@ -597,7 +600,7 @@ describe('map_parser#findAllMapStartDirs', () => {
 });
 
 describe('map_parser#parseMap', () => {
-	const map: WadMap = tf.parseMap(getWadBytes())(getE1M1Dirs());
+	const map: DoomMap = tf.parseMap(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
 
 	it('Map Dirs', () => {
 		validateE1M1Dirs(map.mapDirs);
@@ -651,7 +654,7 @@ describe('map_parser#parseMapsDirs', () => {
 });
 
 describe('map_parser#parseMaps', () => {
-	const maps: WadMap[] = mp.parseMaps(getWadBytes(), getAllDirs()).get();
+	const maps: DoomMap[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get();
 
 	it('Maps Found', () => {
 		expect(maps.length).toEqual(9);
@@ -665,20 +668,17 @@ describe('map_parser#parseMaps', () => {
 		maps.map(m => m.mapDirs).forEach(validateMapDirs);
 	});
 
-	it('PRINT', () => {
-		maps[0].linedefs[0];
-	});
 });
 
 describe('map_parser#findMinX', () => {
-	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs()).get()[0].linedefs;
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get()[0].linedefs;
 	it('findMinX', () => {
 		expect(tf.findMinX(defs)).toEqual(-768);
 	});
 });
 
 describe('map_parser#findMinY', () => {
-	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs()).get()[0].linedefs;
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get()[0].linedefs;
 
 	it('findMinY', () => {
 		expect(tf.findMinY(defs)).toEqual(-4864);
@@ -687,7 +687,7 @@ describe('map_parser#findMinY', () => {
 
 
 describe('map_parser#normalizeMap', () => {
-	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs()).get()[0].linedefs;
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get()[0].linedefs;
 
 	it('findMax', () => {
 		expect(tf.findMax(defs)).toEqual(3808);
@@ -712,10 +712,14 @@ describe('map_parser#scalePos', () => {
 });
 
 describe('map_parser#normalizeLinedefs', () => {
-	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs()).get()[0].linedefs;
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get()[0].linedefs;
 	const nt = (scale: number) => (xy: boolean) => R.reduce(R.max, Number.MIN_SAFE_INTEGER, mp.normalizeLinedefs(scale)(defs).map(d => xy ? d.start.x : d.start.y));
 
-	it('positive values', () => {
+	it('Matching sector ID', () => {
+		defs.forEach(ld => expect(ld.sectorId).toEqual(ld.frontSide.sector));
+	});
+
+	it('Positive values', () => {
 		mp.normalizeLinedefs(3)(defs).forEach(ld => {
 			expect(ld.start.x).toBeGreaterThanOrEqual(0);
 			expect(ld.start.y).toBeGreaterThanOrEqual(0);
@@ -724,27 +728,23 @@ describe('map_parser#normalizeLinedefs', () => {
 		});
 	});
 
-	it('max values for 2x', () => {
+	it('Max values for 2x', () => {
 		const nt3 = nt(2);
 		expect(nt3(true)).toEqual(2288);
 		expect(nt3(false)).toEqual(1408);
 	});
 
-	it('max values for 3x', () => {
+	it('Max values for 3x', () => {
 		const nt3 = nt(3);
 		expect(nt3(true)).toEqual(1525);
 		expect(nt3(false)).toEqual(939);
 	});
 
 
-	it('max values for 10x', () => {
+	it('Max values for 10x', () => {
 		const nt3 = nt(10);
 		expect(nt3(true)).toEqual(458);
 		expect(nt3(false)).toEqual(282);
-	});
-
-	it('to json', () => {
-		console.log(JSON.stringify(mp.normalizeLinedefs(12)(defs).map(d => ({s: d.start, e: d.end}))));
 	});
 });
 
@@ -782,16 +782,80 @@ describe('map_parser#parseSectors', () => {
 	it('E1M1 - sector number', () => {
 		sectors.forEach((s: Sector, idx: number) => expect(s.sectorNumber).toEqual(idx));
 	});
+
+});
+
+
+describe('map_parser#groupBySectorArray', () => {
+	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs());
+	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
+	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
+	const linedefs = tf.parseLinedefs(getWadBytes())(getE1M1Dirs(), vertexes, sidedefs);
+	const gr: Linedef[][] = tf.groupBySectorArray(linedefs);
+
+	it('No duplicates', () => {
+		let found = new Set<number>();
+		let info = {};
+		gr.forEach((ld, idx) => {
+			const sid = ld[0].sectorId;
+			expect(found.has(sid)).toBe(false, 'Duplicated sector:' + sid + ' on:' + idx + ' and:' + info[sid]);
+			found.add(sid);
+			info[sid] = idx;
+		});
+	});
+
+	it('Sectors size', () => {
+		expect(gr.length).toEqual(78);
+	});
+
+	it('No empty sectors', () => {
+		gr.forEach(ld => {
+			expect(ld.length).toBeGreaterThan(0);
+		});
+	});
+
+	it('Sectors in one group has the same number', () => {
+		gr.forEach(ld => {
+			const st = ld[0].sectorId;
+			ld.forEach(ld => {
+				expect(ld.sectorId).toEqual(st);
+			});
+		});
+	});
+
+	it('Each #sectorId within #sectors[]', () => {
+		gr.forEach(ld => {
+			ld.forEach(ld => {
+				expect(ld.sectorId).toBeLessThan(sectors.length);
+			});
+		});
+	});
+
+	it('Walls amount', () => {
+		let cnt = 0;
+		gr.forEach(ld => {
+			cnt += ld.length;
+		});
+		expect(cnt).toBe(475);
+	});
+
 });
 
 describe('map_parser#groupBySector', () => {
 	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs());
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
-	const sidedefs = tf.parseSidedefs(getWadBytes())(getE1M1Dirs());
+	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
 	const linedefs = tf.parseLinedefs(getWadBytes())(getE1M1Dirs(), vertexes, sidedefs);
+	const gr: { [sector: number]: Linedef[] } = tf.groupBySector(linedefs);
+	it('Sectors size on E1M1', () => {
+		let found = 0;
+		for (const ldId in gr) {
+			found++;
+		}
+		expect(found).toEqual(78);
+	});
 
 	it('Sectors in one group has the same number', () => {
-		const gr: { [p: number]: Linedef[] } = tf.groupBySector(linedefs);
 		let found = 0;
 		let notFound = 0;
 		sectors.forEach((s: Sector) => {
@@ -808,6 +872,16 @@ describe('map_parser#groupBySector', () => {
 		expect(notFound).toEqual(7);
 	});
 
+	it('IDs', () => {
+		let foundLinedefs = new Set<number>();
+		for (const ldId in gr) {
+			const linedefs: Linedef[] = gr[ldId];
+			linedefs.forEach(ld => {
+				foundLinedefs.add(ld.id);
+			});
+		}
+		expect(foundLinedefs.size).toEqual(linedefs.length);
+	});
 });
 
 

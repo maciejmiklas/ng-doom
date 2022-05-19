@@ -94,21 +94,21 @@ describe('image_converter#postPixelAt', () => {
 describe('image_converter#toBitmapSprite', () => {
 	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs());
 
-	it('CHGG', () => {
+	it('AMMO', () => {
 		const bs: BitmapSprite = tf.toBitmapSprite(sprites[0].animations[0]).get();
-		expect(bs.name).toEqual('CHGG');
+		expect(bs.name).toEqual('AMMO');
 		expect(bs.angle).toEqual('0');
 		bs.frames.forEach(f => {
-			expect(f.header.dir.name).toContain('CHGG');
+			expect(f.header.dir.name).toContain('AMMO');
 		});
 	});
 
-	it('TFOG', () => {
+	it('BKEY', () => {
 		const bs: BitmapSprite = tf.toBitmapSprite(sprites[10].animations[0]).get();
-		expect(bs.name).toEqual('TFOG');
+		expect(bs.name).toEqual('BKEY');
 		expect(bs.angle).toEqual('0');
 		bs.frames.forEach(f => {
-			expect(f.header.dir.name).toContain('TFOG');
+			expect(f.header.dir.name).toContain('BKEY');
 		});
 	});
 });
@@ -116,24 +116,24 @@ describe('image_converter#toBitmapSprite', () => {
 describe('image_converter#maxSpriteSize', () => {
 	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs());
 
-	it('CHGG', () => {
+	it('AMMO', () => {
 		const bs: BitmapSprite = tf.toBitmapSprite(sprites[0].animations[0]).get();
-		expect(bs.name).toEqual('CHGG');
-		expect(tf.maxSpriteSize(bs)).toEqual(114);
+		expect(bs.name).toEqual('AMMO');
+		expect(tf.maxSpriteSize(bs)).toEqual(28);
 
 		bs.frames.forEach(f => {
-			expect(f.header.width).toBeLessThanOrEqual(114);
-			expect(f.header.height).toBeLessThanOrEqual(114);
+			expect(f.header.width).toBeLessThanOrEqual(28);
+			expect(f.header.height).toBeLessThanOrEqual(28);
 		});
 	});
 
-	it('TFOG', () => {
+	it('BKEY', () => {
 		const bs: BitmapSprite = tf.toBitmapSprite(sprites[10].animations[0]).get();
-		expect(bs.name).toEqual('TFOG');
-		expect(tf.maxSpriteSize(bs)).toEqual(56);
+		expect(bs.name).toEqual('BKEY');
+		expect(tf.maxSpriteSize(bs)).toEqual(16);
 		bs.frames.forEach(f => {
-			expect(f.header.width).toBeLessThanOrEqual(56);
-			expect(f.header.height).toBeLessThanOrEqual(56);
+			expect(f.header.width).toBeLessThanOrEqual(16);
+			expect(f.header.height).toBeLessThanOrEqual(16);
 		});
 	});
 });

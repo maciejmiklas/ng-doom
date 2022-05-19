@@ -44,7 +44,7 @@ describe('sprite_parser#groupDirsBySpriteName', () => {
 	const sd: Directory[] = tf.findSpriteDirs(getAllDirs());
 	const sprites: Directory[][] = tf.groupDirsBySpriteName(sd);
 	it('Sprites Size', () => {
-		expect(Object.entries(sprites).length).toEqual(62);
+		expect(Object.entries(sprites).length).toEqual(61);
 	});
 
 	it('Names for Each Sprite', () => {
@@ -228,17 +228,17 @@ describe('sprite_parser#parseSpritesAsArray', () => {
 	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs());
 
 	it('Sprites Size', () => {
-		expect(sprites.length).toEqual(62);
+		expect(sprites.length).toEqual(61);
 	});
 
 	it('sprites[0]', () => {
-		expect(sprites[0].name).toEqual('CHGG');
-		expect(sprites[0].animations[0].length).toEqual(2);
+		expect(sprites[0].name).toEqual('AMMO');
+		expect(sprites[0].animations[0].length).toEqual(1);
 	});
 
 	it('sprites[10]', () => {
-		expect(sprites[10].name).toEqual('TFOG');
-		expect(sprites[10].animations[0].length).toEqual(10);
+		expect(sprites[10].name).toEqual('BKEY');
+		expect(sprites[10].animations[0].length).toEqual(2);
 	});
 });
 

@@ -1,7 +1,20 @@
 import {testFunctions as mpt} from '../map-parser';
 import {functions as dp} from '../directory-parser';
+import {functions as tp} from '../texture-parser';
 
-import {Column, Directory, Header, MapLumpType, PatchHeader, Post, Vertex} from '../wad-model';
+import {
+	Column,
+	Directory,
+	DoomTexture,
+	Header,
+	MapLumpType,
+	PatchBitmap,
+	PatchHeader,
+	Pnames,
+	Post,
+	TextureDir,
+	Vertex
+} from '../wad-model';
 
 import jsonData from './doom.json';
 import U from '../../../common/util';
@@ -15,6 +28,31 @@ export const getWadBytes = (): number[] => {
 	}
 	return _wadBytes;
 };
+
+let _pnames = null;
+export const getPnames = (): Pnames => {
+	if (_pnames == null) {
+		_pnames = tp.parsePnames(getWadBytes(), getAllDirs());
+	}
+	return _pnames;
+};
+
+let _patches = null;
+export const getPatches = (): PatchBitmap[] => {
+	if (_patches == null) {
+		_patches = tp.parsePatches(getWadBytes(), getAllDirs());
+	}
+	return _patches;
+};
+
+let _textures = null;
+export const getTextures = (): DoomTexture[] => {
+	if (!_textures) {
+		_textures = tp.parseTextures(getWadBytes(), getAllDirs(), getPnames(), getPatches())(TextureDir.TEXTURE1).get();
+	}
+	return _textures;
+};
+
 
 let _header = null;
 export const getHeader = () => {

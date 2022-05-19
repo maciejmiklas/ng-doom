@@ -11,6 +11,7 @@ const TRANSPARENT_RGB: RGB = {
 	g: 0,
 	a: 0
 };
+
 /**
  * Difference between DOOM Patch bitmap and Image on Canvas
  <table style="width:100%">

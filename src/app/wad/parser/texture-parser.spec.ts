@@ -1,10 +1,10 @@
 import {functions as tp, testFunctions as tf} from './texture-parser';
 
-import {getAllDirs, getWadBytes} from './testdata/data';
-import {Directory, PatchBitmap, Pnames, Texture, TextureDir} from './wad-model';
+import {getAllDirs, getPatches, getPnames, getWadBytes} from './testdata/data';
+import {Directory, DoomTexture, PatchBitmap, Pnames, TextureDir} from './wad-model';
 
 describe('texture-parser#findPatchDir', () => {
-	const pn: Pnames = tf.parsePnames(getWadBytes(), getAllDirs());
+	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs());
 	const finder = tf.findPatchDir(getAllDirs());
 
 	it('Find dirs for pnames', () => {
@@ -20,7 +20,7 @@ describe('texture-parser#findPatchDir', () => {
 });
 
 describe('texture-parser#parsePnames', () => {
-	const pn: Pnames = tf.parsePnames(getWadBytes(), getAllDirs());
+	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs());
 
 	it('Directory', () => {
 		expect(pn.dir.name).toEqual('PNAMES');
@@ -46,14 +46,14 @@ describe('texture-parser#parsePnames', () => {
 });
 
 describe('texture-parser#parseTextures', () => {
-	const pn: Pnames = tf.parsePnames(getWadBytes(), getAllDirs());
-	const tx: Texture[] = tp.parseTextures(getWadBytes(), getAllDirs())(TextureDir.TEXTURE1);
+	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs());
+	const tx: DoomTexture[] = tp.parseTextures(getWadBytes(), getAllDirs(), getPnames(), getPatches())(TextureDir.TEXTURE1).get();
 
 	it('Textures amount', () => {
 		expect(tx.length).toEqual(125);
 	});
 
-	it('Texture width', () => {
+	it('DoomTexture width', () => {
 		tx.forEach(te => {
 			expect(te.width).toBeGreaterThanOrEqual(0);
 			expect(te.width).toBeLessThanOrEqual(256);
@@ -70,7 +70,7 @@ describe('texture-parser#parseTextures', () => {
 		});
 	});
 
-	it('Texture height', () => {
+	it('DoomTexture height', () => {
 		tx.forEach(te => {
 			expect(te.height).toBeGreaterThanOrEqual(0);
 			expect(te.height).toBeLessThanOrEqual(256);
@@ -117,7 +117,7 @@ describe('texture-parser#parseTextures', () => {
 			});
 		});
 	});
-	it('Texture at 0', () => {
+	it('DoomTexture at 0', () => {
 		let txx = tx[0];
 		expect(txx.name).toEqual('AASTINKY');
 		expect(txx.width).toEqual(24);
@@ -134,7 +134,7 @@ describe('texture-parser#parseTextures', () => {
 		expect(txx.patches[1].originY).toEqual(-6);
 	});
 
-	it('Texture at 116', () => {
+	it('DoomTexture at 116', () => {
 		let txx = tx[116];
 		expect(txx.name).toEqual('SW2STON1');
 		expect(txx.width).toEqual(64);

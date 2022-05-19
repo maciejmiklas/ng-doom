@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import {Directories, Directory, Patch, PatchBitmap, Pnames, Texture, TextureDir} from './wad-model';
+import {Directories, Directory, DoomTexture, Patch, PatchBitmap, Pnames, TextureDir} from './wad-model';
 import U from '../../common/util';
 import {functions as dp} from './directory-parser';
 import {functions as bp} from './bitmap-parser';
@@ -15,23 +15,23 @@ const parsePnames = (wadBytes: number[], dirs: Directory[]): Pnames => {
 	return {dir, nummappatches, names};
 };
 
-const parseTextures = (wadBytes: number[], dirs: Directory[]) => (td: TextureDir): Texture[] => {
-	const pnames = parsePnames(wadBytes, dirs);
+// TODO add error handling, now we just return Either.ofRight
+const parseTextures = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: PatchBitmap[]) => (td: TextureDir): Either<DoomTexture[]> => {
 	const dir: Directory = dp.findDirectoryByName(dirs)(td).get();
 	const intParser = U.parseInt(wadBytes);
-	const parseTextureParser = parseTexture(wadBytes, dirs, dir, pnames);
+	const textureParser = parseTexture(wadBytes, dirs, dir, pnames, patches);
 	const offset = dir.filepos;
-	return R
+	return Either.ofRight(R
 		.range(0, intParser(offset))// ()=> Textures amount (numtextures)
 		.map(idx => offset + intParser(offset + 0x04 + idx * 4))// ()=> offsets to Textures
-		.map(offset => parseTextureParser(offset));// ()=> Textur[]
+		.map(offset => textureParser(offset)));// ()=> Textur[]
 };
 
-const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pnames: Pnames) => (offset: number): Texture => {
+const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pnames: Pnames, allPatches: PatchBitmap[]) => (offset: number): DoomTexture => {
 	const strParser = U.parseStr(wadBytes);
 	const shortParser = U.parseShort(wadBytes);
 	const patchCountWad = shortParser(offset + 0x14);
-	const patchMapParser = parsePatch(wadBytes, dirs, pnames);
+	const patchMapParser = parsePatch(wadBytes, dirs, pnames, allPatches);
 	const patches = R
 		.range(0, patchCountWad)// ()=> patches amount
 		.map(pn => offset + 22 + pn * 10)//(patch number) => patch offset
@@ -48,7 +48,7 @@ const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pna
 	};
 };
 
-const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames) => (offset: number): Either<Patch> => {
+const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: PatchBitmap[]) => (offset: number): Either<Patch> => {
 	const shortParser = U.parseShort(wadBytes);
 	const patchIdx = shortParser(offset + 0x04);
 	const patchName = Either.ofCondition(
@@ -56,10 +56,7 @@ const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames) => (o
 		() => 'patchIdx (' + patchIdx + ') out of bound (' + pnames.names.length + ') at:' + offset,
 		() => pnames.names[patchIdx]);
 
-	const bitmap = patchName
-		.map(pn => findPatchDir(dirs)(pn)) // (patchName)=>Either<Directory>
-		.map(dir => bp.parseBitmap(wadBytes)(dir)); // (Either<Directory>)=> Either<PatchBitmap>
-
+	const bitmap = patchName.map(pn => patches.find(p => p.header.dir.name === pn));
 	return Either.ofTruth([patchName, bitmap], () => ({
 		originX: shortParser(offset),
 		originY: shortParser(offset + 0x02),
@@ -82,5 +79,5 @@ const parsePatches = (wadBytes: number[], dirs: Directory[]): PatchBitmap[] => {
 };
 
 // ############################ EXPORTS ############################
-export const testFunctions = {findPatchDir,parsePnames};
-export const functions = {parseTextures, parsePatches};
+export const testFunctions = {findPatchDir};
+export const functions = {parseTextures, parsePatches, parsePnames};

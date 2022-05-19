@@ -1,8 +1,9 @@
-import {Directories, Directory, TitlePic, Wad, WadParseOptions, WadParseOptionsDef} from './wad-model';
+import {Directories, Directory, TextureDir, TitlePic, Wad} from './wad-model';
 import {Either} from '@maciejmiklas/functional-ts';
 import {functions as dp} from './directory-parser';
 import {functions as bp} from './bitmap-parser';
 import {functions as mp} from './map-parser';
+import {functions as tp} from './texture-parser';
 
 const parseTitlePic = (bytes: number[], dirs: Directory[]): Either<TitlePic> => {
 	const find = dp.findDirectoryByName(dirs);
@@ -19,13 +20,17 @@ const parseTitlePic = (bytes: number[], dirs: Directory[]): Either<TitlePic> => 
 	}));
 };
 
-const parseWad = (bytes: number[], options: WadParseOptions = WadParseOptionsDef): Either<Wad> =>
+// TODO all wrapped methods: Either.ofRight should return Either
+const parseWad = (bytes: number[]): Either<Wad> =>
 	dp.parseHeader(bytes)
 		.map(header => ({header, bytes}))// header + bytes
 		.append(w => dp.parseAllDirectories(w.header, bytes), (w, v) => w.dirs = v) // dirs
+		.append(w => Either.ofRight(tp.parsePnames(bytes, w.dirs)), (w, v) => w.pnames = v) // pnames
+		.append(w => Either.ofRight(bp.parsePlaypal(bytes, w.dirs)), (w, v) => w.playpal = v) // playpal
 		.append(w => parseTitlePic(bytes, w.dirs), (w, v) => w.title = v)// title
-		.append(w => mp.parseMaps(bytes, w.dirs, options), (w, v) => w.maps = v) //maps
-		.append(w => Either.ofRight(bp.parsePlaypal(bytes, w.dirs)), (w, v) => w.playpal = v); //playpal
+		.append(w => Either.ofRight(tp.parsePatches(bytes, w.dirs)), (w, v) => w.patches = v)// patches
+		.append(w => tp.parseTextures(bytes, w.dirs, w.pnames, w.patches)(TextureDir.TEXTURE1), (w, v) => w.textures = v) // textures
+		.append(w => mp.parseMaps(bytes, w.dirs, w.textures), (w, v) => w.maps = v); // maps
 
 // ############################ EXPORTS ############################
 export const testFunctions = {

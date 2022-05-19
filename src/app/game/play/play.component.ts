@@ -2,7 +2,7 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import * as THREE from 'three';
 import {Controls} from './controls';
 import {WadStorageService} from '../../wad/wad-storage.service';
-import {Linedef, PatchBitmap, Wad} from '../../wad/parser/wad-model';
+import {DoomMap, Linedef, PatchBitmap, Wad} from '../../wad/parser/wad-model';
 import {functions as tp} from '../../wad/parser/texture-parser';
 import {functions as ic} from '../../wad/parser/image-converter';
 
@@ -12,6 +12,8 @@ import {functions as ic} from '../../wad/parser/image-converter';
 	styleUrls: ['./play.component.css']
 })
 export class PlayComponent implements OnInit {
+
+	mapId = 0;
 
 	@ViewChild('canvas', {static: true})
 	private canvasRef: ElementRef<HTMLCanvasElement>;
@@ -51,31 +53,27 @@ export class PlayComponent implements OnInit {
 	}
 
 	private createWorld(scene: THREE.Scene) {
-		const texture1 = createTexture('../../../assets/textures/brick.jpg');
+		const patch: PatchBitmap = this.wad.patches.find(p => p.header.dir.name === 'SW19_3');
+		const map: DoomMap = this.wad.maps[this.mapId];
+		const sectorRenderer = renderSector(scene, this.wad, patch);
 
-		const wallFactory = wall(this.wad);
-		const linedefs: Linedef[] = this.wad.maps[0].linedefs;
-		linedefs.forEach(ld => {
-			scene.add(wallFactory(ld));
-		});
+		for (const sectorId in map.linedefsBySector) {
+			sectorRenderer(parseInt(sectorId), map.linedefsBySector[sectorId]);
+		}
 		//scene.add(createGround());
 	};
 }
 
-const meshBasicTexture = (texture: THREE.Texture, width: number, height: number) => {
-	const material = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
-	//material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
-	//material.map.repeat.set(width, height);
-	return (geometry: THREE.BufferGeometry): THREE.Mesh => new THREE.Mesh(geometry, material);
+const renderSector = (scene: THREE.Scene, wad: Wad, patch: PatchBitmap) => (sectorId: number, linedefs: Linedef[]) => {
+	const wallFactory = wall(wad);
+	linedefs.forEach(ld => scene.add(wallFactory(ld, patch)));
 };
 
-const wall = (wad: Wad) => (ld: Linedef): THREE.Mesh => {
+const wall = (wad: Wad) => (ld: Linedef, patch: PatchBitmap): THREE.Mesh => {
 	const vs = ld.start;
 	const ve = ld.end;
 	const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
 	const wallHeight = 50;
-
-	const patch: PatchBitmap = tp.parsePatches(wad.bytes, wad.dirs).find(p => p.header.dir.name === 'SW19_3');
 	const patchData: Uint8ClampedArray = ic.patchToRGBA(patch)(wad.playpal.palettes[0]);
 	const texture = new THREE.DataTexture(patchData, patch.header.width, patch.header.height);
 	texture.needsUpdate = true;
@@ -92,6 +90,13 @@ const wall = (wad: Wad) => (ld: Linedef): THREE.Mesh => {
 	mesh.position.set((vs.x + ve.x) / 2, wallHeight / 2, (vs.y + ve.y) / -2);
 	mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x));
 	return mesh;
+};
+
+const meshBasicTexture = (texture: THREE.Texture, width: number, height: number) => {
+	const material = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
+	//material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+	//material.map.repeat.set(width, height);
+	return (geometry: THREE.BufferGeometry): THREE.Mesh => new THREE.Mesh(geometry, material);
 };
 
 const createGround = () => {
@@ -130,8 +135,8 @@ const createScene = (): THREE.Scene => {
 
 const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera => {
 	const cam = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 1, 20000);
-	//cam.position.set(1032, 500, 2170);
-	cam.position.set(1400, 10, 2800);
+	cam.position.set(1032, 500, 2170);
+	//cam.position.set(1400, 10, 2800);
 	return cam;
 };
 

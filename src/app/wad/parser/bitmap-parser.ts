@@ -40,7 +40,7 @@ const parsePalette = (paletteBytes: number[], dir: Directory) => (paletteNumber:
 	const parseRBGBytes = parseRBG(paletteBytes);
 	const bytesOffset = dir.filepos + paletteNumber * PLAYPAL_BYTES;
 	const colors = R.range(0, PLAYPAL_COLORS).map(idx => parseRBGBytes(bytesOffset + idx * 3));
-	return {colors};
+	return {colors, idx: paletteNumber};
 };
 
 const unfoldColumnofs = (filepos: number, width: number): number[] =>
