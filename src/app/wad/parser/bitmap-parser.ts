@@ -3,6 +3,7 @@ import * as R from 'ramda';
 import U from '../../common/util';
 import {Either} from '@maciejmiklas/functional-ts';
 import {functions as dp} from './directory-parser';
+import {functions as ic} from './image-converter';
 import {Log} from '../../common/log';
 
 /**
@@ -82,18 +83,19 @@ const parseColumn = (wadBytes: number[], dir: Directory) => (filepos: number): E
 		postParser(filepos), () => dir.name + ' has Empty Column at: ' + filepos).map(posts => ({posts}));
 };
 
-const parseBitmap = (wadBytes: number[]) => (dir: Directory): Either<PatchBitmap> => {
+const parseBitmap = (wadBytes: number[], palette: Palette) => (dir: Directory): Either<PatchBitmap> => {
 	Log.debug(CMP, 'Parse Bitmap:', dir);
 	const header = parsePatchHeader(wadBytes)(dir);
 	const columnParser = parseColumn(wadBytes, dir);
 	const columns: Either<Column>[] = header.columnofs.map(colOfs => columnParser(colOfs));
-
+	const rgba = ic.patchDataToRGBA(columns, header.width, header.height, palette);
 	return Either.ofCondition(
 		() => columns.length === header.width,
 		() => 'Some columns (' + columns.length + '/' + header.width + ') are missing in Picture : ' + dir.name + ' at ' + dir.filepos,
 		() => ({
 			header,
-			columns
+			columns,
+			rgba
 		}));
 };
 

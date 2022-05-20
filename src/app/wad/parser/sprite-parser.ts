@@ -1,8 +1,9 @@
-import {Directories, Directory, FrameDir, Sprite} from './wad-model';
+import {Directories, Directory, FrameDir, Palette, Sprite} from './wad-model';
 import {Either} from '@maciejmiklas/functional-ts';
 import {functions as dp} from './directory-parser';
 import * as R from 'ramda';
 import {functions as bp} from './bitmap-parser';
+import {getPalette} from './testdata/data';
 
 const findStartDir = (dirs: Directory[]): Either<Directory> => dp.findDirectoryByName(dirs)(Directories.S_START);
 
@@ -18,7 +19,7 @@ const findSpriteDirs = (dirs: Directory[]): Directory[] => {
 const groupDirsBySpriteName = (sprites: Directory[]): Directory[][] => {
 	const sorted = R.sortBy(parseDirSpriteName)(sprites); // sort by #sectorId in order to be able to group by it
 	return R.groupWith((d1: Directory, d2: Directory) => parseDirSpriteName(d1) === parseDirSpriteName(d2))(sorted);
-}
+};
 
 const parseDirSpriteName = (dir: Directory): string => dir.name.substr(0, 4);
 const parseDirFrameName = (dir: Directory): string => dir.name.substr(4, 1);
@@ -28,31 +29,31 @@ const parseDirMirrorAngle = (dir: Directory): number => Number(dir.name.substr(7
 const hasMirrorFrame = (dir: Directory): number => Number(dir.name.length === 8);
 
 /** #dirs contains all dirs for single sprite */
-const toFrameDirs = (wadBytes: number[]) => (dirs: Directory[]): FrameDir[] => {
-	const fd: FrameDir[] = dirs.map(toFrameDir(wadBytes));
-	const fdMirror: FrameDir[] = dirs.filter(hasMirrorFrame).map(toMirrorFrameDir(wadBytes));
+const toFrameDirs = (wadBytes: number[], palette: Palette) => (dirs: Directory[]): FrameDir[] => {
+	const fd: FrameDir[] = dirs.map(toFrameDir(wadBytes, palette));
+	const fdMirror: FrameDir[] = dirs.filter(hasMirrorFrame).map(toMirrorFrameDir(wadBytes, palette));
 	return fd.concat(fdMirror);
 };
 
-const toFrameDir = (wadBytes: number[]) => (dir: Directory): FrameDir => {
+const toFrameDir = (wadBytes: number[], palette: Palette) => (dir: Directory): FrameDir => {
 	return {
 		frameName: parseDirFrameName(dir),
 		spriteName: parseDirSpriteName(dir),
 		dir,
 		angle: parseDirAngle(dir),
 		mirror: false,
-		bitmap: bp.parseBitmap(wadBytes)(dir)
+		bitmap: bp.parseBitmap(wadBytes, palette)(dir)
 	};
 };
 
-const toMirrorFrameDir = (wadBytes: number[]) => (dir: Directory): FrameDir => {
+const toMirrorFrameDir = (wadBytes: number[], palette: Palette) => (dir: Directory): FrameDir => {
 	return {
 		frameName: parseDirMirrorFrameName(dir),
 		spriteName: parseDirSpriteName(dir),
 		dir,
 		angle: parseDirMirrorAngle(dir),
 		mirror: true,
-		bitmap: bp.parseBitmap(wadBytes)(dir)
+		bitmap: bp.parseBitmap(wadBytes, palette)(dir)
 	};
 };
 
@@ -62,7 +63,7 @@ const toFramesByAngle = (dirs: FrameDir[]): Record<string, FrameDir[]> =>
 
 /** K: Sprite's name, V: the Sprite */
 const parseSpritesAsArray = (wadBytes: number[], dirs: Directory[]): Sprite[] => {
-	return groupDirsBySpriteName(findSpriteDirs(dirs)).map(toFrameDirs(wadBytes)).map(frames => {
+	return groupDirsBySpriteName(findSpriteDirs(dirs)).map(toFrameDirs(wadBytes, getPalette())).map(frames => {
 		return {name: frames[0].spriteName, animations: toFramesByAngle(frames)};
 	});
 };

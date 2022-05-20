@@ -70,7 +70,10 @@ export class WadStorageService {
 
 	private load(wadBuf: ArrayBuffer): Either<Wad> {
 		const bytes = Either.ofRight(Array.from(new Uint8Array(wadBuf))).get();
-		return wp.parseWad(bytes);
+		const startTime = performance.now();
+		const wad = wp.parseWad(bytes);
+		console.log('>TIME parseWad>', performance.now() - startTime);
+		return wad;
 	}
 }
 

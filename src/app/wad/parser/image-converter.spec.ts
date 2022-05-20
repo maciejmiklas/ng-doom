@@ -1,6 +1,6 @@
 import {functions as bp} from './bitmap-parser';
 import {testFunctions as tf} from './image-converter';
-import {getAllDirs, getWadBytes, simpleDoomImage} from './testdata/data';
+import {getAllDirs, getPalette, getWadBytes, simpleDoomImage} from './testdata/data';
 import {functions as dp} from './directory-parser';
 import {BitmapSprite, Directories, Sprite} from './wad-model';
 import {Either} from '@maciejmiklas/functional-ts';
@@ -11,8 +11,8 @@ describe('image_converter#toImageData', () => {
 	const playpal = bp.parsePlaypal(getWadBytes(), getAllDirs());
 	const findDir = dp.findDirectoryByName(getAllDirs());
 	const titleDir = findDir(Directories.TITLEPIC).get();
-	const titleBitmap = bp.parseBitmap(getWadBytes())(titleDir).get();
-	const imageData = tf.toImageData(titleBitmap)(playpal.palettes[0]);
+	const titleBitmap = bp.parseBitmap(getWadBytes(), getPalette())(titleDir).get();
+	const imageData = tf.toImageData(titleBitmap);
 
 	it('TITLEPIC - image data size', () => {
 		expect(imageData.data.length).toEqual(320 * 200 * 4);

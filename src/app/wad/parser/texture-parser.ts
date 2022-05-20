@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import {Directories, Directory, DoomTexture, Patch, PatchBitmap, Pnames, TextureDir} from './wad-model';
+import {Directories, Directory, DoomTexture, Palette, Patch, PatchBitmap, Pnames, TextureDir} from './wad-model';
 import U from '../../common/util';
 import {functions as dp} from './directory-parser';
 import {functions as bp} from './bitmap-parser';
@@ -69,9 +69,9 @@ const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patch
 const findPatchDir = (dirs: Directory[]) => (patchName: string): Either<Directory> =>
 	dp.findDirectoryByName(dirs)(patchName);
 
-const parsePatches = (wadBytes: number[], dirs: Directory[]): PatchBitmap[] => {
+const parsePatches = (wadBytes: number[], dirs: Directory[], palette: Palette): PatchBitmap[] => {
 	const patchDirFinder = findPatchDir(dirs);
-	const bitmapParser = bp.parseBitmap(wadBytes);
+	const bitmapParser = bp.parseBitmap(wadBytes, palette);
 	return parsePnames(wadBytes, dirs).names
 		.map(pn => patchDirFinder(pn)) // (dirName)=> Either<Directory>
 		.filter(d => d.isRight()).map(d => d.get()) // (Either<Directory>)=>Directory

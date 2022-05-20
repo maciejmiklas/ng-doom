@@ -3,9 +3,10 @@ import {getAllDirs, getWadBytes, validateTitleColumn, validateTitlePatchHeader} 
 import {functions as dp} from './directory-parser';
 import {Directories, TitlePic, WadType} from './wad-model';
 import {Either} from '@maciejmiklas/functional-ts';
+import {getPalette} from './testdata/data';
 
 describe('wad_parser#parseTitlePic', () => {
-	const tp: Either<TitlePic> = tf.parseTitlePic(getWadBytes(), getAllDirs());
+	const tp: Either<TitlePic> = tf.parseTitlePic(getWadBytes(), getAllDirs(),getPalette());
 	it('Found Pictures', () => {
 		expect(tp.isRight()).toBeTruthy();
 		expect(tp.get().credit).toBeTruthy();

@@ -2,6 +2,7 @@ import {functions as dp} from './directory-parser';
 import {functions as bp, testFunctions as tf} from './bitmap-parser';
 import {
 	getAllDirs,
+	getPalette,
 	getWadBytes,
 	simpleDoomImage,
 	validateTitleColumn,
@@ -21,7 +22,7 @@ describe('bitmap_parser#unfoldColumnofs', () => {
 		expect(tf.unfoldColumnofs(100, 320).length).toEqual(320);
 	});
 
-	it('Validate 0ffsets', () => {
+	it('Validate offsets', () => {
 		const unfolded = tf.unfoldColumnofs(1000, 3);
 		expect(unfolded[0]).toEqual(1000);
 		expect(unfolded[1]).toEqual(1000 + 4);
@@ -122,7 +123,7 @@ describe('bitmap_parser#parsePost', () => {
 describe('bitmap_parser#parseBitmap', () => {
 	const findDir = dp.findDirectoryByName(getAllDirs());
 	const dir = findDir(Directories.TITLEPIC);
-	const bitmap = bp.parseBitmap(getWadBytes())(dir.get()).get();
+	const bitmap = bp.parseBitmap(getWadBytes(), getPalette())(dir.get()).get();
 
 	it('TITLEPIC - header', () => {
 		validateTitlePatchHeader(bitmap.header);

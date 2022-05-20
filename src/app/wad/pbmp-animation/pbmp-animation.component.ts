@@ -12,9 +12,6 @@ export class PbmpAnimationComponent implements OnInit {
 	bitmaps: PatchBitmap[];
 
 	@Input()
-	palette: Palette;
-
-	@Input()
 	scale = 1;
 
 	@Input()
@@ -32,7 +29,7 @@ export class PbmpAnimationComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.images = this.bitmaps.map(b => this.createBitmap(b, this.palette));
+		this.images = this.bitmaps.map(b => this.createBitmap(b));
 
 		this.paintNext();
 
@@ -61,11 +58,11 @@ export class PbmpAnimationComponent implements OnInit {
 		});
 	}
 
-	private createBitmap(patch: PatchBitmap, palette: Palette): BitmapPromise {
+	private createBitmap(patch: PatchBitmap): BitmapPromise {
 		const width = patch.header.width * this.scale;
 		const height = patch.header.height * this.scale;
 		return {
-			bitmap: ic.toImageBitmap(patch)(width, height)(palette),
+			bitmap: ic.toImageBitmap(patch)(width, height),
 			patch,
 			width,
 			height,

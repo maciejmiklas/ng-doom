@@ -3,8 +3,6 @@ import * as THREE from 'three';
 import {Controls} from './controls';
 import {WadStorageService} from '../../wad/wad-storage.service';
 import {DoomMap, Linedef, PatchBitmap, Wad} from '../../wad/parser/wad-model';
-import {functions as tp} from '../../wad/parser/texture-parser';
-import {functions as ic} from '../../wad/parser/image-converter';
 
 @Component({
 	selector: 'app-play',
@@ -36,9 +34,7 @@ export class PlayComponent implements OnInit {
 		this.scene = createScene();
 		this.renderer = createRenderer(this.canvas);
 		this.createWorld(this.scene);
-
 		this.camera.lookAt(this.scene.position);
-
 		this.controls = new Controls(this.camera, this.canvas);
 		this.startRenderingLoop();
 	}
@@ -53,29 +49,29 @@ export class PlayComponent implements OnInit {
 	}
 
 	private createWorld(scene: THREE.Scene) {
+		const startTime = performance.now();
 		const patch: PatchBitmap = this.wad.patches.find(p => p.header.dir.name === 'SW19_3');
 		const map: DoomMap = this.wad.maps[this.mapId];
-		const sectorRenderer = renderSector(scene, this.wad, patch);
+		const sectorRenderer = renderSector(scene, patch);
 
 		for (const sectorId in map.linedefsBySector) {
 			sectorRenderer(parseInt(sectorId), map.linedefsBySector[sectorId]);
 		}
 		//scene.add(createGround());
+		console.log('>TIME createWorld>', performance.now() - startTime);
 	};
 }
 
-const renderSector = (scene: THREE.Scene, wad: Wad, patch: PatchBitmap) => (sectorId: number, linedefs: Linedef[]) => {
-	const wallFactory = wall(wad);
-	linedefs.forEach(ld => scene.add(wallFactory(ld, patch)));
+const renderSector = (scene: THREE.Scene, patch: PatchBitmap) => (sectorId: number, linedefs: Linedef[]) => {
+	linedefs.forEach(ld => scene.add(wall(ld, patch)));
 };
 
-const wall = (wad: Wad) => (ld: Linedef, patch: PatchBitmap): THREE.Mesh => {
+const wall = (ld: Linedef, patch: PatchBitmap): THREE.Mesh => {
 	const vs = ld.start;
 	const ve = ld.end;
 	const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
 	const wallHeight = 50;
-	const patchData: Uint8ClampedArray = ic.patchToRGBA(patch)(wad.playpal.palettes[0]);
-	const texture = new THREE.DataTexture(patchData, patch.header.width, patch.header.height);
+	const texture = new THREE.DataTexture(patch.rgba, patch.header.width, patch.header.height);
 	texture.needsUpdate = true;
 	texture.format = THREE.RGBAFormat;
 	texture.type = THREE.UnsignedByteType;

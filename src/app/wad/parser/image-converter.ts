@@ -32,18 +32,21 @@ const TRANSPARENT_RGB: RGB = {
   </tr>
 </table>
  */
-const patchToRGBA = (bitmap: PatchBitmap) => (palette: Palette): Uint8ClampedArray => {
-	const pixAtCol = postPixelAt(bitmap.columns);
-	const array = new Uint8ClampedArray(bitmap.header.width * bitmap.header.height * IMG_BYTES);
+const patchDataToRGBA = (columns: Either<Column>[], width: number, height: number, palette: Palette): Uint8ClampedArray => {
+	const pixAtCol = postPixelAt(columns);
+	const array = new Uint8ClampedArray(width * height * IMG_BYTES);
 	const pixelToImg = pixelToImgBuf(array, palette);
 	let idx = 0;
-	U.itn(0, bitmap.header.height, (y) => {
-		U.itn(0, bitmap.header.width, (x) => {
+	U.itn(0, height, (y) => {
+		U.itn(0, width, (x) => {
 			idx = pixelToImg(idx, pixAtCol(x, y));
 		});
 	});
 	return array;
 };
+
+const patchToRGBA = (bitmap: PatchBitmap) => (palette: Palette): Uint8ClampedArray =>
+	patchDataToRGBA(bitmap.columns, bitmap.header.width, bitmap.header.height, palette);
 
 const pixelToImgBuf = (img: Uint8ClampedArray, palette: Palette) => (idx: number, pixel: number): number => {
 	const rgb = pixel === -1 ? TRANSPARENT_RGB : palette.colors[pixel];
@@ -65,15 +68,12 @@ const postAt = (columns: Either<Column>[]) => (x: number, y: number): Either<Pos
 	columns[x].map(c => Either.ofNullable(R.find<Post>(p => y >= p.topdelta && y < p.topdelta + p.data.length)(c.posts),
 		() => 'Transparent pixel at (' + x + ',' + y + ')'));
 
-const toImageData = (bitmap: PatchBitmap) => (palette: Palette): ImageData => {
-	const image = patchToRGBA(bitmap)(palette);
-	return new ImageData(image, bitmap.header.width, bitmap.header.height);
+const toImageData = (bitmap: PatchBitmap): ImageData => {
+	return new ImageData(bitmap.rgba, bitmap.header.width, bitmap.header.height);
 };
 
-const paintOnCanvasForZoom = (bitmap: PatchBitmap, canvas: HTMLCanvasElement) => (palette: Palette) => (scale: number, maxSize = 300): HTMLImageElement => {
+const paintOnCanvasForZoom = (bitmap: PatchBitmap, canvas: HTMLCanvasElement) => (scale: number, maxSize = 300): HTMLImageElement => {
 	const ctx = canvas.getContext('2d');
-	const img = toImageData(bitmap);
-
 	const maxOrgSize = Math.max(bitmap.header.width, bitmap.header.height);
 	const curSize = scale * maxOrgSize;
 	if (curSize > maxSize) {
@@ -82,7 +82,7 @@ const paintOnCanvasForZoom = (bitmap: PatchBitmap, canvas: HTMLCanvasElement) =>
 
 	canvas.width = bitmap.header.width * scale;
 	canvas.height = bitmap.header.height * scale;
-	ctx.putImageData(img(palette), 0, 0);
+	ctx.putImageData(toImageData(bitmap), 0, 0);
 
 	const imageObject = new Image();
 	imageObject.onload = () => {
@@ -118,8 +118,8 @@ const toBitmapSprite = (frame: FrameDir[]): Either<BitmapSprite> => {
 	}));
 };
 
-const toImageBitmap = (bitmap: PatchBitmap) => (width: number, height: number) => (palette: Palette): Promise<ImageBitmap> => {
-	return createImageBitmap(toImageData(bitmap)(palette), {resizeWidth: width, resizeHeight: height});
+const toImageBitmap = (bitmap: PatchBitmap) => (width: number, height: number) : Promise<ImageBitmap> => {
+	return createImageBitmap(toImageData(bitmap), {resizeWidth: width, resizeHeight: height});
 };
 
 export const testFunctions = {
@@ -134,5 +134,6 @@ export const functions = {
 	toImageBitmap,
 	paintOnCanvasForZoom,
 	calcScale,
-	toBitmapSprites
+	toBitmapSprites,
+	patchDataToRGBA
 };

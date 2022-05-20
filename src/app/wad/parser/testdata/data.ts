@@ -1,6 +1,7 @@
 import {testFunctions as mpt} from '../map-parser';
 import {functions as dp} from '../directory-parser';
 import {functions as tp} from '../texture-parser';
+import {functions as bp} from '../bitmap-parser';
 
 import {
 	Column,
@@ -8,6 +9,7 @@ import {
 	DoomTexture,
 	Header,
 	MapLumpType,
+	Palette,
 	PatchBitmap,
 	PatchHeader,
 	Pnames,
@@ -29,6 +31,15 @@ export const getWadBytes = (): number[] => {
 	return _wadBytes;
 };
 
+
+let _palette = null;
+export const getPalette = (): Palette => {
+	if (_palette == null) {
+		_palette = bp.parsePlaypal(getWadBytes(), getAllDirs()).palettes[0];
+	}
+	return _palette;
+};
+
 let _pnames = null;
 export const getPnames = (): Pnames => {
 	if (_pnames == null) {
@@ -40,7 +51,7 @@ export const getPnames = (): Pnames => {
 let _patches = null;
 export const getPatches = (): PatchBitmap[] => {
 	if (_patches == null) {
-		_patches = tp.parsePatches(getWadBytes(), getAllDirs());
+		_patches = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette());
 	}
 	return _patches;
 };

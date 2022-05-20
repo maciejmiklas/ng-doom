@@ -298,6 +298,8 @@ export type PatchBitmap = {
 
 	/** Picture in Doom format consists of columns (x-axis) going downward on the screen (y-axis). */
 	columns: Either<Column>[]
+
+	rgba: Uint8ClampedArray
 };
 
 /**

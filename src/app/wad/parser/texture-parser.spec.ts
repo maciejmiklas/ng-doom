@@ -1,6 +1,6 @@
 import {functions as tp, testFunctions as tf} from './texture-parser';
 
-import {getAllDirs, getPatches, getPnames, getWadBytes} from './testdata/data';
+import {getAllDirs, getPalette, getPatches, getPnames, getWadBytes} from './testdata/data';
 import {Directory, DoomTexture, PatchBitmap, Pnames, TextureDir} from './wad-model';
 
 describe('texture-parser#findPatchDir', () => {
@@ -16,7 +16,6 @@ describe('texture-parser#findPatchDir', () => {
 				expect(found.get().name).toEqual(pn);
 			});
 	});
-
 });
 
 describe('texture-parser#parsePnames', () => {
@@ -160,7 +159,7 @@ describe('texture-parser#parseTextures', () => {
 });
 
 describe('texture-parser#parsePatches', () => {
-	const pb: PatchBitmap[] = tp.parsePatches(getWadBytes(), getAllDirs());
+	const pb: PatchBitmap[] = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette());
 
 	it('PatchBitmap size', () => {
 		expect(pb.length).toEqual(163);
