@@ -50,13 +50,13 @@ const parseMaps = (bytes: number[], dirs: Directory[], textures: DoomTexture[]):
 
 const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>) => (mapDirs: Directory[]): DoomMap => {
 	let linedefs = parseLinedefs(bytes)(mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes, textureLoader)(mapDirs));
-	const sectors = parseSectors(bytes)(mapDirs);
+	const linedefsBySector = groupBySector(linedefs);
+	const sectors = parseSectors(bytes)(mapDirs, linedefsBySector);
 	return {
 		mapDirs,
 		things: parseThings(bytes)(mapDirs),
 		linedefs,
-		sectors,
-		linedefsBySector: groupBySector(linedefs)
+		sectors
 	};
 };
 
@@ -100,7 +100,7 @@ const parseThings = (bytes: number[]) => (mapDirs: Directory[]): Thing[] => {
 	return unfoldByDirectorySize(thingDir, 10).map((ofs, thingIdx) => parser(thingIdx)).map(th => th);
 };
 
-const parseSector = (bytes: number[], dir: Directory) => (thingIdx: number): Sector => {
+const parseSector = (bytes: number[], dir: Directory, linedefsBySector: { [sector: number]: Linedef[] }) => (thingIdx: number): Sector => {
 	const offset = dir.filepos + 26 * thingIdx;
 	const shortParser = U.parseShort(bytes);
 	const strParser = U.parseStr(bytes);
@@ -114,14 +114,15 @@ const parseSector = (bytes: number[], dir: Directory) => (thingIdx: number): Sec
 		lightLevel: shortParser(offset + 0x14),
 		specialType: shortParser(offset + 0x16),
 		tagNumber: shortParser(offset + 0x18),
-		sectorNumber: thingIdx
+		sectorNumber: thingIdx,
+		linedefs: Either.ofNullable(linedefsBySector[thingIdx], () => 'No Linedefs for Sector at' + offset)
 	};
 };
 
-const parseSectors = (bytes: number[]) => (mapDirs: Directory[]): Sector[] => {
+const parseSectors = (bytes: number[]) => (mapDirs: Directory[], linedefsBySector: { [sector: number]: Linedef[] }): Sector[] => {
 	const thingDir = mapDirs[MapLumpType.SECTORS];
-	const parser = parseSector(bytes, thingDir);
-	return unfoldByDirectorySize(thingDir, 26).map((ofs, thingIdx) => parser(thingIdx)).map(th => th);
+	const parser = parseSector(bytes, thingDir, linedefsBySector);
+	return unfoldByDirectorySize(thingDir, 26).map((ofs, thingIdx) => parser(thingIdx));
 };
 
 const parseSidedef = (bytes: number[], dir: Directory, textureLoader: (name: string) => Either<DoomTexture>) => (thingIdx: number): Sidedef => {

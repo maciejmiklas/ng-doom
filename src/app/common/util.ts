@@ -4,7 +4,7 @@ import {Either} from '@maciejmiklas/functional-ts';
 const uint8ArrayToBase64 = (bytes: number[]): string => {
 	let binary = '';
 	const len = bytes.length;
-	for (let i = 0; i < len; i++) {
+	for (let i = 0; i < len; i++) {// TODO not functional
 		binary += String.fromCharCode(bytes[i]);
 	}
 	return window.btoa(binary);
@@ -14,7 +14,7 @@ const base64ToUint8Array = (base64: string): Uint8Array => {
 	const binary = window.atob(base64);
 	const len = binary.length;
 	const bytes = new Uint8Array(len);
-	for (let i = 0; i < len; i++) {
+	for (let i = 0; i < len; i++) {// TODO not functional
 		bytes[i] = binary.charCodeAt(i);
 	}
 	return bytes;

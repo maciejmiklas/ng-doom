@@ -2,7 +2,8 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import * as THREE from 'three';
 import {Controls} from './controls';
 import {WadStorageService} from '../../wad/wad-storage.service';
-import {DoomMap, Linedef, PatchBitmap, Wad} from '../../wad/parser/wad-model';
+import {DoomMap, Linedef, PatchBitmap, Sector, Wad} from '../../wad/parser/wad-model';
+import {CSS2DObject, CSS2DRenderer} from 'three/examples/jsm/renderers/CSS2DRenderer';
 
 @Component({
 	selector: 'app-play',
@@ -17,9 +18,11 @@ export class PlayComponent implements OnInit {
 	private canvasRef: ElementRef<HTMLCanvasElement>;
 	private camera: THREE.PerspectiveCamera;
 	private scene: THREE.Scene;
-	private renderer: THREE.WebGLRenderer;
+	private webGLRenderer: THREE.WebGLRenderer;
+	private labelRenderer: CSS2DRenderer;
 	private controls: Controls;
 	private wad: Wad;
+	private renderLabel = false;
 
 	constructor(private wadStorage: WadStorageService) {
 	}
@@ -32,7 +35,10 @@ export class PlayComponent implements OnInit {
 		this.wad = this.wadStorage.getCurrent().get().wad;
 		this.camera = createCamera(this.canvas);
 		this.scene = createScene();
-		this.renderer = createRenderer(this.canvas);
+		this.webGLRenderer = createWebGlRenderer(this.canvas);
+		if (this.renderLabel) {
+			this.labelRenderer = createLabelRenderer(this.canvas);
+		}
 		this.createWorld(this.scene);
 		this.camera.lookAt(this.scene.position);
 		this.controls = new Controls(this.camera, this.canvas);
@@ -44,33 +50,51 @@ export class PlayComponent implements OnInit {
 		(function render() {
 			requestAnimationFrame(render);
 			comp.controls.render();
-			comp.renderer.render(comp.scene, comp.camera);
+			comp.webGLRenderer.render(comp.scene, comp.camera);
+			if (comp.labelRenderer) {
+				comp.labelRenderer.render(comp.scene, comp.camera);
+			}
 		})();
 	}
 
 	private createWorld(scene: THREE.Scene) {
 		const startTime = performance.now();
-		const patch: PatchBitmap = this.wad.patches.find(p => p.header.dir.name === 'SW19_3');
+		const patch: PatchBitmap = this.wad.patches.find(p => p.header.dir.name === 'SW19_3');//SW19_3
 		const map: DoomMap = this.wad.maps[this.mapId];
-		const sectorRenderer = renderSector(scene, patch);
+		map.sectors.forEach(renderSector(scene, patch));
 
-		for (const sectorId in map.linedefsBySector) {
-			sectorRenderer(parseInt(sectorId), map.linedefsBySector[sectorId]);
-		}
 		//scene.add(createGround());
 		console.log('>TIME createWorld>', performance.now() - startTime);
 	};
 }
 
-const renderSector = (scene: THREE.Scene, patch: PatchBitmap) => (sectorId: number, linedefs: Linedef[]) => {
-	linedefs.forEach(ld => scene.add(wall(ld, patch)));
+const renderSector = (scene: THREE.Scene, patch: PatchBitmap) => (sector: Sector) => {
+	sector.linedefs.exec(ldf => ldf.forEach(ld => scene.add(wall(ld, patch, sector))));
 };
 
-const wall = (ld: Linedef, patch: PatchBitmap): THREE.Mesh => {
+const getTexture = (ld: Linedef, patch: PatchBitmap): PatchBitmap => {
+	let text = null;
+	if (ld.frontSide.middleTexture.isRight()) {
+		text = ld.frontSide.middleTexture.get().patches[0];
+
+	} else if (ld.frontSide.upperTexture.isRight()) {
+		text = ld.frontSide.upperTexture.get().patches[0];
+
+	} else if (ld.frontSide.lowerTexture.isRight()) {
+		text = ld.frontSide.lowerTexture.get().patches[0];
+	}
+	if (text == null || text.bitmap == null) {
+		console.log('>NULL>', ld);
+		return patch;
+	}
+	return text.bitmap;
+};
+const wall = (ld: Linedef, fallbackPatch: PatchBitmap, sector: Sector): THREE.Mesh => {
 	const vs = ld.start;
 	const ve = ld.end;
 	const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
-	const wallHeight = 50;
+	const wallHeight = sector.ceilingHeight;
+	const patch = getTexture(ld, fallbackPatch);
 	const texture = new THREE.DataTexture(patch.rgba, patch.header.width, patch.header.height);
 	texture.needsUpdate = true;
 	texture.format = THREE.RGBAFormat;
@@ -85,7 +109,18 @@ const wall = (ld: Linedef, patch: PatchBitmap): THREE.Mesh => {
 	const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(wallWidth, wallHeight), material);
 	mesh.position.set((vs.x + ve.x) / 2, wallHeight / 2, (vs.y + ve.y) / -2);
 	mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x));
+	//const label = createLabel(patch.header.dir.name, wallHeight);
+	//mesh.add(label);
 	return mesh;
+};
+
+const createLabel = (text: string, height: number): CSS2DObject => {
+	const div = document.createElement('div');
+	div.textContent = text;
+	div.className = 'label';
+	const label = new CSS2DObject(div);
+	label.position.set(0, 0, 0);
+	return label;
 };
 
 const meshBasicTexture = (texture: THREE.Texture, width: number, height: number) => {
@@ -107,7 +142,6 @@ const createGround = () => {
 };
 
 const meshColor = (color: string) => (geometry: THREE.BufferGeometry): THREE.Mesh => new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({color}));
-
 
 const meshPhongTexture = (texture: THREE.Texture) => (geometry: THREE.BufferGeometry): THREE.Mesh =>
 	new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({map: texture, transparent: false, alphaTest: 0.5, side: THREE.DoubleSide}));
@@ -132,16 +166,29 @@ const createScene = (): THREE.Scene => {
 const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera => {
 	const cam = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 1, 20000);
 	cam.position.set(1032, 500, 2170);
-	//cam.position.set(1400, 10, 2800);
+	//cam.position.set(1400, 50, 2800);
 	return cam;
 };
 
-const createRenderer = (canvas: HTMLCanvasElement): THREE.WebGLRenderer => {
+const createWebGlRenderer = (canvas: HTMLCanvasElement): THREE.WebGLRenderer => {
 	const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
 	renderer.physicallyCorrectLights = true;
 	renderer.setSize(canvas.clientWidth, canvas.clientHeight);
 	renderer.setPixelRatio(window.devicePixelRatio);
 	return renderer;
 };
+
+const createLabelRenderer = (canvas: HTMLCanvasElement): CSS2DRenderer => {
+	const renderer = new CSS2DRenderer();
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.domElement.style.position = 'absolute';
+	renderer.domElement.style.top = '0px';
+	//canvas.appendChild(renderer.domElement);
+
+	document.body.appendChild(renderer.domElement);
+	return renderer;
+};
+
+
 
 

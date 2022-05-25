@@ -8,8 +8,10 @@ import {
 	FIRST_MAP_DIR_OFFSET,
 	getAllDirs,
 	getAllDirsOp,
+	getE1M1Dirs,
 	getFirstMap,
 	getHeader,
+	getLinedefsBySector,
 	getTextures,
 	getWadBytes,
 	validateDir,
@@ -22,7 +24,6 @@ import {
 	VERTEX_466
 } from './testdata/data';
 
-const getE1M1Dirs = () => tf.parseMapDirs(getAllDirs())(tf.findNextMapStartingDir(getAllDirs())(0).get()).get();
 const E1M1_SECTORS = 85;
 
 describe('map_parser#parseHeader', () => {
@@ -633,6 +634,28 @@ describe('map_parser#parseMap', () => {
 	it('Things Amount', () => {
 		expect(map.things.length).toEqual(138);
 	});
+
+	it('Size of Linedefs in each sector', () => {
+		let amount = 0;
+		map.sectors.forEach(s => {
+			if (s.linedefs.isRight()) {
+				expect(s.linedefs.get().length).toEqual(getLinedefsBySector()[s.sectorNumber].length);
+			} else {
+				amount++;
+			}
+		});
+		expect(amount).toEqual(7);
+	});
+
+	it('Sectors with Linedefs', () => {
+		let amount = 0;
+		map.sectors.forEach(s => {
+			if (s.linedefs.isRight()) {
+				amount++;
+			}
+		});
+		expect(amount).toEqual(78);
+	});
 });
 
 describe('map_parser#parseMapsDirs', () => {
@@ -749,7 +772,7 @@ describe('map_parser#normalizeLinedefs', () => {
 });
 
 describe('map_parser#parseSector', () => {
-	const parser = tf.parseSector(getWadBytes(), getE1M1Dirs()[MapLumpType.SECTORS]);
+	const parser = tf.parseSector(getWadBytes(), getE1M1Dirs()[MapLumpType.SECTORS],getLinedefsBySector());
 
 	it('E1M1 - Sector nr: 0', () => {
 		validateSectorE1M1_0(parser(0));
@@ -765,7 +788,7 @@ describe('map_parser#parseSector', () => {
 });
 
 describe('map_parser#parseSectors', () => {
-	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs());
+	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), getLinedefsBySector());
 
 	it('E1M1 - Sector nr: 0', () => {
 		validateSectorE1M1_0(sectors[0]);
@@ -785,9 +808,8 @@ describe('map_parser#parseSectors', () => {
 
 });
 
-
 describe('map_parser#groupBySectorArray', () => {
-	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs());
+	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), getLinedefsBySector());
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
 	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
 	const linedefs = tf.parseLinedefs(getWadBytes())(getE1M1Dirs(), vertexes, sidedefs);
@@ -842,7 +864,7 @@ describe('map_parser#groupBySectorArray', () => {
 });
 
 describe('map_parser#groupBySector', () => {
-	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs());
+	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), getLinedefsBySector());
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
 	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
 	const linedefs = tf.parseLinedefs(getWadBytes())(getE1M1Dirs(), vertexes, sidedefs);

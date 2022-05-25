@@ -195,6 +195,7 @@ export type Sidedef = MapLump & {
  * @see https://doomwiki.org/wiki/Sector
  */
 export type Sector = MapLump & {
+	linedefs: Either<Linedef[]>
 	floorHeight: number
 	ceilingHeight: number
 	floorTexture: string
@@ -227,8 +228,6 @@ export type DoomMap = {
 	things: Thing[]
 	sectors: Sector[]
 	linedefs: Linedef[]
-	// K: Sector index based on #sectors, V: Linedef belonging to the same sector
-	linedefsBySector: { [sector: number]: Linedef[] }
 };
 
 export enum WadType {
