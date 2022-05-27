@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 Maciej Miklas
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
  * WAD - "Where's All the Data?" contains maps for each level, monsters, pickups, sound and textures, so basically
  * whole data set for DOOM game.
@@ -9,8 +25,6 @@
  *
  * Map consists of Lumps such: Thing (monster) or Linedef (wall), but Lump can be also a texture or sound.
  */
-
-/** A WAD file always starts with a 12-byte header. */
 import {Either} from '@maciejmiklas/functional-ts';
 
 export type Header = {
@@ -154,9 +168,9 @@ export type Vertex = Position & {
 };
 
 /**
- * Linedef represents single wall on the map. Wall is more like a line between #start and #end. Textures for the wall are defined by Sidedef.
- * A few Linedef with the same #sectorTag belong to the same Sector, which makes up a closed space - a room. Sector defines textures for
- * flor and celling, height of the celling and lighting in this Sector (room)
+ * Linedef represents single wall on the map. Wall is more like a line between #start and #end. Textures for the wall are defined by
+ * Sidedef. A few Linedef with the same #sectorTag belong to the same Sector, which makes up a closed space - a room. Sector defines
+ * textures for flor and celling, height of the celling and lighting in this Sector (room)
  *
  * @see https://doomwiki.org/wiki/Linedef
  */
@@ -181,16 +195,38 @@ export type Linedef = MapLump & {
  * @see https://doomwiki.org/wiki/Texture_alignment
  */
 export type Sidedef = MapLump & {
+	/**
+	 * x: How many pixels to shift all the sidedef textures on the X axis (right or left).
+	 * y: How many pixels to shift all the sidedef textures on the Y axis (up or down).
+	 */
 	offset: Position
+
+	/**
+	 * The name of a texture that will be displayed on the border between a sector and its neighboring ceiling of a different
+	 * height. If the linedef that contains this sidedef is one sided this field is meaningless.
+	 */
 	upperTexture: Either<DoomTexture>
-	lowerTexture: Either<DoomTexture>
+
+	/**
+	 * On one sided linedefs this will be the only texture displayed; as the main wall texture. On two sided linedefs this will be displayed
+	 * as a 'floating' texture which the player is able to walk through. Middle floating textures can be used to achieve a variety of faux 3D
+	 * effects such as 3D bridges. Note that middle floating textures will only tile horizontally and not vertically, where they only repeat
+	 * once.
+	 */
 	middleTexture: Either<DoomTexture>
+
+	/**
+	 * Performs a similar function to the upper texture; the lower texture is displayed on the border between a sector and its neighboring
+	 * floor of a different height.
+	 */
+	lowerTexture: Either<DoomTexture>
+
 	sector: number
 };
 
 /**
- * A Sector is an area defined by a few Sidedef (wall) building a room. Each Sector has a height of the celling, texture on celling and flor,
- * and lighting.
+ * A Sector is an area defined by a few Sidedef (wall) building a room. Each Sector has a height of the celling, texture on celling and
+ * flor, and lighting.
  *
  * @see https://doomwiki.org/wiki/Sector
  */

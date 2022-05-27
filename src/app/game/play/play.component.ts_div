@@ -1,24 +1,9 @@
-/*
- * Copyright 2022 Maciej Miklas
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import * as THREE from 'three';
 import {Controls} from './controls';
 import {WadStorageService} from '../../wad/wad-storage.service';
 import {DoomMap, Linedef, PatchBitmap, Sector, Wad} from '../../wad/parser/wad-model';
-import {CSS2DRenderer} from 'three/examples/jsm/renderers/CSS2DRenderer';
+import {CSS2DObject, CSS2DRenderer} from 'three/examples/jsm/renderers/CSS2DRenderer';
 
 @Component({
 	selector: 'app-play',
@@ -37,6 +22,7 @@ export class PlayComponent implements OnInit {
 	private labelRenderer: CSS2DRenderer;
 	private controls: Controls;
 	private wad: Wad;
+	private renderLabel = false;
 
 	constructor(private wadStorage: WadStorageService) {
 	}
@@ -50,6 +36,9 @@ export class PlayComponent implements OnInit {
 		this.camera = createCamera(this.canvas);
 		this.scene = createScene();
 		this.webGLRenderer = createWebGlRenderer(this.canvas);
+		if (this.renderLabel) {
+			this.labelRenderer = createLabelRenderer(this.canvas);
+		}
 		this.createWorld(this.scene);
 		this.camera.lookAt(this.scene.position);
 		this.controls = new Controls(this.camera, this.canvas);
@@ -70,49 +59,75 @@ export class PlayComponent implements OnInit {
 
 	private createWorld(scene: THREE.Scene) {
 		const startTime = performance.now();
+		const patch: PatchBitmap = this.wad.patches.find(p => p.header.dir.name === 'SW19_3');//SW19_3
 		const map: DoomMap = this.wad.maps[this.mapId];
-		map.sectors.forEach(renderSector(scene));
+		map.sectors.forEach(renderSector(scene, patch));
 
 		//scene.add(createGround());
 		console.log('>TIME createWorld>', performance.now() - startTime);
 	};
 }
 
-const renderSector = (scene: THREE.Scene) => (sector: Sector) => {
-	sector.linedefs.exec(ldf => ldf.forEach(ld => scene.add(middleWall(ld, sector))));
+const renderSector = (scene: THREE.Scene, patch: PatchBitmap) => (sector: Sector) => {
+	sector.linedefs.exec(ldf => ldf.forEach(ld => scene.add(wall(ld, patch, sector))));
 };
 
-const middleWall = (ld: Linedef, sector: Sector): THREE.Mesh => {
+const getTexture = (ld: Linedef, patch: PatchBitmap): PatchBitmap => {
+	let text = null;
+	if (ld.frontSide.middleTexture.isRight()) {
+		text = ld.frontSide.middleTexture.get().patches[0];
+
+	} else if (ld.frontSide.upperTexture.isRight()) {
+		text = ld.frontSide.upperTexture.get().patches[0];
+
+	} else if (ld.frontSide.lowerTexture.isRight()) {
+		text = ld.frontSide.lowerTexture.get().patches[0];
+	}
+	if (text == null || text.bitmap == null) {
+		console.log('>NULL>', ld);
+		return patch;
+	}
+	return text.bitmap;
+};
+const wall = (ld: Linedef, fallbackPatch: PatchBitmap, sector: Sector): THREE.Mesh => {
 	const vs = ld.start;
 	const ve = ld.end;
 	const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
-	const wallHeight = sector.ceilingHeight - sector.floorHeight;
-	const material = createMaterial(ld);
+	const wallHeight = sector.ceilingHeight;
+	const patch = getTexture(ld, fallbackPatch);
+	const texture = new THREE.DataTexture(patch.rgba, patch.header.width, patch.header.height);
+	texture.needsUpdate = true;
+	texture.format = THREE.RGBAFormat;
+	texture.type = THREE.UnsignedByteType;
+	texture.magFilter = THREE.NearestFilter;
+	texture.minFilter = THREE.NearestFilter;
+	texture.mapping = THREE.UVMapping;
+	texture.wrapS = THREE.ClampToEdgeWrapping;
+	texture.wrapT = THREE.ClampToEdgeWrapping;
+
+	const material = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
 	const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(wallWidth, wallHeight), material);
-	mesh.position.set((vs.x + ve.x) / 2, sector.floorHeight + wallHeight / 2, (vs.y + ve.y) / -2);
+	mesh.position.set((vs.x + ve.x) / 2, wallHeight / 2, (vs.y + ve.y) / -2);
 	mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x));
+	//const label = createLabel(patch.header.dir.name, wallHeight);
+	//mesh.add(label);
 	return mesh;
 };
 
-const createMaterial = (ld: Linedef): THREE.Material => {
-	let material;
-	if (ld.frontSide.middleTexture.isRight()) {
-		const patch: PatchBitmap = ld.frontSide.middleTexture.get().patches[0].bitmap;
-		const texture = new THREE.DataTexture(patch.rgba, patch.header.width, patch.header.height);
-		texture.needsUpdate = true;
-		texture.format = THREE.RGBAFormat;
-		texture.type = THREE.UnsignedByteType;
-		texture.magFilter = THREE.NearestFilter;
-		texture.minFilter = THREE.NearestFilter;
-		texture.mapping = THREE.UVMapping;
-		texture.wrapS = THREE.RepeatWrapping;
-		texture.wrapT = THREE.RepeatWrapping;
-		texture.repeat.x = -1;
-		material = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
-	} else {
-		material = new THREE.MeshStandardMaterial({transparent: true, color: 'green', side: THREE.DoubleSide});
-	}
-	return material;
+const createLabel = (text: string, height: number): CSS2DObject => {
+	const div = document.createElement('div');
+	div.textContent = text;
+	div.className = 'label';
+	const label = new CSS2DObject(div);
+	label.position.set(0, 0, 0);
+	return label;
+};
+
+const meshBasicTexture = (texture: THREE.Texture, width: number, height: number) => {
+	const material = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
+	//material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+	//material.map.repeat.set(width, height);
+	return (geometry: THREE.BufferGeometry): THREE.Mesh => new THREE.Mesh(geometry, material);
 };
 
 const createGround = () => {
@@ -125,6 +140,8 @@ const createGround = () => {
 	ground.position.x = groundDimension / 2;
 	return ground;
 };
+
+const meshColor = (color: string) => (geometry: THREE.BufferGeometry): THREE.Mesh => new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({color}));
 
 const meshPhongTexture = (texture: THREE.Texture) => (geometry: THREE.BufferGeometry): THREE.Mesh =>
 	new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({map: texture, transparent: false, alphaTest: 0.5, side: THREE.DoubleSide}));
@@ -158,6 +175,17 @@ const createWebGlRenderer = (canvas: HTMLCanvasElement): THREE.WebGLRenderer => 
 	renderer.physicallyCorrectLights = true;
 	renderer.setSize(canvas.clientWidth, canvas.clientHeight);
 	renderer.setPixelRatio(window.devicePixelRatio);
+	return renderer;
+};
+
+const createLabelRenderer = (canvas: HTMLCanvasElement): CSS2DRenderer => {
+	const renderer = new CSS2DRenderer();
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.domElement.style.position = 'absolute';
+	renderer.domElement.style.top = '0px';
+	//canvas.appendChild(renderer.domElement);
+
+	document.body.appendChild(renderer.domElement);
 	return renderer;
 };
 
