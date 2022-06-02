@@ -132,7 +132,8 @@ describe('MenuParserService - on Real Data', () => {
 				{id: 'm2_wad_playpal', title: 'Playpal', path: 'path_wad_playpal', decorator: 'dec_wad_loaded'},
 				{id: 'm2_wad_title_img', title: 'Title Images', path: 'path_wad_title_img', decorator: 'dec_wad_loaded'},
 				{id: 'm2_wad_sprites', title: 'Sprites', path: 'path_wad_sprites', decorator: 'dec_wad_loaded'},
-				{id: 'm2_wad_patches', title: 'Patches', path: 'path_wad_patches', decorator: 'dec_wad_loaded'}]
+				{id: 'm2_wad_patches', title: 'Patches', path: 'path_wad_patches', decorator: 'dec_wad_loaded'},
+				{id: 'm2_wad_textures', title: 'Textures', path: 'path_wad_textures', decorator: 'dec_wad_loaded'}]
 		};
 
 		const saves: MenuL1 = {

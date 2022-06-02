@@ -27,7 +27,7 @@ import {MenuEvent} from '../../menu/menu-event';
 import {MainEvent} from '../service/main-event';
 import {NavbarPlugin, NavbarPluginFactory} from '../service/navbar_plugin';
 import {animate, state, style, transition, trigger} from '@angular/animations';
-import {PatchBitmap} from '../../wad/parser/wad-model';
+import {Bitmap} from '../../wad/parser/wad-model';
 import {WadEvent} from '../../wad/wad-event';
 import {UploadResult, UploadStatus} from '../../wad/wad-upload/wad-upload-model';
 import {WadStorageService} from '../../wad/wad-storage.service';
@@ -52,7 +52,7 @@ export class MainComponent {
 	title = 'ng-doom';
 	active = 'app-wad-upload';
 	sidebarState;
-	headerImage: PatchBitmap = null;
+	headerImage: Bitmap = null;
 	private innerWidth = 1500;
 	private lastViewSmall;
 	private overlayMenuClicked = false;

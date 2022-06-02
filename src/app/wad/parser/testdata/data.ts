@@ -25,8 +25,8 @@ import {
 	Linedef,
 	MapLumpType,
 	Palette,
-	PatchBitmap,
-	PatchHeader,
+	Bitmap,
+	BitmapHeader,
 	Pnames,
 	Post,
 	TextureDir,
@@ -82,7 +82,7 @@ export const getPnames = (): Pnames => {
 };
 
 let _patches = null;
-export const getPatches = (): PatchBitmap[] => {
+export const getPatches = (): Bitmap[] => {
 	if (_patches == null) {
 		_patches = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette());
 	}
@@ -299,7 +299,7 @@ export const validateTitleColumn = (col: Column) => {
 	expect(posts[0].data.length + posts[1].data.length).toEqual(200);
 };
 
-export const validateTitlePatchHeader = (header: PatchHeader) => {
+export const validateTitlePatchHeader = (header: BitmapHeader) => {
 	expect(header.width).toEqual(320);
 	expect(header.height).toEqual(200);
 	expect(header.xOffset).toEqual(0);

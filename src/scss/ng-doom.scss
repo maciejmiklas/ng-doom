@@ -44,4 +44,28 @@ canvas[resize] {
 	height: 100%;
 }
 
+// ######### WAD PATCHES #########
+.app-patches {
+	@extend .d-flex;
+	@include align-center;
+	flex-flow: row wrap;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+.app-patch {
+	background: $app-content-bg-light-color;
+	width: $wad-patch-box-size;
+	height: $wad-patch-box-size;
+	margin: $wad-patch-box-margin;
+	line-height: $wad-patch-box-size;
+	font-weight: bold;
+	text-align: center;
+
+	// .app-patches is flex container for .app-patch and .app-patch is again flex container for ist child
+	@extend .d-flex;
+	justify-content: space-around;
+	align-items: center;
+}
 

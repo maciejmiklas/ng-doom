@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {Component, DoCheck, ElementRef, Input, KeyValueDiffer, KeyValueDiffers, OnInit, ViewChild} from '@angular/core';
-import {PatchBitmap} from '../parser/wad-model';
+import {Bitmap, RgbaBitmap} from '../parser/wad-model';
 import {WadStorageService} from '../wad-storage.service';
 import {functions as tp} from '../parser/texture-parser';
 
@@ -26,7 +26,7 @@ export class PbmpComponent implements OnInit, DoCheck {
 	static CMP = 'app-pbmp';
 
 	@Input()
-	bitmap: PatchBitmap;
+	bitmap: RgbaBitmap;
 
 	@Input()
 	palette = 0;
@@ -44,7 +44,7 @@ export class PbmpComponent implements OnInit, DoCheck {
 	private ctx;
 	private imageObject;
 	private canvas: HTMLCanvasElement;
-	private bitmapDiffer: KeyValueDiffer<PatchBitmap, any>;
+	private bitmapDiffer: KeyValueDiffer<RgbaBitmap, any>;
 
 	constructor(private wadStorage: WadStorageService, private differ: KeyValueDiffers) {
 	}
@@ -69,8 +69,8 @@ export class PbmpComponent implements OnInit, DoCheck {
 			return;
 		}
 		const canvas = this.canvasRef.nativeElement;
-		canvas.width = this.bitmap.header.width * this._scale;
-		canvas.height = this.bitmap.header.height * this._scale;
+		canvas.width = this.bitmap.width * this._scale;
+		canvas.height = this.bitmap.height * this._scale;
 		this.ctx.scale(this._scale, this._scale);
 		this.ctx.drawImage(this.imageObject, 0, 0);
 	}

@@ -17,7 +17,7 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import * as THREE from 'three';
 import {Controls} from './controls';
 import {WadStorageService} from '../../wad/wad-storage.service';
-import {DoomMap, Linedef, PatchBitmap, Sector, Wad} from '../../wad/parser/wad-model';
+import {DoomMap, Linedef, Bitmap, Sector, Wad} from '../../wad/parser/wad-model';
 import {CSS2DRenderer} from 'three/examples/jsm/renderers/CSS2DRenderer';
 
 @Component({
@@ -97,7 +97,7 @@ const middleWall = (ld: Linedef, sector: Sector): THREE.Mesh => {
 const createMaterial = (ld: Linedef): THREE.Material => {
 	let material;
 	if (ld.frontSide.middleTexture.isRight()) {
-		const patch: PatchBitmap = ld.frontSide.middleTexture.get().patches[0].bitmap;
+		const patch: Bitmap = ld.frontSide.middleTexture.get().patches[0].bitmap;
 		const texture = new THREE.DataTexture(patch.rgba, patch.header.width, patch.header.height);
 		texture.needsUpdate = true;
 		texture.format = THREE.RGBAFormat;

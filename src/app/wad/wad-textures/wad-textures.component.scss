@@ -1,0 +1,24 @@
+@import "/src/scss/ng-doom";
+
+.app-textures {
+	@extend .d-flex;
+	@include align-center;
+	flex-flow: row wrap;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+.app-texture {
+	background: $app-content-bg-light-color;
+	width: $wad-texture-box-size;
+	height: $wad-texture-box-size;
+	margin: $wad-texture-box-margin;
+	line-height: $wad-texture-box-size;
+	font-weight: bold;
+	text-align: center;
+
+@extend .d-flex;
+	justify-content: space-around;
+	align-items: center;
+}

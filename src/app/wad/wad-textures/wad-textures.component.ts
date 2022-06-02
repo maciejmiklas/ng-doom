@@ -13,39 +13,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
+import {DoomTexture} from '../parser/wad-model';
 import {WadStorageService} from '../wad-storage.service';
-import {Bitmap} from '../parser/wad-model';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
 import {MainEvent} from '../../main/service/main-event';
 import {NavbarPluginFactory} from '../../main/service/navbar_plugin';
-import {WadPatchesNavbarComponent} from './wad-patches-navbar/wad-patches-navbar.component';
+import {WadPatchesNavbarComponent} from '../wad-patches/wad-patches-navbar/wad-patches-navbar.component';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {WadTextureComponent} from '../wad-texture/wad-texture.component';
 
 @Component({
-	selector: 'app-wad-patches',
-	templateUrl: './wad-patches.component.html',
-	styleUrls: ['./wad-patches.component.scss']
+	selector: 'app-wad-textures',
+	templateUrl: './wad-textures.component.html',
+	styleUrls: ['./wad-textures.component.scss']
 })
-export class WadPatchesComponent implements OnInit, PatchesListControl {
-	zoom = 4;
-	maxSize = 300;
-	patches: Bitmap[];
+export class WadTexturesComponent implements OnInit, TexturesListControl {
 
-	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService) {
+	@Input()
+	zoom = 2;
+
+	@Input()
+	maxSize = 300;
+
+	textures: DoomTexture[];
+
+	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService, private modal: NgbModal) {
 	}
 
 	ngOnInit(): void {
 		const wad = this.wadStorage.getCurrent().get().wad;
-		this.patches = wad.patches;
+		this.textures = wad.textures;
 		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadPatchesNavbarComponent, this)));
 	}
 
 	applyFilter(filter: string) {
-		this.patches = this.wadStorage.getCurrent().get().wad.patches.filter(pb => pb.header.dir.name.toUpperCase().includes(filter.toUpperCase()));
+		this.wadStorage.getCurrent().get().wad.textures;
+		this.textures = this.wadStorage.getCurrent().get().wad.textures.filter(tx => tx.dir.name.toUpperCase().includes(filter.toUpperCase()));
+	}
+
+	onTextureClick(name: string) {
+		const comp = this.modal.open(WadTextureComponent, {centered: true, scrollable: true});
+		comp.componentInstance.name = name;
 	}
 
 }
 
-export interface PatchesListControl {
+export interface TexturesListControl {
 	applyFilter(filter: string);
 }

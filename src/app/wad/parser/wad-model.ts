@@ -115,10 +115,10 @@ export type Playpal = Lump & {
 
 export type Palette = {
 	idx: number
-	colors: RGB[]
+	colors: RGBA[]
 };
 
-export type RGB = {
+export type RGBA = {
 	r: number,
 	g: number,
 	b: number,
@@ -275,7 +275,7 @@ export enum WadType {
  * Header of Doom Picture (Patch)
  * @see https://doomwiki.org/wiki/Picture_format
  */
-export type PatchHeader = {
+export type BitmapHeader = {
 	dir: Directory
 	width: number
 	height: number
@@ -293,7 +293,7 @@ export type PatchHeader = {
 };
 
 /**
- * Bitmap column (known as post) of Doom's bitmap. Offset to each columns is given by PatchHeader#columnofs
+ * Bitmap column (known as post) of Doom's bitmap. Offset to each columns is given by BitmapHeader#columnofs
  *
  * @see https://doomwiki.org/wiki/Picture_format -> Posts
  */
@@ -328,8 +328,8 @@ export type Column = {
  * @see https://doomwiki.org/wiki/Picture_format
  * @see https://www.cyotek.com/blog/decoding-doom-picture-files
  */
-export type PatchBitmap = {
-	header: PatchHeader
+export type Bitmap = RgbaBitmap & {
+	header: BitmapHeader
 
 	/** Picture in Doom format consists of columns (x-axis) going downward on the screen (y-axis). */
 	columns: Either<Column>[]
@@ -343,10 +343,10 @@ export type PatchBitmap = {
  * @see https://doomwiki.org/wiki/Title_screen
  */
 export type TitlePic = {
-	help: Either<PatchBitmap[]>
-	title: PatchBitmap,
-	credit: PatchBitmap,
-	mDoom: PatchBitmap
+	help: Either<Bitmap[]>
+	title: Bitmap,
+	credit: Bitmap,
+	mDoom: Bitmap
 };
 
 /**
@@ -369,8 +369,8 @@ export type Sprite = {
 	name: string,
 
 	/**
-	 * K: angle, V: frames for animation. Each entry in PatchBitmap[] represents single frame,
-	 * for example: PatchBitmap[0] -> A, PatchBitmap[1] -> B
+	 * K: angle, V: frames for animation. Each entry in Bitmap[] represents single frame,
+	 * for example: Bitmap[0] -> A, Bitmap[1] -> B
 	 */
 	animations: Record<string, FrameDir[]>
 };
@@ -390,16 +390,20 @@ export type Pnames = Lump & {
 	names: string[]
 }
 
+export type RgbaBitmap = {
+	name: string,
+	width: number,
+	height: number,
+	rgba: Uint8ClampedArray
+}
+
 /**
  * Defines a texture for the wall
  *
  * @see https://doomwiki.org/wiki/TEXTURE1_and_TEXTURE2
  * @see https://doomwiki.org/wiki/Texture_alignment
  */
-export type DoomTexture = Lump & {
-	name: string,
-	width: number,
-	height: number,
+export type DoomTexture = Lump & RgbaBitmap & {
 	patchCount: number
 	patches: Patch[]
 }
@@ -422,13 +426,13 @@ export type Patch = {
 	/** Patch name from PNAMES. */
 	patchName: string
 
-	bitmap: PatchBitmap
+	bitmap: Bitmap
 }
 
 export type BitmapSprite = {
 	name: string,
 	angle: string,
-	frames: PatchBitmap[]
+	frames: Bitmap[]
 }
 
 export type FrameDir = {
@@ -437,7 +441,7 @@ export type FrameDir = {
 	spriteName: string,
 	angle: number,
 	mirror: boolean,
-	bitmap: Either<PatchBitmap>,
+	bitmap: Either<Bitmap>,
 	dir: Directory,
 };
 
@@ -447,7 +451,7 @@ export type Wad = {
 	maps: DoomMap[],
 	dirs: Directory[],
 	pnames: Pnames,
-	patches: PatchBitmap[]
+	patches: Bitmap[]
 	bytes: number[],
 	playpal: Playpal,
 	textures: DoomTexture[]

@@ -15,6 +15,8 @@
  */
 import * as R from 'ramda';
 import {
+	Bitmap,
+	BitmapHeader,
 	BitmapSprite,
 	Column,
 	Directories,
@@ -23,12 +25,11 @@ import {
 	FrameDir,
 	Palette,
 	Patch,
-	PatchBitmap,
-	PatchHeader,
 	Playpal,
 	Pnames,
 	Post,
-	RGB,
+	RGBA,
+	RgbaBitmap,
 	Sprite,
 	TextureDir
 } from './wad-model';
@@ -45,14 +46,14 @@ import {Log} from '../../common/log';
  * @see https://doomwiki.org/wiki/PLAYPAL
  */
 
-const TRANSPARENT_PIXEL = -1;
-const TRANSPARENT_RGB: RGB = {
+const TRANSPARENT_RGBA_PIXEL = -1;
+const TRANSPARENT_RGBA: RGBA = {
 	r: 0,
 	b: 0,
 	g: 0,
 	a: 0
 };
-const IMG_BYTES = 4;
+const RGBA_BYTES = 4;
 const POST_PADDING_BYTES = 4;
 const LAST_POST_MARKER = 0XFF;
 const RBG_BYTES = 3;
@@ -60,7 +61,7 @@ const PLAYPAL_COLORS = 256;
 const PLAYPAL_BYTES = RBG_BYTES * 256;
 const CMP = 'BPA';
 
-const parseRBG = (bytes: number[]) => (idx: number): RGB => {
+const parseRBG = (bytes: number[]) => (idx: number): RGBA => {
 	return {
 		r: bytes[idx],
 		g: bytes[idx + 1],
@@ -84,9 +85,9 @@ const parsePalette = (paletteBytes: number[], dir: Directory) => (paletteNumber:
 };
 
 const unfoldColumnofs = (filepos: number, width: number): number[] =>
-	R.unfold((idx) => idx === width ? false : [filepos + idx * IMG_BYTES, idx + 1], 0);
+	R.unfold((idx) => idx === width ? false : [filepos + idx * RGBA_BYTES, idx + 1], 0);
 
-const parsePatchHeader = (wadBytes: number[]) => (dir: Directory): PatchHeader => {
+const parsePatchHeader = (wadBytes: number[]) => (dir: Directory): BitmapHeader => {
 	const shortParser = U.parseShort(wadBytes);
 	const uintParser = U.parseUint(wadBytes);
 	const filepos = dir.filepos;
@@ -122,7 +123,7 @@ const parseColumn = (wadBytes: number[], dir: Directory) => (filepos: number): E
 		postParser(filepos), () => dir.name + ' has Empty Column at: ' + filepos).map(posts => ({posts}));
 };
 
-const parseBitmap = (wadBytes: number[], palette: Palette) => (dir: Directory): Either<PatchBitmap> => {
+const parseBitmap = (wadBytes: number[], palette: Palette) => (dir: Directory): Either<Bitmap> => {
 	Log.debug(CMP, 'Parse Bitmap:', dir);
 	const header = parsePatchHeader(wadBytes)(dir);
 	const columnParser = parseColumn(wadBytes, dir);
@@ -134,7 +135,10 @@ const parseBitmap = (wadBytes: number[], palette: Palette) => (dir: Directory): 
 		() => ({
 			header,
 			columns,
-			rgba
+			rgba,
+			width: header.width,
+			height: header.height,
+			name: header.dir.name
 		}));
 };
 
@@ -148,7 +152,7 @@ const parsePnames = (wadBytes: number[], dirs: Directory[]): Pnames => {
 	return {dir, nummappatches, names};
 };
 
-const parseTextures = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: PatchBitmap[]) => (td: TextureDir): Either<DoomTexture[]> => {
+const parseTextures = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: Bitmap[]) => (td: TextureDir): Either<DoomTexture[]> => {
 	const dir: Directory = dp.findDirectoryByName(dirs)(td).get();
 	const intParser = U.parseInt(wadBytes);
 	const textureParser = parseTexture(wadBytes, dirs, dir, pnames, patches);
@@ -162,7 +166,7 @@ const parseTextures = (wadBytes: number[], dirs: Directory[], pnames: Pnames, pa
 	return Either.ofCondition(() => textures.length > 0, () => 'No textures found', () => textures);
 };
 
-const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pnames: Pnames, allPatches: PatchBitmap[]) => (offset: number): Either<DoomTexture> => {
+const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pnames: Pnames, allPatches: Bitmap[]) => (offset: number): Either<DoomTexture> => {
 	const strParser = U.parseStr(wadBytes);
 	const shortParser = U.parseShort(wadBytes);
 	const patchCountWad = shortParser(offset + 0x14);
@@ -173,20 +177,22 @@ const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pna
 		.map(offset => patchMapParser(offset))// (patch offset)=> Either<Patch>
 		.filter(e => e.isRight())// remove Left
 		.map(e => e.get()); // (Either<Patch>) => Patch
-
+	const width = shortParser(offset + 0x0C);
+	const height = shortParser(offset + 0x0E);
 	return Either.ofCondition(() => patchCountWad === patches.length,
 		() => 'Incorrect Patches amount for Texture from ' + dir + ', found: ' + patches.length,
 		() => ({
 			dir,
 			name: strParser(offset, 8),
-			width: shortParser(offset + 0x0C),
-			height: shortParser(offset + 0x0E),
+			width,
+			height,
 			patchCount: patches.length,
-			patches
+			patches,
+			rgba: createTextureRgba(width, height, patches)
 		}));
 };
 
-const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: PatchBitmap[]) => (offset: number): Either<Patch> => {
+const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: Bitmap[]) => (offset: number): Either<Patch> => {
 	const shortParser = U.parseShort(wadBytes);
 	const patchIdx = shortParser(offset + 0x04);
 	const patchName = Either.ofCondition(
@@ -207,13 +213,13 @@ const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patch
 const findPatchDir = (dirs: Directory[]) => (patchName: string): Either<Directory> =>
 	dp.findDirectoryByName(dirs)(patchName);
 
-const parsePatches = (wadBytes: number[], dirs: Directory[], palette: Palette): PatchBitmap[] => {
+const parsePatches = (wadBytes: number[], dirs: Directory[], palette: Palette): Bitmap[] => {
 	const patchDirFinder = findPatchDir(dirs);
 	const bitmapParser = parseBitmap(wadBytes, palette);
 	return parsePnames(wadBytes, dirs).names
 		.map(pn => patchDirFinder(pn)) // (dirName)=> Either<Directory>
 		.filter(d => d.isRight()).map(d => d.get()) // (Either<Directory>)=>Directory
-		.map(d => bitmapParser(d)).filter(b => b.isRight()).map(b => b.get()); // (Directory) => PatchBitmap
+		.map(d => bitmapParser(d)).filter(b => b.isRight()).map(b => b.get()); // (Directory) => Bitmap
 };
 
 /**
@@ -238,7 +244,7 @@ const parsePatches = (wadBytes: number[], dirs: Directory[], palette: Palette): 
  */
 const patchDataToRGBA = (columns: Either<Column>[], width: number, height: number, palette: Palette): Uint8ClampedArray => {
 	const pixAtCol = postPixelAt(columns);
-	const array = new Uint8ClampedArray(width * height * IMG_BYTES);
+	const array = new Uint8ClampedArray(width * height * RGBA_BYTES);
 	const pixelToImg = pixelToImgBuf(array, palette);
 	let idx = 0;
 	U.itn(0, height, (y) => {
@@ -249,11 +255,11 @@ const patchDataToRGBA = (columns: Either<Column>[], width: number, height: numbe
 	return array;
 };
 
-const patchToRGBA = (bitmap: PatchBitmap) => (palette: Palette): Uint8ClampedArray =>
+const patchToRGBA = (bitmap: Bitmap) => (palette: Palette): Uint8ClampedArray =>
 	patchDataToRGBA(bitmap.columns, bitmap.header.width, bitmap.header.height, palette);
 
 const pixelToImgBuf = (img: Uint8ClampedArray, palette: Palette) => (idx: number, pixel: number): number => {
-	const rgb = pixel === -1 ? TRANSPARENT_RGB : palette.colors[pixel];
+	const rgb = pixel === -1 ? TRANSPARENT_RGBA : palette.colors[pixel];
 	img[idx++] = rgb.r;
 	img[idx++] = rgb.g;
 	img[idx++] = rgb.b;
@@ -265,27 +271,27 @@ const postPixelAt = (columns: Either<Column>[]) => (x: number, y: number): numbe
 	return postAt(columns)(x, y)
 		.assert(p => Either.ofCondition(() => p.data.length > y - p.topdelta,
 			() => 'Pixel out of range at:(' + x + ',' + y + ')->' + p.data.length + '<=' + y + '-' + p.topdelta, () => 'OK'))
-		.map(p => p.data[y - p.topdelta]).orElseGet(() => TRANSPARENT_PIXEL);
+		.map(p => p.data[y - p.topdelta]).orElseGet(() => TRANSPARENT_RGBA_PIXEL);
 };
 
 const postAt = (columns: Either<Column>[]) => (x: number, y: number): Either<Post> =>
 	columns[x].map(c => Either.ofNullable(R.find<Post>(p => y >= p.topdelta && y < p.topdelta + p.data.length)(c.posts),
 		() => 'Transparent pixel at (' + x + ',' + y + ')'));
 
-const toImageData = (bitmap: PatchBitmap): ImageData => {
-	return new ImageData(bitmap.rgba, bitmap.header.width, bitmap.header.height);
+const toImageData = (bitmap: RgbaBitmap): ImageData => {
+	return new ImageData(bitmap.rgba, bitmap.width, bitmap.height);
 };
 
-const paintOnCanvasForZoom = (bitmap: PatchBitmap, canvas: HTMLCanvasElement) => (scale: number, maxSize = 300): HTMLImageElement => {
+const paintOnCanvasForZoom = (bitmap: RgbaBitmap, canvas: HTMLCanvasElement) => (scale: number, maxSize = 300): HTMLImageElement => {
 	const ctx = canvas.getContext('2d');
-	const maxOrgSize = Math.max(bitmap.header.width, bitmap.header.height);
+	const maxOrgSize = Math.max(bitmap.width, bitmap.height);
 	const curSize = scale * maxOrgSize;
 	if (curSize > maxSize) {
 		scale = maxSize / maxOrgSize;
 	}
 
-	canvas.width = bitmap.header.width * scale;
-	canvas.height = bitmap.header.height * scale;
+	canvas.width = bitmap.width * scale;
+	canvas.height = bitmap.height * scale;
 	ctx.putImageData(toImageData(bitmap), 0, 0);
 
 	const imageObject = new Image();
@@ -313,7 +319,7 @@ const toBitmapSprites = (sprite: Sprite): Either<BitmapSprite[]> => {
 };
 
 const toBitmapSprite = (frame: FrameDir[]): Either<BitmapSprite> => {
-	const frames: PatchBitmap[] = frame.filter(f => f.bitmap.isRight()).map(f => f.bitmap.get());
+	const frames: Bitmap[] = frame.filter(f => f.bitmap.isRight()).map(f => f.bitmap.get());
 	const first = frame[0];
 	return Either.ofCondition(() => frames.length > 0, () => first.spriteName + ' has no frames', () => ({
 		name: first.spriteName,
@@ -322,8 +328,40 @@ const toBitmapSprite = (frame: FrameDir[]): Either<BitmapSprite> => {
 	}));
 };
 
-const toImageBitmap = (bitmap: PatchBitmap) => (width: number, height: number): Promise<ImageBitmap> => {
+const toImageBitmap = (bitmap: Bitmap) => (width: number, height: number): Promise<ImageBitmap> => {
 	return createImageBitmap(toImageData(bitmap), {resizeWidth: width, resizeHeight: height});
+};
+
+const createTextureRgba = (width: number, height: number, patches: Patch[]): Uint8ClampedArray => {
+	const rgba = new Uint8ClampedArray(width * height * RGBA_BYTES);
+	const patcher = applyPatch(width, height, rgba);
+	patches.forEach(patcher);
+	return rgba;
+};
+
+const rgbaPixelOffset = (width: number) => (x: number, y: number): number => (x + y * width) * RGBA_BYTES;
+
+const copyRgbaPixel = (fromImg: Uint8ClampedArray, fromOffset: number) => (toImg: Uint8ClampedArray, toOffset: number) =>
+	R.range(0, 4).map(idx => toImg[idx + toOffset] = fromImg[idx + fromOffset]);
+
+const applyPatch = (width: number, height: number, to: Uint8ClampedArray) => (from: Patch) => {
+	const fromXInit = Math.abs(Math.min(from.originX, 0));
+	const fromYInit = Math.abs(Math.min(from.originY, 0));
+
+	const toXInit = Math.max(from.originX, 0);
+	const toYInit = Math.max(from.originY, 0);
+
+	const fromXMax = Math.min(from.bitmap.header.width - toXInit, width);
+	const fromYMax = Math.min(from.bitmap.header.height - toYInit, height);
+
+	const rgbaPixelOffsetFrom = rgbaPixelOffset(from.bitmap.width);
+	const rgbaPixelOffsetTo = rgbaPixelOffset(width);
+
+	for (let fromY = fromYInit, toY = toYInit; fromY < fromYMax; fromY++, toY++) {
+		for (let fromX = fromXInit, toX = toXInit; fromX < fromXMax; fromX++, toX++) {
+			copyRgbaPixel(from.bitmap.rgba, rgbaPixelOffsetFrom(fromX, fromY))(to, rgbaPixelOffsetTo(toX, toY));
+		}
+	}
 };
 
 // ############################ EXPORTS ############################

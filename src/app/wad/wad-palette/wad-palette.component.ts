@@ -15,7 +15,7 @@
  */
 import {Component, Input, OnInit} from '@angular/core';
 import * as R from 'ramda';
-import {Palette, RGB} from '../parser/wad-model';
+import {Palette, RGBA} from '../parser/wad-model';
 
 @Component({
 	selector: 'app-wad-palette',
@@ -28,7 +28,7 @@ export class WadPaletteComponent implements OnInit {
 	palette: Palette;
 
 	/** 16 rows, each containing 16xRGB */
-	rows: RGB[][];
+	rows: RGBA[][];
 
 	ngOnInit(): void {
 		this.rows = R.splitEvery(16, this.palette.colors);

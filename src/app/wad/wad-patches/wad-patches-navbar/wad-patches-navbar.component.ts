@@ -20,7 +20,7 @@ import {PatchesListControl} from '../wad-patches.component';
 @Component({
 	selector: 'app-wad-patches-navbar',
 	templateUrl: './wad-patches-navbar.component.html',
-	styleUrls: ['./wad-patches-navbar.component.css']
+	styleUrls: ['./wad-patches-navbar.component.scss']
 })
 export class WadPatchesNavbarComponent implements NavbarPlugin<PatchesListControl> {
 

@@ -49,6 +49,9 @@ $pagination-disabled-color: $app-font-readonly-color;
 	margin-bottom: 0 !important;
 }
 
+// bootstrap/scss/_modal.scss
+$modal-content-bg: $app-bg-light;
+
 // #############################################
 @import "~bootstrap/scss/bootstrap";
 // #############################################

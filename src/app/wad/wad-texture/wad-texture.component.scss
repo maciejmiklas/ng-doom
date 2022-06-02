@@ -1,0 +1,11 @@
+@import "/src/scss/ng-doom";
+
+.app-texture-container {
+	background: $app-content-bg-light-color;
+	@include app-content-color;
+	padding-top: 15px;
+	padding-bottom: 10px;
+}
+
+
+

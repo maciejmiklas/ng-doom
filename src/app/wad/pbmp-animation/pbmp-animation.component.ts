@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import {PatchBitmap} from '../parser/wad-model';
+import {Bitmap} from '../parser/wad-model';
 import {functions as tp} from '../parser/texture-parser';
 
 @Component({
@@ -24,7 +24,7 @@ import {functions as tp} from '../parser/texture-parser';
 export class PbmpAnimationComponent implements OnInit {
 
 	@Input()
-	bitmaps: PatchBitmap[];
+	bitmaps: Bitmap[];
 
 	@Input()
 	scale = 1;
@@ -73,7 +73,7 @@ export class PbmpAnimationComponent implements OnInit {
 		});
 	}
 
-	private createBitmap(patch: PatchBitmap): BitmapPromise {
+	private createBitmap(patch: Bitmap): BitmapPromise {
 		const width = patch.header.width * this.scale;
 		const height = patch.header.height * this.scale;
 		return {
@@ -87,7 +87,7 @@ export class PbmpAnimationComponent implements OnInit {
 
 export type BitmapPromise = {
 	bitmap: Promise<ImageBitmap>,
-	patch: PatchBitmap,
+	patch: Bitmap,
 	width: number,
 	height: number
 }

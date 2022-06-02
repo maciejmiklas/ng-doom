@@ -1,4 +1,4 @@
-<div class="app-sprites">
+<div class="app-patches">
 	<ng-container *ngFor="let patch of patches;let i=index">
 		<app-pbmp class="app-patch" [bitmap]="patch" [scale]="zoom" [maxSize]="maxSize"
 							ngbPopover="{{i}}: {{patch.header.dir.name}} -> {{patch.header.width}}x{{patch.header.height}}"

@@ -13,26 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component, Input, OnInit} from '@angular/core';
-import {Directory} from '../parser/wad-model';
+import {Component} from '@angular/core';
+import {TexturesListControl} from '../wad-textures.component';
+import {NavbarPlugin} from '../../../main/service/navbar_plugin';
 
 @Component({
-	selector: 'app-wad-dir',
-	templateUrl: './wad-dir.component.html',
-	styleUrls: ['./wad-dir.component.scss']
+	selector: 'app-wad-textures-navbar',
+	templateUrl: './wad-textures-navbar.component.html',
+	styleUrls: ['./wad-textures-navbar.component.scss']
 })
-export class WadDirComponent implements OnInit {
+export class WadTexturesNavbarComponent implements NavbarPlugin<TexturesListControl> {
 
-	@Input()
-	dir: Directory;
-
-	@Input()
-	rowClass = ''
+	private data: TexturesListControl;
 
 	constructor() {
 	}
 
-	ngOnInit(): void {
+	setData(data: TexturesListControl): void {
+		this.data = data;
+	}
+
+	set filter(val: string) {
+		this.data.applyFilter(val);
+	}
+
+	get filter(): string {
+		return '';
 	}
 
 }

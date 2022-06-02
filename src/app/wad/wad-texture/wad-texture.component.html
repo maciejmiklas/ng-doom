@@ -1,0 +1,14 @@
+<div class="container app-texture-container">
+	<div class="row">
+		<app-pbmp class="col-6" [bitmap]="texture" [scale]="2" [maxSize]="maxSize"></app-pbmp>
+		<div class="col-md"></div>
+		<div class="col-md-5">
+			<div class="row">
+				<app-wad-dir-element class="col-12" label='Name' [value]="texture.name"></app-wad-dir-element>
+				<app-wad-dir-element class="col-12" label='Size'
+														 [value]="texture.width+'x'+texture.height"></app-wad-dir-element>
+				<app-wad-dir-element class="col-12" label='Patches' [value]="texture.patchCount+''"></app-wad-dir-element>
+			</div>
+		</div>
+	</div>
+</div>

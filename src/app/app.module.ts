@@ -42,12 +42,15 @@ import {WadDirComponent} from './wad/wad-dir/wad-dir.component';
 import {WadDirElementComponent} from './wad/wad-dir-element/wad-dir-element.component';
 import {WadDirsNavbarComponent} from './wad/wad-dirs/wad-dirs-navbar/wad-dirs-navbar.component';
 import {PaperComponent} from './common/paper/paper.component';
-import { WadMapComponent } from './wad/wad-map/wad-map.component';
-import { WadMapNavbarComponent } from './wad/wad-map/wad-map-navbar/wad-map-navbar.component';
-import { PlayComponent } from './game/play/play.component';
-import { WadSpritesNavbarComponent } from './wad/wad-sprites/wad-sprites-navbar/wad-sprites-navbar.component';
-import { WadPatchesComponent } from './wad/wad-patches/wad-patches.component';
-import { WadPatchesNavbarComponent } from './wad/wad-patches/wad-patches-navbar/wad-patches-navbar.component';
+import {WadMapComponent} from './wad/wad-map/wad-map.component';
+import {WadMapNavbarComponent} from './wad/wad-map/wad-map-navbar/wad-map-navbar.component';
+import {PlayComponent} from './game/play/play.component';
+import {WadSpritesNavbarComponent} from './wad/wad-sprites/wad-sprites-navbar/wad-sprites-navbar.component';
+import {WadPatchesComponent} from './wad/wad-patches/wad-patches.component';
+import {WadPatchesNavbarComponent} from './wad/wad-patches/wad-patches-navbar/wad-patches-navbar.component';
+import {WadTexturesComponent} from './wad/wad-textures/wad-textures.component';
+import {WadTexturesNavbarComponent} from './wad/wad-textures/wad-textures-navbar/wad-textures-navbar.component';
+import {WadTextureComponent} from './wad/wad-texture/wad-texture.component';
 
 @NgModule({
 	declarations: [
@@ -69,12 +72,15 @@ import { WadPatchesNavbarComponent } from './wad/wad-patches/wad-patches-navbar/
 		WadDirElementComponent,
 		WadDirsNavbarComponent,
 		PaperComponent,
-  WadMapComponent,
-  WadMapNavbarComponent,
-  PlayComponent,
-  WadSpritesNavbarComponent,
-  WadPatchesComponent,
-  WadPatchesNavbarComponent
+		WadMapComponent,
+		WadMapNavbarComponent,
+		PlayComponent,
+		WadSpritesNavbarComponent,
+		WadPatchesComponent,
+		WadPatchesNavbarComponent,
+		WadTexturesComponent,
+		WadTexturesNavbarComponent,
+		WadTextureComponent,
 	],
 	imports: [
 		BrowserModule,

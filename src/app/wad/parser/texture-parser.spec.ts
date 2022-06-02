@@ -32,7 +32,7 @@ import {
 	verifySimpleDoomImageAt1x1,
 	verifySimpleDoomImageAt2x0
 } from './testdata/data';
-import {BitmapSprite, Directories, Directory, DoomTexture, PatchBitmap, PatchHeader, Pnames, Sprite, TextureDir} from './wad-model';
+import {BitmapSprite, Directories, Directory, DoomTexture, Bitmap, BitmapHeader, Pnames, Sprite, TextureDir} from './wad-model';
 import {functions as dp} from './directory-parser';
 import * as R from 'ramda';
 import {Either} from '@maciejmiklas/functional-ts';
@@ -51,7 +51,7 @@ describe('texture-parser#unfoldColumnofs', () => {
 	});
 });
 
-const validateStbarPatchHeader = (header: PatchHeader) => {
+const validateStbarPatchHeader = (header: BitmapHeader) => {
 	expect(header.width).toEqual(320);
 	expect(header.height).toEqual(32);
 	expect(header.xOffset).toEqual(0);
@@ -433,20 +433,20 @@ describe('texture-parser#parseTextures', () => {
 });
 
 describe('texture-parser#parsePatches', () => {
-	const pb: PatchBitmap[] = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette());
+	const pb: Bitmap[] = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette());
 
-	it('PatchBitmap size', () => {
+	it('Bitmap size', () => {
 		expect(pb.length).toEqual(163);
 	});
 
-	it('PatchBitmap width', () => {
+	it('Bitmap width', () => {
 		pb.forEach(b => {
 			expect(b.header.width).toBeGreaterThanOrEqual(0);
 			expect(b.header.width).toBeLessThanOrEqual(320);
 		});
 	});
 
-	it('PatchBitmap height', () => {
+	it('Bitmap height', () => {
 		pb.forEach(b => {
 			expect(b.header.height).toBeGreaterThanOrEqual(0);
 			expect(b.header.height).toBeLessThanOrEqual(200);

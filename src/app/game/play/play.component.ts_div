@@ -2,7 +2,7 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import * as THREE from 'three';
 import {Controls} from './controls';
 import {WadStorageService} from '../../wad/wad-storage.service';
-import {DoomMap, Linedef, PatchBitmap, Sector, Wad} from '../../wad/parser/wad-model';
+import {DoomMap, Linedef, Bitmap, Sector, Wad} from '../../wad/parser/wad-model';
 import {CSS2DObject, CSS2DRenderer} from 'three/examples/jsm/renderers/CSS2DRenderer';
 
 @Component({
@@ -59,7 +59,7 @@ export class PlayComponent implements OnInit {
 
 	private createWorld(scene: THREE.Scene) {
 		const startTime = performance.now();
-		const patch: PatchBitmap = this.wad.patches.find(p => p.header.dir.name === 'SW19_3');//SW19_3
+		const patch: Bitmap = this.wad.patches.find(p => p.header.dir.name === 'SW19_3');//SW19_3
 		const map: DoomMap = this.wad.maps[this.mapId];
 		map.sectors.forEach(renderSector(scene, patch));
 
@@ -68,11 +68,11 @@ export class PlayComponent implements OnInit {
 	};
 }
 
-const renderSector = (scene: THREE.Scene, patch: PatchBitmap) => (sector: Sector) => {
+const renderSector = (scene: THREE.Scene, patch: Bitmap) => (sector: Sector) => {
 	sector.linedefs.exec(ldf => ldf.forEach(ld => scene.add(wall(ld, patch, sector))));
 };
 
-const getTexture = (ld: Linedef, patch: PatchBitmap): PatchBitmap => {
+const getTexture = (ld: Linedef, patch: Bitmap): Bitmap => {
 	let text = null;
 	if (ld.frontSide.middleTexture.isRight()) {
 		text = ld.frontSide.middleTexture.get().patches[0];
@@ -89,7 +89,7 @@ const getTexture = (ld: Linedef, patch: PatchBitmap): PatchBitmap => {
 	}
 	return text.bitmap;
 };
-const wall = (ld: Linedef, fallbackPatch: PatchBitmap, sector: Sector): THREE.Mesh => {
+const wall = (ld: Linedef, fallbackPatch: Bitmap, sector: Sector): THREE.Mesh => {
 	const vs = ld.start;
 	const ve = ld.end;
 	const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
