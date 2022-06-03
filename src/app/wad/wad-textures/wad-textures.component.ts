@@ -53,7 +53,7 @@ export class WadTexturesComponent implements OnInit, TexturesListControl {
 	}
 
 	onTextureClick(name: string) {
-		const comp = this.modal.open(WadTextureComponent, {centered: true, scrollable: true});
+		const comp = this.modal.open(WadTextureComponent, {scrollable: true, animation: true, size: 'xl'});
 		comp.componentInstance.name = name;
 	}
 

@@ -45,27 +45,26 @@ canvas[resize] {
 }
 
 // ######### WAD PATCHES #########
-.app-patches {
+@mixin app-image-box($bmpSize:$wad-patch-box-size, $bmpMargin:$wad-patch-box-margin) {
 	@extend .d-flex;
 	@include align-center;
 	flex-flow: row wrap;
 	padding: 0;
 	margin: 0;
 	list-style: none;
+
+	app-pbmp {
+		background: $app-content-bg-light-color;
+		width: $bmpSize;
+		height: $bmpSize;
+		margin: $bmpMargin;
+		line-height: $bmpSize;
+		font-weight: bold;
+		text-align: center;
+
+		// .app-patches is flex container for .app-patch and .app-patch is again flex container for ist child
+		@extend .d-flex;
+		justify-content: space-around;
+		align-items: center;
+	}
 }
-
-.app-patch {
-	background: $app-content-bg-light-color;
-	width: $wad-patch-box-size;
-	height: $wad-patch-box-size;
-	margin: $wad-patch-box-margin;
-	line-height: $wad-patch-box-size;
-	font-weight: bold;
-	text-align: center;
-
-	// .app-patches is flex container for .app-patch and .app-patch is again flex container for ist child
-	@extend .d-flex;
-	justify-content: space-around;
-	align-items: center;
-}
-

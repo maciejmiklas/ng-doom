@@ -6,7 +6,6 @@ $app-bg-transparency-color: black;
 $app-bg-light: rgba($app-bg-transparency-color, 0.3);
 $app-bg-middle: rgba($app-bg-transparency-color, 0.6);
 $app-bg-dark: rgba($app-bg-transparency-color, 0.8);
-
 $app-red-bright: rgba(252, 0, 0, 0.8);
 $app-red-dark: rgb(106, 0, 0);
 
@@ -44,9 +43,13 @@ $wad-sprite-box-margin: 5px;
 $wad-patch-box-size: 300px;
 $wad-patch-box-margin: 5px;
 
+// ######### WAD TEXTURE -> PATCHES #########
+$wad-tx-patch-box-size: 128px;
+$wad-tx-patch-box-margin: 5px;
+
 // ######### WAD TEXTURES #########
 $wad-texture-box-size: 300px;
 $wad-texture-box-margin: 5px;
 
-
-
+// ######### MODAL #########
+$app-bg-modal: rgba(#3a3a3a, 0.8);

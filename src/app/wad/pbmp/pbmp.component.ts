@@ -76,8 +76,6 @@ export class PbmpComponent implements OnInit, DoCheck {
 	}
 
 	private paint(): void {
-		const wad = this.wadStorage.getCurrent().get().wad;
-		const palette = wad.playpal.palettes[this.palette];
 		this.canvas = this.canvasRef.nativeElement;
 		this.ctx = this.canvas.getContext('2d');
 		this.imageObject = tp.paintOnCanvasForZoom(this.bitmap, this.canvas)(this._scale, this.maxSize);

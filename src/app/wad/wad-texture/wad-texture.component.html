@@ -1,6 +1,6 @@
 <div class="container app-texture-container">
 	<div class="row">
-		<app-pbmp class="col-6" [bitmap]="texture" [scale]="2" [maxSize]="maxSize"></app-pbmp>
+		<app-pbmp class="app-texture-bmp col-6" [bitmap]="texture" [scale]="2" [maxSize]="maxTextureSize"></app-pbmp>
 		<div class="col-md"></div>
 		<div class="col-md-5">
 			<div class="row">
@@ -10,5 +10,13 @@
 				<app-wad-dir-element class="col-12" label='Patches' [value]="texture.patchCount+''"></app-wad-dir-element>
 			</div>
 		</div>
+	</div>
+
+	<div class="app-patches">
+		<ng-container *ngFor="let patch of texture.patches;let i=index">
+			<app-pbmp class="app-patch" [bitmap]="patch.bitmap" [maxSize]="maxPatchSize"
+								ngbPopover="{{i}}:{{patch.patchName}} -> {{patch.originX}}x{{patch.originY}}"
+								triggers="mouseenter:mouseleave"></app-pbmp>
+		</ng-container>
 	</div>
 </div>
