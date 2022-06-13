@@ -16,7 +16,7 @@
 import {Directories, Directory, FrameDir, Palette, Sprite} from './wad-model';
 import {Either} from '@maciejmiklas/functional-ts';
 import {functions as dp} from './directory-parser';
-import {functions as tp} from './texture-parser';
+import {functions as bp} from './bitmap-parser';
 import * as R from 'ramda';
 import {getPalette} from './testdata/data';
 
@@ -57,7 +57,7 @@ const toFrameDir = (wadBytes: number[], palette: Palette) => (dir: Directory): F
 		dir,
 		angle: parseDirAngle(dir),
 		mirror: false,
-		bitmap: tp.parseBitmap(wadBytes, palette)(dir)
+		bitmap: bp.parseBitmap(wadBytes, palette)(dir)
 	};
 };
 
@@ -68,7 +68,7 @@ const toMirrorFrameDir = (wadBytes: number[], palette: Palette) => (dir: Directo
 		dir,
 		angle: parseDirMirrorAngle(dir),
 		mirror: true,
-		bitmap: tp.parseBitmap(wadBytes, palette)(dir)
+		bitmap: bp.parseBitmap(wadBytes, palette)(dir)
 	};
 };
 

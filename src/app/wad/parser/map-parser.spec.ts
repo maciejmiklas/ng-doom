@@ -15,7 +15,7 @@
  */
 import {functions as mp, testFunctions as tf} from './map-parser';
 import * as R from 'ramda';
-import {Directory, DoomMap, Linedef, MapLumpType, Sector, Sidedef, Thing, Vertex, WadType} from './wad-model';
+import {Directory, DoomMap, Linedef, LinedefFlag, MapLumpType, Sector, Sidedef, Thing, Vertex, WadType} from './wad-model';
 import {
 	E1M1_BLOCKMAP,
 	E1M1_LINEDEFS,
@@ -41,7 +41,7 @@ import {
 
 const E1M1_SECTORS = 85;
 
-describe('map_parser#parseHeader', () => {
+describe('map-parser#parseHeader', () => {
 	it('IWAD', () => {
 		const header = getHeader().get();
 		expect(header.identification).toEqual(WadType.IWAD);
@@ -129,7 +129,7 @@ const validateLastThing = (thing: Thing) => {
 	expect(thing.flags).toEqual(7);
 };
 
-describe('map_parser#parseThing', () => {
+describe('map-parser#parseThing', () => {
 	const thingsDir = getAllDirs()[getFirstMap().idx + 1];
 	const parser = tf.parseThing(getWadBytes(), thingsDir);
 
@@ -150,7 +150,7 @@ describe('map_parser#parseThing', () => {
 	});
 });
 
-describe('map_parser#parseThings', () => {
+describe('map-parser#parseThings', () => {
 	const thingsDir = getAllDirs()[getFirstMap().idx + MapLumpType.THINGS];
 	const things: Thing[] = tf.parseThings(getWadBytes())(getE1M1Dirs());
 
@@ -253,7 +253,7 @@ const validateSidedefDir = (dir: Directory) => {
 	expect(dir.name).toEqual('SIDEDEFS');
 };
 
-describe('map_parser#parseSidedef', () => {
+describe('map-parser#parseSidedef', () => {
 	const thingsDir = getAllDirs()[getFirstMap().idx + +MapLumpType.SIDEDEFS];
 	const parser = tf.parseSidedef(getWadBytes(), thingsDir, tf.createTextureLoader(getTextures()));
 
@@ -278,7 +278,7 @@ describe('map_parser#parseSidedef', () => {
 	});
 });
 
-describe('map_parser#parseSidedefs', () => {
+describe('map-parser#parseSidedefs', () => {
 	const parsed = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
 
 	it('Sidedef Nr. 0', () => {
@@ -333,7 +333,7 @@ const validateLastVertex = (vertex: Vertex) => {
 	validateVertex(vertex, VERTEX_466);
 };
 
-describe('map_parser#parseVertex', () => {
+describe('map-parser#parseVertex', () => {
 	const vertexesDir = getAllDirs()[getFirstMap().idx + MapLumpType.VERTEXES];
 
 	const parser = tf.parseVertex(getWadBytes(), vertexesDir);
@@ -355,7 +355,7 @@ describe('map_parser#parseVertex', () => {
 	});
 });
 
-describe('map_parser#parseVertexes', () => {
+describe('map-parser#parseVertexes', () => {
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
 
 	it('First Vertex', () => {
@@ -378,7 +378,8 @@ const validateLindedefsDir = (dir: Directory) => {
 const validateLindedef0 = (lindedef: Linedef) => {
 	validateVertex(VERTEX_0, lindedef.start);
 	validateVertex(VERTEX_1, lindedef.end);
-	expect(lindedef.flags).toEqual(1);
+	expect(lindedef.flags.size).toEqual(1);
+	expect(lindedef.flags.has(LinedefFlag.blocks_players_monsters)).toBeTrue();
 	expect(lindedef.sectorTag).toEqual(0);
 	validateSidedef0(lindedef.frontSide);
 	expect(lindedef.backSide.isLeft()).toBeTruthy();
@@ -387,7 +388,8 @@ const validateLindedef0 = (lindedef: Linedef) => {
 const validateLindedef2 = (lindedef: Linedef) => {
 	validateVertex(VERTEX_3, lindedef.start);
 	validateVertex(VERTEX_0, lindedef.end);
-	expect(lindedef.flags).toEqual(1);
+	expect(lindedef.flags.size).toEqual(1);
+	expect(lindedef.flags.has(LinedefFlag.blocks_players_monsters)).toBeTrue();
 	expect(lindedef.sectorTag).toEqual(0);
 	validateSidedef2(lindedef.frontSide);
 	expect(lindedef.backSide.isLeft()).toBeTruthy();
@@ -396,13 +398,17 @@ const validateLindedef2 = (lindedef: Linedef) => {
 const validateLindedef26 = (lindedef: Linedef) => {
 	validateVertex(VERTEX_27, lindedef.start);
 	validateVertex(VERTEX_26, lindedef.end);
-	expect(lindedef.flags).toEqual(29);
+	expect(lindedef.flags.size).toEqual(4);
+	expect(lindedef.flags.has(LinedefFlag.blocks_players_monsters)).toBeTrue();
+	expect(lindedef.flags.has(LinedefFlag.two_sided)).toBeTrue();
+	expect(lindedef.flags.has(LinedefFlag.upper_texture_unpegged)).toBeTrue();
+	expect(lindedef.flags.has(LinedefFlag.lower_texture_unpegged)).toBeTrue();
 	expect(lindedef.sectorTag).toEqual(0);
 	validateSidedef26(lindedef.frontSide);
 	validateSidedef27(lindedef.backSide.get());
 };
 
-describe('map_parser#parseLinedef', () => {
+describe('map-parser#parseLinedef', () => {
 	const linedefDir = getAllDirs()[getFirstMap().idx + MapLumpType.LINEDEFS];
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
 	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
@@ -427,7 +433,7 @@ describe('map_parser#parseLinedef', () => {
 
 });
 
-describe('map_parser#parseLinedefs', () => {
+describe('map-parser#parseLinedefs', () => {
 	const linedefDir = getAllDirs()[getFirstMap().idx + MapLumpType.LINEDEFS];
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
 	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
@@ -451,7 +457,7 @@ describe('map_parser#parseLinedefs', () => {
 
 });
 
-describe('map_parser -> Parse Map Directory', () => {
+describe('map-parser -> Parse Map Directory', () => {
 	const validate = getHeader().map(v => validateDir(v)).get();
 
 	it('First MAP - THINGS', () => {
@@ -467,7 +473,7 @@ describe('map_parser -> Parse Map Directory', () => {
 	});
 });
 
-describe('map_parser#findNextMapDir', () => {
+describe('map-parser#findNextMapDir', () => {
 	const nextDirEi = getAllDirsOp().map(dirs => tf.findNextMapStartingDir(dirs));
 	const nextDir = nextDirEi.get();
 
@@ -505,7 +511,7 @@ describe('map_parser#findNextMapDir', () => {
 	});
 });
 
-describe('map_parser#isMapName', () => {
+describe('map-parser#isMapName', () => {
 
 	it('MAPxx', () => {
 		expect(tf.isMapName('MAP01')).toBe(true);
@@ -555,7 +561,7 @@ describe('sprite_parser#findNextMapDir', () => {
 
 });
 
-describe('map_parser#parseMapDirs', () => {
+describe('map-parser#parseMapDirs', () => {
 	const finder = tf.findNextMapStartingDir(getAllDirs());
 
 	it('E1M1', () => {
@@ -575,7 +581,7 @@ describe('map_parser#parseMapDirs', () => {
 
 });
 
-describe('map_parser#findAllMapStartDirs', () => {
+describe('map-parser#findAllMapStartDirs', () => {
 	const dirs: Directory[] = tf.findAllMapStartDirs(getAllDirs());
 	it('E1M1', () => {
 		expect(dirs[0].name).toEqual('E1M1');
@@ -615,7 +621,7 @@ describe('map_parser#findAllMapStartDirs', () => {
 
 });
 
-describe('map_parser#parseMap', () => {
+describe('map-parser#parseMap', () => {
 	const map: DoomMap = tf.parseMap(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
 
 	it('Map Dirs', () => {
@@ -673,7 +679,7 @@ describe('map_parser#parseMap', () => {
 	});
 });
 
-describe('map_parser#parseMapsDirs', () => {
+describe('map-parser#parseMapsDirs', () => {
 	const dirs: Directory[] = tf.findAllMapStartDirs(getAllDirs());
 	const all: Directory[][] = tf.parseMapsDirs(getAllDirs(), dirs);
 
@@ -691,7 +697,7 @@ describe('map_parser#parseMapsDirs', () => {
 
 });
 
-describe('map_parser#parseMaps', () => {
+describe('map-parser#parseMaps', () => {
 	const maps: DoomMap[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get();
 
 	it('Maps Found', () => {
@@ -708,14 +714,14 @@ describe('map_parser#parseMaps', () => {
 
 });
 
-describe('map_parser#findMinX', () => {
+describe('map-parser#findMinX', () => {
 	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get()[0].linedefs;
 	it('findMinX', () => {
 		expect(tf.findMinX(defs)).toEqual(-768);
 	});
 });
 
-describe('map_parser#findMinY', () => {
+describe('map-parser#findMinY', () => {
 	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get()[0].linedefs;
 
 	it('findMinY', () => {
@@ -724,7 +730,7 @@ describe('map_parser#findMinY', () => {
 });
 
 
-describe('map_parser#normalizeMap', () => {
+describe('map-parser#normalizeMap', () => {
 	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get()[0].linedefs;
 
 	it('findMax', () => {
@@ -732,7 +738,7 @@ describe('map_parser#normalizeMap', () => {
 	});
 });
 
-describe('map_parser#scalePos', () => {
+describe('map-parser#scalePos', () => {
 	const scale = tf.scalePos(4)(3);
 
 	it('0', () => {
@@ -749,7 +755,7 @@ describe('map_parser#scalePos', () => {
 
 });
 
-describe('map_parser#normalizeLinedefs', () => {
+describe('map-parser#normalizeLinedefs', () => {
 	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get()[0].linedefs;
 	const nt = (scale: number) => (xy: boolean) => R.reduce(R.max, Number.MIN_SAFE_INTEGER, mp.normalizeLinedefs(scale)(defs).map(d => xy ? d.start.x : d.start.y));
 
@@ -786,8 +792,8 @@ describe('map_parser#normalizeLinedefs', () => {
 	});
 });
 
-describe('map_parser#parseSector', () => {
-	const parser = tf.parseSector(getWadBytes(), getE1M1Dirs()[MapLumpType.SECTORS],getLinedefsBySector());
+describe('map-parser#parseSector', () => {
+	const parser = tf.parseSector(getWadBytes(), getE1M1Dirs()[MapLumpType.SECTORS], getLinedefsBySector());
 
 	it('E1M1 - Sector nr: 0', () => {
 		validateSectorE1M1_0(parser(0));
@@ -802,7 +808,7 @@ describe('map_parser#parseSector', () => {
 	});
 });
 
-describe('map_parser#parseSectors', () => {
+describe('map-parser#parseSectors', () => {
 	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), getLinedefsBySector());
 
 	it('E1M1 - Sector nr: 0', () => {
@@ -823,7 +829,7 @@ describe('map_parser#parseSectors', () => {
 
 });
 
-describe('map_parser#groupBySectorArray', () => {
+describe('map-parser#groupBySectorArray', () => {
 	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), getLinedefsBySector());
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
 	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
@@ -878,7 +884,7 @@ describe('map_parser#groupBySectorArray', () => {
 
 });
 
-describe('map_parser#groupBySector', () => {
+describe('map-parser#groupBySector', () => {
 	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), getLinedefsBySector());
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
 	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
@@ -918,6 +924,66 @@ describe('map_parser#groupBySector', () => {
 			});
 		}
 		expect(foundLinedefs.size).toEqual(linedefs.length);
+	});
+});
+
+
+describe('map-parser#parseFlags', () => {
+	it('Bit 1', () => {
+		const flags = tf.parseFlags(1);
+		expect(flags.size).toEqual(1);
+		expect(flags.has(LinedefFlag.blocks_players_monsters)).toBeTrue();
+	});
+
+	it('Bit 1,2', () => {
+		const flags = tf.parseFlags(0x3);
+		expect(flags.size).toEqual(2);
+		expect(flags.has(LinedefFlag.blocks_players_monsters)).toBeTrue();
+		expect(flags.has(LinedefFlag.blocks_monsters)).toBeTrue();
+	});
+
+	it('Bit 1,2,5', () => {
+		const flags = tf.parseFlags(0x13);
+		expect(flags.size).toEqual(3);
+		expect(flags.has(LinedefFlag.blocks_players_monsters)).toBeTrue();
+		expect(flags.has(LinedefFlag.blocks_monsters)).toBeTrue();
+		expect(flags.has(LinedefFlag.lower_texture_unpegged)).toBeTrue();
+	});
+
+	it('Bit 2,5,8', () => {
+		const flags = tf.parseFlags(0x92);
+		expect(flags.size).toEqual(3);
+		expect(flags.has(LinedefFlag.blocks_monsters)).toBeTrue();
+		expect(flags.has(LinedefFlag.lower_texture_unpegged)).toBeTrue();
+		expect(flags.has(LinedefFlag.never_shows_on_automap)).toBeTrue();
+	});
+
+	it('Bit 2,5,9', () => {
+		const flags = tf.parseFlags(0x112);
+		expect(flags.size).toEqual(3);
+		expect(flags.has(LinedefFlag.blocks_monsters)).toBeTrue();
+		expect(flags.has(LinedefFlag.lower_texture_unpegged)).toBeTrue();
+		expect(flags.has(LinedefFlag.always_shows_on_automap)).toBeTrue();
+	});
+
+	it('Bit 1,2,5,9', () => {
+		const flags = tf.parseFlags(0x93);
+		expect(flags.size).toEqual(4);
+		expect(flags.has(LinedefFlag.blocks_players_monsters)).toBeTrue();
+		expect(flags.has(LinedefFlag.blocks_monsters)).toBeTrue();
+		expect(flags.has(LinedefFlag.lower_texture_unpegged)).toBeTrue();
+		expect(flags.has(LinedefFlag.never_shows_on_automap)).toBeTrue();
+	});
+
+	it('Bit 8', () => {
+		const flags = tf.parseFlags(0x100);
+		expect(flags.size).toEqual(1);
+		expect(flags.has(LinedefFlag.always_shows_on_automap)).toBeTrue();
+	});
+
+	it('All bits set', () => {
+		const flags = tf.parseFlags(0x1FF);
+		expect(flags.size).toEqual(9);
 	});
 });
 

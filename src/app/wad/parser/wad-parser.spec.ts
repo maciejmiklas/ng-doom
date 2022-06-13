@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 import {functions as wp, testFunctions as tf} from './wad-parser';
-import {getAllDirs, getWadBytes, validateTitleColumn, validateTitlePatchHeader} from './testdata/data';
+import {getAllDirs, getPalette, getWadBytes, validateTitleColumn, validateTitlePatchHeader} from './testdata/data';
 import {functions as dp} from './directory-parser';
 import {Directories, TitlePic, WadType} from './wad-model';
 import {Either} from '@maciejmiklas/functional-ts';
-import {getPalette} from './testdata/data';
 
 describe('wad_parser#parseTitlePic', () => {
-	const tp: Either<TitlePic> = tf.parseTitlePic(getWadBytes(), getAllDirs(),getPalette());
+	const tp: Either<TitlePic> = tf.parseTitlePic(getWadBytes(), getAllDirs(), getPalette());
 	it('Found Pictures', () => {
 		expect(tp.isRight()).toBeTruthy();
 		expect(tp.get().credit).toBeTruthy();
@@ -63,11 +62,11 @@ describe('wad_parser#parseWad', () => {
 	});
 
 	it('wad.maps', () => {
-		expect(wad.maps.length).toEqual(9)
+		expect(wad.maps.length).toEqual(9);
 		expect(wad.maps[0].mapDirs[0].name).toEqual('E1M1');
 	});
 
 	it('wad.playpal', () => {
-		expect(wad.playpal.palettes.length).toEqual(13)
+		expect(wad.playpal.palettes.length).toEqual(13);
 	});
 });

@@ -178,7 +178,7 @@ export type Linedef = MapLump & {
 	id: number
 	start: Vertex
 	end: Vertex
-	flags: number
+	flags: Set<LinedefFlag>
 	specialType: number
 	sectorTag: number
 
@@ -187,6 +187,21 @@ export type Linedef = MapLump & {
 	frontSide: Sidedef
 	backSide: Either<Sidedef>
 };
+
+/**
+ * @see https://doomwiki.org/wiki/Linedef#Linedef_flags
+ */
+export enum LinedefFlag {
+	blocks_players_monsters = 1,
+	blocks_monsters = 2,
+	two_sided = 3,
+	upper_texture_unpegged = 4,
+	lower_texture_unpegged = 5,
+	secret = 6,
+	blocks_sound = 7,
+	never_shows_on_automap = 8,
+	always_shows_on_automap = 9
+}
 
 /**
  * Sidedef contains textures for each wall on the map (Linedef)
@@ -203,7 +218,7 @@ export type Sidedef = MapLump & {
 
 	/**
 	 * The name of a texture that will be displayed on the border between a sector and its neighboring ceiling of a different
-	 * height. If the linedef that contains this sidedef is one sided this field is meaningless.
+	 * height. If the linedef that contains this sidedef is one-sided this field is meaningless.
 	 */
 	upperTexture: Either<DoomTexture>
 

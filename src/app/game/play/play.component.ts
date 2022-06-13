@@ -17,7 +17,7 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import * as THREE from 'three';
 import {Controls} from './controls';
 import {WadStorageService} from '../../wad/wad-storage.service';
-import {DoomMap, Linedef, Bitmap, Sector, Wad} from '../../wad/parser/wad-model';
+import {Bitmap, DoomMap, DoomTexture, Linedef, Sector, Wad} from '../../wad/parser/wad-model';
 import {CSS2DRenderer} from 'three/examples/jsm/renderers/CSS2DRenderer';
 
 @Component({
@@ -27,7 +27,7 @@ import {CSS2DRenderer} from 'three/examples/jsm/renderers/CSS2DRenderer';
 })
 export class PlayComponent implements OnInit {
 
-	mapId = 0;
+	mapId = 2;
 
 	@ViewChild('canvas', {static: true})
 	private canvasRef: ElementRef<HTMLCanvasElement>;
@@ -79,25 +79,33 @@ export class PlayComponent implements OnInit {
 }
 
 const renderSector = (scene: THREE.Scene) => (sector: Sector) => {
-	sector.linedefs.exec(ldf => ldf.forEach(ld => scene.add(middleWall(ld, sector))));
+	sector.linedefs.exec(ldf => ldf.forEach(ld => {
+		const middle = middleWall(ld, sector);
+		if (middle != null) {
+			scene.add(middle);
+		}
+	}));
 };
 
 const middleWall = (ld: Linedef, sector: Sector): THREE.Mesh => {
+	if (!ld.frontSide.middleTexture.isRight()) {
+		return null;
+	}
 	const vs = ld.start;
 	const ve = ld.end;
 	const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
 	const wallHeight = sector.ceilingHeight - sector.floorHeight;
-	const material = createMaterial(ld);
+	const material = createMaterial(ld.frontSide.middleTexture.get());
 	const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(wallWidth, wallHeight), material);
 	mesh.position.set((vs.x + ve.x) / 2, sector.floorHeight + wallHeight / 2, (vs.y + ve.y) / -2);
 	mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x));
 	return mesh;
 };
 
-const createMaterial = (ld: Linedef): THREE.Material => {
+const createMaterial = (dt: DoomTexture): THREE.Material => {
 	let material;
-	if (ld.frontSide.middleTexture.isRight()) {
-		const patch: Bitmap = ld.frontSide.middleTexture.get().patches[0].bitmap;
+	if (dt) {
+		const patch: Bitmap = dt.patches[0].bitmap;
 		const texture = new THREE.DataTexture(patch.rgba, patch.header.width, patch.header.height);
 		texture.needsUpdate = true;
 		texture.format = THREE.RGBAFormat;
@@ -107,8 +115,8 @@ const createMaterial = (ld: Linedef): THREE.Material => {
 		texture.mapping = THREE.UVMapping;
 		texture.wrapS = THREE.RepeatWrapping;
 		texture.wrapT = THREE.RepeatWrapping;
-		texture.repeat.x = -1;
-		material = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
+		//texture.repeat.x = -1;
+		material = new THREE.MeshBasicMaterial({map: texture, transparent: true, alphaTest: 0.5, side: THREE.DoubleSide});
 	} else {
 		material = new THREE.MeshStandardMaterial({transparent: true, color: 'green', side: THREE.DoubleSide});
 	}

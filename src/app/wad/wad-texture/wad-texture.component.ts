@@ -10,13 +10,16 @@ import {Bitmap, DoomTexture} from '../parser/wad-model';
 export class WadTextureComponent implements OnInit {
 
 	@Input()
-	zoom = 2;
+	textureZoom = 4;
 
 	@Input()
-	maxTextureSize = 123;
+	textureMaxSize = 300;
 
 	@Input()
-	maxPatchSize = 64;
+	patchMaxSize = 128;
+
+	@Input()
+	patchZoom = 1;
 
 	@Input()
 	name;

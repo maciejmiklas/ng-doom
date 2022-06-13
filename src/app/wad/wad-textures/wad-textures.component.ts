@@ -49,7 +49,7 @@ export class WadTexturesComponent implements OnInit, TexturesListControl {
 
 	applyFilter(filter: string) {
 		this.wadStorage.getCurrent().get().wad.textures;
-		this.textures = this.wadStorage.getCurrent().get().wad.textures.filter(tx => tx.dir.name.toUpperCase().includes(filter.toUpperCase()));
+		this.textures = this.wadStorage.getCurrent().get().wad.textures.filter(tx => tx.name.toUpperCase().includes(filter.toUpperCase()));
 	}
 
 	onTextureClick(name: string) {

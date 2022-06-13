@@ -16,6 +16,7 @@
 import {testFunctions as tf, testFunctions as mpt} from '../map-parser';
 import {functions as dp} from '../directory-parser';
 import {functions as tp} from '../texture-parser';
+import {functions as pp} from '../playpal-parser';
 
 import {
 	Column,
@@ -68,7 +69,7 @@ export const getLinedefsBySector = (): { [sector: number]: Linedef[] } => {
 let _palette = null;
 export const getPalette = (): Palette => {
 	if (_palette == null) {
-		_palette = tp.parsePlaypal(getWadBytes(), getAllDirs()).palettes[0];
+		_palette = pp.parsePlaypal(getWadBytes(), getAllDirs()).palettes[0];
 	}
 	return _palette;
 };

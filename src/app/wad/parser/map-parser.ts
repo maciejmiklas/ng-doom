@@ -15,7 +15,7 @@
  */
 import * as R from 'ramda';
 import {Either} from '@maciejmiklas/functional-ts';
-import {Directory, DoomMap, DoomTexture, Linedef, MapLumpType, Sector, Sidedef, Thing, Vertex} from './wad-model';
+import {Directory, DoomMap, DoomTexture, Linedef, LinedefFlag, MapLumpType, Sector, Sidedef, Thing, Vertex} from './wad-model';
 import U from '../../common/util';
 
 /** The type of the map has to be in the form ExMy or MAPxx */
@@ -170,9 +170,17 @@ const parseLinedefs = (bytes: number[]) => (mapDirs: Directory[], vertexes: Vert
 	return unfoldByDirectorySize(linedefsDir, 14).map((ofs, thingIdx) => parser(thingIdx)).filter(v => v.isRight()).map(v => v.get());
 };
 
+const parseFlags = (val: number): Set<LinedefFlag> =>
+	new Set<LinedefFlag>(
+		Object.keys(LinedefFlag) // iterate over all entries from LinedefFlag
+			.map(Number).filter(k => !isNaN(k)) // map keys: LinedefFlag => number
+			.filter(k => (1 << (k - 1) & val) != 0)// remove not set bits;
+	);
+
 const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sidedefs: Sidedef[]) => (thingIdx: number): Either<Linedef> => {
 	const offset = dir.filepos + 14 * thingIdx;
 	const shortParser = U.parseShort(bytes);
+	const intParser = U.parseInt(bytes);
 	const shortOpParser = U.parseShortOp(bytes);
 
 	const vertexParser = shortOpParser(v => v < vertexes.length && v >= 0,
@@ -192,7 +200,7 @@ const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sided
 			type: MapLumpType.LINEDEFS,
 			start: startVertex.get(),
 			end: endVertex.get(),
-			flags: shortParser(offset + 0x04),
+			flags: parseFlags(intParser(offset + 0x04)),
 			specialType: shortParser(offset + 0x06),
 			sectorTag: shortParser(offset + 0x08),
 			frontSide: frontSide.get(),
@@ -268,7 +276,8 @@ export const testFunctions = {
 	parseSectors,
 	groupBySector,
 	createTextureLoader,
-	groupBySectorArray
+	groupBySectorArray,
+	parseFlags
 };
 
 export const functions = {parseMaps, normalizeLinedefs};
