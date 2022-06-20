@@ -17,8 +17,10 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import * as THREE from 'three';
 import {Controls} from './controls';
 import {WadStorageService} from '../../wad/wad-storage.service';
-import {Bitmap, DoomMap, DoomTexture, Linedef, Sector, Wad} from '../../wad/parser/wad-model';
+import {Bitmap, DoomMap, DoomTexture, Linedef, LinedefBySector, Wad} from '../../wad/parser/wad-model';
 import {CSS2DRenderer} from 'three/examples/jsm/renderers/CSS2DRenderer';
+import {Either} from '@maciejmiklas/functional-ts';
+import {Side} from 'three/src/constants';
 
 @Component({
 	selector: 'app-play',
@@ -27,7 +29,7 @@ import {CSS2DRenderer} from 'three/examples/jsm/renderers/CSS2DRenderer';
 })
 export class PlayComponent implements OnInit {
 
-	mapId = 2;
+	mapId = 4;
 
 	@ViewChild('canvas', {static: true})
 	private canvasRef: ElementRef<HTMLCanvasElement>;
@@ -71,38 +73,69 @@ export class PlayComponent implements OnInit {
 	private createWorld(scene: THREE.Scene) {
 		const startTime = performance.now();
 		const map: DoomMap = this.wad.maps[this.mapId];
-		map.sectors.forEach(renderSector(scene));
+		map.linedefBySector.forEach(renderSector(scene));
 
 		//scene.add(createGround());
 		console.log('>TIME createWorld>', performance.now() - startTime);
 	};
 }
 
-const renderSector = (scene: THREE.Scene) => (sector: Sector) => {
-	sector.linedefs.exec(ldf => ldf.forEach(ld => {
-		const middle = middleWall(ld, sector);
-		if (middle != null) {
-			scene.add(middle);
-		}
-	}));
+const renderSector = (scene: THREE.Scene) => (lbs: LinedefBySector) => {
+	lbs.linedefs.forEach(ld => {
+		middleWall(ld, THREE.FrontSide, () => ld.frontSide.middleTexture).exec(m => scene.add(m));
+		middleWall(ld, THREE.BackSide, () => ld.backSide.map(b => b.middleTexture)).exec(m => scene.add(m));
+		upperWall(ld).exec(m => scene.add(m));
+		lowerWall(ld).exec(m => scene.add(m));
+	});
 };
 
-const middleWall = (ld: Linedef, sector: Sector): THREE.Mesh => {
-	if (!ld.frontSide.middleTexture.isRight()) {
-		return null;
-	}
-	const vs = ld.start;
-	const ve = ld.end;
-	const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
-	const wallHeight = sector.ceilingHeight - sector.floorHeight;
-	const material = createMaterial(ld.frontSide.middleTexture.get());
-	const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(wallWidth, wallHeight), material);
-	mesh.position.set((vs.x + ve.x) / 2, sector.floorHeight + wallHeight / 2, (vs.y + ve.y) / -2);
-	mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x));
-	return mesh;
+const lowerWall = (ld: Linedef): Either<THREE.Mesh> => {
+	return Either.ofTruthFlat([ld.frontSide.lowerTexture, ld.backSide], () =>
+		ld.frontSide.lowerTexture.map(tx => {
+			const vs = ld.start;
+			const ve = ld.end;
+			const secFloorHeight = ld.backSide.get().sector.floorHeight;
+			const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
+			const wallHeight = ld.sector.floorHeight - secFloorHeight;
+			const material = createMaterial(tx, THREE.FrontSide);
+			const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(wallWidth, wallHeight), material);
+			mesh.position.set((vs.x + ve.x) / 2, secFloorHeight + wallHeight / 2, (vs.y + ve.y) / -2);
+			mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x));
+			return mesh;
+		}));
 };
 
-const createMaterial = (dt: DoomTexture): THREE.Material => {
+const upperWall = (ld: Linedef): Either<THREE.Mesh> => {
+	return Either.ofTruthFlat([ld.frontSide.upperTexture, ld.backSide], () =>
+		ld.frontSide.upperTexture.map(tx => {
+			const vs = ld.start;
+			const ve = ld.end;
+			const secCeilingHeight = ld.backSide.get().sector.ceilingHeight;
+			const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
+			const wallHeight = ld.sector.ceilingHeight - secCeilingHeight;
+			const material = createMaterial(tx, THREE.FrontSide);
+			const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(wallWidth, wallHeight), material);
+			mesh.position.set((vs.x + ve.x) / 2, secCeilingHeight + wallHeight / 2, (vs.y + ve.y) / -2);
+			mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x));
+			return mesh;
+		}));
+};
+
+const middleWall = (ld: Linedef, side: Side, textureExtractor: () => Either<DoomTexture>): Either<THREE.Mesh> => {
+	return textureExtractor().map(tx => {
+		const vs = ld.start;
+		const ve = ld.end;
+		const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
+		const wallHeight = ld.sector.ceilingHeight - ld.sector.floorHeight;
+		const material = createMaterial(tx, side);
+		const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(wallWidth, wallHeight), material);
+		mesh.position.set((vs.x + ve.x) / 2, ld.sector.floorHeight + wallHeight / 2, (vs.y + ve.y) / -2);
+		mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x));
+		return mesh;
+	});
+};
+
+const createMaterial = (dt: DoomTexture, side: Side, color = null): THREE.Material => {
 	let material;
 	if (dt) {
 		const patch: Bitmap = dt.patches[0].bitmap;
@@ -115,8 +148,8 @@ const createMaterial = (dt: DoomTexture): THREE.Material => {
 		texture.mapping = THREE.UVMapping;
 		texture.wrapS = THREE.RepeatWrapping;
 		texture.wrapT = THREE.RepeatWrapping;
-		//texture.repeat.x = -1;
-		material = new THREE.MeshBasicMaterial({map: texture, transparent: true, alphaTest: 0.5, side: THREE.DoubleSide});
+		side = THREE.DoubleSide;// TODO remove for real game
+		material = new THREE.MeshBasicMaterial({map: texture, transparent: true, alphaTest: 0.5, side, color});
 	} else {
 		material = new THREE.MeshStandardMaterial({transparent: true, color: 'green', side: THREE.DoubleSide});
 	}

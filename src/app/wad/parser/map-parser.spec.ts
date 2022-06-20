@@ -15,7 +15,7 @@
  */
 import {functions as mp, testFunctions as tf} from './map-parser';
 import * as R from 'ramda';
-import {Directory, DoomMap, Linedef, LinedefFlag, MapLumpType, Sector, Sidedef, Thing, Vertex, WadType} from './wad-model';
+import {Directory, DoomMap, Linedef, LinedefBySector, LinedefFlag, MapLumpType, Sector, Sidedef, Thing, Vertex, WadType} from './wad-model';
 import {
 	E1M1_BLOCKMAP,
 	E1M1_LINEDEFS,
@@ -26,7 +26,7 @@ import {
 	getE1M1Dirs,
 	getFirstMap,
 	getHeader,
-	getLinedefsBySector,
+	getSectors,
 	getTextures,
 	getWadBytes,
 	validateDir,
@@ -70,7 +70,7 @@ const validateSectorE1M1_0 = (se: Sector): void => {
 	expect(se.ceilingHeight).toEqual(72);
 	expect(se.lightLevel).toEqual(160);
 	expect(se.tagNumber).toEqual(0);
-	expect(se.sectorNumber).toEqual(0);
+	expect(se.id).toEqual(0);
 };
 
 const validateSectorE1M1_1 = (se: Sector): void => {
@@ -80,7 +80,7 @@ const validateSectorE1M1_1 = (se: Sector): void => {
 	expect(se.ceilingHeight).toEqual(88);
 	expect(se.lightLevel).toEqual(255);
 	expect(se.tagNumber).toEqual(0);
-	expect(se.sectorNumber).toEqual(1);
+	expect(se.id).toEqual(1);
 };
 
 const validateSectorE1M1_4 = (se: Sector): void => {
@@ -90,7 +90,7 @@ const validateSectorE1M1_4 = (se: Sector): void => {
 	expect(se.ceilingHeight).toEqual(0);
 	expect(se.lightLevel).toEqual(208);
 	expect(se.tagNumber).toEqual(0);
-	expect(se.sectorNumber).toEqual(4);
+	expect(se.id).toEqual(4);
 };
 
 const validateE1M1Dirs = (dirs: Directory[]) => {
@@ -186,7 +186,7 @@ const validateSidedef0 = (thing: Sidedef) => {
 	expect(thing.upperTexture.isLeft()).toBeTruthy();
 	expect(thing.lowerTexture.isLeft()).toBeTruthy();
 	expect(thing.middleTexture.get().name).toEqual('DOOR3');
-	expect(thing.sector).toEqual(40);
+	expect(thing.sector.id).toEqual(40);
 };
 
 const validateSidedef2 = (thing: Sidedef) => {
@@ -196,7 +196,7 @@ const validateSidedef2 = (thing: Sidedef) => {
 	expect(thing.upperTexture.isLeft()).toBeTruthy();
 	expect(thing.lowerTexture.isLeft()).toBeTruthy();
 	expect(thing.middleTexture.get().name).toEqual('LITE3');
-	expect(thing.sector).toEqual(40);
+	expect(thing.sector.id).toEqual(40);
 };
 
 const validateSidedef26 = (thing: Sidedef) => {
@@ -206,7 +206,7 @@ const validateSidedef26 = (thing: Sidedef) => {
 	expect(thing.upperTexture.get().name).toEqual('STARTAN3');
 	expect(thing.lowerTexture.get().name).toEqual('STARTAN3');
 	expect(thing.middleTexture.isLeft()).toBeTruthy();
-	expect(thing.sector).toEqual(39);
+	expect(thing.sector.id).toEqual(39);
 };
 
 const validateSidedef27 = (thing: Sidedef) => {
@@ -216,7 +216,7 @@ const validateSidedef27 = (thing: Sidedef) => {
 	expect(thing.upperTexture.isLeft()).toBeTruthy();
 	expect(thing.lowerTexture.isLeft()).toBeTruthy();
 	expect(thing.middleTexture.isLeft()).toBeTruthy();
-	expect(thing.sector).toEqual(14);
+	expect(thing.sector.id).toEqual(14);
 };
 
 const validateSidedef189 = (thing: Sidedef) => {
@@ -226,7 +226,7 @@ const validateSidedef189 = (thing: Sidedef) => {
 	expect(thing.upperTexture.get().name).toEqual('TEKWALL4');
 	expect(thing.lowerTexture.get().name).toEqual('TEKWALL4');
 	expect(thing.middleTexture.isLeft()).toBeTruthy();
-	expect(thing.sector).toEqual(24);
+	expect(thing.sector.id).toEqual(24);
 };
 
 const validateSidedef211 = (thing: Sidedef) => {
@@ -236,7 +236,7 @@ const validateSidedef211 = (thing: Sidedef) => {
 	expect(thing.upperTexture.isLeft()).toBeTruthy();
 	expect(thing.lowerTexture.isLeft()).toBeTruthy();
 	expect(thing.middleTexture.get().name).toEqual('STARTAN3');
-	expect(thing.sector).toEqual(3);
+	expect(thing.sector.id).toEqual(3);
 };
 
 const validateSidedef442 = (thing: Sidedef) => {
@@ -246,7 +246,7 @@ const validateSidedef442 = (thing: Sidedef) => {
 	expect(thing.upperTexture.isLeft()).toBeTruthy();
 	expect(thing.lowerTexture.isLeft()).toBeTruthy();
 	expect(thing.middleTexture.get().name).toEqual('EXITDOOR');
-	expect(thing.sector).toEqual(84);
+	expect(thing.sector.id).toEqual(84);
 };
 
 const validateSidedefDir = (dir: Directory) => {
@@ -255,50 +255,50 @@ const validateSidedefDir = (dir: Directory) => {
 
 describe('map-parser#parseSidedef', () => {
 	const thingsDir = getAllDirs()[getFirstMap().idx + +MapLumpType.SIDEDEFS];
-	const parser = tf.parseSidedef(getWadBytes(), thingsDir, tf.createTextureLoader(getTextures()));
+	const parser = tf.parseSidedef(getWadBytes(), thingsDir, tf.createTextureLoader(getTextures()), getSectors());
 
 	it('Sidedef Nr. 0', () => {
-		validateSidedef0(parser(0));
+		validateSidedef0(parser(0).get());
 	});
 
 	it('Sidedef Nr. 26', () => {
-		validateSidedef26(parser(26));
+		validateSidedef26(parser(26).get());
 	});
 
 	it('Sidedef Nr. 189', () => {
-		validateSidedef189(parser(189));
+		validateSidedef189(parser(189).get());
 	});
 
 	it('Sidedef Nr. 211', () => {
-		validateSidedef211(parser(211));
+		validateSidedef211(parser(211).get());
 	});
 
 	it('Sidedef Nr. 442', () => {
-		validateSidedef442(parser(442));
+		validateSidedef442(parser(442).get());
 	});
 });
 
 describe('map-parser#parseSidedefs', () => {
-	const parsed = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
+	const parsed = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors());
 
 	it('Sidedef Nr. 0', () => {
-		validateSidedef0(parsed[0]);
+		validateSidedef0(parsed[0].get());
 	});
 
 	it('Sidedef Nr. 26', () => {
-		validateSidedef26(parsed[26]);
+		validateSidedef26(parsed[26].get());
 	});
 
 	it('Sidedef Nr. 189', () => {
-		validateSidedef189(parsed[189]);
+		validateSidedef189(parsed[189].get());
 	});
 
 	it('Sidedef Nr. 211', () => {
-		validateSidedef211(parsed[211]);
+		validateSidedef211(parsed[211].get());
 	});
 
 	it('Sidedef Nr. 442', () => {
-		validateSidedef442(parsed[442]);
+		validateSidedef442(parsed[442].get());
 	});
 
 	it('Amount', () => {
@@ -307,8 +307,8 @@ describe('map-parser#parseSidedefs', () => {
 
 	it('Sidedef Index', () => {
 		parsed.forEach(sd => {
-			expect(sd.sector).toBeGreaterThanOrEqual(0);
-			expect(sd.sector).toBeLessThanOrEqual(E1M1_SECTORS);
+			expect(sd.get().sector.id).toBeGreaterThanOrEqual(0);
+			expect(sd.get().sector.id).toBeLessThanOrEqual(E1M1_SECTORS);
 		});
 	});
 });
@@ -411,8 +411,8 @@ const validateLindedef26 = (lindedef: Linedef) => {
 describe('map-parser#parseLinedef', () => {
 	const linedefDir = getAllDirs()[getFirstMap().idx + MapLumpType.LINEDEFS];
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
-	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
-	const parser = tf.parseLinedef(getWadBytes(), linedefDir, vertexes, sidedefs);
+	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors());
+	const parser = tf.parseLinedef(getWadBytes(), linedefDir, vertexes, sidedefs, getSectors());
 
 	it('Validate Lindedefs Dir', () => {
 		validateLindedefsDir(linedefDir);
@@ -436,8 +436,8 @@ describe('map-parser#parseLinedef', () => {
 describe('map-parser#parseLinedefs', () => {
 	const linedefDir = getAllDirs()[getFirstMap().idx + MapLumpType.LINEDEFS];
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
-	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
-	const linedefs = tf.parseLinedefs(getWadBytes())(getE1M1Dirs(), vertexes, sidedefs);
+	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors());
+	const linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors());
 
 	it('Validate Lindedefs Dir', () => {
 		validateLindedefsDir(linedefDir);
@@ -656,27 +656,6 @@ describe('map-parser#parseMap', () => {
 		expect(map.things.length).toEqual(138);
 	});
 
-	it('Size of Linedefs in each sector', () => {
-		let amount = 0;
-		map.sectors.forEach(s => {
-			if (s.linedefs.isRight()) {
-				expect(s.linedefs.get().length).toEqual(getLinedefsBySector()[s.sectorNumber].length);
-			} else {
-				amount++;
-			}
-		});
-		expect(amount).toEqual(7);
-	});
-
-	it('Sectors with Linedefs', () => {
-		let amount = 0;
-		map.sectors.forEach(s => {
-			if (s.linedefs.isRight()) {
-				amount++;
-			}
-		});
-		expect(amount).toEqual(78);
-	});
 });
 
 describe('map-parser#parseMapsDirs', () => {
@@ -759,8 +738,8 @@ describe('map-parser#normalizeLinedefs', () => {
 	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get()[0].linedefs;
 	const nt = (scale: number) => (xy: boolean) => R.reduce(R.max, Number.MIN_SAFE_INTEGER, mp.normalizeLinedefs(scale)(defs).map(d => xy ? d.start.x : d.start.y));
 
-	it('Matching sector ID', () => {
-		defs.forEach(ld => expect(ld.sectorId).toEqual(ld.frontSide.sector));
+	it('Matching sectorId ID', () => {
+		defs.forEach(ld => expect(ld.sector.id).toEqual(ld.frontSide.sector.id));
 	});
 
 	it('Positive values', () => {
@@ -793,7 +772,7 @@ describe('map-parser#normalizeLinedefs', () => {
 });
 
 describe('map-parser#parseSector', () => {
-	const parser = tf.parseSector(getWadBytes(), getE1M1Dirs()[MapLumpType.SECTORS], getLinedefsBySector());
+	const parser = tf.parseSector(getWadBytes(), getE1M1Dirs()[MapLumpType.SECTORS]);
 
 	it('E1M1 - Sector nr: 0', () => {
 		validateSectorE1M1_0(parser(0));
@@ -809,7 +788,7 @@ describe('map-parser#parseSector', () => {
 });
 
 describe('map-parser#parseSectors', () => {
-	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), getLinedefsBySector());
+	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs());
 
 	it('E1M1 - Sector nr: 0', () => {
 		validateSectorE1M1_0(sectors[0]);
@@ -823,32 +802,32 @@ describe('map-parser#parseSectors', () => {
 		validateSectorE1M1_4(sectors[4]);
 	});
 
-	it('E1M1 - sector number', () => {
-		sectors.forEach((s: Sector, idx: number) => expect(s.sectorNumber).toEqual(idx));
+	it('E1M1 - sectorId number', () => {
+		sectors.forEach((s: Sector, idx: number) => expect(s.id).toEqual(idx));
 	});
 
 });
 
 describe('map-parser#groupBySectorArray', () => {
-	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), getLinedefsBySector());
+	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs());
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
-	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
-	const linedefs = tf.parseLinedefs(getWadBytes())(getE1M1Dirs(), vertexes, sidedefs);
+	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors());
+	const linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors());
 	const gr: Linedef[][] = tf.groupBySectorArray(linedefs);
 
 	it('No duplicates', () => {
 		let found = new Set<number>();
 		let info = {};
 		gr.forEach((ld, idx) => {
-			const sid = ld[0].sectorId;
-			expect(found.has(sid)).toBe(false, 'Duplicated sector:' + sid + ' on:' + idx + ' and:' + info[sid]);
+			const sid = ld[0].sector.id;
+			expect(found.has(sid)).toBe(false, 'Duplicated sectorId:' + sid + ' on:' + idx + ' and:' + info[sid]);
 			found.add(sid);
 			info[sid] = idx;
 		});
 	});
 
 	it('Sectors size', () => {
-		expect(gr.length).toEqual(78);
+		expect(gr.length).toEqual(80);
 	});
 
 	it('No empty sectors', () => {
@@ -859,9 +838,9 @@ describe('map-parser#groupBySectorArray', () => {
 
 	it('Sectors in one group has the same number', () => {
 		gr.forEach(ld => {
-			const st = ld[0].sectorId;
+			const st = ld[0].sector.id;
 			ld.forEach(ld => {
-				expect(ld.sectorId).toEqual(st);
+				expect(ld.sector.id).toEqual(st);
 			});
 		});
 	});
@@ -869,7 +848,8 @@ describe('map-parser#groupBySectorArray', () => {
 	it('Each #sectorId within #sectors[]', () => {
 		gr.forEach(ld => {
 			ld.forEach(ld => {
-				expect(ld.sectorId).toBeLessThan(sectors.length);
+				expect(ld.sector.id).toBeLessThan(sectors.length);
+				expect(ld.sector.id).toBeGreaterThanOrEqual(0);
 			});
 		});
 	});
@@ -885,45 +865,33 @@ describe('map-parser#groupBySectorArray', () => {
 });
 
 describe('map-parser#groupBySector', () => {
-	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), getLinedefsBySector());
+	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs());
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
-	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
-	const linedefs = tf.parseLinedefs(getWadBytes())(getE1M1Dirs(), vertexes, sidedefs);
-	const gr: { [sector: number]: Linedef[] } = tf.groupBySector(linedefs);
+	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors());
+	const linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors());
+	const gr: LinedefBySector[] = tf.groupBySector(linedefs, getSectors());
 	it('Sectors size on E1M1', () => {
 		let found = 0;
 		for (const ldId in gr) {
 			found++;
 		}
-		expect(found).toEqual(78);
+		expect(found).toEqual(80);
 	});
 
 	it('Sectors in one group has the same number', () => {
-		let found = 0;
-		let notFound = 0;
-		sectors.forEach((s: Sector) => {
-			const lds: Linedef[] = gr[s.sectorNumber];
-			if (lds === undefined) {
-				notFound++;
-			} else {
-				found++;
-				expect(lds.length).toBeGreaterThan(0);
-				lds.forEach(ld => expect(ld.frontSide.sector).toEqual(s.sectorNumber));
-			}
+		gr.forEach(lbs => {
+			lbs.linedefs.forEach(ld => {
+				expect(lbs.sector.id).toEqual(ld.sector.id);
+			});
 		});
-		expect(found).toEqual(78);
-		expect(notFound).toEqual(7);
 	});
 
 	it('IDs', () => {
 		let foundLinedefs = new Set<number>();
-		for (const ldId in gr) {
-			const linedefs: Linedef[] = gr[ldId];
-			linedefs.forEach(ld => {
-				foundLinedefs.add(ld.id);
-			});
-		}
-		expect(foundLinedefs.size).toEqual(linedefs.length);
+		gr.forEach(lbs => {
+			foundLinedefs.add(lbs.sector.id);
+		});
+		expect(foundLinedefs.size).toEqual(80);
 	});
 });
 

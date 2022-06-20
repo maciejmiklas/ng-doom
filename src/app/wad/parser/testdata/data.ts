@@ -19,17 +19,18 @@ import {functions as tp} from '../texture-parser';
 import {functions as pp} from '../playpal-parser';
 
 import {
+	Bitmap,
+	BitmapHeader,
 	Column,
 	Directory,
 	DoomTexture,
 	Header,
-	Linedef,
+	Linedef, LinedefBySector,
 	MapLumpType,
 	Palette,
-	Bitmap,
-	BitmapHeader,
 	Pnames,
 	Post,
+	Sector,
 	TextureDir,
 	Vertex
 } from '../wad-model';
@@ -55,15 +56,12 @@ export const getE1M1Dirs = (): Directory[] => {
 	return _e1M1Dirs;
 };
 
-let _linedefsBySector = null;
-export const getLinedefsBySector = (): { [sector: number]: Linedef[] } => {
-	if (_linedefsBySector == null) {
-		const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
-		const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
-		const linedefs = tf.parseLinedefs(getWadBytes())(getE1M1Dirs(), vertexes, sidedefs);
-		_linedefsBySector = tf.groupBySector(linedefs);
+let _sectors = null;
+export const getSectors = (): Sector[] => {
+	if(_sectors == null){
+		_sectors = tf.parseSectors(getWadBytes())(getE1M1Dirs());
 	}
-	return _linedefsBySector;
+	return _sectors;
 };
 
 let _palette = null;

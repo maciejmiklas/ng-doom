@@ -181,9 +181,7 @@ export type Linedef = MapLump & {
 	flags: Set<LinedefFlag>
 	specialType: number
 	sectorTag: number
-
-	/** offset in sectors array. */
-	sectorId: number
+	sector: Sector
 	frontSide: Sidedef
 	backSide: Either<Sidedef>
 };
@@ -217,7 +215,7 @@ export type Sidedef = MapLump & {
 	offset: Position
 
 	/**
-	 * The name of a texture that will be displayed on the border between a sector and its neighboring ceiling of a different
+	 * The name of a texture that will be displayed on the border between a sectorId and its neighboring ceiling of a different
 	 * height. If the linedef that contains this sidedef is one-sided this field is meaningless.
 	 */
 	upperTexture: Either<DoomTexture>
@@ -231,12 +229,12 @@ export type Sidedef = MapLump & {
 	middleTexture: Either<DoomTexture>
 
 	/**
-	 * Performs a similar function to the upper texture; the lower texture is displayed on the border between a sector and its neighboring
+	 * Performs a similar function to the upper texture; the lower texture is displayed on the border between a sectorId and its neighboring
 	 * floor of a different height.
 	 */
 	lowerTexture: Either<DoomTexture>
 
-	sector: number
+	sector: Sector
 };
 
 /**
@@ -246,7 +244,7 @@ export type Sidedef = MapLump & {
  * @see https://doomwiki.org/wiki/Sector
  */
 export type Sector = MapLump & {
-	linedefs: Either<Linedef[]>
+	id: number
 	floorHeight: number
 	ceilingHeight: number
 	floorTexture: string
@@ -254,7 +252,7 @@ export type Sector = MapLump & {
 	lightLevel: number
 	specialType: number
 	tagNumber: number
-	sectorNumber: number
+
 };
 
 /**
@@ -277,9 +275,17 @@ export type Sector = MapLump & {
 export type DoomMap = {
 	mapDirs: Directory[]
 	things: Thing[]
+
+	linedefBySector: LinedefBySector[]
 	sectors: Sector[]
 	linedefs: Linedef[]
 };
+
+/** Front side Linedefs by Sector */
+export type LinedefBySector = {
+	sector: Sector
+	linedefs: Linedef[]
+}
 
 export enum WadType {
 	IWAD,

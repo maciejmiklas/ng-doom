@@ -68,20 +68,20 @@ export class PlayComponent implements OnInit {
 	};
 }
 
-const renderSector = (scene: THREE.Scene, patch: Bitmap) => (sector: Sector) => {
-	sector.linedefs.exec(ldf => ldf.forEach(ld => scene.add(wall(ld, patch, sector))));
+const renderSector = (scene: THREE.Scene, patch: Bitmap) => (sectorId: Sector) => {
+	sectorId.linedefs.exec(ldf => ldf.forEach(ld => scene.add(wall(ld, patch, sectorId))));
 };
 
 const getTexture = (ld: Linedef, patch: Bitmap): Bitmap => {
 	let text = null;
-	if (ld.frontSide.middleTexture.isRight()) {
-		text = ld.frontSide.middleTexture.get().patches[0];
+	if (ld.linedefs.middleTexture.isRight()) {
+		text = ld.linedefs.middleTexture.get().patches[0];
 
-	} else if (ld.frontSide.upperTexture.isRight()) {
-		text = ld.frontSide.upperTexture.get().patches[0];
+	} else if (ld.linedefs.upperTexture.isRight()) {
+		text = ld.linedefs.upperTexture.get().patches[0];
 
-	} else if (ld.frontSide.lowerTexture.isRight()) {
-		text = ld.frontSide.lowerTexture.get().patches[0];
+	} else if (ld.linedefs.lowerTexture.isRight()) {
+		text = ld.linedefs.lowerTexture.get().patches[0];
 	}
 	if (text == null || text.bitmap == null) {
 		console.log('>NULL>', ld);
@@ -89,11 +89,11 @@ const getTexture = (ld: Linedef, patch: Bitmap): Bitmap => {
 	}
 	return text.bitmap;
 };
-const wall = (ld: Linedef, fallbackPatch: Bitmap, sector: Sector): THREE.Mesh => {
+const wall = (ld: Linedef, fallbackPatch: Bitmap, sectorId: Sector): THREE.Mesh => {
 	const vs = ld.start;
 	const ve = ld.end;
 	const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
-	const wallHeight = sector.ceilingHeight;
+	const wallHeight = sectorId.ceilingHeight;
 	const patch = getTexture(ld, fallbackPatch);
 	const texture = new THREE.DataTexture(patch.rgba, patch.header.width, patch.header.height);
 	texture.needsUpdate = true;

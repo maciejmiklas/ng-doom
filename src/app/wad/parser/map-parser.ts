@@ -15,7 +15,19 @@
  */
 import * as R from 'ramda';
 import {Either} from '@maciejmiklas/functional-ts';
-import {Directory, DoomMap, DoomTexture, Linedef, LinedefFlag, MapLumpType, Sector, Sidedef, Thing, Vertex} from './wad-model';
+import {
+	Directory,
+	DoomMap,
+	DoomTexture,
+	Linedef,
+	LinedefBySector,
+	LinedefFlag,
+	MapLumpType,
+	Sector,
+	Sidedef,
+	Thing,
+	Vertex
+} from './wad-model';
 import U from '../../common/util';
 
 /** The type of the map has to be in the form ExMy or MAPxx */
@@ -64,29 +76,32 @@ const parseMaps = (bytes: number[], dirs: Directory[], textures: DoomTexture[]):
 };
 
 const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>) => (mapDirs: Directory[]): DoomMap => {
-	let linedefs = parseLinedefs(bytes)(mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes, textureLoader)(mapDirs));
-	const linedefsBySector = groupBySector(linedefs);
-	const sectors = parseSectors(bytes)(mapDirs, linedefsBySector);
+	const sectors = parseSectors(bytes)(mapDirs);
+	const linedefs = parseLinedefs(bytes, mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes, textureLoader)(mapDirs, sectors), sectors);
 	return {
 		mapDirs,
 		things: parseThings(bytes)(mapDirs),
 		linedefs,
-		sectors
+		sectors,
+		linedefBySector: groupBySector(linedefs, sectors)
 	};
 };
 
+/** group Linedef by Sector */
 const groupBySectorArray = (linedefs: Linedef[]): Linedef[][] => {
-	const sorted = R.sortBy(R.prop('sectorId'))(linedefs); // sort by #sectorId in order to be able to group by it
-	return R.groupWith((a: Linedef, b: Linedef) => a.sectorId === b.sectorId, sorted);
+	const sorted = R.sortBy((ld: Linedef) => ld.sector.id)(linedefs); // sort by #sector.id in order to be able to group by it
+	return R.groupWith((a: Linedef, b: Linedef) => a.sector.id === b.sector.id, sorted);
 };
 
-/** @return Map -> K: sector number, V:Linedef array where each Linedef has the same sector number. */
-const groupBySector = (linedefs: Linedef[]): { [sector: number]: Linedef[] } => {
-	// group Linedef by Sector
+const groupBySector = (linedefs: Linedef[], sectors: Sector[]): LinedefBySector[] => {
 	const bySector = groupBySectorArray(linedefs);
 
-	// transfer Linedef[][] into Map, where Key is the sector number
-	return R.indexBy((ld: Linedef[]) => ld[0].sectorId, bySector);
+	// transfer Linedef[][] into Map, where Key is the sectorId number
+	const byId: { [sector: number]: Linedef[] } = R.indexBy((ld: Linedef[]) => ld[0].sector.id, bySector);
+	return Object.keys(byId).map(k => ({
+		sector: sectors[k],
+		linedefs: byId[k]
+	}));
 };
 
 const unfoldByDirectorySize = (dir: Directory, size: number): number[] =>
@@ -115,7 +130,7 @@ const parseThings = (bytes: number[]) => (mapDirs: Directory[]): Thing[] => {
 	return unfoldByDirectorySize(thingDir, 10).map((ofs, thingIdx) => parser(thingIdx)).map(th => th);
 };
 
-const parseSector = (bytes: number[], dir: Directory, linedefsBySector: { [sector: number]: Linedef[] }) => (thingIdx: number): Sector => {
+const parseSector = (bytes: number[], dir: Directory) => (thingIdx: number): Sector => {
 	const offset = dir.filepos + 26 * thingIdx;
 	const shortParser = U.parseShort(bytes);
 	const strParser = U.parseStr(bytes);
@@ -129,45 +144,52 @@ const parseSector = (bytes: number[], dir: Directory, linedefsBySector: { [secto
 		lightLevel: shortParser(offset + 0x14),
 		specialType: shortParser(offset + 0x16),
 		tagNumber: shortParser(offset + 0x18),
-		sectorNumber: thingIdx,
-		linedefs: Either.ofNullable(linedefsBySector[thingIdx], () => 'No Linedefs for Sector at' + offset)
+		id: thingIdx,
 	};
 };
 
-const parseSectors = (bytes: number[]) => (mapDirs: Directory[], linedefsBySector: { [sector: number]: Linedef[] }): Sector[] => {
+const parseSectors = (bytes: number[]) => (mapDirs: Directory[]): Sector[] => {
 	const thingDir = mapDirs[MapLumpType.SECTORS];
-	const parser = parseSector(bytes, thingDir, linedefsBySector);
+	const parser = parseSector(bytes, thingDir);
 	return unfoldByDirectorySize(thingDir, 26).map((ofs, thingIdx) => parser(thingIdx));
 };
 
-const parseSidedef = (bytes: number[], dir: Directory, textureLoader: (name: string) => Either<DoomTexture>) => (thingIdx: number): Sidedef => {
+const parseSidedef = (bytes: number[], dir: Directory, textureLoader: (name: string) => Either<DoomTexture>, sectors: Sector[]) => (thingIdx: number): Either<Sidedef> => {
 	const offset = dir.filepos + 30 * thingIdx;
 	const shortParser = U.parseShort(bytes);
 	const strOpParser = U.parseTextureName(bytes);
-	return {
-		dir,
-		type: MapLumpType.SIDEDEFS,
-		offset: {
-			x: shortParser(offset),
-			y: shortParser(offset + 2),
-		},
-		upperTexture: strOpParser(offset + 0x04, 8).map(textureLoader),
-		lowerTexture: strOpParser(offset + 0x0C, 8).map(textureLoader),
-		middleTexture: strOpParser(offset + 0x14, 8).map(textureLoader),
-		sector: shortParser(offset + 0x1C)
-	};
+	const sectorId = shortParser(offset + 0x1C);
+	return Either.ofCondition(
+		() => sectorId < sectors.length && sectorId > 0,
+		() => 'No Sidedef on ' + thingIdx,
+		() => ({
+			dir,
+			type: MapLumpType.SIDEDEFS,
+			offset: {
+				x: shortParser(offset),
+				y: shortParser(offset + 2),
+			},
+			upperTexture: strOpParser(offset + 0x04, 8).map(textureLoader),
+			lowerTexture: strOpParser(offset + 0x0C, 8).map(textureLoader),
+			middleTexture: strOpParser(offset + 0x14, 8).map(textureLoader),
+			sector: sectors[shortParser(offset + 0x1C)]
+		}));
 };
 
-const parseSidedefs = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>) => (mapDirs: Directory[]): Sidedef[] => {
+const parseSidedefs = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>) => (mapDirs: Directory[], sectors: Sector[]): Either<Sidedef>[] => {
 	const thingDir = mapDirs[MapLumpType.SIDEDEFS];
-	const parser = parseSidedef(bytes, thingDir, textureLoader);
-	return unfoldByDirectorySize(thingDir, 30).map((ofs, thingIdx) => parser(thingIdx)).map(th => th);
+	const parser = parseSidedef(bytes, thingDir, textureLoader, sectors);
+	return unfoldByDirectorySize(thingDir, 30) //Each Sidedef is 30 bytes large
+		.map((ofs, thingIdx) => parser(thingIdx));
 };
 
-const parseLinedefs = (bytes: number[]) => (mapDirs: Directory[], vertexes: Vertex[], sidedefs: Sidedef[]): Linedef[] => {
+const parseLinedefs = (bytes: number[], mapDirs: Directory[], vertexes: Vertex[], sidedefs: Either<Sidedef>[], sectors: Sector[]): Linedef[] => {
 	const linedefsDir = mapDirs[MapLumpType.LINEDEFS];
-	const parser = parseLinedef(bytes, linedefsDir, vertexes, sidedefs);
-	return unfoldByDirectorySize(linedefsDir, 14).map((ofs, thingIdx) => parser(thingIdx)).filter(v => v.isRight()).map(v => v.get());
+	const parser = parseLinedef(bytes, linedefsDir, vertexes, sidedefs, sectors);
+	return unfoldByDirectorySize(linedefsDir, 14) // Linedef has 14 bytes
+		.map((ofs, thingIdx) => parser(thingIdx))// thingIdx => Either<Linedef>
+		.filter(v => v.isRight()).map(v => v.get()); // Either<Linedef> => Linedef
+	// TODO sd=>sd.isRight() will filter out Left without logging
 };
 
 const parseFlags = (val: number): Set<LinedefFlag> =>
@@ -177,7 +199,7 @@ const parseFlags = (val: number): Set<LinedefFlag> =>
 			.filter(k => (1 << (k - 1) & val) != 0)// remove not set bits;
 	);
 
-const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sidedefs: Sidedef[]) => (thingIdx: number): Either<Linedef> => {
+const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sidedefs: Either<Sidedef>[], sectors: Sector[]) => (thingIdx: number): Either<Linedef> => {
 	const offset = dir.filepos + 14 * thingIdx;
 	const shortParser = U.parseShort(bytes);
 	const intParser = U.parseInt(bytes);
@@ -185,15 +207,20 @@ const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sided
 
 	const vertexParser = shortOpParser(v => v < vertexes.length && v >= 0,
 		v => 'Vertex out of bound: ' + v + ' of ' + vertexes.length + ' on ' + offset);
+
 	const startVertex = vertexParser(offset).map(idx => vertexes[idx]);
 	const endVertex = vertexParser(offset + 2).map(idx => vertexes[idx]);
 
 	const parseSide = shortOpParser(v => v < sidedefs.length && v >= 0,
 		v => 'Sidedef out of bound: ' + v + ' of ' + sidedefs.length + ' on ' + offset);
+
 	const frontSide = parseSide(offset + 10).map(idx => sidedefs[idx]);
 	const backSide = parseSide(offset + 12).map(idx => sidedefs[idx]);
 
-	return Either.ofTruth([startVertex, endVertex, frontSide], () =>
+	const sector = frontSide.map(fs => Either.ofCondition(() => fs.sector.id > 0 && fs.sector.id < sectors.length,
+		() => 'No Sector for Linedef: ' + thingIdx, () => sectors[fs.sector.id]));
+
+	return Either.ofTruth([startVertex, endVertex, frontSide, sector], () =>
 		({
 			id: thingIdx,
 			dir,
@@ -205,7 +232,7 @@ const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sided
 			sectorTag: shortParser(offset + 0x08),
 			frontSide: frontSide.get(),
 			backSide,
-			sectorId: frontSide.get().sector
+			sector: sector.get()
 		}));
 };
 
