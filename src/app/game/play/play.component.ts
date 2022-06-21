@@ -29,7 +29,7 @@ import {Side} from 'three/src/constants';
 })
 export class PlayComponent implements OnInit {
 
-	mapId = 4;
+	mapId = 5;
 
 	@ViewChild('canvas', {static: true})
 	private canvasRef: ElementRef<HTMLCanvasElement>;
@@ -81,55 +81,55 @@ export class PlayComponent implements OnInit {
 }
 
 const renderSector = (scene: THREE.Scene) => (lbs: LinedefBySector) => {
+	const lowerUpperSide = () => THREE.DoubleSide;
+	const lowerUpperTexture = (ld) => ld.frontSide.lowerTexture;
+
+	const lowerStartHeight = (ld) => ld.backSide.map(bs => bs.sector.floorHeight);
+	const lowerWallHeight = (ld) => ld.backSide.map(bs => ld.sector.floorHeight - bs.sector.floorHeight);
+
+	const upperStartHeight = (ld) => ld.backSide.map(bs => bs.sector.ceilingHeight);
+	const upperWallHeight = (ld) => ld.backSide.map(bs => ld.sector.ceilingHeight - bs.sector.ceilingHeight);
+
+	const middleFrontSide = () => THREE.FrontSide;
+	const middleFrontTexture = (ld: Linedef) => ld.frontSide.middleTexture;
+
+	const middleBackSide = () => THREE.BackSide;
+	const middleBackTexture = (ld: Linedef) => ld.backSide.map(b => b.middleTexture);
+
+	const middleWallHeight = (ld: Linedef) => Either.ofRight(ld.sector.ceilingHeight - ld.sector.floorHeight);
+	const middleStart = (ld: Linedef) => Either.ofRight(ld.sector.floorHeight);
+
 	lbs.linedefs.forEach(ld => {
-		middleWall(ld, THREE.FrontSide, () => ld.frontSide.middleTexture).exec(m => scene.add(m));
-		middleWall(ld, THREE.BackSide, () => ld.backSide.map(b => b.middleTexture)).exec(m => scene.add(m));
-		upperWall(ld).exec(m => scene.add(m));
-		lowerWall(ld).exec(m => scene.add(m));
+		// lower wall
+		wall(lowerUpperSide, lowerUpperTexture, lowerStartHeight, lowerWallHeight)(ld).exec(m => scene.add(m));
+
+		// middle front wall
+		wall(middleFrontSide, middleFrontTexture, middleStart, middleWallHeight)(ld,).exec(m => scene.add(m));
+
+		// middle back wall
+		wall(middleBackSide, middleBackTexture, middleStart, middleWallHeight)(ld).exec(m => scene.add(m));
+
+		// Upper Wall
+		wall(lowerUpperSide, lowerUpperTexture, upperStartHeight, upperWallHeight)(ld).exec(m => scene.add(m));
+
 	});
 };
 
-const lowerWall = (ld: Linedef): Either<THREE.Mesh> => {
-	return Either.ofTruthFlat([ld.frontSide.lowerTexture, ld.backSide], () =>
-		ld.frontSide.lowerTexture.map(tx => {
-			const vs = ld.start;
-			const ve = ld.end;
-			const secFloorHeight = ld.backSide.get().sector.floorHeight;
-			const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
-			const wallHeight = ld.sector.floorHeight - secFloorHeight;
-			const material = createMaterial(tx, THREE.FrontSide);
-			const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(wallWidth, wallHeight), material);
-			mesh.position.set((vs.x + ve.x) / 2, secFloorHeight + wallHeight / 2, (vs.y + ve.y) / -2);
-			mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x));
-			return mesh;
-		}));
-};
-
-const upperWall = (ld: Linedef): Either<THREE.Mesh> => {
-	return Either.ofTruthFlat([ld.frontSide.upperTexture, ld.backSide], () =>
-		ld.frontSide.upperTexture.map(tx => {
-			const vs = ld.start;
-			const ve = ld.end;
-			const secCeilingHeight = ld.backSide.get().sector.ceilingHeight;
-			const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
-			const wallHeight = ld.sector.ceilingHeight - secCeilingHeight;
-			const material = createMaterial(tx, THREE.FrontSide);
-			const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(wallWidth, wallHeight), material);
-			mesh.position.set((vs.x + ve.x) / 2, secCeilingHeight + wallHeight / 2, (vs.y + ve.y) / -2);
-			mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x));
-			return mesh;
-		}));
-};
-
-const middleWall = (ld: Linedef, side: Side, textureExtractor: () => Either<DoomTexture>): Either<THREE.Mesh> => {
-	return textureExtractor().map(tx => {
+const wall = (sideFunc: (ld: Linedef) => Side,
+							textureFunc: (ld: Linedef) => Either<DoomTexture>,
+							startHeightFunc: (ld: Linedef) => Either<number>,
+							wallHeightFunc: (ld: Linedef) => Either<number>) => (ld: Linedef, color = null): Either<THREE.Mesh> => {
+	const startHeightEi = startHeightFunc(ld);
+	const wallHeightEi = wallHeightFunc(ld);
+	const textureEi = textureFunc(ld);
+	return Either.ofTruth([startHeightEi, wallHeightEi, textureEi], () => {
 		const vs = ld.start;
 		const ve = ld.end;
 		const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
-		const wallHeight = ld.sector.ceilingHeight - ld.sector.floorHeight;
-		const material = createMaterial(tx, side);
+		const material = createMaterial(textureEi.get(), sideFunc(ld), color);
+		const wallHeight = wallHeightEi.get();
 		const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(wallWidth, wallHeight), material);
-		mesh.position.set((vs.x + ve.x) / 2, ld.sector.floorHeight + wallHeight / 2, (vs.y + ve.y) / -2);
+		mesh.position.set((vs.x + ve.x) / 2, startHeightEi.get() + wallHeight / 2, (vs.y + ve.y) / -2);
 		mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x));
 		return mesh;
 	});
