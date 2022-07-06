@@ -25,7 +25,7 @@ import {NavbarPlugin} from '../../../main/service/navbar_plugin';
 export class WadDirsNavbarComponent implements NavbarPlugin<DirsListControl> {
 	maxSize = 10;
 
-	private dirsListControl: DirsListControl;
+	dirsListControl: DirsListControl;
 
 	constructor() {
 	}

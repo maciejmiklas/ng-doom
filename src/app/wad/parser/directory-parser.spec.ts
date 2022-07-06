@@ -29,7 +29,7 @@ import {
 	validateDir
 } from './testdata/data';
 
-describe('directory_parser#findDirectoryByName', () => {
+describe('directory-parser#findDirectoryByName', () => {
 	const find = dp.findDirectoryByName(getAllDirs());
 	const findAndCompare = (name: string) => {
 		expect(find(name).get().name).toEqual(name);
@@ -52,7 +52,7 @@ describe('directory_parser#findDirectoryByName', () => {
 	});
 });
 
-describe('directory_parser#findDirectoryByOffset', () => {
+describe('directory-parser#findDirectoryByOffset', () => {
 	const find = dp.findDirectoryByOffset(getAllDirs());
 	const findAndCompare = (name: string, offset: number) => {
 		expect(find(name, offset).get().name).toEqual(name);
@@ -79,7 +79,7 @@ describe('directory_parser#findDirectoryByOffset', () => {
 const findDirectory = (dir: Directory, dirs: Directory[]) =>
 	dirs.find(d => (d.name === dir.name && d.filepos === dir.filepos && d.size === dir.size));
 
-describe('directory_parser#parseAllDirectories', () => {
+describe('directory-parser#parseAllDirectories', () => {
 	const header = getHeader().get();
 	const allDirs = dp.parseAllDirectories(header, getWadBytes()).get();
 	const validate = (dir: Directory) => {
@@ -109,7 +109,7 @@ describe('directory_parser#parseAllDirectories', () => {
 	});
 });
 
-describe('directory_parser#parseDirectory', () => {
+describe('directory-parser#parseDirectory', () => {
 	const header = getHeader().get();
 	const validate = validateDir(header);
 
@@ -122,7 +122,7 @@ describe('directory_parser#parseDirectory', () => {
 	});
 });
 
-describe('directory_parser#parseHeader', () => {
+describe('directory-parser#parseHeader', () => {
 
 	it('Header found', () => {
 		expect(getHeader().isRight()).toBeTruthy();
@@ -130,4 +130,32 @@ describe('directory_parser#parseHeader', () => {
 	it('numlumps', () => {
 		expect(getHeader().get().numlumps).toEqual(1264);
 	});
+});
+
+describe('directory-parser#findBetween', () => {
+	const finder = dp.findBetween(getAllDirs())(Directories.F_START, Directories.F_END);
+
+	it('No filtering - size', () => {
+		const found = finder(() => true).get();
+		expect(found.length).toEqual(57);
+	});
+
+	it('No filtering - start/end', () => {
+		const found = finder(() => true).get();
+		expect(found[0].name).toEqual('F_START');
+		expect(found[found.length - 1].name).toEqual('F1_END');
+	});
+
+	it('No filtering - probes', () => {
+		const found = finder(() => true).get();
+		expect(found[1].name).toEqual('F1_START');
+		expect(found[2].name).toEqual('FLOOR0_1');
+	});
+
+	it('filter', () => {
+		const found = finder((dir) => dir.name == 'FLOOR0_1').get();
+		expect(found.length).toEqual(1);
+		expect(found[0].name).toEqual('FLOOR0_1');
+	});
+
 });

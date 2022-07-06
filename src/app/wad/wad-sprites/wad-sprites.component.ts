@@ -32,7 +32,6 @@ export class WadSpritesComponent implements OnInit, SpritesListControl {
 
 	sprites: BitmapSprite[][];
 	scale: number[];
-	palette: Palette;
 	private readonly ZOOM_MAX_SIZE = 150; // box has 200px, it's set in .app-sprite
 
 	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService) {
@@ -42,7 +41,6 @@ export class WadSpritesComponent implements OnInit, SpritesListControl {
 		const wad = this.wadStorage.getCurrent().get().wad;
 		this.sprites = this.readSprites(() => true);
 		this.scale = this.sprites.map(s => s[0]).map(tp.calcScale(this.ZOOM_MAX_SIZE));
-		this.palette = wad.playpal.palettes[0];
 		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadSpritesNavbarComponent, this)));
 	}
 
@@ -63,6 +61,3 @@ export class WadSpritesComponent implements OnInit, SpritesListControl {
 export interface SpritesListControl {
 	applyFilter(filter: string);
 }
-
-
-

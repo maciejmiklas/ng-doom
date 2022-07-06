@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Directories, Directory, Palette, TextureDir, TitlePic, Wad} from './wad-model';
-import {Either} from '@maciejmiklas/functional-ts';
+import {Directories, Directory, Palette, TitlePic, Wad} from './wad-model';
+import {Either} from '../../common/either';
 import {functions as dp} from './directory-parser';
 import {functions as mp} from './map-parser';
 import {functions as tp} from './texture-parser';
@@ -48,7 +48,7 @@ const parseWad = (bytes: number[]): Either<Wad> =>
 		.append(w => Either.ofRight(pp.parsePlaypal(bytes, w.dirs)), (w, v) => w.playpal = v) // playpal
 		.append(w => parseTitlePic(bytes, w.dirs, w.playpal.palettes[0]), (w, v) => w.title = v)// title
 		.append(w => Either.ofRight(tp.parsePatches(bytes, w.dirs, w.playpal.palettes[0])), (w, v) => w.patches = v)// patches
-		.append(w => tp.parseTextures(bytes, w.dirs, w.pnames, w.patches)(TextureDir.TEXTURE1), (w, v) => w.textures = v) // textures
+		.append(w => tp.parseTextures(bytes, w.dirs, w.pnames, w.patches), (w, v) => w.textures = v) // textures
 		.append(w => mp.parseMaps(bytes, w.dirs, w.textures), (w, v) => w.maps = v); // maps
 
 // ############################ EXPORTS ############################

@@ -1,7 +1,7 @@
 <ngb-accordion [closeOthers]="true" class="app-side-menu" [activeIds]="state.idL1">
 	<ngb-panel cardClass="app-card" *ngFor="let l1 of menuRoot.l1" [id]="l1.id">
 		<ng-template ngbPanelHeader>
-			<button ngbPanelToggle class="btn btn-link container-fluid text-left">
+			<button ngbPanelToggle class="btn container-fluid text-left">
 				<i class="bi bi-archive-fill pr-2"></i>
 			{{l1.title}}
 			</button>

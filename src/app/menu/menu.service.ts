@@ -17,7 +17,7 @@ import {AbstractType, Injectable, Injector} from '@angular/core';
 import {MenuDecorator, MenuRoot, MenuState} from './menu-model';
 import menuJson from './menu.json';
 import {WadUploadMenuDecorator, WasLoadedMenuDecorator} from '../wad/wad-menu.service';
-import {Either} from '@maciejmiklas/functional-ts';
+import {Either} from '../common/either';
 
 @Injectable({
 	providedIn: 'root'

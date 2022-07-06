@@ -13,25 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+export enum LogLevel {
+	OFF, ERROR, WARN, INFO, DEBUG, TRACE
+}
+
 export class Log {
+	static LOG_LEVEL = LogLevel.ERROR;
 
-	static error(cmp: string, msg: string, ...args: any[]): void {
-		console.log('ERROR(' + cmp + '): ' + msg + ' - ', args);
+	static error(cmp: string, ...args: any[]): void {
+		if (Log.LOG_LEVEL >= LogLevel.ERROR) {
+			console.log('ERROR(' + cmp + '): ' + args);
+		}
 	}
 
-	static warn(cmp: string, msg: string, ...args: any[]): void {
-		console.log('ERROR(' + cmp + '): ' + msg + ' - ', args);
+	static warn(cmp: string, ...args: any[]): void {
+		if (Log.LOG_LEVEL >= LogLevel.WARN) {
+			console.log('ERROR(' + cmp + '): ' + args);
+		}
 	}
 
-	static info(cmp: string, msg: string, ...args: any[]): void {
-		// console.log('INFO(' + cmp + '): ' + msg + ' - ', args);
+	static info(cmp: string, ...args: any[]): void {
+		if (Log.LOG_LEVEL >= LogLevel.INFO) {
+			console.log('INFO(' + cmp + '): ' + args);
+		}
 	}
 
-	static debug(cmp: string, msg: string, ...args: any[]): void {
-		// console.log('DEBUG(' + cmp + '): ' + msg + ' - ', args);
+	static debug(cmp: string, ...args: any[]): void {
+		if (Log.LOG_LEVEL >= LogLevel.DEBUG) {
+			console.log('DEBUG(' + cmp + '): ' + args);
+		}
 	}
 
-	static trace(cmp: string, msg: string, ...args: any[]): void {
-		// console.log('TRACE(' + cmp + '): ' + msg + ' - ', args);
+	static trace(cmp: string, ...args: any[]): void {
+		if (Log.LOG_LEVEL >= LogLevel.TRACE) {
+			console.log('TRACE(' + cmp + '): ' + args);
+		}
 	}
 }
+
+

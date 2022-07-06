@@ -25,13 +25,12 @@ import {
 	Patch,
 	Pnames,
 	RgbaBitmap,
-	Sprite,
-	TextureDir
+	Sprite
 } from './wad-model';
 import U from '../../common/util';
 import {functions as dp} from './directory-parser';
 import {functions as bp} from './bitmap-parser';
-import {Either} from '@maciejmiklas/functional-ts';
+import {Either} from '../../common/either';
 
 const RGBA_BYTES = 4;
 
@@ -56,7 +55,6 @@ const parsePatches = (wadBytes: number[], dirs: Directory[], palette: Palette): 
 		.filter(d => d.isRight()).map(d => d.get()) // (Either<Directory>)=>Directory
 		.map(d => bitmapParser(d)).filter(b => b.isRight()).map(b => b.get()); // (Directory) => Bitmap
 };
-// ######################
 
 const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: Bitmap[]) => (offset: number): Either<Patch> => {
 	const shortParser = U.parseShort(wadBytes);
@@ -85,7 +83,7 @@ const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pna
 		.range(0, patchCountWad)// ()=> patches amount
 		.map(pn => offset + 22 + pn * 10)//(patch number) => patch offset
 		.map(offset => patchParser(offset))// (patch offset)=> Either<Patch>
-		.filter(e => e.isRight())// remove Left TODO - do not remove Left without log
+		.filter(e => e.filter())// remove Left
 		.map(e => e.get()); // (Either<Patch>) => Patch
 	const width = shortParser(offset + 0x0C);
 	const height = shortParser(offset + 0x0E);
@@ -102,19 +100,38 @@ const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pna
 		}));
 };
 
-// TODO parse TEXTURE1 and TEXTURE2
-const parseTextures = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: Bitmap[]) => (td: TextureDir): Either<DoomTexture[]> => {
-	const dir: Directory = dp.findDirectoryByName(dirs)(td).get();
-	const intParser = U.parseInt(wadBytes);
-	const textureParser = parseTexture(wadBytes, dirs, dir, pnames, patches);
-	const offset = dir.filepos;
-	const textures: DoomTexture[] = R
-		.range(0, intParser(offset))// ()=> Textures amount (numtextures)
-		.map(idx => offset + intParser(offset + 0x04 + idx * 4))// ()=> offsets to Textures
-		.map(offset => textureParser(offset))// ()=> Either<DoomTexture>
-		.filter(dt => dt.isRight())// TODO such filtering removes elements without logging -> add method filter with log!
-		.map(dt => dt.get());
-	return Either.ofCondition(() => textures.length > 0, () => 'No textures found', () => textures);
+const parseTextures = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: Bitmap[]): Either<DoomTexture[]> => {
+	const textures: DoomTexture[] = [];
+	const parser = parseTexturesByDir(wadBytes, dirs, pnames, patches);
+	parser(Directories.TEXTURE1).exec(tx => textures.push(...tx));
+	parser(Directories.TEXTURE2).exec(tx => textures.push(...tx));
+	return Either.ofCondition(() => textures.length > 0, () => 'No textures at all!', () => textures);
+};
+
+const parseTexturesByDir = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: Bitmap[]) => (td: Directories): Either<DoomTexture[]> =>
+	dp.findDirectoryByName(dirs)(td).map(dir => {
+		const intParser = U.parseInt(wadBytes);
+		const textureParser = parseTexture(wadBytes, dirs, dir, pnames, patches);
+		const offset = dir.filepos;
+		const textures: DoomTexture[] = R
+			.range(0, intParser(offset))// ()=> Textures amount (numtextures)
+			.map(idx => offset + intParser(offset + 0x04 + idx * 4))// ()=> offsets to Textures
+			.map(offset => textureParser(offset))// ()=> Either<DoomTexture>
+			.filter(dt => dt.filter())
+			.map(dt => dt.get());
+		return Either.ofCondition(() => textures.length > 0, () => 'No textures found', () => textures);
+	});
+
+const findFlatDirs = (dirs: Directory[]): Either<Directory[]> =>
+	dp.findBetween(dirs)(Directories.F_START, Directories.F_END)((d) => !d.name.includes('_START') && !d.name.includes('_END'));
+
+const parseFlats = (wadBytes: number[], dirs: Directory[], palette: Palette): Either<RgbaBitmap[]> => {
+	const bitmapParser = bp.parseBitmap(wadBytes, palette);
+	const dd = findFlatDirs(dirs).get();
+	dd.forEach(d => console.log('DIR', d));
+	const b1 = bitmapParser(dd[0]);
+	//const vv = findFlatDirs(dirs).map(dirs => dirs.map(d => bitmapParser(d)));
+	return null;
 };
 
 const toImageData = (bitmap: RgbaBitmap): ImageData => {
@@ -147,7 +164,7 @@ const maxSpriteSize = (sprite: BitmapSprite): number => Math.max(
 	sprite.frames.map(s => s.header.height).reduce((prev, cur) => prev > cur ? prev : cur));
 
 const calcScale = (maxScale: number) => (sprite: BitmapSprite): number => {
-	let scale = maxScale / maxSpriteSize(sprite);
+	const scale = maxScale / maxSpriteSize(sprite);
 	return scale - scale % 1;
 };
 
@@ -209,6 +226,9 @@ export const testFunctions = {
 	toBitmapSprite,
 	toImageData,
 	maxSpriteSize,
+	parseTexturesByDir,
+	findFlatDirs,
+	parseFlats
 };
 export const functions = {
 	parseTextures,

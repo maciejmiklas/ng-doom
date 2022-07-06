@@ -17,10 +17,11 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import * as THREE from 'three';
 import {Controls} from './controls';
 import {WadStorageService} from '../../wad/wad-storage.service';
-import {Bitmap, DoomMap, DoomTexture, Linedef, LinedefBySector, Wad} from '../../wad/parser/wad-model';
+import {DoomMap, DoomTexture, Linedef, LinedefBySector, RgbaBitmap, Vertex, Wad} from '../../wad/parser/wad-model';
 import {CSS2DRenderer} from 'three/examples/jsm/renderers/CSS2DRenderer';
-import {Either} from '@maciejmiklas/functional-ts';
+import {Either} from '../../common/either';
 import {Side} from 'three/src/constants';
+import {Vector2} from 'three/src/math/Vector2';
 
 @Component({
 	selector: 'app-play',
@@ -81,6 +82,41 @@ export class PlayComponent implements OnInit {
 }
 
 const renderSector = (scene: THREE.Scene) => (lbs: LinedefBySector) => {
+	//if (lbs.sector.id !== 20) {
+	//	return;
+	//}
+	// 1-5, 2-30, 9-6, 20-35
+	//console.log('S',lbs.sector.id, lbs);
+	renderWalls(lbs).forEach(m => scene.add(m));
+	//renderFloor(lbs).forEach(m => scene.add(m));
+};
+
+const toVector2 = (ve: Vertex): Vector2 => new Vector2(ve.x, ve.y);
+
+const renderFloor = (lbs: LinedefBySector): THREE.Mesh[] => {
+	const texture = lbs.sector.floorTexture.map(tx => createDataTexture(tx));
+	if (texture.isLeft()) {
+		console.log('No Floor on: ',lbs );
+		return [];
+	}
+	const shapes: THREE.Shape[] = [];
+	lbs.linedefs.forEach(ld => {
+		shapes.push(new THREE.Shape([toVector2(ld.start), toVector2(ld.end)]));
+	});
+	const geometry = new THREE.ShapeGeometry(shapes);
+	const floor = new THREE.Mesh(
+		geometry,
+		new THREE.MeshPhongMaterial({side: THREE.DoubleSide, map: texture.get()})
+	);
+
+	floor.rotation.set(Math.PI / 2, Math.PI, 0);
+	floor.position.y = lbs.sector.floorHeight;
+	return [floor];
+};
+
+const renderWalls = (lbs: LinedefBySector): THREE.Mesh[] => {
+	const mesh: THREE.Mesh[] = [];
+
 	const lowerUpperSide = () => THREE.DoubleSide;
 	const lowerUpperTexture = (ld) => ld.frontSide.lowerTexture;
 
@@ -101,18 +137,19 @@ const renderSector = (scene: THREE.Scene) => (lbs: LinedefBySector) => {
 
 	lbs.linedefs.forEach(ld => {
 		// lower wall
-		wall(lowerUpperSide, lowerUpperTexture, lowerStartHeight, lowerWallHeight)(ld).exec(m => scene.add(m));
+		wall(lowerUpperSide, lowerUpperTexture, lowerStartHeight, lowerWallHeight)(ld).exec(m => mesh.push(m));
 
 		// middle front wall
-		wall(middleFrontSide, middleFrontTexture, middleStart, middleWallHeight)(ld,).exec(m => scene.add(m));
+		wall(middleFrontSide, middleFrontTexture, middleStart, middleWallHeight)(ld,).exec(m => mesh.push(m));
 
 		// middle back wall
-		wall(middleBackSide, middleBackTexture, middleStart, middleWallHeight)(ld).exec(m => scene.add(m));
+		wall(middleBackSide, middleBackTexture, middleStart, middleWallHeight)(ld).exec(m => mesh.push(m));
 
 		// Upper Wall
-		wall(lowerUpperSide, lowerUpperTexture, upperStartHeight, upperWallHeight)(ld).exec(m => scene.add(m));
+		wall(lowerUpperSide, lowerUpperTexture, upperStartHeight, upperWallHeight)(ld).exec(m => mesh.push(m));
 
 	});
+	return mesh;
 };
 
 const wall = (sideFunc: (ld: Linedef) => Side,
@@ -135,21 +172,24 @@ const wall = (sideFunc: (ld: Linedef) => Side,
 	});
 };
 
+const createDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
+	const texture = new THREE.DataTexture(bitmap.rgba, bitmap.width, bitmap.height);
+	texture.needsUpdate = true;
+	texture.format = THREE.RGBAFormat;
+	texture.type = THREE.UnsignedByteType;
+	texture.magFilter = THREE.NearestFilter;
+	texture.minFilter = THREE.NearestFilter;
+	texture.mapping = THREE.UVMapping;
+	texture.wrapS = THREE.RepeatWrapping;
+	texture.wrapT = THREE.RepeatWrapping;
+	return texture;
+};
+
 const createMaterial = (dt: DoomTexture, side: Side, color = null): THREE.Material => {
 	let material;
 	if (dt) {
-		const patch: Bitmap = dt.patches[0].bitmap;
-		const texture = new THREE.DataTexture(patch.rgba, patch.header.width, patch.header.height);
-		texture.needsUpdate = true;
-		texture.format = THREE.RGBAFormat;
-		texture.type = THREE.UnsignedByteType;
-		texture.magFilter = THREE.NearestFilter;
-		texture.minFilter = THREE.NearestFilter;
-		texture.mapping = THREE.UVMapping;
-		texture.wrapS = THREE.RepeatWrapping;
-		texture.wrapT = THREE.RepeatWrapping;
 		side = THREE.DoubleSide;// TODO remove for real game
-		material = new THREE.MeshBasicMaterial({map: texture, transparent: true, alphaTest: 0.5, side, color});
+		material = new THREE.MeshBasicMaterial({map: createDataTexture(dt), transparent: true, alphaTest: 0.5, side, color});
 	} else {
 		material = new THREE.MeshStandardMaterial({transparent: true, color: 'green', side: THREE.DoubleSide});
 	}

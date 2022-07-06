@@ -32,7 +32,7 @@ import {
 import {BitmapHeader, Directories} from './wad-model';
 import {functions as dp} from './directory-parser';
 import * as R from 'ramda';
-import {Either} from '@maciejmiklas/functional-ts';
+import {Either} from '../../common/either';
 
 
 describe('texture-parser#unfoldColumnofs', () => {
@@ -167,9 +167,10 @@ describe('texture-parser#parseBitmap', () => {
 		});
 	});
 
+	/* FIXME
 	it('TITLEPIC - image data - random pixels', () => {
-		// expect(bitmap.imageData[0]).toEqual(128); TODO
-	});
+		 expect(bitmap.imageData[0]).toEqual(128);
+	});*/
 });
 
 describe('texture-parser#postAt', () => {

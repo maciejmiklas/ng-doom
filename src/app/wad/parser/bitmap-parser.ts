@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Either} from '@maciejmiklas/functional-ts';
+import {Either} from '../../common/either';
 import {Bitmap, BitmapHeader, Column, Directory, Palette, Post, RGBA} from './wad-model';
 import U from '../../common/util';
 import * as R from 'ramda';
@@ -60,7 +60,7 @@ const parsePatchHeader = (wadBytes: number[]) => (dir: Directory): BitmapHeader 
 	const shortParser = U.parseShort(wadBytes);
 	const uintParser = U.parseUint(wadBytes);
 	const filepos = dir.filepos;
-	const width = shortParser(filepos);
+	const width = uintParser(filepos);
 	return {
 		dir,
 		width,

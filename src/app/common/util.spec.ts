@@ -18,6 +18,13 @@ import U from './util';
 const IWAD_STR = [73, 87, 65, 68]; // IWAD
 const BROWN98_STR = [66, 82, 79, 87, 78, 57, 56, 45, 65]; // BROWN96-A
 
+describe('util#43', () => {
+	it('8', () => {
+		expect(43).toEqual(43);
+	});
+});
+
+
 describe('util#parseUint', () => {
 
 	it('8', () => {

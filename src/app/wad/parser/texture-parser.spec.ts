@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 import {functions as tp, testFunctions as tf} from './texture-parser';
-import {functions as pp} from './playpal-parser';
 
 import {getAllDirs, getPalette, getPatches, getPnames, getWadBytes} from './testdata/data';
-import {Bitmap, BitmapSprite, Directories, Directory, DoomTexture, Pnames, Sprite, TextureDir} from './wad-model';
+import {Bitmap, BitmapSprite, Directories, Directory, DoomTexture, Pnames, Sprite} from './wad-model';
 import {functions as dp} from './directory-parser';
 import {functions as sp} from './sprite-parser';
 import {functions as bp} from './bitmap-parser';
@@ -34,6 +33,30 @@ describe('texture-parser#findPatchDir', () => {
 				expect(found.isRight()).toBeTrue();
 				expect(found.get().name).toEqual(pn);
 			});
+	});
+});
+
+describe('texture-parser#findFlatDirs', () => {
+	const flats = tf.findFlatDirs(getAllDirs());
+
+	it('size', () => {
+		expect(flats.get().length).toEqual(54)
+	});
+
+	it('No _END', () => {
+		expect(flats.get().find(d => d.name === 'F1_END')).toBeUndefined();
+	});
+
+	it('No _START', () => {
+		expect(flats.get().find(d => d.name === 'F1_START')).toBeUndefined();
+	});
+
+	it('Found FLOOR1_7', () => {
+		expect(flats.get().find(d => d.name === 'FLOOR1_7').name).toEqual('FLOOR1_7');
+	});
+
+	it('Found STEP2', () => {
+		expect(flats.get().find(d => d.name === 'STEP2').name).toEqual('STEP2');
 	});
 });
 
@@ -65,7 +88,7 @@ describe('texture-parser#parsePnames', () => {
 
 describe('texture-parser#parseTextures', () => {
 	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs());
-	const tx: DoomTexture[] = tp.parseTextures(getWadBytes(), getAllDirs(), getPnames(), getPatches())(TextureDir.TEXTURE1).get();
+	const tx: DoomTexture[] = tp.parseTextures(getWadBytes(), getAllDirs(), getPnames(), getPatches()).get();
 
 	it('Textures amount', () => {
 		expect(tx.length).toEqual(125);
@@ -154,7 +177,7 @@ describe('texture-parser#parseTextures', () => {
 	});
 
 	it('Texture SW2STON1', () => {
-		let txx = tx[116];
+		const txx = tx[116];
 		expect(txx.name).toEqual('SW2STON1');
 		expect(txx.width).toEqual(64);
 		expect(txx.height).toEqual(128);
@@ -179,7 +202,7 @@ describe('texture-parser#parseTextures', () => {
 
 
 	it('Texture STARTAN2', () => {
-		let txx = tx[69];
+		const txx = tx[69];
 		expect(txx.name).toEqual('STARTAN2');
 		expect(txx.width).toEqual(128);
 		expect(txx.height).toEqual(128);
@@ -189,22 +212,22 @@ describe('texture-parser#parseTextures', () => {
 		expect(txx.patches[0].patchName).toEqual('SW17_4');
 		expect(txx.patches[0].originX).toEqual(0);
 		expect(txx.patches[0].originY).toEqual(0);
-		expect(txx.patches[0].patchIdx).toEqual(144);
+		expect(txx.patches[0].patchIdx).toEqual(120);
 
 		expect(txx.patches[1].patchName).toEqual('SW17_5');
 		expect(txx.patches[1].originX).toEqual(32);
 		expect(txx.patches[1].originY).toEqual(0);
-		expect(txx.patches[1].patchIdx).toEqual(144);
+		expect(txx.patches[1].patchIdx).toEqual(121);
 
 		expect(txx.patches[2].patchName).toEqual('SW17_6');
 		expect(txx.patches[2].originX).toEqual(64);
 		expect(txx.patches[2].originY).toEqual(0);
-		expect(txx.patches[2].patchIdx).toEqual(156);
+		expect(txx.patches[2].patchIdx).toEqual(122);
 
 		expect(txx.patches[3].patchName).toEqual('SW18_7');
 		expect(txx.patches[3].originX).toEqual(96);
 		expect(txx.patches[3].originY).toEqual(0);
-		expect(txx.patches[3].patchIdx).toEqual(156);
+		expect(txx.patches[3].patchIdx).toEqual(123);
 	});
 
 });
@@ -232,7 +255,6 @@ describe('texture-parser#parsePatches', () => {
 });
 
 describe('texture-parser#toImageData', () => {
-	const playpal = pp.parsePlaypal(getWadBytes(), getAllDirs());
 	const findDir = dp.findDirectoryByName(getAllDirs());
 	const titleDir = findDir(Directories.TITLEPIC).get();
 	const titleBitmap = bp.parseBitmap(getWadBytes(), getPalette())(titleDir).get();
@@ -245,6 +267,7 @@ describe('texture-parser#toImageData', () => {
 	it('TITLEPIC - image data - 4th pixel', () => {
 		for (let idx = 3; idx < 320 * 200 * 4; idx += 4) {
 			const pix = imageData.data[idx];
+			expect(pix).toBeDefined();
 			if (pix !== 0 && pix !== 255) {
 				fail('pix: ' + pix + ' on ' + idx);
 				return;
@@ -252,7 +275,7 @@ describe('texture-parser#toImageData', () => {
 		}
 	});
 
-	it('TITLEPIC - randoom pixels', () => {
+	it('TITLEPIC - random pixels', () => {
 		const data = imageData.data;
 		expect(data[0]).toEqual(115);
 		expect(data[22]).toEqual(71);
@@ -312,5 +335,14 @@ describe('texture-parser#maxSpriteSize', () => {
 			expect(f.header.height).toBeLessThanOrEqual(16);
 		});
 	});
+});
+
+
+describe('texture-parser#parseFlats', () => {
+
+	it('aaa', () => {
+		tf.parseFlats(getWadBytes(), getAllDirs(), getPalette());
+	});
+
 });
 

@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 import * as R from 'ramda';
-import {Either} from '@maciejmiklas/functional-ts';
+import {Either} from './either';
+import {Log} from "./log";
+
+const CMP = "util";
 
 const uint8ArrayToBase64 = (bytes: number[]): string => {
 	let binary = '';
@@ -55,27 +58,40 @@ const parseTextureName = (bytes: number[]) => (pos: number, length: number): Eit
 };
 
 /** Converts given signed 4-byte array to number. Notation: little-endian (two's complement) */
-const parseNumber = (bytes: number[]) => (pos: number): number =>
-	R.pipe<number[], number[], number[], number>(
+const parseNumber = (bytes: number[]) => (pos: number): number => {
+	// @ts-ignore
+	return R.pipe<number[], number[], number[], number>(
+		// @ts-ignore
 		R.slice(pos, pos + 4),
 		R.reverse,
-		R.curry(R.reduce)((acc: unknown, cur: unknown) => acc as number << 8 | cur as number, 0)
+		R.curry(R.reduce)((acc: number, cur: number) => acc as number << 8 | cur as number, 0)
+		// @ts-ignore
 	)(bytes);
+}
 
 /** little-endian 4-byte signed int. Notation: little-endian (two's complement) */
-const parseInt = (bytes: number[]) => (pos: number): number => parseNumber(bytes)(pos);
+const parseInt = (bytes: number[]) => (pos: number): number => ensureRange(pos, parseNumber(bytes)(pos), -2147483647, 2147483647);
+
+// TODO: user Either as error handling for parsing numbers
+const ensureRange = (pos: number, val: number, from: number, to: number): number => {
+	if (val < from || val > to) {
+		Log.warn(CMP, 'Number out of range at:', pos, ' -> ', from, val, to);
+		return 0;
+	}
+	return val
+};
 
 /** little-endian 4-byte int without sign. Notation: little-endian (two's complement) */
-const parseUint = (bytes: number[]) => (pos: number): number => parseNumber(bytes)(pos) >>> 0;
+const parseUint = (bytes: number[]) => (pos: number): number => ensureRange(pos, parseNumber(bytes)(pos) >>> 0, 0, 2147483647);
 
-const parseUbyte = (bytes: number[]) => (pos: number): number => bytes[pos] >>> 0;
+const parseUbyte = (bytes: number[]) => (pos: number): number => ensureRange(pos, bytes[pos] >>> 0, 0, 255);
 
 const signedByte = (byte: number) => (byte & 0x80) === 0x80;
 
 /** little-endian 2-byte signed short. Notation: little-endian (two's complement) */
 const parseShort = (bytes: number[]) => (pos: number): number => {
 	const padding = signedByte(bytes[pos + 1]) ? 0xFF : 0x00;
-	return parseNumber([bytes[pos], bytes[pos + 1], padding, padding])(0);
+	return ensureRange(pos, parseNumber([bytes[pos], bytes[pos + 1], padding, padding])(0), -32767, 32767);
 };
 
 const parseShortOp = (bytes: number[]) => (cnd: (val: number) => boolean, emsg: (val: number) => string) => (pos: number): Either<number> => {

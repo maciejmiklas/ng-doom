@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import * as R from 'ramda';
-import {Either} from '@maciejmiklas/functional-ts';
+import {Either} from '../../common/either';
 import {
 	Directory,
 	DoomMap,
@@ -76,7 +76,7 @@ const parseMaps = (bytes: number[], dirs: Directory[], textures: DoomTexture[]):
 };
 
 const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>) => (mapDirs: Directory[]): DoomMap => {
-	const sectors = parseSectors(bytes)(mapDirs);
+	const sectors = parseSectors(bytes)(mapDirs, textureLoader);
 	const linedefs = parseLinedefs(bytes, mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes, textureLoader)(mapDirs, sectors), sectors);
 	return {
 		mapDirs,
@@ -130,7 +130,7 @@ const parseThings = (bytes: number[]) => (mapDirs: Directory[]): Thing[] => {
 	return unfoldByDirectorySize(thingDir, 10).map((ofs, thingIdx) => parser(thingIdx)).map(th => th);
 };
 
-const parseSector = (bytes: number[], dir: Directory) => (thingIdx: number): Sector => {
+const parseSector = (bytes: number[], dir: Directory, textureLoader: (name: string) => Either<DoomTexture>) => (thingIdx: number): Sector => {
 	const offset = dir.filepos + 26 * thingIdx;
 	const shortParser = U.parseShort(bytes);
 	const strParser = U.parseStr(bytes);
@@ -139,8 +139,8 @@ const parseSector = (bytes: number[], dir: Directory) => (thingIdx: number): Sec
 		type: MapLumpType.SECTORS,
 		floorHeight: shortParser(offset),
 		ceilingHeight: shortParser(offset + 0x02),
-		floorTexture: strParser(offset + 0x04, 8),
-		cellingTexture: strParser(offset + 0x0C, 8),
+		floorTexture: textureLoader(strParser(offset + 0x04, 8)),
+		cellingTexture: textureLoader(strParser(offset + 0x0C, 8)),
 		lightLevel: shortParser(offset + 0x14),
 		specialType: shortParser(offset + 0x16),
 		tagNumber: shortParser(offset + 0x18),
@@ -148,9 +148,9 @@ const parseSector = (bytes: number[], dir: Directory) => (thingIdx: number): Sec
 	};
 };
 
-const parseSectors = (bytes: number[]) => (mapDirs: Directory[]): Sector[] => {
+const parseSectors = (bytes: number[]) => (mapDirs: Directory[], textureLoader: (name: string) => Either<DoomTexture>): Sector[] => {
 	const thingDir = mapDirs[MapLumpType.SECTORS];
-	const parser = parseSector(bytes, thingDir);
+	const parser = parseSector(bytes, thingDir, textureLoader);
 	return unfoldByDirectorySize(thingDir, 26).map((ofs, thingIdx) => parser(thingIdx));
 };
 
@@ -188,8 +188,7 @@ const parseLinedefs = (bytes: number[], mapDirs: Directory[], vertexes: Vertex[]
 	const parser = parseLinedef(bytes, linedefsDir, vertexes, sidedefs, sectors);
 	return unfoldByDirectorySize(linedefsDir, 14) // Linedef has 14 bytes
 		.map((ofs, thingIdx) => parser(thingIdx))// thingIdx => Either<Linedef>
-		.filter(v => v.isRight()).map(v => v.get()); // Either<Linedef> => Linedef
-	// TODO sd=>sd.isRight() will filter out Left without logging
+		.filter(v => v.filter()).map(v => v.get()); // Either<Linedef> => Linedef
 };
 
 const parseFlags = (val: number): Set<LinedefFlag> =>

@@ -20,7 +20,6 @@
 // ########### NAVBAR ##################
 .app-navbar {
 	@include app-content-color;
-	@extend .rounded-lg;
 	@extend .container-fluid;
 	@extend .sticky-top;
 	padding: 10px;

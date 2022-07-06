@@ -23,7 +23,7 @@ export class Controls {
 	private moveY = MoveY.NO;
 	private readonly controls: PointerLockControls;
 	private camera: THREE.PerspectiveCamera;
-	moveSlow = 5;
+	moveSlow = 2;
 
 	constructor(camera: THREE.PerspectiveCamera, canvas: HTMLCanvasElement) {
 		window.addEventListener('keydown', this.onKeyDown.bind(this));

@@ -18,7 +18,7 @@ import {Injectable} from '@angular/core';
 import {UploadResult, UploadStatus} from './wad-upload/wad-upload-model';
 import {WadEntry} from './parser/wad-model'
 import * as R from 'ramda';
-import {Either} from '@maciejmiklas/functional-ts';
+import {Either} from '../common/either';
 import {functions as wp} from './parser/wad-parser';
 import {Wad} from './parser/wad-model';
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';

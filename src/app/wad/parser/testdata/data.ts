@@ -25,19 +25,17 @@ import {
 	Directory,
 	DoomTexture,
 	Header,
-	Linedef, LinedefBySector,
 	MapLumpType,
 	Palette,
 	Pnames,
 	Post,
 	Sector,
-	TextureDir,
 	Vertex
 } from '../wad-model';
 
 import jsonData from './doom.json';
 import U from '../../../common/util';
-import {Either} from '@maciejmiklas/functional-ts';
+import {Either} from '../../../common/either';
 
 let _wadBytes = null;
 export const getWadBytes = (): number[] => {
@@ -58,8 +56,8 @@ export const getE1M1Dirs = (): Directory[] => {
 
 let _sectors = null;
 export const getSectors = (): Sector[] => {
-	if(_sectors == null){
-		_sectors = tf.parseSectors(getWadBytes())(getE1M1Dirs());
+	if (_sectors == null) {
+		_sectors = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createTextureLoader(getTextures()));
 	}
 	return _sectors;
 };
@@ -91,7 +89,7 @@ export const getPatches = (): Bitmap[] => {
 let _textures = null;
 export const getTextures = (): DoomTexture[] => {
 	if (!_textures) {
-		_textures = tp.parseTextures(getWadBytes(), getAllDirs(), getPnames(), getPatches())(TextureDir.TEXTURE1).get();
+		_textures = tp.parseTextures(getWadBytes(), getAllDirs(), getPnames(), getPatches()).get();
 	}
 	return _textures;
 };

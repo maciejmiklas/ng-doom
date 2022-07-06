@@ -17,7 +17,7 @@ import {Directories, Directory, Header, WadType} from './wad-model';
 import * as R from 'ramda';
 import U from '../../common/util';
 import {Log} from '../../common/log';
-import {Either} from '@maciejmiklas/functional-ts';
+import {Either} from '../../common/either';
 
 const parseAllDirectories = (header: Header, bytes: number[]): Either<Directory[]> => {
 	const dirs = R.unfold(idx => idx > header.numlumps ? false : [header.infotableofs + idx * 16, idx + 1], 0)
@@ -55,11 +55,20 @@ const parseHeader = (bytes: number[]): Either<Header> => {
 		})).exec(h => Log.debug('directory_parser#parseHeader', 'Parsed Header: %1', h));
 };
 
+const findBetween = (dirs: Directory[]) => (from: string, to: string) => (filter: (dir: Directory) => boolean): Either<Directory[]> => {
+	const finder = findDirectoryByName(dirs);
+	const fromDir = finder(from);
+	const toDir = finder(to);
+	return Either.ofTruth([fromDir, toDir], () => dirs.slice(fromDir.get().idx, toDir.get().idx).filter(d => filter(d)))
+		.map(dirs => Either.ofCondition(() => dirs.length > 0, () => 'No dirs between:' + from + '->' + to, () => dirs));
+};
+
 // ############################ EXPORTS ############################
 export const functions = {
 	parseHeader,
 	parseDirectory,
 	parseAllDirectories,
 	findDirectoryByName,
-	findDirectoryByOffset
+	findDirectoryByOffset,
+	findBetween
 };

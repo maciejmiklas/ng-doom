@@ -25,7 +25,7 @@
  *
  * Map consists of Lumps such: Thing (monster) or Linedef (wall), but Lump can be also a texture or sound.
  */
-import {Either} from '@maciejmiklas/functional-ts';
+import {Either} from '../../common/either';
 
 export type Header = {
 	identification: WadType
@@ -69,15 +69,11 @@ export enum Directories {
 	M_DOOM = 'M_DOOM',
 	S_START = 'S_START',
 	S_END = 'S_END',
-	PNAMES = 'PNAMES'
-}
-
-/**
- * Names of static directories
- */
-export enum TextureDir {
+	PNAMES = 'PNAMES',
 	TEXTURE1 = 'TEXTURE1',
-	TEXTURE2 = 'TEXTURE2'
+	TEXTURE2 = 'TEXTURE2',
+	F_START = 'F_START',
+	F_END = 'F_END'
 }
 
 /**
@@ -99,7 +95,7 @@ export enum MapLumpType {
 }
 
 /**
- * Lump is a abstract data type found in each map.
+ * Lump is an abstract data type found in each map.
  * Each Lump definition starts with Directory containing type of the Lump and pointer to Lump's data in WAD.
  */
 export type Lump = {
@@ -126,7 +122,7 @@ export type RGBA = {
 };
 
 /**
- * Lump is a abstract data type found in each map.
+ * Lump is an abstract data type found in each map.
  * Each Lump definition starts with Directory containing type of the Lump and pointer to Lump's data in WAD.
  */
 export type MapLump = Lump & {
@@ -221,7 +217,7 @@ export type Sidedef = MapLump & {
 	upperTexture: Either<DoomTexture>
 
 	/**
-	 * On one sided linedefs this will be the only texture displayed; as the main wall texture. On two sided linedefs this will be displayed
+	 * On one-sided linedefs this will be the only texture displayed; as the main wall texture. On two-sided linedefs this will be displayed
 	 * as a 'floating' texture which the player is able to walk through. Middle floating textures can be used to achieve a variety of faux 3D
 	 * effects such as 3D bridges. Note that middle floating textures will only tile horizontally and not vertically, where they only repeat
 	 * once.
@@ -247,12 +243,11 @@ export type Sector = MapLump & {
 	id: number
 	floorHeight: number
 	ceilingHeight: number
-	floorTexture: string
-	cellingTexture: string
+	floorTexture: Either<DoomTexture>
+	cellingTexture: Either<DoomTexture>
 	lightLevel: number
 	specialType: number
 	tagNumber: number
-
 };
 
 /**
@@ -314,7 +309,7 @@ export type BitmapHeader = {
 };
 
 /**
- * Bitmap column (known as post) of Doom's bitmap. Offset to each columns is given by BitmapHeader#columnofs
+ * Bitmap column (known as post) of Doom's bitmap. Offset to each column is given by BitmapHeader#columnofs
  *
  * @see https://doomwiki.org/wiki/Picture_format -> Posts
  */
@@ -325,7 +320,7 @@ export type Post = {
 
 	/**
 	 * Array of pixels is this post. Length is given by #length.
-	 * Each pixel has value 0-255 and it's an index in Doom palate
+	 * Each pixel has value 0-255, and it's an index in Doom palate
 	 */
 	data: number[]
 
@@ -336,7 +331,7 @@ export type Post = {
 /**
  * Data of each column is divided into posts, which are lines going downward on the screen (columns).
  *
- * Each post has offset in pixels, that gives it's position in column. There could be gap between Posts - in
+ * Each post has offset in pixels, that gives its position in column. There could be gap between Posts - in
  * such case free pixels are transparent
  */
 export type Column = {

@@ -17,7 +17,7 @@ import {functions as wp, testFunctions as tf} from './wad-parser';
 import {getAllDirs, getPalette, getWadBytes, validateTitleColumn, validateTitlePatchHeader} from './testdata/data';
 import {functions as dp} from './directory-parser';
 import {Directories, TitlePic, WadType} from './wad-model';
-import {Either} from '@maciejmiklas/functional-ts';
+import {Either} from '../../common/either';
 
 describe('wad_parser#parseTitlePic', () => {
 	const tp: Either<TitlePic> = tf.parseTitlePic(getWadBytes(), getAllDirs(), getPalette());

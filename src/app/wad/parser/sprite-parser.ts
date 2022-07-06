@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {Directories, Directory, FrameDir, Palette, Sprite} from './wad-model';
-import {Either} from '@maciejmiklas/functional-ts';
+import {Either} from '../../common/either';
 import {functions as dp} from './directory-parser';
 import {functions as bp} from './bitmap-parser';
 import * as R from 'ramda';
