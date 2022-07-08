@@ -35,7 +35,14 @@ import * as R from 'ramda';
 import {Either} from '../../common/either';
 
 
-describe('texture-parser#unfoldColumnofs', () => {
+const validateStbarPatchHeader = (header: BitmapHeader) => {
+	expect(header.width).toEqual(320);
+	expect(header.height).toEqual(32);
+	expect(header.xOffset).toEqual(0);
+	expect(header.yOffset).toEqual(0);
+};
+
+describe('bitmap-parser#unfoldColumnofs', () => {
 	it('Validate size', () => {
 		expect(tf.unfoldColumnofs(100, 320).length).toEqual(320);
 	});
@@ -48,14 +55,7 @@ describe('texture-parser#unfoldColumnofs', () => {
 	});
 });
 
-const validateStbarPatchHeader = (header: BitmapHeader) => {
-	expect(header.width).toEqual(320);
-	expect(header.height).toEqual(32);
-	expect(header.xOffset).toEqual(0);
-	expect(header.yOffset).toEqual(0);
-};
-
-describe('texture-parser#parsePatchHeader', () => {
+describe('bitmap-parser#parsePatchHeader', () => {
 	const findDir = dp.findDirectoryByName(getAllDirs());
 	const patchParser = tf.parsePatchHeader(getWadBytes());
 	const titleDir = findDir(Directories.TITLEPIC).get();
@@ -89,7 +89,7 @@ describe('texture-parser#parsePatchHeader', () => {
 	});
 });
 
-describe('texture-parser#parseColumn', () => {
+describe('bitmap-parser#parseColumn', () => {
 	const findDir = dp.findDirectoryByName(getAllDirs());
 	const titleDir = findDir(Directories.TITLEPIC).get();
 	const patchParser = tf.parsePatchHeader(getWadBytes());
@@ -109,7 +109,7 @@ describe('texture-parser#parseColumn', () => {
 	});
 });
 
-describe('texture-parser#parsePost', () => {
+describe('bitmap-parser#parsePost', () => {
 	const findDir = dp.findDirectoryByName(getAllDirs());
 	const dir = findDir(Directories.TITLEPIC);
 	const header = tf.parsePatchHeader(getWadBytes())(dir.get());
@@ -138,7 +138,7 @@ describe('texture-parser#parsePost', () => {
 	});
 });
 
-describe('texture-parser#parseBitmap', () => {
+describe('bitmap-parser#parseBitmap', () => {
 	const findDir = dp.findDirectoryByName(getAllDirs());
 	const dir = findDir(Directories.TITLEPIC);
 	const bitmap = bp.parseBitmap(getWadBytes(), getPalette())(dir.get()).get();
@@ -167,13 +167,13 @@ describe('texture-parser#parseBitmap', () => {
 		});
 	});
 
-	/* FIXME
-	it('TITLEPIC - image data - random pixels', () => {
-		 expect(bitmap.imageData[0]).toEqual(128);
-	});*/
+	// FIXME
+	// it('TITLEPIC - image data - random pixels', () => {
+	// 	 expect(bitmap.imageData[0]).toEqual(128);
+	// });
 });
 
-describe('texture-parser#postAt', () => {
+describe('bitmap-parser#postAt', () => {
 	const pa = tf.postAt(simpleDoomImage().map(Either.ofRight));
 
 	it('column[0] at post[0]', () => {
@@ -224,7 +224,7 @@ describe('texture-parser#postAt', () => {
 	});
 });
 
-describe('texture-parser#postPixelAt', () => {
+describe('bitmap-parser#postPixelAt', () => {
 	const pix = tf.postPixelAt(simpleDoomImage().map(Either.ofRight));
 	it('column[0] at post[0]', () => {
 		expect(pix(0, 0)).toEqual(11);

@@ -19,6 +19,42 @@ import {Log} from "./log";
 
 const CMP = "util";
 
+const parseUint8 = (bytes: number[]) => (pos: number, max = 255): number => ensureRange(pos, bytes[pos] >>> 0, 0, max);
+
+/** little-endian 2-byte without sign. Notation: little-endian (two's complement) */
+const parseUint16 = (bytes: number[]) => (pos: number, max = 65535): number => {
+	return ensureRange(pos, parseNumber([bytes[pos], bytes[pos + 1], 0x00, 0x00])(0), 0, max);
+};
+
+/** little-endian 2-byte signed short. Notation: little-endian (two's complement) */
+const parseInt16 = (bytes: number[]) => (pos: number, min = -32767, max = 32767): number => {
+	const padding = signedByte(bytes[pos + 1]) ? 0xFF : 0x00;
+	return ensureRange(pos, parseNumber([bytes[pos], bytes[pos + 1], padding, padding])(0), min, max);
+};
+
+const parseInt16Op = (bytes: number[]) => (cnd: (val: number) => boolean, emsg: (val: number) => string) => (pos: number): Either<number> => {
+	const parsed = parseInt16(bytes)(pos);
+	return Either.ofCondition(() => cnd(parsed), () => emsg(parsed), () => parsed);
+};
+
+/** little-endian 4-byte int without sign. Notation: little-endian (two's complement) */
+const parseUint32 = (bytes: number[]) => (pos: number, max = 4294967295): number => ensureRange(pos, parseNumber(bytes)(pos) >>> 0, 0, max);
+
+/** little-endian 4-byte signed int. Notation: little-endian (two's complement) */
+const parseInt32 = (bytes: number[]) => (pos: number, min = -2147483647, max = 2147483647): number => ensureRange(pos, parseNumber(bytes)(pos), min, max);
+
+const parseStr = (bytes: number[]) => (pos: number, length: number): string =>
+	String.fromCharCode.apply(null, bytes.slice(pos, trim0Padding(bytes, pos + length - 1)));
+
+const parseStrOp = (bytes: number[]) => (cnd: (val: string) => boolean, emsg: (val: string) => string) => (pos: number, length: number): Either<string> => {
+	const str = parseStr(bytes)(pos, length);
+	return Either.ofCondition(() => cnd(str), () => emsg(str), () => str);
+};
+
+const parseTextureName = (bytes: number[]) => (pos: number, length: number): Either<string> => {
+	return parseStrOp(bytes)(v => v !== '-', () => '')(pos, length);
+};
+
 const uint8ArrayToBase64 = (bytes: number[]): string => {
 	let binary = '';
 	const len = bytes.length;
@@ -38,24 +74,13 @@ const base64ToUint8Array = (base64: string): Uint8Array => {
 	return bytes;
 };
 
-const base64ToArray = (base64: string): number[] => {
+const base64ToUint8NumberArray = (base64: string): number[] => {
 	return [].slice.call(base64ToUint8Array(base64));
 };
 
 const trim0Padding = (bytes: number[], pos: number) =>
 	R.until((v: number) => bytes[v] !== 0, (v: number) => v - 1)(pos) + 1;
 
-const parseStr = (bytes: number[]) => (pos: number, length: number): string =>
-	String.fromCharCode.apply(null, bytes.slice(pos, trim0Padding(bytes, pos + length - 1)));
-
-const parseStrOp = (bytes: number[]) => (cnd: (val: string) => boolean, emsg: (val: string) => string) => (pos: number, length: number): Either<string> => {
-	const str = parseStr(bytes)(pos, length);
-	return Either.ofCondition(() => cnd(str), () => emsg(str), () => str);
-};
-
-const parseTextureName = (bytes: number[]) => (pos: number, length: number): Either<string> => {
-	return parseStrOp(bytes)(v => v !== '-', () => '')(pos, length);
-};
 
 /** Converts given signed 4-byte array to number. Notation: little-endian (two's complement) */
 const parseNumber = (bytes: number[]) => (pos: number): number => {
@@ -69,35 +94,15 @@ const parseNumber = (bytes: number[]) => (pos: number): number => {
 	)(bytes);
 }
 
-/** little-endian 4-byte signed int. Notation: little-endian (two's complement) */
-const parseInt = (bytes: number[]) => (pos: number): number => ensureRange(pos, parseNumber(bytes)(pos), -2147483647, 2147483647);
-
-// TODO: user Either as error handling for parsing numbers
-const ensureRange = (pos: number, val: number, from: number, to: number): number => {
-	if (val < from || val > to) {
-		Log.warn(CMP, 'Number out of range at:', pos, ' -> ', from, val, to);
+const ensureRange = (pos: number, val: number, min: number, max: number): number => {
+	if (val < min || val > max) {
+		Log.warn(CMP, 'Number out of range at:', pos, ' -> ', min, val, max);
 		return 0;
 	}
 	return val
 };
 
-/** little-endian 4-byte int without sign. Notation: little-endian (two's complement) */
-const parseUint = (bytes: number[]) => (pos: number): number => ensureRange(pos, parseNumber(bytes)(pos) >>> 0, 0, 2147483647);
-
-const parseUbyte = (bytes: number[]) => (pos: number): number => ensureRange(pos, bytes[pos] >>> 0, 0, 255);
-
 const signedByte = (byte: number) => (byte & 0x80) === 0x80;
-
-/** little-endian 2-byte signed short. Notation: little-endian (two's complement) */
-const parseShort = (bytes: number[]) => (pos: number): number => {
-	const padding = signedByte(bytes[pos + 1]) ? 0xFF : 0x00;
-	return ensureRange(pos, parseNumber([bytes[pos], bytes[pos + 1], padding, padding])(0), -32767, 32767);
-};
-
-const parseShortOp = (bytes: number[]) => (cnd: (val: number) => boolean, emsg: (val: number) => string) => (pos: number): Either<number> => {
-	const parsed = parseShort(bytes)(pos);
-	return Either.ofCondition(() => cnd(parsed), () => emsg(parsed), () => parsed);
-};
 
 /** iterate #from to #to increasing by one*/
 const itn = (from: number, to: number, func: (idx: number) => void): void => {
@@ -123,15 +128,16 @@ const findFrom = <T>(arr: T[]) => (offset: number, pred: (T, idx: number) => boo
 
 const U = {
 	uint8ArrayToBase64,
-	base64ToUint8Array: base64ToArray,
+	base64ToUint8NumberArray,
 	trim0Padding,
 	parseStr,
 	parseStrOp,
-	parseInt,
-	parseShort,
-	parseShortOp,
-	parseUint,
-	parseUbyte,
+	parseInt32,
+	parseInt16,
+	parseInt16Op,
+	parseUint32,
+	parseUint8,
+	parseUint16,
 	itn,
 	its,
 	findFrom,

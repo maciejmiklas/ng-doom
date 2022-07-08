@@ -29,12 +29,12 @@ export class AppSetupService {
 	}
 
 	setup(): void {
-		this.uploadTestingWAD();
+		//this.uploadTestingWAD();
 	}
 
 	uploadTestingWAD(): void {
 		// @ts-ignore
-		const file = new File([new Uint8Array(U.base64ToUint8Array(wadJson.doom))], 'doom.wad', {type: 'mimeType'})
+		const file = new File([new Uint8Array(U.base64ToUint8NumberArray(wadJson.doom))], 'doom.wad', {type: 'mimeType'})
 		this.wadStorage.uploadWad(file);
 	}
 }

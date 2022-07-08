@@ -36,7 +36,7 @@ const RGBA_BYTES = 4;
 
 const parsePnames = (wadBytes: number[], dirs: Directory[]): Pnames => {
 	const dir: Directory = dp.findDirectoryByName(dirs)(Directories.PNAMES).get();
-	const nummappatches = U.parseInt(wadBytes)(dir.filepos);
+	const nummappatches = U.parseInt32(wadBytes)(dir.filepos);
 	const strParser = U.parseStr(wadBytes);
 	const names: string[] = R
 		.range(0, nummappatches) // ()=> Patches amount
@@ -57,7 +57,7 @@ const parsePatches = (wadBytes: number[], dirs: Directory[], palette: Palette): 
 };
 
 const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: Bitmap[]) => (offset: number): Either<Patch> => {
-	const shortParser = U.parseShort(wadBytes);
+	const shortParser = U.parseInt16(wadBytes);
 	const patchIdx = shortParser(offset + 0x04);
 	const patchName = Either.ofCondition(
 		() => patchIdx < pnames.names.length,
@@ -76,7 +76,7 @@ const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patch
 
 const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pnames: Pnames, allPatches: Bitmap[]) => (offset: number): Either<DoomTexture> => {
 	const strParser = U.parseStr(wadBytes);
-	const shortParser = U.parseShort(wadBytes);
+	const shortParser = U.parseInt16(wadBytes);
 	const patchCountWad = shortParser(offset + 0x14);
 	const patchParser = parsePatch(wadBytes, dirs, pnames, allPatches);
 	const patches = R
@@ -110,7 +110,7 @@ const parseTextures = (wadBytes: number[], dirs: Directory[], pnames: Pnames, pa
 
 const parseTexturesByDir = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: Bitmap[]) => (td: Directories): Either<DoomTexture[]> =>
 	dp.findDirectoryByName(dirs)(td).map(dir => {
-		const intParser = U.parseInt(wadBytes);
+		const intParser = U.parseInt32(wadBytes);
 		const textureParser = parseTexture(wadBytes, dirs, dir, pnames, patches);
 		const offset = dir.filepos;
 		const textures: DoomTexture[] = R

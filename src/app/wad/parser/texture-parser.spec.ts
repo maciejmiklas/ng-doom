@@ -86,6 +86,138 @@ describe('texture-parser#parsePnames', () => {
 	});
 });
 
+describe('texture-parser#parsePnames', () => {
+	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs());
+
+	it('Correct amount', () => {
+		expect(pn.nummappatches).toEqual(350);
+	});
+
+	it('Amount matches', () => {
+		expect(pn.nummappatches).toEqual(pn.names.length);
+	});
+
+	it('Pname at 0', () => {
+		expect(pn.names[0]).toEqual('WALL00_3');
+	});
+
+	it('Pname at 18', () => {
+		expect(pn.names[18]).toEqual('WALL02_1');
+	});
+
+	it('Pname at 48', () => {
+		expect(pn.names[48]).toEqual('COMP03_7');
+	});
+});
+
+
+/*
+describe('texture-parser#parsePatches', () => {
+	const pb: Bitmap[] = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette());
+
+	it('Bitmap size', () => {
+		expect(pb.length).toEqual(163);
+	});
+
+	it('Bitmap width', () => {
+		pb.forEach(b => {
+			expect(b.header.width).toBeGreaterThanOrEqual(0);
+			expect(b.header.width).toBeLessThanOrEqual(320);
+		});
+	});
+
+	it('Bitmap height', () => {
+		pb.forEach(b => {
+			expect(b.header.height).toBeGreaterThanOrEqual(0);
+			expect(b.header.height).toBeLessThanOrEqual(200);
+		});
+	});
+});
+
+describe('texture-parser#toImageData', () => {
+	const findDir = dp.findDirectoryByName(getAllDirs());
+	const titleDir = findDir(Directories.TITLEPIC).get();
+	const titleBitmap = bp.parseBitmap(getWadBytes(), getPalette())(titleDir).get();
+	const imageData = tf.toImageData(titleBitmap);
+
+	it('TITLEPIC - image data size', () => {
+		expect(imageData.data.length).toEqual(320 * 200 * 4);
+	});
+
+	it('TITLEPIC - image data - 4th pixel', () => {
+		for (let idx = 3; idx < 320 * 200 * 4; idx += 4) {
+			const pix = imageData.data[idx];
+			expect(pix).toBeDefined();
+			if (pix !== 0 && pix !== 255) {
+				fail('pix: ' + pix + ' on ' + idx);
+				return;
+			}
+		}
+	});
+
+	it('TITLEPIC - random pixels', () => {
+		const data = imageData.data;
+		expect(data[0]).toEqual(115);
+		expect(data[22]).toEqual(71);
+		expect(data[19]).toEqual(255);
+		expect(data[37]).toEqual(179);
+		expect(data[44]).toEqual(159);
+		expect(data[89]).toEqual(0);
+		expect(data[112]).toEqual(239);
+		expect(data[120]).toEqual(179);
+		expect(data[124]).toEqual(159);
+		expect(data[396]).toEqual(179);
+	});
+});
+
+describe('texture-parser#toBitmapSprite', () => {
+	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs());
+
+	it('AMMO', () => {
+		const bs: BitmapSprite = tf.toBitmapSprite(sprites[0].animations[0]).get();
+		expect(bs.name).toEqual('AMMO');
+		expect(bs.angle).toEqual('0');
+		bs.frames.forEach(f => {
+			expect(f.header.dir.name).toContain('AMMO');
+		});
+	});
+
+	it('BKEY', () => {
+		const bs: BitmapSprite = tf.toBitmapSprite(sprites[10].animations[0]).get();
+		expect(bs.name).toEqual('BKEY');
+		expect(bs.angle).toEqual('0');
+		bs.frames.forEach(f => {
+			expect(f.header.dir.name).toContain('BKEY');
+		});
+	});
+});
+
+describe('texture-parser#maxSpriteSize', () => {
+	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs());
+
+	it('AMMO', () => {
+		const bs: BitmapSprite = tf.toBitmapSprite(sprites[0].animations[0]).get();
+		expect(bs.name).toEqual('AMMO');
+		expect(tf.maxSpriteSize(bs)).toEqual(28);
+
+		bs.frames.forEach(f => {
+			expect(f.header.width).toBeLessThanOrEqual(28);
+			expect(f.header.height).toBeLessThanOrEqual(28);
+		});
+	});
+
+	it('BKEY', () => {
+		const bs: BitmapSprite = tf.toBitmapSprite(sprites[10].animations[0]).get();
+		expect(bs.name).toEqual('BKEY');
+		expect(tf.maxSpriteSize(bs)).toEqual(16);
+		bs.frames.forEach(f => {
+			expect(f.header.width).toBeLessThanOrEqual(16);
+			expect(f.header.height).toBeLessThanOrEqual(16);
+		});
+	});
+});
+
+
 describe('texture-parser#parseTextures', () => {
 	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs());
 	const tx: DoomTexture[] = tp.parseTextures(getWadBytes(), getAllDirs(), getPnames(), getPatches()).get();
@@ -232,111 +364,6 @@ describe('texture-parser#parseTextures', () => {
 
 });
 
-describe('texture-parser#parsePatches', () => {
-	const pb: Bitmap[] = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette());
-
-	it('Bitmap size', () => {
-		expect(pb.length).toEqual(163);
-	});
-
-	it('Bitmap width', () => {
-		pb.forEach(b => {
-			expect(b.header.width).toBeGreaterThanOrEqual(0);
-			expect(b.header.width).toBeLessThanOrEqual(320);
-		});
-	});
-
-	it('Bitmap height', () => {
-		pb.forEach(b => {
-			expect(b.header.height).toBeGreaterThanOrEqual(0);
-			expect(b.header.height).toBeLessThanOrEqual(200);
-		});
-	});
-});
-
-describe('texture-parser#toImageData', () => {
-	const findDir = dp.findDirectoryByName(getAllDirs());
-	const titleDir = findDir(Directories.TITLEPIC).get();
-	const titleBitmap = bp.parseBitmap(getWadBytes(), getPalette())(titleDir).get();
-	const imageData = tf.toImageData(titleBitmap);
-
-	it('TITLEPIC - image data size', () => {
-		expect(imageData.data.length).toEqual(320 * 200 * 4);
-	});
-
-	it('TITLEPIC - image data - 4th pixel', () => {
-		for (let idx = 3; idx < 320 * 200 * 4; idx += 4) {
-			const pix = imageData.data[idx];
-			expect(pix).toBeDefined();
-			if (pix !== 0 && pix !== 255) {
-				fail('pix: ' + pix + ' on ' + idx);
-				return;
-			}
-		}
-	});
-
-	it('TITLEPIC - random pixels', () => {
-		const data = imageData.data;
-		expect(data[0]).toEqual(115);
-		expect(data[22]).toEqual(71);
-		expect(data[19]).toEqual(255);
-		expect(data[37]).toEqual(179);
-		expect(data[44]).toEqual(159);
-		expect(data[89]).toEqual(0);
-		expect(data[112]).toEqual(239);
-		expect(data[120]).toEqual(179);
-		expect(data[124]).toEqual(159);
-		expect(data[396]).toEqual(179);
-	});
-});
-
-describe('texture-parser#toBitmapSprite', () => {
-	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs());
-
-	it('AMMO', () => {
-		const bs: BitmapSprite = tf.toBitmapSprite(sprites[0].animations[0]).get();
-		expect(bs.name).toEqual('AMMO');
-		expect(bs.angle).toEqual('0');
-		bs.frames.forEach(f => {
-			expect(f.header.dir.name).toContain('AMMO');
-		});
-	});
-
-	it('BKEY', () => {
-		const bs: BitmapSprite = tf.toBitmapSprite(sprites[10].animations[0]).get();
-		expect(bs.name).toEqual('BKEY');
-		expect(bs.angle).toEqual('0');
-		bs.frames.forEach(f => {
-			expect(f.header.dir.name).toContain('BKEY');
-		});
-	});
-});
-
-describe('texture-parser#maxSpriteSize', () => {
-	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs());
-
-	it('AMMO', () => {
-		const bs: BitmapSprite = tf.toBitmapSprite(sprites[0].animations[0]).get();
-		expect(bs.name).toEqual('AMMO');
-		expect(tf.maxSpriteSize(bs)).toEqual(28);
-
-		bs.frames.forEach(f => {
-			expect(f.header.width).toBeLessThanOrEqual(28);
-			expect(f.header.height).toBeLessThanOrEqual(28);
-		});
-	});
-
-	it('BKEY', () => {
-		const bs: BitmapSprite = tf.toBitmapSprite(sprites[10].animations[0]).get();
-		expect(bs.name).toEqual('BKEY');
-		expect(tf.maxSpriteSize(bs)).toEqual(16);
-		bs.frames.forEach(f => {
-			expect(f.header.width).toBeLessThanOrEqual(16);
-			expect(f.header.height).toBeLessThanOrEqual(16);
-		});
-	});
-});
-
 
 describe('texture-parser#parseFlats', () => {
 
@@ -346,3 +373,4 @@ describe('texture-parser#parseFlats', () => {
 
 });
 
+*/

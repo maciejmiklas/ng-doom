@@ -31,6 +31,10 @@ const TRANSPARENT_RGBA: RGBA = {
 };
 const RGBA_BYTES = 4;
 
+const MAX_POST_LENGTH = 5000;
+const MAX_BITMAP_WIDTH = 640;
+const MAX_BITMAP_HEIGHT = 480;
+
 /*
  * @see https://doomwiki.org/wiki/Picture_format
  * @see https://www.cyotek.com/blog/decoding-doom-picture-files
@@ -38,9 +42,9 @@ const RGBA_BYTES = 4;
  */
 
 const parsePost = (wadBytes: number[]) => (filepos: number): Either<Post> => {
-	const ubyteParser = U.parseUbyte(wadBytes);
+	const ubyteParser = U.parseUint8(wadBytes);
 	const topdelta = ubyteParser(filepos);
-	const length = ubyteParser(filepos + 1);
+	const length = ubyteParser(filepos + 1, MAX_POST_LENGTH);
 	return Either.ofCondition(() => topdelta !== LAST_POST_MARKER, () => 'End of column', () =>
 		({
 			topdelta,
@@ -57,16 +61,17 @@ const parseColumn = (wadBytes: number[], dir: Directory) => (filepos: number): E
 };
 
 const parsePatchHeader = (wadBytes: number[]) => (dir: Directory): BitmapHeader => {
-	const shortParser = U.parseShort(wadBytes);
-	const uintParser = U.parseUint(wadBytes);
+	const uint16Parser = U.parseUint16(wadBytes);
+	const int16Parser = U.parseInt16(wadBytes);
+	const uintParser = U.parseUint32(wadBytes);
 	const filepos = dir.filepos;
-	const width = uintParser(filepos);
+	const width = uint16Parser(filepos, MAX_BITMAP_WIDTH);
 	return {
 		dir,
 		width,
-		height: shortParser(filepos + 0x02),
-		xOffset: shortParser(filepos + 0x04),
-		yOffset: shortParser(filepos + 0x06),
+		height: uint16Parser(filepos + 0x02, MAX_BITMAP_HEIGHT),
+		xOffset: int16Parser(filepos + 0x04),
+		yOffset: int16Parser(filepos + 0x06),
 		columnofs: unfoldColumnofs(filepos + 8, width).map((offset) => filepos + uintParser(offset))
 	};
 };

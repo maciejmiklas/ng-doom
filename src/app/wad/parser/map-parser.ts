@@ -109,7 +109,7 @@ const unfoldByDirectorySize = (dir: Directory, size: number): number[] =>
 
 const parseThing = (bytes: number[], thingDir: Directory) => (thingIdx: number): Thing => {
 	const offset = thingDir.filepos + 10 * thingIdx;
-	const shortParser = U.parseShort(bytes);
+	const shortParser = U.parseInt16(bytes);
 	return {
 		dir: thingDir,
 		position: {
@@ -132,7 +132,7 @@ const parseThings = (bytes: number[]) => (mapDirs: Directory[]): Thing[] => {
 
 const parseSector = (bytes: number[], dir: Directory, textureLoader: (name: string) => Either<DoomTexture>) => (thingIdx: number): Sector => {
 	const offset = dir.filepos + 26 * thingIdx;
-	const shortParser = U.parseShort(bytes);
+	const shortParser = U.parseInt16(bytes);
 	const strParser = U.parseStr(bytes);
 	return {
 		dir,
@@ -156,7 +156,7 @@ const parseSectors = (bytes: number[]) => (mapDirs: Directory[], textureLoader: 
 
 const parseSidedef = (bytes: number[], dir: Directory, textureLoader: (name: string) => Either<DoomTexture>, sectors: Sector[]) => (thingIdx: number): Either<Sidedef> => {
 	const offset = dir.filepos + 30 * thingIdx;
-	const shortParser = U.parseShort(bytes);
+	const shortParser = U.parseInt16(bytes);
 	const strOpParser = U.parseTextureName(bytes);
 	const sectorId = shortParser(offset + 0x1C);
 	return Either.ofCondition(
@@ -200,9 +200,9 @@ const parseFlags = (val: number): Set<LinedefFlag> =>
 
 const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sidedefs: Either<Sidedef>[], sectors: Sector[]) => (thingIdx: number): Either<Linedef> => {
 	const offset = dir.filepos + 14 * thingIdx;
-	const shortParser = U.parseShort(bytes);
-	const intParser = U.parseInt(bytes);
-	const shortOpParser = U.parseShortOp(bytes);
+	const shortParser = U.parseInt16(bytes);
+	const intParser = U.parseInt32(bytes);
+	const shortOpParser = U.parseInt16Op(bytes);
 
 	const vertexParser = shortOpParser(v => v < vertexes.length && v >= 0,
 		v => 'Vertex out of bound: ' + v + ' of ' + vertexes.length + ' on ' + offset);
@@ -237,7 +237,7 @@ const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sided
 
 const parseVertex = (bytes: number[], vertexDir: Directory) => (thingIdx: number): Vertex => {
 	const offset = vertexDir.filepos + 4 * thingIdx;
-	const shortParser = U.parseShort(bytes);
+	const shortParser = U.parseInt16(bytes);
 	return {
 		x: shortParser(offset),
 		y: shortParser(offset + 0x02),

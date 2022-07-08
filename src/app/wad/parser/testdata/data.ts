@@ -41,7 +41,7 @@ let _wadBytes = null;
 export const getWadBytes = (): number[] => {
 	if (!_wadBytes) {
 		// @ts-ignore
-		_wadBytes = U.base64ToUint8Array(jsonData.doom);
+		_wadBytes = U.base64ToUint8NumberArray(jsonData.doom);
 	}
 	return _wadBytes;
 };
