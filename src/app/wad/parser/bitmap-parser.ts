@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 import {Either} from '../../common/either';
-import {Bitmap, BitmapHeader, Column, Directory, Palette, Post, RGBA} from './wad-model';
+import {Bitmap, BitmapHeader, Column, Directory, Palette, Post, RGBA, RgbaBitmap} from './wad-model';
 import U from '../../common/util';
 import * as R from 'ramda';
-import {Log} from '../../common/log';
 
 const POST_PADDING_BYTES = 4;
 const LAST_POST_MARKER = 0XFF;
@@ -30,15 +29,18 @@ const TRANSPARENT_RGBA: RGBA = {
 	a: 0
 };
 const RGBA_BYTES = 4;
+const COLUMNOFS_BYTES = 4;
 
 const MAX_POST_LENGTH = 5000;
 const MAX_BITMAP_WIDTH = 640;
 const MAX_BITMAP_HEIGHT = 480;
-
+const FLAT_WIDTH = 64;
+const FLAT_HEIGHT = 64;
 /*
  * @see https://doomwiki.org/wiki/Picture_format
  * @see https://www.cyotek.com/blog/decoding-doom-picture-files
  * @see https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
+ * https://doomwiki.org/wiki/Flat
  */
 
 const parsePost = (wadBytes: number[]) => (filepos: number): Either<Post> => {
@@ -77,17 +79,17 @@ const parsePatchHeader = (wadBytes: number[]) => (dir: Directory): BitmapHeader 
 };
 
 const unfoldColumnofs = (filepos: number, width: number): number[] =>
-	R.unfold((idx) => idx === width ? false : [filepos + idx * RGBA_BYTES, idx + 1], 0);
+	R.unfold((idx) => idx === width ? false : [filepos + idx * COLUMNOFS_BYTES, idx + 1], 0);
 
 const parseBitmap = (wadBytes: number[], palette: Palette) => (dir: Directory): Either<Bitmap> => {
-	Log.debug(CMP, 'Parse Bitmap:', dir);
 	const header = parsePatchHeader(wadBytes)(dir);
 	const columnParser = parseColumn(wadBytes, dir);
 	const columns: Either<Column>[] = header.columnofs.map(colOfs => columnParser(colOfs));
+	const nonEmptyCols = columns.filter(c => c.filter())
 	const rgba = patchDataToRGBA(columns, header.width, header.height, palette);
 	return Either.ofCondition(
-		() => columns.length === header.width,
-		() => 'Some columns (' + columns.length + '/' + header.width + ') are missing in Picture : ' + dir.name + ' at ' + dir.filepos,
+		() => columns.length === header.width && nonEmptyCols.length > 0 && header.width > 0 && header.height > 0,
+		() => 'Faulty Bitmap on: Dir' + JSON.stringify(dir) + ', Header: ' + JSON.stringify(header) + ', Cols:' + nonEmptyCols.length,
 		() => ({
 			header,
 			columns,
@@ -97,6 +99,34 @@ const parseBitmap = (wadBytes: number[], palette: Palette) => (dir: Directory): 
 			name: header.dir.name
 		}));
 };
+
+const unfoldFlatCols = (filepos: number): number[] =>
+	R.unfold((idx) => idx === FLAT_WIDTH ? false : [filepos + idx, idx + 1], 0);
+
+/**
+ * A flat is an image that is drawn on the floors and ceilings of sectors. Flats are very different from wall textures.
+ * Flats are a raw collection of pixel values with no offset or other dimension information; each flat is a named lump
+ * of 4096 bytes representing a 64×64 square. The pixel values are converted to actual colors in the same way as for t
+ * he Doom picture format, using the colormap.
+ *
+ * @see https://doomwiki.org/wiki/Flat
+ */
+const parseFlat = (wadBytes: number[], palette: Palette) => (dir: Directory): Either<RgbaBitmap> => {
+	const columnParser = parseColumn(wadBytes, dir);
+	const columns: Either<Column>[] = unfoldFlatCols(dir.filepos).map(colOfs => columnParser(colOfs));
+	const nonEmptyCols = columns.filter(c => c.filter())
+	const rgba = patchDataToRGBA(columns, FLAT_WIDTH, FLAT_HEIGHT, palette);
+	return Either.ofCondition(
+		() => nonEmptyCols.length == FLAT_WIDTH,
+		() => 'Faulty Flat on: Dir' + JSON.stringify(dir) + ', Cols:' + nonEmptyCols.length,
+		() => ({
+			rgba,
+			width: FLAT_WIDTH,
+			height: FLAT_HEIGHT,
+			name: dir.name
+		}));
+};
+
 
 /**
  * Difference between DOOM Patch bitmap and Image on Canvas
@@ -167,5 +197,6 @@ export const testFunctions = {
 	postAt
 };
 export const functions = {
-	parseBitmap
+	parseBitmap,
+	parseFlat
 };

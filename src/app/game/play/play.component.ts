@@ -78,7 +78,7 @@ export class PlayComponent implements OnInit {
 
 		//scene.add(createGround());
 		console.log('>TIME createWorld>', performance.now() - startTime);
-	};
+	}
 }
 
 const renderSector = (scene: THREE.Scene) => (lbs: LinedefBySector) => {
@@ -87,8 +87,8 @@ const renderSector = (scene: THREE.Scene) => (lbs: LinedefBySector) => {
 	//}
 	// 1-5, 2-30, 9-6, 20-35
 	//console.log('S',lbs.sector.id, lbs);
-	renderWalls(lbs).forEach(m => scene.add(m));
-	//renderFloor(lbs).forEach(m => scene.add(m));
+	//renderWalls(lbs).forEach(m => scene.add(m));
+	renderFloor(lbs).forEach(m => scene.add(m));
 };
 
 const toVector2 = (ve: Vertex): Vector2 => new Vector2(ve.x, ve.y);
@@ -241,7 +241,3 @@ const createWebGlRenderer = (canvas: HTMLCanvasElement): THREE.WebGLRenderer => 
 	renderer.setPixelRatio(window.devicePixelRatio);
 	return renderer;
 };
-
-
-
-

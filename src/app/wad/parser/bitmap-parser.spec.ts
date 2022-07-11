@@ -29,7 +29,7 @@ import {
 	verifySimpleDoomImageAt1x1,
 	verifySimpleDoomImageAt2x0
 } from './testdata/data';
-import {BitmapHeader, Directories} from './wad-model';
+import {BitmapHeader, Directories, RgbaBitmap} from './wad-model';
 import {functions as dp} from './directory-parser';
 import * as R from 'ramda';
 import {Either} from '../../common/either';
@@ -136,6 +136,33 @@ describe('bitmap-parser#parsePost', () => {
 		expect(post.topdelta).toEqual(128);
 		expect(post.data.length).toEqual(72);
 	});
+});
+
+const verifyFlat = (flat:RgbaBitmap) => {
+	expect(flat.width).toEqual(64);
+	expect(flat.height).toEqual(64);
+	expect(flat.rgba.length).toEqual(64 * 64 * 4);
+}
+
+describe('bitmap-parser#parseFlat', () => {
+	const findDir = dp.findDirectoryByName(getAllDirs());
+	const flatParser = bp.parseFlat(getWadBytes(), getPalette());
+
+	it('FLOOR0_1', () => {
+		const flat = flatParser(findDir('FLOOR0_1').get()).get();
+		verifyFlat(flat);
+	});
+
+	it('TLITE6_1', () => {
+		const flat = flatParser(findDir('TLITE6_1').get()).get();
+		verifyFlat(flat);
+	});
+
+	it('FLAT18', () => {
+		const flat = flatParser(findDir('FLAT18').get()).get();
+		verifyFlat(flat);
+	});
+
 });
 
 describe('bitmap-parser#parseBitmap', () => {

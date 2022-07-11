@@ -110,8 +110,6 @@ describe('texture-parser#parsePnames', () => {
 	});
 });
 
-
-/*
 describe('texture-parser#parsePatches', () => {
 	const pb: Bitmap[] = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette());
 
@@ -292,7 +290,7 @@ describe('texture-parser#parseTextures', () => {
 	});
 
 	it('Texture AASTINKY', () => {
-		let txx = tx[0];
+		const txx = tx[0];
 		expect(txx.name).toEqual('AASTINKY');
 		expect(txx.width).toEqual(24);
 		expect(txx.height).toEqual(72);
@@ -361,16 +359,33 @@ describe('texture-parser#parseTextures', () => {
 		expect(txx.patches[3].originY).toEqual(0);
 		expect(txx.patches[3].patchIdx).toEqual(123);
 	});
-
 });
 
-
 describe('texture-parser#parseFlats', () => {
+	const flats = tp.parseFlats(getWadBytes(), getAllDirs(), getPalette()).get();
+	it('amount', () => {
+		expect(flats.length).toEqual(54);
+	});
 
-	it('aaa', () => {
-		tf.parseFlats(getWadBytes(), getAllDirs(), getPalette());
+	it('dimensions', () => {
+		flats.forEach(fl=>{
+			expect(fl.width).toEqual(64);
+			expect(fl.height).toEqual(64);
+		})
+	});
+
+	it('bytes', () => {
+		flats.forEach(fl=>{
+			expect(fl.rgba.length).toBeGreaterThanOrEqual(64*64*4);
+		})
+	});
+
+	it('FLOOR0_1', () => {
+		expect(flats[0].name).toEqual('FLOOR0_1');
+	});
+
+	it('FLAT5', () => {
+		expect(flats[38].name).toEqual('FLAT5');
 	});
 
 });
-
-*/

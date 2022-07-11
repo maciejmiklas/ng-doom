@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import {Injectable} from '@angular/core';
-import {Either} from './common/either';
 import U from './common/util';
 
 import wadJson from './wad/parser/testdata/doom.json';
@@ -29,7 +28,7 @@ export class AppSetupService {
 	}
 
 	setup(): void {
-		//this.uploadTestingWAD();
+		this.uploadTestingWAD();
 	}
 
 	uploadTestingWAD(): void {

@@ -243,8 +243,8 @@ export type Sector = MapLump & {
 	id: number
 	floorHeight: number
 	ceilingHeight: number
-	floorTexture: Either<DoomTexture>
-	cellingTexture: Either<DoomTexture>
+	floorTexture: Either<Bitmap>
+	cellingTexture: Either<Bitmap>
 	lightLevel: number
 	specialType: number
 	tagNumber: number
@@ -470,7 +470,8 @@ export type Wad = {
 	patches: Bitmap[]
 	bytes: number[],
 	playpal: Playpal,
-	textures: DoomTexture[]
+	textures: DoomTexture[],
+	flats: Bitmap[]
 };
 
 export type WadEntry = {

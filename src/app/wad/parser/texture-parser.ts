@@ -125,13 +125,12 @@ const parseTexturesByDir = (wadBytes: number[], dirs: Directory[], pnames: Pname
 const findFlatDirs = (dirs: Directory[]): Either<Directory[]> =>
 	dp.findBetween(dirs)(Directories.F_START, Directories.F_END)((d) => !d.name.includes('_START') && !d.name.includes('_END'));
 
-const parseFlats = (wadBytes: number[], dirs: Directory[], palette: Palette): Either<RgbaBitmap[]> => {
-	const bitmapParser = bp.parseBitmap(wadBytes, palette);
-	const dd = findFlatDirs(dirs).get();
-	dd.forEach(d => console.log('DIR', d));
-	const b1 = bitmapParser(dd[0]);
-	//const vv = findFlatDirs(dirs).map(dirs => dirs.map(d => bitmapParser(d)));
-	return null;
+const parseFlats = (wadBytes: number[], dirs: Directory[], palette: Palette): Either<Bitmap[]> => {
+	const flatParser = bp.parseFlat(wadBytes, palette);
+	return findFlatDirs(dirs)
+		.map(dirs => dirs.map(d => flatParser(d)))// Either<Directory> => Either[]<Either<Bitmap[]>>
+		.map(e => e.filter(d => d.filter()) // remove Left
+			.map(d => d.get())); // Either[]<Either<Bitmap[]>> => Either<Bitmap[]>
 };
 
 const toImageData = (bitmap: RgbaBitmap): ImageData => {
@@ -227,8 +226,7 @@ export const testFunctions = {
 	toImageData,
 	maxSpriteSize,
 	parseTexturesByDir,
-	findFlatDirs,
-	parseFlats
+	findFlatDirs
 };
 export const functions = {
 	parseTextures,
@@ -237,5 +235,6 @@ export const functions = {
 	toImageBitmap,
 	paintOnCanvasForZoom,
 	calcScale,
+	parseFlats,
 	toBitmapSprites
 };

@@ -24,7 +24,7 @@ import {
 	getAllDirs,
 	getAllDirsOp,
 	getE1M1Dirs,
-	getFirstMap,
+	getFirstMap, getFlats,
 	getHeader,
 	getSectors,
 	getTextures,
@@ -622,7 +622,7 @@ describe('map-parser#findAllMapStartDirs', () => {
 });
 
 describe('map-parser#parseMap', () => {
-	const map: DoomMap = tf.parseMap(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs());
+	const map: DoomMap = tf.parseMap(getWadBytes(), tf.createTextureLoader(getTextures()),tf.createFlatLoader(getFlats()))(getE1M1Dirs());
 
 	it('Map Dirs', () => {
 		validateE1M1Dirs(map.mapDirs);
@@ -677,7 +677,7 @@ describe('map-parser#parseMapsDirs', () => {
 });
 
 describe('map-parser#parseMaps', () => {
-	const maps: DoomMap[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get();
+	const maps: DoomMap[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(),getFlats()).get();
 
 	it('Maps Found', () => {
 		expect(maps.length).toEqual(9);
@@ -694,14 +694,14 @@ describe('map-parser#parseMaps', () => {
 });
 
 describe('map-parser#findMinX', () => {
-	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get()[0].linedefs;
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(),getFlats()).get()[0].linedefs;
 	it('findMinX', () => {
 		expect(tf.findMinX(defs)).toEqual(-768);
 	});
 });
 
 describe('map-parser#findMinY', () => {
-	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get()[0].linedefs;
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(),getFlats()).get()[0].linedefs;
 
 	it('findMinY', () => {
 		expect(tf.findMinY(defs)).toEqual(-4864);
@@ -710,7 +710,7 @@ describe('map-parser#findMinY', () => {
 
 
 describe('map-parser#normalizeMap', () => {
-	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get()[0].linedefs;
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(),getFlats()).get()[0].linedefs;
 
 	it('findMax', () => {
 		expect(tf.findMax(defs)).toEqual(3808);
@@ -735,7 +735,7 @@ describe('map-parser#scalePos', () => {
 });
 
 describe('map-parser#normalizeLinedefs', () => {
-	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures()).get()[0].linedefs;
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(),getFlats()).get()[0].linedefs;
 	const nt = (scale: number) => (xy: boolean) => R.reduce(R.max, Number.MIN_SAFE_INTEGER, mp.normalizeLinedefs(scale)(defs).map(d => xy ? d.start.x : d.start.y));
 
 	it('Matching sectorId ID', () => {
@@ -811,15 +811,15 @@ describe('map-parser#parseSectors', () => {
 });
 */
 describe('map-parser#groupBySectorArray', () => {
-	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createTextureLoader(getTextures()));
+	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(),tf.createFlatLoader(getFlats()));
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
 	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors());
 	const linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors());
 	const gr: Linedef[][] = tf.groupBySectorArray(linedefs);
 
 	it('No duplicates', () => {
-		let found = new Set<number>();
-		let info = {};
+		const found = new Set<number>();
+		const info = {};
 		gr.forEach((ld, idx) => {
 			const sid = ld[0].sector.id;
 			expect(found.has(sid)).toBe(false, 'Duplicated sectorId:' + sid + ' on:' + idx + ' and:' + info[sid]);
@@ -867,7 +867,7 @@ describe('map-parser#groupBySectorArray', () => {
 });
 
 describe('map-parser#groupBySector', () => {
-	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createTextureLoader(getTextures()));
+	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(),tf.createFlatLoader(getFlats()));
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
 	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors());
 	const linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors());
@@ -889,7 +889,7 @@ describe('map-parser#groupBySector', () => {
 	});
 
 	it('IDs', () => {
-		let foundLinedefs = new Set<number>();
+		const foundLinedefs = new Set<number>();
 		gr.forEach(lbs => {
 			foundLinedefs.add(lbs.sector.id);
 		});

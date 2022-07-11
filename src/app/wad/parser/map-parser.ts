@@ -16,6 +16,7 @@
 import * as R from 'ramda';
 import {Either} from '../../common/either';
 import {
+	Bitmap,
 	Directory,
 	DoomMap,
 	DoomTexture,
@@ -70,13 +71,17 @@ const parseMapsDirs = (allDirs: Directory[], startMapDirs: Directory[]): Directo
 const createTextureLoader = (textures: DoomTexture[]) => (name: string): Either<DoomTexture> =>
 	Either.ofNullable(textures.find(t => t.name === name), () => 'DoomTexture not found: ' + name);
 
-const parseMaps = (bytes: number[], dirs: Directory[], textures: DoomTexture[]): Either<DoomMap[]> => {
+const createFlatLoader = (flats: Bitmap[]) => (name: string): Either<Bitmap> =>
+	Either.ofNullable(flats.find(t => t.name === name), () => 'Flat not found: ' + name);
+
+const parseMaps = (bytes: number[], dirs: Directory[], textures: DoomTexture[], flats: Bitmap[]): Either<DoomMap[]> => {
 	const textureLoader = createTextureLoader(textures);
-	return Either.ofArray(parseMapsDirs(dirs, findAllMapStartDirs(dirs)).map(parseMap(bytes, textureLoader)), () => 'No maps found');
+	const flatLoader = createFlatLoader(flats);
+	return Either.ofArray(parseMapsDirs(dirs, findAllMapStartDirs(dirs)).map(parseMap(bytes, textureLoader, flatLoader)), () => 'No maps found');
 };
 
-const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>) => (mapDirs: Directory[]): DoomMap => {
-	const sectors = parseSectors(bytes)(mapDirs, textureLoader);
+const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>, flatLoader: (name: string) => Either<Bitmap>) => (mapDirs: Directory[]): DoomMap => {
+	const sectors = parseSectors(bytes)(mapDirs, flatLoader);
 	const linedefs = parseLinedefs(bytes, mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes, textureLoader)(mapDirs, sectors), sectors);
 	return {
 		mapDirs,
@@ -130,7 +135,7 @@ const parseThings = (bytes: number[]) => (mapDirs: Directory[]): Thing[] => {
 	return unfoldByDirectorySize(thingDir, 10).map((ofs, thingIdx) => parser(thingIdx)).map(th => th);
 };
 
-const parseSector = (bytes: number[], dir: Directory, textureLoader: (name: string) => Either<DoomTexture>) => (thingIdx: number): Sector => {
+const parseSector = (bytes: number[], dir: Directory, flatLoader: (name: string) => Either<Bitmap>,) => (thingIdx: number): Sector => {
 	const offset = dir.filepos + 26 * thingIdx;
 	const shortParser = U.parseInt16(bytes);
 	const strParser = U.parseStr(bytes);
@@ -139,8 +144,8 @@ const parseSector = (bytes: number[], dir: Directory, textureLoader: (name: stri
 		type: MapLumpType.SECTORS,
 		floorHeight: shortParser(offset),
 		ceilingHeight: shortParser(offset + 0x02),
-		floorTexture: textureLoader(strParser(offset + 0x04, 8)),
-		cellingTexture: textureLoader(strParser(offset + 0x0C, 8)),
+		floorTexture: flatLoader(strParser(offset + 0x04, 8)),
+		cellingTexture: flatLoader(strParser(offset + 0x0C, 8)),
 		lightLevel: shortParser(offset + 0x14),
 		specialType: shortParser(offset + 0x16),
 		tagNumber: shortParser(offset + 0x18),
@@ -148,9 +153,9 @@ const parseSector = (bytes: number[], dir: Directory, textureLoader: (name: stri
 	};
 };
 
-const parseSectors = (bytes: number[]) => (mapDirs: Directory[], textureLoader: (name: string) => Either<DoomTexture>): Sector[] => {
+const parseSectors = (bytes: number[]) => (mapDirs: Directory[], flatLoader: (name: string) => Either<Bitmap>): Sector[] => {
 	const thingDir = mapDirs[MapLumpType.SECTORS];
-	const parser = parseSector(bytes, thingDir, textureLoader);
+	const parser = parseSector(bytes, thingDir, flatLoader);
 	return unfoldByDirectorySize(thingDir, 26).map((ofs, thingIdx) => parser(thingIdx));
 };
 
@@ -303,7 +308,8 @@ export const testFunctions = {
 	groupBySector,
 	createTextureLoader,
 	groupBySectorArray,
-	parseFlags
+	parseFlags,
+	createFlatLoader
 };
 
 export const functions = {parseMaps, normalizeLinedefs};

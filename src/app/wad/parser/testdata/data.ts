@@ -57,7 +57,7 @@ export const getE1M1Dirs = (): Directory[] => {
 let _sectors = null;
 export const getSectors = (): Sector[] => {
 	if (_sectors == null) {
-		_sectors = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createTextureLoader(getTextures()));
+		_sectors = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createFlatLoader(getFlats()));
 	}
 	return _sectors;
 };
@@ -94,6 +94,13 @@ export const getTextures = (): DoomTexture[] => {
 	return _textures;
 };
 
+let _flats= null;
+export const getFlats = (): Bitmap[] => {
+	if (!_flats) {
+		_flats = tp.parseFlats(getWadBytes(), getAllDirs(), getPalette()).get();
+	}
+	return _flats;
+};
 
 let _header = null;
 export const getHeader = () => {
