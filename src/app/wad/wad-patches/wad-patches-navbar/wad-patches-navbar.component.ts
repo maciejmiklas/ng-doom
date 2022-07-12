@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2022 Maciej Miklas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,9 @@ export class WadPatchesNavbarComponent implements NavbarPlugin<PatchesListContro
 
 	private data: PatchesListControl;
 
-	constructor() {
-	}
-
 	setData(data: PatchesListControl): void {
 		this.data = data;
 	}
-
 
 	set filter(val: string) {
 		this.data.applyFilter(val);

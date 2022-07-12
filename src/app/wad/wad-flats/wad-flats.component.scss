@@ -1,0 +1,5 @@
+@import "/src/scss/ng-doom";
+
+.app-flats {
+	@include app-image-box()
+}

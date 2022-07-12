@@ -44,6 +44,9 @@ $pagination-disabled-border-color: $app-border-color;
 $pagination-disabled-bg: $app-content-bg-color;
 $pagination-disabled-color: $app-font-readonly-color;
 
+// bootstrap/scss/_list_group.scss
+$list-group-color: $app-font-color;
+
 .pagination > ol, ul, dl {
 	margin-top: 0 !important;
 	margin-bottom: 0 !important;

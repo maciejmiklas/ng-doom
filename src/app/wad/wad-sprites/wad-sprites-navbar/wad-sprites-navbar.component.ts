@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2022 Maciej Miklas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,6 @@ import {SpritesListControl} from '../wad-sprites.component';
 export class WadSpritesNavbarComponent implements NavbarPlugin<SpritesListControl> {
 
 	private spritesListControl: SpritesListControl;
-
-	constructor() {
-	}
-
-	ngOnInit(): void {
-
-	}
 
 	setData(data: SpritesListControl): void {
 		this.spritesListControl = data;

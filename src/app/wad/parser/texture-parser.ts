@@ -125,7 +125,7 @@ const parseTexturesByDir = (wadBytes: number[], dirs: Directory[], pnames: Pname
 const findFlatDirs = (dirs: Directory[]): Either<Directory[]> =>
 	dp.findBetween(dirs)(Directories.F_START, Directories.F_END)((d) => !d.name.includes('_START') && !d.name.includes('_END'));
 
-const parseFlats = (wadBytes: number[], dirs: Directory[], palette: Palette): Either<Bitmap[]> => {
+const parseFlats = (wadBytes: number[], dirs: Directory[], palette: Palette): Either<RgbaBitmap[]> => {
 	const flatParser = bp.parseFlat(wadBytes, palette);
 	return findFlatDirs(dirs)
 		.map(dirs => dirs.map(d => flatParser(d)))// Either<Directory> => Either[]<Either<Bitmap[]>>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2022 Maciej Miklas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,18 +21,12 @@ import {Directory} from '../parser/wad-model';
 	templateUrl: './wad-dir.component.html',
 	styleUrls: ['./wad-dir.component.scss']
 })
-export class WadDirComponent implements OnInit {
+export class WadDirComponent {
 
 	@Input()
 	dir: Directory;
 
 	@Input()
 	rowClass = ''
-
-	constructor() {
-	}
-
-	ngOnInit(): void {
-	}
 
 }

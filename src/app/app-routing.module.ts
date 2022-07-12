@@ -26,6 +26,7 @@ import {WadMapComponent} from './wad/wad-map/wad-map.component';
 import {PlayComponent} from './game/play/play.component';
 import {WadPatchesComponent} from './wad/wad-patches/wad-patches.component';
 import {WadTexturesComponent} from './wad/wad-textures/wad-textures.component';
+import {WadFlatsComponent} from "./wad/wad-flats/wad-flats.component";
 
 
 const routes: Routes = [
@@ -33,6 +34,7 @@ const routes: Routes = [
 	{path: 'path_wad_title_img', component: WadTitleImgComponent},
 	{path: 'path_wad_sprites', component: WadSpritesComponent},
 	{path: 'path_wad_patches', component: WadPatchesComponent},
+	{path: 'path_wad_flats', component: WadFlatsComponent},
 	{path: 'path_wad_textures', component: WadTexturesComponent},
 	{path: 'path_wad_playpal', component: WadPlaypalComponent},
 	{path: 'path_wad_upload', component: WadUploadComponent},

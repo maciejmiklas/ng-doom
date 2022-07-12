@@ -15,7 +15,7 @@ module.exports = {
 	"plugins": [
 		"@typescript-eslint"
 	],
-	"ignorePatterns": ["*.js"],
+	"ignorePatterns": ["*.js", "*.html"],
 	"rules": {
 		"no-undef": "off",
 		"@typescript-eslint/no-unused-vars": "off",

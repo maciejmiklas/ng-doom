@@ -1,5 +1,5 @@
 /*
- *  Copyright 2002-2019 the original author or authors.
+ * Copyright 2022 Maciej Miklas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,8 +106,8 @@ const unfoldFlatCols = (filepos: number): number[] =>
 /**
  * A flat is an image that is drawn on the floors and ceilings of sectors. Flats are very different from wall textures.
  * Flats are a raw collection of pixel values with no offset or other dimension information; each flat is a named lump
- * of 4096 bytes representing a 64×64 square. The pixel values are converted to actual colors in the same way as for t
- * he Doom picture format, using the colormap.
+ * of 4096 bytes representing a 64×64 square. The pixel values are converted to actual colors in the same way as for
+ * the Doom picture format, using the color map.
  *
  * @see https://doomwiki.org/wiki/Flat
  */

@@ -51,6 +51,8 @@ import {WadPatchesNavbarComponent} from './wad/wad-patches/wad-patches-navbar/wa
 import {WadTexturesComponent} from './wad/wad-textures/wad-textures.component';
 import {WadTexturesNavbarComponent} from './wad/wad-textures/wad-textures-navbar/wad-textures-navbar.component';
 import {WadTextureComponent} from './wad/wad-texture/wad-texture.component';
+import { WadFlatsComponent } from './wad/wad-flats/wad-flats.component';
+import { WadFlatsNavbarComponent } from './wad/wad-flats/wad-flats-navbar/wad-flats-navbar.component';
 
 @NgModule({
 	declarations: [
@@ -81,6 +83,8 @@ import {WadTextureComponent} from './wad/wad-texture/wad-texture.component';
 		WadTexturesComponent,
 		WadTexturesNavbarComponent,
 		WadTextureComponent,
+  WadFlatsComponent,
+  WadFlatsNavbarComponent,
 	],
 	imports: [
 		BrowserModule,

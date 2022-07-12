@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2022 Maciej Miklas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,6 @@ export class WadDirsNavbarComponent implements NavbarPlugin<DirsListControl> {
 	maxSize = 10;
 
 	dirsListControl: DirsListControl;
-
-	constructor() {
-	}
 
 	setData(dirsListControl: DirsListControl): void {
 		this.dirsListControl = dirsListControl;

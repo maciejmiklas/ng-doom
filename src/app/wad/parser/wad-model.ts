@@ -471,7 +471,7 @@ export type Wad = {
 	bytes: number[],
 	playpal: Playpal,
 	textures: DoomTexture[],
-	flats: Bitmap[]
+	flats: RgbaBitmap[]
 };
 
 export type WadEntry = {

@@ -1,0 +1,7 @@
+<div class="app-flats">
+	<ng-container *ngFor="let flat of flats;let i=index">
+		<app-pbmp [bitmap]="flat" [scale]="zoom" [maxSize]="maxSize"
+							ngbPopover="{{i}}: {{flat.name}} -> {{flat.width}}x{{flat.height}}"
+							triggers="mouseenter:mouseleave"></app-pbmp>
+	</ng-container>
+</div>

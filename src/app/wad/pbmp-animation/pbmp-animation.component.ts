@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2022 Maciej Miklas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {Bitmap} from '../parser/wad-model';
 import {functions as tp} from '../parser/texture-parser';
+import {Log} from "../../common/log";
 
 @Component({
 	selector: 'app-pbmp-animation',
@@ -39,9 +40,6 @@ export class PbmpAnimationComponent implements OnInit {
 	private canvas: HTMLCanvasElement;
 
 	private images: BitmapPromise[];
-
-	constructor() {
-	}
 
 	ngOnInit(): void {
 		this.images = this.bitmaps.map(b => this.createBitmap(b));
@@ -69,7 +67,8 @@ export class PbmpAnimationComponent implements OnInit {
 		const ctx = this.canvas.getContext('2d');
 		bp.bitmap.then(r => {
 			ctx.drawImage(r, 0, 0);
-		}).catch(e => {/* FIXME console.log('PAINT ERR in:', bp.patch.header.dir.name, ' -> ', e)*/
+		}).catch(e => {
+			Log.error("PAINT ERR", e) /* FIXME console.log('PAINT ERR in:', bp.patch.header.dir.name, ' -> ', e)*/
 		});
 	}
 

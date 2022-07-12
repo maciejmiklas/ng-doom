@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 import {Component} from '@angular/core';
-import {TexturesListControl} from '../wad-textures.component';
-import {NavbarPlugin} from '../../../main/service/navbar_plugin';
+import {NavbarPlugin} from "../../../main/service/navbar_plugin";
+import {FlatsListControl} from "../wad-flats.component";
 
 @Component({
-	selector: 'app-wad-textures-navbar',
-	templateUrl: './wad-textures-navbar.component.html',
-	styleUrls: ['./wad-textures-navbar.component.scss']
+	selector: 'app-wad-flats-navbar',
+	templateUrl: './wad-flats-navbar.component.html',
+	styleUrls: ['./wad-flats-navbar.component.scss']
 })
-export class WadTexturesNavbarComponent implements NavbarPlugin<TexturesListControl> {
+export class WadFlatsNavbarComponent implements NavbarPlugin<FlatsListControl> {
+	private data: FlatsListControl;
 
-	private data: TexturesListControl;
-
-	setData(data: TexturesListControl): void {
+	setData(data: FlatsListControl): void {
 		this.data = data;
 	}
 

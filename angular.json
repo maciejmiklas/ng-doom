@@ -136,10 +136,5 @@
       }
     }
   },
-  "schematics": {
-    "@schematics/angular:component": {
-      "styleext": "scss"
-    }
-  },
   "defaultProject": "ng-doom"
 }

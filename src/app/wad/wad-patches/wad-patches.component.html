@@ -1,7 +1,7 @@
 <div class="app-patches">
 	<ng-container *ngFor="let patch of patches;let i=index">
 		<app-pbmp [bitmap]="patch" [scale]="zoom" [maxSize]="maxSize"
-							ngbPopover="{{i}}: {{patch.header.dir.name}} -> {{patch.header.width}}x{{patch.header.height}}"
+							ngbPopover="{{i}}: {{patch.name}} -> {{patch.header.width}}x{{patch.header.height}}"
 							triggers="mouseenter:mouseleave"></app-pbmp>
 	</ng-container>
 </div>
