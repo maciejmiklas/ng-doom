@@ -89,7 +89,7 @@ export abstract class Either<T> {
 
 	abstract exec(fn: (v: T) => void): Either<T>;
 
-	abstract assert(fn: (v: T) => Either<string>): Either<T>;
+	abstract assert(cnd: (v: T) => boolean, left: (v: T) => string): Either<T>;
 }
 
 export class Left<T> extends Either<T> {
@@ -104,7 +104,7 @@ export class Left<T> extends Either<T> {
 		return left(this.msg);
 	}
 
-	assert(fn: (v: T) => Either<string>): Either<T> {
+	assert(cnd: (v: T) => boolean, left: (v: T) => string): Either<T> {
 		return this;
 	}
 
@@ -133,7 +133,7 @@ export class Left<T> extends Either<T> {
 	}
 
 	filter(): boolean {
-		Log.debug('Filter out: ', this.message());
+		Log.debug(Left.CMP, 'Filter false: ', this.message());
 		return false;
 	}
 
@@ -160,10 +160,11 @@ export class Right<T> extends Either<T> {
 		super(value, 'Right');
 	}
 
-	assert(fn: (v: T) => Either<string>): Either<T> {
-		const resp = fn(this.val);
-		if (resp.isLeft()) {
-			return Either.ofLeft(resp.message());
+	assert(cnd: (v: T) => boolean, left: (v: T) => string): Either<T> {
+		if (!cnd(this.val)) {
+			const msg = left(this.val);
+			Log.warn(Left.CMP, 'Assert:', msg)
+			return Either.ofLeft(msg);
 		}
 		return this;
 	}

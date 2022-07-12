@@ -36,6 +36,7 @@ const MAX_BITMAP_WIDTH = 640;
 const MAX_BITMAP_HEIGHT = 480;
 const FLAT_WIDTH = 64;
 const FLAT_HEIGHT = 64;
+
 /*
  * @see https://doomwiki.org/wiki/Picture_format
  * @see https://www.cyotek.com/blog/decoding-doom-picture-files
@@ -100,8 +101,18 @@ const parseBitmap = (wadBytes: number[], palette: Palette) => (dir: Directory): 
 		}));
 };
 
-const unfoldFlatCols = (filepos: number): number[] =>
-	R.unfold((idx) => idx === FLAT_WIDTH ? false : [filepos + idx, idx + 1], 0);
+const unfoldFlatColFilePos = (filepos: number): number[] =>
+	R.unfold((idx) => idx === FLAT_WIDTH ? false : [filepos + idx * FLAT_WIDTH, idx + 1], 0);
+
+const unfoldFlatColumn = (wadBytes: number[]) => (filepos: number): Either<Column> => {
+	const uint8Parser =  U.parseUint8(wadBytes);
+	const posts: Post[] = [{
+		topdelta: 0,
+		data: R.unfold((idx) => idx === FLAT_HEIGHT ? false : [uint8Parser(filepos + idx), idx + 1], 0),
+		filepos
+	}];
+	return Either.ofRight({posts});
+};
 
 /**
  * A flat is an image that is drawn on the floors and ceilings of sectors. Flats are very different from wall textures.
@@ -112,21 +123,17 @@ const unfoldFlatCols = (filepos: number): number[] =>
  * @see https://doomwiki.org/wiki/Flat
  */
 const parseFlat = (wadBytes: number[], palette: Palette) => (dir: Directory): Either<RgbaBitmap> => {
-	const columnParser = parseColumn(wadBytes, dir);
-	const columns: Either<Column>[] = unfoldFlatCols(dir.filepos).map(colOfs => columnParser(colOfs));
-	const nonEmptyCols = columns.filter(c => c.filter())
+	const flatColumn = unfoldFlatColumn(wadBytes);
+	const columns = unfoldFlatColFilePos(dir.filepos).map(colOfs => flatColumn(colOfs));
 	const rgba = patchDataToRGBA(columns, FLAT_WIDTH, FLAT_HEIGHT, palette);
-	return Either.ofCondition(
-		() => nonEmptyCols.length == FLAT_WIDTH,
-		() => 'Faulty Flat on: Dir' + JSON.stringify(dir) + ', Cols:' + nonEmptyCols.length,
-		() => ({
+	return Either.ofRight(
+		{
 			rgba,
 			width: FLAT_WIDTH,
 			height: FLAT_HEIGHT,
 			name: dir.name
-		}));
+		});
 };
-
 
 /**
  * Difference between DOOM Patch bitmap and Image on Canvas
@@ -167,9 +174,12 @@ const postAt = (columns: Either<Column>[]) => (x: number, y: number): Either<Pos
 
 const postPixelAt = (columns: Either<Column>[]) => (x: number, y: number): number => {
 	return postAt(columns)(x, y)
-		.assert(p => Either.ofCondition(() => p.data.length > y - p.topdelta,
-			() => 'Pixel out of range at:(' + x + ',' + y + ')->' + p.data.length + '<=' + y + '-' + p.topdelta, () => 'OK'))
-		.map(p => p.data[y - p.topdelta]).orElseGet(() => TRANSPARENT_RGBA_PIXEL);
+		.assert(p => p.data.length > y - p.topdelta,
+			p => 'Pixel out of range at:(' + x + ',' + y + ')->' + p.data.length + '<=' + y + '-' + p.topdelta)
+		.map(p => p.data[y - p.topdelta])
+		.assert(p => p >= 0 && p <= 255,
+			p => 'Pixel out of range:(' + x + ',' + y + ') = ' + p)
+		.orElseGet(() => TRANSPARENT_RGBA_PIXEL);
 };
 
 const patchToRGBA = (bitmap: Bitmap) => (palette: Palette): Uint8ClampedArray =>
@@ -183,7 +193,6 @@ const pixelToImgBuf = (img: Uint8ClampedArray, palette: Palette) => (idx: number
 	img[idx++] = rgb.a;
 	return idx;
 };
-
 
 // ############################ EXPORTS ############################
 export const testFunctions = {

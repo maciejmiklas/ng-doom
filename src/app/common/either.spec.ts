@@ -35,15 +35,15 @@ function getNullOrString(): string | null {
 
 describe('Either#assert', () => {
 	it('Assert Left', () => {
-		expect(Either.ofLeft('H!').assert(v => Either.ofLeft('NO!')).isLeft()).toBeTruthy();
+		expect(Either.ofLeft('H!').assert(() => false, () => 'NO!').isLeft()).toBeTruthy();
 	});
 
 	it('Right Positive', () => {
-		expect(Either.ofRight('H!').assert(v => Either.ofRight('NO!')).get()).toEqual('H!');
+		expect(Either.ofRight('H!').assert(() => true, () => 'NO!').get()).toEqual('H!');
 	});
 
 	it('Right Negative', () => {
-		expect(() => Either.ofRight('H!').assert(v => Either.ofLeft('NO!')).isLeft()).toBeTruthy();
+		expect(() => Either.ofRight('H!').assert(() => false, () => 'NO!').isLeft()).toBeTruthy();
 	});
 });
 

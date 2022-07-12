@@ -19,7 +19,7 @@ export enum LogLevel {
 }
 
 export class Log {
-	static LOG_LEVEL = LogLevel.ERROR;
+	static LOG_LEVEL = LogLevel.WARN;
 
 	static error(cmp: string, ...args: any[]): void {
 		if (Log.LOG_LEVEL >= LogLevel.ERROR) {
@@ -29,7 +29,7 @@ export class Log {
 
 	static warn(cmp: string, ...args: any[]): void {
 		if (Log.LOG_LEVEL >= LogLevel.WARN) {
-			console.log('ERROR(' + cmp + '): ' + args);
+			console.log('WARN(' + cmp + '): ' + args);
 		}
 	}
 
