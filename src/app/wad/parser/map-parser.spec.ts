@@ -67,7 +67,7 @@ const validateSectorE1M1_0 = (se: Sector): void => {
 	expect(se.floorTexture.get().name).toEqual('FLOOR4_8');
 	expect(se.cellingTexture.get().name).toEqual('CEIL3_5');
 	expect(se.floorHeight).toEqual(0);
-	expect(se.ceilingHeight).toEqual(72);
+	expect(se.cellingHeight).toEqual(72);
 	expect(se.lightLevel).toEqual(160);
 	expect(se.tagNumber).toEqual(0);
 	expect(se.id).toEqual(0);
@@ -77,7 +77,7 @@ const validateSectorE1M1_1 = (se: Sector): void => {
 	expect(se.floorTexture.get().name).toEqual('FLAT18');
 	expect(se.cellingTexture.get().name).toEqual('CEIL5_1');
 	expect(se.floorHeight).toEqual(32);
-	expect(se.ceilingHeight).toEqual(88);
+	expect(se.cellingHeight).toEqual(88);
 	expect(se.lightLevel).toEqual(255);
 	expect(se.tagNumber).toEqual(0);
 	expect(se.id).toEqual(1);
@@ -87,7 +87,7 @@ const validateSectorE1M1_4 = (se: Sector): void => {
 	expect(se.floorTexture.get().name).toEqual('FLOOR4_8');
 	expect(se.cellingTexture.get().name).toEqual('FLAT20');
 	expect(se.floorHeight).toEqual(0);
-	expect(se.ceilingHeight).toEqual(0);
+	expect(se.cellingHeight).toEqual(0);
 	expect(se.lightLevel).toEqual(208);
 	expect(se.tagNumber).toEqual(0);
 	expect(se.id).toEqual(4);

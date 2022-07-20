@@ -22,6 +22,8 @@ import {CSS2DRenderer} from 'three/examples/jsm/renderers/CSS2DRenderer';
 import {Either} from '../../common/either';
 import {Side} from 'three/src/constants';
 import {Vector2} from 'three/src/math/Vector2';
+import {ColorRepresentation} from "three/src/utils";
+import * as R from 'ramda';
 
 @Component({
 	selector: 'app-play',
@@ -30,7 +32,7 @@ import {Vector2} from 'three/src/math/Vector2';
 })
 export class PlayComponent implements OnInit {
 
-	mapId = 5;
+	mapId = 0;
 
 	@ViewChild('canvas', {static: true})
 	private canvasRef: ElementRef<HTMLCanvasElement>;
@@ -75,44 +77,59 @@ export class PlayComponent implements OnInit {
 		const startTime = performance.now();
 		const map: DoomMap = this.wad.maps[this.mapId];
 		map.linedefBySector.forEach(renderSector(scene));
-
-		//scene.add(createGround());
-		console.log('>TIME createWorld>', performance.now() - startTime);
+		console.log('>TIME createWorld>', map.mapDirs[0].name, performance.now() - startTime);
 	}
 }
 
 const renderSector = (scene: THREE.Scene) => (lbs: LinedefBySector) => {
-	//if (lbs.sector.id !== 20) {
-	//	return;
-	//}
-	// 1-5, 2-30, 9-6, 20-35
-	//console.log('S',lbs.sector.id, lbs);
-	//renderWalls(lbs).forEach(m => scene.add(m));
-	renderFloor(lbs).forEach(m => scene.add(m));
+//	renderWalls(lbs).forEach(m => scene.add(m));
+	renderFloors(lbs).forEach(m => scene.add(m));
 };
 
 const toVector2 = (ve: Vertex): Vector2 => new Vector2(ve.x, ve.y);
 
-const renderFloor = (lbs: LinedefBySector): THREE.Mesh[] => {
-	const texture = lbs.sector.floorTexture.map(tx => createDataTexture(tx));
-	if (texture.isLeft()) {
-		console.log('No Floor on: ',lbs );
+const renderFloors = (lbs: LinedefBySector): THREE.Object3D[] => {
+	if (/*lbs.sector.id !== 35 &&*/ lbs.sector.id !== 24) {
 		return [];
 	}
-	const shapes: THREE.Shape[] = [];
+
+	const texture = lbs.sector.floorTexture.map(tx => createDataTexture(tx));
+	if (texture.isLeft()) {
+		console.log('No Floor on: ', lbs);
+		return [];
+	}
+	const ret = [];
+	console.log('>XXXXX> ', lbs.sector.id, lbs.sector.floorHeight);
 	lbs.linedefs.forEach(ld => {
-		shapes.push(new THREE.Shape([toVector2(ld.start), toVector2(ld.end)]));
-	});
-	const geometry = new THREE.ShapeGeometry(shapes);
+
+		ret.push(point(ld.start.x, lbs.sector.floorHeight, ld.start.y));
+		ret.push(point(ld.end.x, lbs.sector.floorHeight, ld.end.y));
+
+		console.log('-', ld.specialType, ld.type, ld.sector.id, ld.sectorTag, JSON.stringify(ld.start), JSON.stringify(ld.end));
+	})
+	const points = lbs.linedefs.flatMap(ld => [toVector2(ld.start), toVector2(ld.end)])
+	const up = R.uniqWith((v1: Vector2, v2: Vector2) => v1.x == v2.x && v1.y == v2.y, points);
+	console.log('P', points);
+	console.log('UP', up);
+	const geometry = new THREE.ShapeGeometry(new THREE.Shape(up));
 	const floor = new THREE.Mesh(
 		geometry,
 		new THREE.MeshPhongMaterial({side: THREE.DoubleSide, map: texture.get()})
 	);
-
-	floor.rotation.set(Math.PI / 2, Math.PI, 0);
+	console.log('####');
+	//floor.rotation.set(Math.PI / 2, Math.PI, Math.PI);
+	floor.rotation.set(Math.PI / 2, 0, 0);
 	floor.position.y = lbs.sector.floorHeight;
-	return [floor];
+	ret.push(floor)
+	return ret;
 };
+
+const point = (x: number, y: number, z: number, color: ColorRepresentation = 0xff0000): THREE.Object3D => {
+	const dotGeometry = new THREE.BufferGeometry();
+	dotGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([x, y, z]), 3));
+	const dotMaterial = new THREE.PointsMaterial({size: 5, color});
+	return new THREE.Points(dotGeometry, dotMaterial);
+}
 
 const renderWalls = (lbs: LinedefBySector): THREE.Mesh[] => {
 	const mesh: THREE.Mesh[] = [];
@@ -132,7 +149,7 @@ const renderWalls = (lbs: LinedefBySector): THREE.Mesh[] => {
 	const middleBackSide = () => THREE.BackSide;
 	const middleBackTexture = (ld: Linedef) => ld.backSide.map(b => b.middleTexture);
 
-	const middleWallHeight = (ld: Linedef) => Either.ofRight(ld.sector.ceilingHeight - ld.sector.floorHeight);
+	const middleWallHeight = (ld: Linedef) => Either.ofRight(ld.sector.cellingHeight - ld.sector.floorHeight);
 	const middleStart = (ld: Linedef) => Either.ofRight(ld.sector.floorHeight);
 
 	lbs.linedefs.forEach(ld => {
@@ -189,7 +206,13 @@ const createMaterial = (dt: DoomTexture, side: Side, color = null): THREE.Materi
 	let material;
 	if (dt) {
 		side = THREE.DoubleSide;// TODO remove for real game
-		material = new THREE.MeshBasicMaterial({map: createDataTexture(dt), transparent: true, alphaTest: 0.5, side, color});
+		material = new THREE.MeshBasicMaterial({
+			map: createDataTexture(dt),
+			transparent: true,
+			alphaTest: 0.5,
+			side,
+			color
+		});
 	} else {
 		material = new THREE.MeshStandardMaterial({transparent: true, color: 'green', side: THREE.DoubleSide});
 	}
@@ -208,7 +231,12 @@ const createGround = () => {
 };
 
 const meshPhongTexture = (texture: THREE.Texture) => (geometry: THREE.BufferGeometry): THREE.Mesh =>
-	new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({map: texture, transparent: false, alphaTest: 0.5, side: THREE.DoubleSide}));
+	new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+		map: texture,
+		transparent: false,
+		alphaTest: 0.5,
+		side: THREE.DoubleSide
+	}));
 
 const createTexture = (path: string): THREE.Texture => {
 	const texture: THREE.Texture = new THREE.TextureLoader().load(path);
@@ -229,8 +257,8 @@ const createScene = (): THREE.Scene => {
 
 const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera => {
 	const cam = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 1, 20000);
-	cam.position.set(1032, 500, 2170);
-	//cam.position.set(1400, 50, 2800);
+	//cam.position.set(1032, 500, 2170);
+	cam.position.set(142, 1000, -2600);
 	return cam;
 };
 

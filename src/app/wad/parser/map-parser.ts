@@ -143,7 +143,7 @@ const parseSector = (bytes: number[], dir: Directory, flatLoader: (name: string)
 		dir,
 		type: MapLumpType.SECTORS,
 		floorHeight: shortParser(offset),
-		ceilingHeight: shortParser(offset + 0x02),
+		cellingHeight: shortParser(offset + 0x02),
 		floorTexture: flatLoader(strParser(offset + 0x04, 8)),
 		cellingTexture: flatLoader(strParser(offset + 0x0C, 8)),
 		lightLevel: shortParser(offset + 0x14),
