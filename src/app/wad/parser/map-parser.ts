@@ -20,6 +20,8 @@ import {
 	Directory,
 	DoomMap,
 	DoomTexture,
+	Floor,
+	functions as mf,
 	Linedef,
 	LinedefBySector,
 	LinedefFlag,
@@ -27,6 +29,8 @@ import {
 	Sector,
 	Sidedef,
 	Thing,
+	VectorConnection,
+	VectorV,
 	Vertex
 } from './wad-model';
 import U from '../../common/util';
@@ -103,10 +107,19 @@ const groupBySector = (linedefs: Linedef[], sectors: Sector[]): LinedefBySector[
 
 	// transfer Linedef[][] into Map, where Key is the sectorId number
 	const byId: { [sector: number]: Linedef[] } = R.indexBy((ld: Linedef[]) => ld[0].sector.id, bySector);
-	return Object.keys(byId).map(k => ({
-		sector: sectors[k],
-		linedefs: byId[k]
-	}));
+	return Object.keys(byId).map(k => {
+		const sector = sectors[k];
+		const linedefs = byId[k];
+		return {
+			sector,
+			linedefs,
+			floor: {
+				sector,
+				walls: sortPath<Linedef>(linedefs)[0],
+				holes: Either.ofLeft('TODO')
+			}
+		}
+	});
 };
 
 const unfoldByDirectorySize = (dir: Directory, size: number): number[] =>
@@ -283,8 +296,108 @@ const normalizeLinedefs = (scale: number) => (linedefs: Linedef[]): Linedef[] =>
 	}, linedefs);
 };
 
+const createFloor = (linedefs: Linedef[]) => (lbs: LinedefBySector): Floor => {
+	return null;
+}
+
+const findBacksidesBySector = (linedefs: Linedef[]) => (sectorId: number): Either<Linedef[]> =>
+	Either.ofArray(linedefs.filter(ld => ld.backSide.isRight()).filter(ld => ld.backSide.get().sector.id == sectorId),
+		() => 'No backsides for Sector: ' + sectorId);
+
+const findPathEl = (linedefs: VectorV[]) => (el: VectorV): number =>
+	linedefs.findIndex(ld => mf.vertexEqual(el.start, ld.start) || mf.vertexEqual(el.start, ld.end) ||
+		mf.vertexEqual(el.end, ld.start) || mf.vertexEqual(el.end, ld.end));
+
+const findLastNotConnected = (linedefs: VectorV[]): Either<number> => {
+	for (let i = linedefs.length - 1; i > 0; i--) {
+		if (mf.vectorsConnected(linedefs[i], linedefs[i - 1]) === VectorConnection.NO) {
+			return Either.ofRight(i);
+		}
+	}
+	return Either.ofLeft('All vectors are connected');
+}
+
+const splitPath = <V extends VectorV>(unsorted: V[]): V[][] => {
+	return null;
+}
+
+const sortPath_ = <V extends VectorV>(unsorted: V[]): V[][] => {
+	const sorted = [...unsorted];
+	const notConnected = [];
+	for (let xx = 0; xx < 5000; xx++) {// max 5000 iterations
+		const notConnectedEi = findLastNotConnected(sorted);
+		if (notConnectedEi.isLeft()) {
+			break;
+		}
+		const notConnectedIdx = notConnectedEi.get();
+		const nc = sorted[notConnectedIdx];
+		let moved = false;
+		for (let i = 0; i < sorted.length; i++) {
+			const cur = sorted[i];
+			if (mf.vectorsConnected(cur, nc) === VectorConnection.NO) {
+				continue;
+			}
+
+			if (mf.vectorsConnected(cur, nc) === VectorConnection.V1_TO_V2) {
+				sorted.splice(i, 0, sorted.splice(notConnectedIdx, 1)[0]);
+				moved = true;
+				break;
+			}
+			if (mf.vectorsConnected(cur, nc) === VectorConnection.V2_TO_V1) {
+				sorted.splice(notConnectedIdx, 0, sorted.splice(i, 1)[0]);
+				moved = true;
+				break;
+			}
+		}
+		if (!moved) {
+			notConnected.push(sorted.splice(notConnectedIdx, 1)[0]);
+		}
+	}
+	//console.log('>V>', JSON.stringify(toSimpleVectors(sorted)));
+	return [sorted, notConnected];
+}
+
+const sortPath = <V extends VectorV>(unsorted: V[]): V[][] => {
+	const remaining = [...unsorted];
+	const out = [[remaining.pop()]];
+
+	while (remaining.length > 0) {
+		let found = false;
+		out.forEach(oa => {
+			const el = oa[oa.length - 1];
+			for (let i = 0; i < remaining.length; i++) {
+				const cur = remaining[i];
+				if (mf.vectorsConnected(el, cur) === VectorConnection.NO) {
+					continue;
+				}
+
+				if (mf.vectorsConnected(el, cur) === VectorConnection.V1_TO_V2) {
+					const ne = remaining.splice(i, 1)[0];
+					oa.push(ne);
+					found = true;
+					break;
+				}
+				if (mf.vectorsConnected(el, cur) === VectorConnection.V2_TO_V1) {
+					const ne = remaining.splice(i, 1)[0];
+					oa.splice(oa.length - 2, 0, ne);
+					found = true;
+					break;
+				}
+			}
+		})
+		if (!found) {
+			out.push([remaining.pop()])
+		}
+	}
+	//console.log('>V>', JSON.stringify(toSimpleVectors(sorted)));
+	return out;
+}
+
+const toSimpleVectors = (vectors: VectorV[]): VectorV[] => vectors.map(v => ({start: v.start, end: v.end}))
+
 // ############################ EXPORTS ############################
 export const testFunctions = {
+	findPathEl,
 	isMapName,
 	findNextMapStartingDir,
 	parseThing,
@@ -309,7 +422,10 @@ export const testFunctions = {
 	createTextureLoader,
 	groupBySectorArray,
 	parseFlags,
-	createFlatLoader
+	createFlatLoader,
+	findBacksidesBySector,
+	findLastNotConnected,
+	sortPath
 };
 
 export const functions = {parseMaps, normalizeLinedefs};

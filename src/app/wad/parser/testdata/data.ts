@@ -25,6 +25,7 @@ import {
 	Directory,
 	DoomTexture,
 	Header,
+	Linedef,
 	MapLumpType,
 	Palette,
 	Pnames,
@@ -36,6 +37,16 @@ import {
 import jsonData from './doom.json';
 import U from '../../../common/util';
 import {Either} from '../../../common/either';
+
+let _linedefs = null;
+export const getLinedefs = (): Linedef[] => {
+	if (!_linedefs) {
+		const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
+		const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors());
+		_linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors());
+	}
+	return _linedefs;
+}
 
 let _wadBytes = null;
 export const getWadBytes = (): number[] => {
@@ -94,7 +105,7 @@ export const getTextures = (): DoomTexture[] => {
 	return _textures;
 };
 
-let _flats= null;
+let _flats = null;
 export const getFlats = (): Bitmap[] => {
 	if (!_flats) {
 		_flats = tp.parseFlats(getWadBytes(), getAllDirs(), getPalette()).get();

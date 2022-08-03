@@ -82,16 +82,17 @@ export class PlayComponent implements OnInit {
 }
 
 const renderSector = (scene: THREE.Scene) => (lbs: LinedefBySector) => {
-//	renderWalls(lbs).forEach(m => scene.add(m));
+	renderWalls(lbs).forEach(m => scene.add(m));
 	renderFloors(lbs).forEach(m => scene.add(m));
 };
 
 const toVector2 = (ve: Vertex): Vector2 => new Vector2(ve.x, ve.y);
 
 const renderFloors = (lbs: LinedefBySector): THREE.Object3D[] => {
-	if (/*lbs.sector.id !== 35 &&*/ lbs.sector.id !== 24) {
+	/*
+	if ( lbs.sector.id !== 24) {
 		return [];
-	}
+	}*/
 
 	const texture = lbs.sector.floorTexture.map(tx => createDataTexture(tx));
 	if (texture.isLeft()) {
@@ -99,26 +100,27 @@ const renderFloors = (lbs: LinedefBySector): THREE.Object3D[] => {
 		return [];
 	}
 	const ret = [];
-	console.log('>XXXXX> ', lbs.sector.id, lbs.sector.floorHeight);
-	lbs.linedefs.forEach(ld => {
+	/*
+	lbs.floor.walls.forEach(wall => {
+		ret.push(point(wall.start.x, lbs.sector.floorHeight, wall.start.y));
+		ret.push(point(wall.end.x, lbs.sector.floorHeight, wall.end.y));
+	})*/
 
-		ret.push(point(ld.start.x, lbs.sector.floorHeight, ld.start.y));
-		ret.push(point(ld.end.x, lbs.sector.floorHeight, ld.end.y));
-
-		console.log('-', ld.specialType, ld.type, ld.sector.id, ld.sectorTag, JSON.stringify(ld.start), JSON.stringify(ld.end));
+	const shapes = [];
+	lbs.floor.walls.forEach(wall => {
+		shapes.push(new THREE.Shape([toVector2(wall.start), toVector2(wall.end)]))
 	})
-	const points = lbs.linedefs.flatMap(ld => [toVector2(ld.start), toVector2(ld.end)])
+
+	const points = lbs.floor.walls.flatMap(ld => [toVector2(ld.start), toVector2(ld.end)])
 	const up = R.uniqWith((v1: Vector2, v2: Vector2) => v1.x == v2.x && v1.y == v2.y, points);
-	console.log('P', points);
-	console.log('UP', up);
-	const geometry = new THREE.ShapeGeometry(new THREE.Shape(up));
+	//const geometry = new THREE.ShapeGeometry(new THREE.Shape(up));
+	const geometry = new THREE.ShapeGeometry(shapes);
 	const floor = new THREE.Mesh(
 		geometry,
 		new THREE.MeshPhongMaterial({side: THREE.DoubleSide, map: texture.get()})
 	);
-	console.log('####');
-	//floor.rotation.set(Math.PI / 2, Math.PI, Math.PI);
-	floor.rotation.set(Math.PI / 2, 0, 0);
+	floor.rotation.set(Math.PI / 2, Math.PI, Math.PI);
+	//floor.rotation.set(Math.PI / 2, 0, 0);
 	floor.position.y = lbs.sector.floorHeight;
 	ret.push(floor)
 	return ret;
@@ -258,7 +260,7 @@ const createScene = (): THREE.Scene => {
 const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera => {
 	const cam = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 1, 20000);
 	//cam.position.set(1032, 500, 2170);
-	cam.position.set(142, 1000, -2600);
+	cam.position.set(2200, 1000, 2600);
 	return cam;
 };
 

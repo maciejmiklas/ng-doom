@@ -15,7 +15,20 @@
  */
 import {functions as mp, testFunctions as tf} from './map-parser';
 import * as R from 'ramda';
-import {Directory, DoomMap, Linedef, LinedefBySector, LinedefFlag, MapLumpType, Sector, Sidedef, Thing, Vertex, WadType} from './wad-model';
+import {
+	Directory,
+	DoomMap,
+	Linedef,
+	LinedefBySector,
+	LinedefFlag,
+	MapLumpType,
+	Sector,
+	Sidedef,
+	Thing,
+	VectorV,
+	Vertex,
+	WadType
+} from './wad-model';
 import {
 	E1M1_BLOCKMAP,
 	E1M1_LINEDEFS,
@@ -24,8 +37,10 @@ import {
 	getAllDirs,
 	getAllDirsOp,
 	getE1M1Dirs,
-	getFirstMap, getFlats,
+	getFirstMap,
+	getFlats,
 	getHeader,
+	getLinedefs,
 	getSectors,
 	getTextures,
 	getWadBytes,
@@ -40,7 +55,7 @@ import {
 } from './testdata/data';
 
 const E1M1_SECTORS = 85;
-
+/*
 describe('map-parser#parseHeader', () => {
 	it('IWAD', () => {
 		const header = getHeader().get();
@@ -304,13 +319,13 @@ describe('map-parser#parseSidedefs', () => {
 	it('Amount', () => {
 		expect(parsed.length).toEqual(648);
 	});
-/*FIXME
-	it('Sidedef Index', () => {
-		parsed.forEach(sd => {
-			expect(sd.get().sector.id).toBeGreaterThanOrEqual(0);
-			expect(sd.get().sector.id).toBeLessThanOrEqual(E1M1_SECTORS);
-		});
-	});*/
+
+//		it('Sidedef Index', () => {
+//			parsed.forEach(sd => {
+//				expect(sd.get().sector.id).toBeGreaterThanOrEqual(0);
+//				expect(sd.get().sector.id).toBeLessThanOrEqual(E1M1_SECTORS);
+//			});
+//		});
 });
 
 const validateVertexesDir = (dir: Directory) => {
@@ -434,25 +449,20 @@ describe('map-parser#parseLinedef', () => {
 });
 
 describe('map-parser#parseLinedefs', () => {
-	const linedefDir = getAllDirs()[getFirstMap().idx + MapLumpType.LINEDEFS];
-	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
-	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors());
-	const linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors());
-
 	it('Validate Lindedefs Dir', () => {
-		validateLindedefsDir(linedefDir);
+		validateLindedefsDir(getAllDirs()[getFirstMap().idx + MapLumpType.LINEDEFS]);
 	});
 
 	it('First Linedef', () => {
-		validateLindedef0(linedefs[0]);
+		validateLindedef0(getLinedefs()[0]);
 	});
 
 	it('Third Linedef', () => {
-		validateLindedef2(linedefs[2]);
+		validateLindedef2(getLinedefs()[2]);
 	});
 
 	it('27th Linedef', () => {
-		validateLindedef26(linedefs[26]);
+		validateLindedef26(getLinedefs()[26]);
 	});
 
 });
@@ -622,7 +632,7 @@ describe('map-parser#findAllMapStartDirs', () => {
 });
 
 describe('map-parser#parseMap', () => {
-	const map: DoomMap = tf.parseMap(getWadBytes(), tf.createTextureLoader(getTextures()),tf.createFlatLoader(getFlats()))(getE1M1Dirs());
+	const map: DoomMap = tf.parseMap(getWadBytes(), tf.createTextureLoader(getTextures()), tf.createFlatLoader(getFlats()))(getE1M1Dirs());
 
 	it('Map Dirs', () => {
 		validateE1M1Dirs(map.mapDirs);
@@ -677,7 +687,7 @@ describe('map-parser#parseMapsDirs', () => {
 });
 
 describe('map-parser#parseMaps', () => {
-	const maps: DoomMap[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(),getFlats()).get();
+	const maps: DoomMap[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats()).get();
 
 	it('Maps Found', () => {
 		expect(maps.length).toEqual(9);
@@ -694,14 +704,14 @@ describe('map-parser#parseMaps', () => {
 });
 
 describe('map-parser#findMinX', () => {
-	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(),getFlats()).get()[0].linedefs;
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats()).get()[0].linedefs;
 	it('findMinX', () => {
 		expect(tf.findMinX(defs)).toEqual(-768);
 	});
 });
 
 describe('map-parser#findMinY', () => {
-	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(),getFlats()).get()[0].linedefs;
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats()).get()[0].linedefs;
 
 	it('findMinY', () => {
 		expect(tf.findMinY(defs)).toEqual(-4864);
@@ -710,7 +720,7 @@ describe('map-parser#findMinY', () => {
 
 
 describe('map-parser#normalizeMap', () => {
-	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(),getFlats()).get()[0].linedefs;
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats()).get()[0].linedefs;
 
 	it('findMax', () => {
 		expect(tf.findMax(defs)).toEqual(3808);
@@ -735,7 +745,7 @@ describe('map-parser#scalePos', () => {
 });
 
 describe('map-parser#normalizeLinedefs', () => {
-	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(),getFlats()).get()[0].linedefs;
+	const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats()).get()[0].linedefs;
 	const nt = (scale: number) => (xy: boolean) => R.reduce(R.max, Number.MIN_SAFE_INTEGER, mp.normalizeLinedefs(scale)(defs).map(d => xy ? d.start.x : d.start.y));
 
 	it('Matching sectorId ID', () => {
@@ -771,9 +781,8 @@ describe('map-parser#normalizeLinedefs', () => {
 	});
 });
 
-/* FIXME
 describe('map-parser#parseSector', () => {
-	const parser = tf.parseSector(getWadBytes(), getE1M1Dirs()[MapLumpType.SECTORS], tf.createTextureLoader(getTextures()));
+	const parser = tf.parseSector(getWadBytes(), getE1M1Dirs()[MapLumpType.SECTORS], tf.createFlatLoader(getFlats()));
 
 	it('E1M1 - Sector nr: 0', () => {
 		validateSectorE1M1_0(parser(0));
@@ -790,7 +799,7 @@ describe('map-parser#parseSector', () => {
 
 
 describe('map-parser#parseSectors', () => {
-	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createTextureLoader(getTextures()));
+	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createFlatLoader(getFlats()));
 
 	it('E1M1 - Sector nr: 0', () => {
 		validateSectorE1M1_0(sectors[0]);
@@ -809,9 +818,9 @@ describe('map-parser#parseSectors', () => {
 	});
 
 });
-*/
+
 describe('map-parser#groupBySectorArray', () => {
-	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(),tf.createFlatLoader(getFlats()));
+	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createFlatLoader(getFlats()));
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
 	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors());
 	const linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors());
@@ -867,7 +876,6 @@ describe('map-parser#groupBySectorArray', () => {
 });
 
 describe('map-parser#groupBySector', () => {
-	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(),tf.createFlatLoader(getFlats()));
 	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
 	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors());
 	const linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors());
@@ -956,5 +964,170 @@ describe('map-parser#parseFlags', () => {
 		expect(flags.size).toEqual(9);
 	});
 });
+
+describe('map-parser#findBacksidesBySector', () => {
+	const finder = tf.findBacksidesBySector(getLinedefs())
+
+	it('E1M1 - Sector nr: 35', () => {
+		const sd = finder(35);
+		expect(sd.get().length).toEqual(4);
+	});
+
+	it('E1M1 - Sector nr: 24', () => {
+		const sd = finder(24);
+		expect(sd.isLeft).toBeTruthy();
+	});
+
+	it('E1M1 - Sector nr: 41', () => {
+		const sd = finder(41);
+		expect(sd.get().length).toEqual(1);
+	});
+
+});
+
+describe('map-parser#findLastNotConnected', () => {
+
+	it('Mixed', () => {
+		const ret = tf.findLastNotConnected(pathClosedMixed);
+		expect(ret.get()).toEqual(7);
+	});
+
+	it('Sorted', () => {
+		const ret = tf.findLastNotConnected(pathClosedSorted);
+		expect(ret.isLeft()).toBeTrue();
+	});
+
+});
+
+describe('map-parser#findPathEl', () => {
+	const path: VectorV[] = [{start: {x: 1, y: 2}, end: {x: 4, y: 5}}, {start: {x: 10, y: 11}, end: {x: 20, y: 21}}];
+
+	it('Not Found - non vector', () => {
+		expect(tf.findPathEl(path)({start: {x: 12, y: 22}, end: {x: 24, y: 25}})).toEqual(-1);
+	});
+
+	it('Found - Start -> End', () => {
+		expect(tf.findPathEl(path)({start: {x: 4, y: 5}, end: {x: 212, y: 211}})).toEqual(0);
+	});
+
+	it('Found - Start -> Start', () => {
+		expect(tf.findPathEl(path)({start: {x: 1, y: 2}, end: {x: 212, y: 211}})).toEqual(0);
+	});
+
+	it('Found - End -> Start', () => {
+		expect(tf.findPathEl(path)({start: {x: 231, y: 232}, end: {x: 1, y: 2}})).toEqual(0);
+	});
+
+	it('Found - End -> End', () => {
+		expect(tf.findPathEl(path)({start: {x: 231, y: 232}, end: {x: 4, y: 5}})).toEqual(0);
+	});
+});
+
+*/
+export type VectorId = VectorV & {
+	id: number
+}
+
+const pathClosedMixed = [
+	{"id": 8, "start": {"x": 1728, "y": -704}, "end": {"x": 1856, "y": -704}},
+	{"id": 2, "start": {"x": 2048, "y": -1024}, "end": {"x": 1792, "y": -1280}},
+	{"id": 5, "start": {"x": 1472, "y": -1088}, "end": {"x": 1472, "y": -960}},
+	{"id": 3, "start": {"x": 1792, "y": -1280}, "end": {"x": 1472, "y": -1280}},
+	{"id": 7, "start": {"x": 1472, "y": -704}, "end": {"x": 1728, "y": -704}},
+	{"id": 4, "start": {"x": 1472, "y": -1280}, "end": {"x": 1472, "y": -1088}},
+	{"id": 6, "start": {"x": 1472, "y": -960}, "end": {"x": 1472, "y": -704}},
+	{"id": 0, "start": {"x": 1856, "y": -704}, "end": {"x": 2048, "y": -704}},
+	{"id": 1, "start": {"x": 2048, "y": -704}, "end": {"x": 2048, "y": -1024}}
+];
+
+const pathClosedSorted = [
+	{"id": 0, "start": {"x": 1856, "y": -704}, "end": {"x": 2048, "y": -704}},
+	{"id": 1, "start": {"x": 2048, "y": -704}, "end": {"x": 2048, "y": -1024}},
+	{"id": 2, "start": {"x": 2048, "y": -1024}, "end": {"x": 1792, "y": -1280}},
+	{"id": 3, "start": {"x": 1792, "y": -1280}, "end": {"x": 1472, "y": -1280}},
+	{"id": 4, "start": {"x": 1472, "y": -1280}, "end": {"x": 1472, "y": -1088}},
+	{"id": 5, "start": {"x": 1472, "y": -1088}, "end": {"x": 1472, "y": -960}},
+	{"id": 6, "start": {"x": 1472, "y": -960}, "end": {"x": 1472, "y": -704}},
+	{"id": 7, "start": {"x": 1472, "y": -704}, "end": {"x": 1728, "y": -704}},
+	{"id": 8, "start": {"x": 1728, "y": -704}, "end": {"x": 1856, "y": -704}}];
+
+const pathClosedMixed2 = [
+	{"id": 10, "start": {"x": 10, "y": 20}, "end": {"x": 100, "y": 200}},
+	{"id": 14, "start": {"x": 700, "y": 800}, "end": {"x": 10, "y": 20}},
+	{"id": 12, "start": {"x": 300, "y": 400}, "end": {"x": 500, "y": 600}},
+	{"id": 13, "start": {"x": 500, "y": 600}, "end": {"x": 700, "y": 800}},
+	{"id": 11, "start": {"x": 100, "y": 200}, "end": {"x": 300, "y": 400}}];
+
+describe('map-parser#sortPath', () => {
+
+	it('Path closed mixed', () => {
+		const sorted = tf.sortPath(pathClosedMixed);
+		expect(sorted.length).toEqual(1);
+		expect(sorted[0].length).toEqual(9);
+		expectClosedPath(sorted[0]);
+	});
+
+	it('Path closed mixed 2', () => {
+		const sorted = tf.sortPath(pathClosedMixed2);
+		expect(sorted.length).toEqual(1);
+		expect(sorted[0].length).toEqual(5);
+		expectClosedPath(sorted[0]);
+	});
+
+	it('Path closed with extra point', () => {
+		const sorted = tf.sortPath([...pathClosedMixed,
+			{"id": 99, "start": {"x": 999, "y": 999}, "end": {"x": 777, "y": 777}}]);
+		expect(sorted.length).toEqual(2);
+		expect(sorted[0].length).toEqual(1);
+		expect(sorted[1].length).toEqual(9);
+		expectClosedPath(sorted[1]);
+		expect(sorted[0][0].id).toEqual(99);
+	});
+
+
+	it('Path closed mixed and sorted', () => {
+		const sorted = tf.sortPath(pathClosedSorted);
+		expect(sorted.length).toEqual(1);
+		expect(sorted[0].length).toEqual(9);
+		expectClosedPath(sorted[0]);
+	});
+
+	it('Two Paths', () => {
+		const sorted = tf.sortPath([...pathClosedMixed, ...pathClosedMixed2]);
+		expect(sorted.length).toEqual(2);
+		expect(sorted[0].length).toEqual(5);
+		expect(sorted[1].length).toEqual(9);
+		expectClosedPath(sorted[0]);
+		expectClosedPath(sorted[1]);
+	});
+
+	it('E1M1 - Sector nr: 35', () => {
+	const finder = tf.findBacksidesBySector(getLinedefs())
+	const lbs: LinedefBySector[] = tf.groupBySector(getLinedefs(), getSectors());
+		const s35 = lbs.find(ld => ld.sector.id == 35);
+		const ld = s35.linedefs.concat(finder(35).get())
+		const paths = tf.sortPath(ld);
+		expect(paths.length).toEqual(2);
+	});
+
+});
+
+const expectClosedPath = (path: VectorId[]) => {
+	let foundEnd = false
+	for (let i = 0; i < path.length - 1; i++) {
+		const v1 = path[i];
+		const v2 = path[i + 1];
+		const dif = Math.abs(v1.id - v2.id);
+		if (!foundEnd && dif > 1) {
+			foundEnd = true;
+			continue;
+		}
+		expect(dif).toEqual(1, v1 + " <-> " + v2);
+	}
+}
+
+
+
+
 
 

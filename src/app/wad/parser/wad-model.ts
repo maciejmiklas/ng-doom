@@ -160,7 +160,13 @@ export type Thing = MapLump & {
  * @see https://doomwiki.org/wiki/Vertex
  */
 export type Vertex = Position & {
-	// empty
+	x: number,
+	y: number
+};
+
+export type VectorV = {
+	start: Vertex,
+	end: Vertex
 };
 
 /**
@@ -171,16 +177,23 @@ export type Vertex = Position & {
  *
  * @see https://doomwiki.org/wiki/Linedef
  */
-export type Linedef = MapLump & {
+export type Linedef = VectorV & MapLump & {
 	id: number
-	start: Vertex
-	end: Vertex
 	flags: Set<LinedefFlag>
 	specialType: number
 	sectorTag: number
 	sector: Sector
 	frontSide: Sidedef
 	backSide: Either<Sidedef>
+};
+
+/**
+ * Flor is deducted from Linedef and contains closed shapes and holes
+ */
+export type Floor = {
+	sector: Sector
+	walls: Linedef[]
+	holes: Either<Linedef[]>
 };
 
 /**
@@ -231,6 +244,7 @@ export type Sidedef = MapLump & {
 	 */
 	lowerTexture: Either<DoomTexture>
 
+	/** Sector this sidedef 'faces' */
 	sector: Sector
 };
 
@@ -281,6 +295,7 @@ export type DoomMap = {
 export type LinedefBySector = {
 	sector: Sector
 	linedefs: Linedef[]
+	floor: Floor
 }
 
 export enum WadType {
@@ -484,3 +499,28 @@ export type WadEntry = {
 export type GameSave = {
 	name: string;
 };
+
+const vertexEqual = (v1: Vertex, v2: Vertex): boolean => v1.x === v2.x && v1.y === v2.y
+
+export enum VectorConnection {
+	V1_TO_V2,
+	V2_TO_V1,
+	MIXED,
+	NO,
+}
+
+// TODO - not functional!
+const vectorsConnected = (v1: VectorV, v2: VectorV): VectorConnection => {
+	if (vertexEqual(v1.end, v2.start)) {
+		return VectorConnection.V1_TO_V2;
+
+	} else if (vertexEqual(v2.end, v1.start)) {
+		return VectorConnection.V2_TO_V1;
+
+	} else if (vertexEqual(v1.end, v2.end) || vertexEqual(v1.start, v2.start)) {
+		return VectorConnection.MIXED;
+	}
+	return VectorConnection.NO;
+}
+
+export const functions = {vertexEqual, vectorsConnected};
