@@ -15,6 +15,7 @@
  */
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls';
 import * as THREE from 'three';
+import {functions as gc} from './game-config'
 
 export class Controls {
 
@@ -23,7 +24,6 @@ export class Controls {
 	private moveY = MoveY.NO;
 	private readonly controls: PointerLockControls;
 	private camera: THREE.PerspectiveCamera;
-	moveSlow = 2;
 
 	constructor(camera: THREE.PerspectiveCamera, canvas: HTMLCanvasElement) {
 		window.addEventListener('keydown', this.onKeyDown.bind(this));
@@ -35,10 +35,11 @@ export class Controls {
 
 	render(): void {
 		const time = performance.now();
-		const mf = (time - this.prevTime) / this.moveSlow;
+		const mf = (time - this.prevTime) / gc.moveSlow;
 
 		if (this.moveY === MoveY.FORWARD) {
 			this.controls.moveForward(mf);
+
 		} else if (this.moveY === MoveY.BACKWARD) {
 			this.controls.moveForward(-mf);
 		}
@@ -82,7 +83,7 @@ export class Controls {
 				this.moveX = MoveX.RIGHT;
 				break;
 		}
-	};
+	}
 
 	private onKeyUp(event) {
 		switch (event.code) {
@@ -100,7 +101,7 @@ export class Controls {
 				this.moveX = MoveX.NO;
 				break;
 		}
-	};
+	}
 }
 
 enum MoveY {

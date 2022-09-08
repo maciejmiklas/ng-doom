@@ -423,3 +423,18 @@ describe('util#findFrom', () => {
 		expect(U.findFrom(arr)(5, (val, idx) => val === 99).isLeft).toBeTruthy();
 	});
 });
+
+describe('util#nullSafeArray', () => {
+	it('null', () => {
+		expect(U.nullSafeArray(null).length).toEqual(0);
+	});
+
+	it('undefined', () => {
+		expect(U.nullSafeArray(undefined).length).toEqual(0);
+	});
+
+	it('full', () => {
+		expect(U.nullSafeArray([1,2]).length).toEqual(2);
+	});
+});
+

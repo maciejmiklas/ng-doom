@@ -26,6 +26,7 @@
  * Map consists of Lumps such: Thing (monster) or Linedef (wall), but Lump can be also a texture or sound.
  */
 import {Either} from '../../common/either';
+import * as R from 'ramda';
 
 export type Header = {
 	identification: WadType
@@ -126,7 +127,7 @@ export type RGBA = {
  * Each Lump definition starts with Directory containing type of the Lump and pointer to Lump's data in WAD.
  */
 export type MapLump = Lump & {
-	type: MapLumpType
+	lumpType: MapLumpType
 };
 
 /** range from -32768 to +32767 */
@@ -148,9 +149,13 @@ export type Position = {
 export type Thing = MapLump & {
 	position: Position
 	angleFacing: number,
-	type: number,
+	thingType: number,// TODO type should be enum from https://doomwiki.org/wiki/Thing_types#Monsters
 	flags: number
 };
+
+export enum ThingType {
+	PLAYER = 1
+}
 
 /**
  * Position on the map. WAD contains list of all possible positions stored in Lump: VERTEXES.
@@ -167,6 +172,11 @@ export type Vertex = Position & {
 export type VectorV = {
 	start: Vertex,
 	end: Vertex
+};
+
+export const MIN_VECTOR_V = <VectorV>{
+	start: {x: -Infinity, y: -Infinity},
+	end: {x: -Infinity, y: -Infinity}
 };
 
 /**
@@ -193,22 +203,22 @@ export type Linedef = VectorV & MapLump & {
 export type Floor = {
 	sector: Sector
 	walls: Linedef[]
-	holes: Either<Linedef[]>
+	holes: Either<Linedef[][]>
 };
 
 /**
  * @see https://doomwiki.org/wiki/Linedef#Linedef_flags
  */
 export enum LinedefFlag {
-	blocks_players_monsters = 1,
-	blocks_monsters = 2,
-	two_sided = 3,
-	upper_texture_unpegged = 4,
-	lower_texture_unpegged = 5,
-	secret = 6,
-	blocks_sound = 7,
-	never_shows_on_automap = 8,
-	always_shows_on_automap = 9
+	BLOCKS_PLAYERS_MONSTERS = 1,
+	BLOCKS_MONSTERS = 2,
+	TWO_SIDED = 3,
+	UPPER_TEXTURE_UNPEGGED = 4,
+	LOWER_TEXTURE_UNPEGGED = 5,
+	SECRET = 6,
+	BLOCKS_SOUND = 7,
+	NEVER_SHOWS_ON_AUTOMAP = 8,
+	ALWAYS_SHOWS_ON_AUTOMAP = 9
 }
 
 /**
@@ -291,10 +301,15 @@ export type DoomMap = {
 	linedefs: Linedef[]
 };
 
-/** Front side Linedefs by Sector */
+/** Linedefs for a given sector.  */
 export type LinedefBySector = {
 	sector: Sector
+
+	/** All Linedefs in this sector in random order. */
 	linedefs: Linedef[]
+
+	/** Linedefs not bein part of a wall, but defining an action given by #specialType */
+	actions: Linedef[]
 	floor: Floor
 }
 
@@ -500,27 +515,17 @@ export type GameSave = {
 	name: string;
 };
 
+// ######################### FUNCTIONS #########################
 const vertexEqual = (v1: Vertex, v2: Vertex): boolean => v1.x === v2.x && v1.y === v2.y
 
-export enum VectorConnection {
-	V1_TO_V2,
-	V2_TO_V1,
-	MIXED,
-	NO,
+const reverseVector = <V extends VectorV>(input: V): V => {
+	const resp = {...input};
+	resp.end = input.start;
+	resp.start = input.end;
+	return resp;
 }
 
-// TODO - not functional!
-const vectorsConnected = (v1: VectorV, v2: VectorV): VectorConnection => {
-	if (vertexEqual(v1.end, v2.start)) {
-		return VectorConnection.V1_TO_V2;
+const pathToPoints = (vectors: VectorV[]): Vertex[] =>
+	R.uniqWith<Vertex, Vertex>((v1, v2) => v1.x === v2.x && v1.y === v2.y)(R.flatten(vectors.map(v => [v.start, v.end])));
 
-	} else if (vertexEqual(v2.end, v1.start)) {
-		return VectorConnection.V2_TO_V1;
-
-	} else if (vertexEqual(v1.end, v2.end) || vertexEqual(v1.start, v2.start)) {
-		return VectorConnection.MIXED;
-	}
-	return VectorConnection.NO;
-}
-
-export const functions = {vertexEqual, vectorsConnected};
+export const functions = {vertexEqual, reverseVector, pathToPoints};

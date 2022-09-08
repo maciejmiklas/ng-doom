@@ -20,20 +20,26 @@ import {
 	Directory,
 	DoomMap,
 	DoomTexture,
-	Floor,
 	functions as mf,
 	Linedef,
 	LinedefBySector,
 	LinedefFlag,
 	MapLumpType,
+	MIN_VECTOR_V,
 	Sector,
 	Sidedef,
 	Thing,
-	VectorConnection,
 	VectorV,
 	Vertex
 } from './wad-model';
 import U from '../../common/util';
+
+export enum VectorConnection {
+	V1END_TO_V2START,
+	V2END_TO_V1START,
+	REVERSED,
+	NONE,
+}
 
 /** The type of the map has to be in the form ExMy or MAPxx */
 const isMapName = (name: string): boolean =>
@@ -102,21 +108,46 @@ const groupBySectorArray = (linedefs: Linedef[]): Linedef[][] => {
 	return R.groupWith((a: Linedef, b: Linedef) => a.sector.id === b.sector.id, sorted);
 };
 
-const groupBySector = (linedefs: Linedef[], sectors: Sector[]): LinedefBySector[] => {
-	const bySector = groupBySectorArray(linedefs);
+/** Linedef[0] contains wall elements, Linedef[1] contains actions. */
+const groupByWallAndAction = (linedefs: Linedef[]): Linedef[][] => {
+	const grouped = R.groupBy<Linedef>(ld => ld.specialType == 0 ? 'W' : 'A', linedefs);
+	const walls = grouped['W'];
+	const actions = grouped['A'];
+	return [U.nullSafeArray(walls),U.nullSafeArray(actions)];
+}
 
-	// transfer Linedef[][] into Map, where Key is the sectorId number
-	const byId: { [sector: number]: Linedef[] } = R.indexBy((ld: Linedef[]) => ld[0].sector.id, bySector);
-	return Object.keys(byId).map(k => {
-		const sector = sectors[k];
-		const linedefs = byId[k];
+const groupBySector = (linedefs: Linedef[], sectors: Sector[]): LinedefBySector[] => {
+	const bySectorArray = groupBySectorArray(linedefs);
+	const backFinder = findBacksidesBySector(linedefs);
+
+	// transfer Linedef[][] into Map, where Key is the sector-number (ID)
+	const bySectorMap: { [sector: number]: Linedef[] } = R.indexBy((ld: Linedef[]) => ld[0].sector.id, bySectorArray);
+
+	return Object.keys(bySectorMap).map(sectorId => {
+		const sector = sectors[sectorId];
+		const linedefs = bySectorMap[sectorId]
+			// for two sectors sharing common border vectors are defined only in one of those sectors as a backside
+			.concat(backFinder(Number(sectorId)).orElseGet(() => []));
+
+		// split linedefs into those building walls and actions
+		const linedefsByAction = groupByWallAndAction(linedefs);
+
+		// reverse vectors so that they can build a path
+		const ordered: Linedef[] = orderPath(linedefsByAction[0]);
+
+		// build paths from vectors
+		const paths = buildPaths<Linedef>(ordered);
+
+		// sort paths, first is the main area, remaining are holes
+		const pathsByHoles: Linedef[][] = sortByHoles(paths);
 		return {
 			sector,
 			linedefs,
+			actions: linedefsByAction[1],
 			floor: {
 				sector,
-				walls: sortPath<Linedef>(linedefs)[0],
-				holes: Either.ofLeft('TODO')
+				walls: pathsByHoles.shift(),
+				holes: Either.ofCondition(() => pathsByHoles.length > 1, () => 'No holes', () => pathsByHoles)
 			}
 		}
 	});
@@ -135,9 +166,8 @@ const parseThing = (bytes: number[], thingDir: Directory) => (thingIdx: number):
 			y: shortParser(offset + 2),
 		},
 		angleFacing: shortParser(offset + 4),
-
-		// TODO type should be enum from https://doomwiki.org/wiki/Thing_types#Monsters
-		type: shortParser(offset + 6),
+		lumpType: MapLumpType.THINGS,
+		thingType: shortParser(offset + 6),
 		flags: shortParser(offset + 8),
 	};
 };
@@ -154,7 +184,7 @@ const parseSector = (bytes: number[], dir: Directory, flatLoader: (name: string)
 	const strParser = U.parseStr(bytes);
 	return {
 		dir,
-		type: MapLumpType.SECTORS,
+		lumpType: MapLumpType.SECTORS,
 		floorHeight: shortParser(offset),
 		cellingHeight: shortParser(offset + 0x02),
 		floorTexture: flatLoader(strParser(offset + 0x04, 8)),
@@ -182,7 +212,7 @@ const parseSidedef = (bytes: number[], dir: Directory, textureLoader: (name: str
 		() => 'No Sidedef on ' + thingIdx,
 		() => ({
 			dir,
-			type: MapLumpType.SIDEDEFS,
+			lumpType: MapLumpType.SIDEDEFS,
 			offset: {
 				x: shortParser(offset),
 				y: shortParser(offset + 2),
@@ -241,7 +271,7 @@ const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sided
 		({
 			id: thingIdx,
 			dir,
-			type: MapLumpType.LINEDEFS,
+			lumpType: MapLumpType.LINEDEFS,
 			start: startVertex.get(),
 			end: endVertex.get(),
 			flags: parseFlags(intParser(offset + 0x04)),
@@ -296,91 +326,79 @@ const normalizeLinedefs = (scale: number) => (linedefs: Linedef[]): Linedef[] =>
 	}, linedefs);
 };
 
-const createFloor = (linedefs: Linedef[]) => (lbs: LinedefBySector): Floor => {
-	return null;
-}
-
 const findBacksidesBySector = (linedefs: Linedef[]) => (sectorId: number): Either<Linedef[]> =>
 	Either.ofArray(linedefs.filter(ld => ld.backSide.isRight()).filter(ld => ld.backSide.get().sector.id == sectorId),
 		() => 'No backsides for Sector: ' + sectorId);
 
-const findPathEl = (linedefs: VectorV[]) => (el: VectorV): number =>
-	linedefs.findIndex(ld => mf.vertexEqual(el.start, ld.start) || mf.vertexEqual(el.start, ld.end) ||
-		mf.vertexEqual(el.end, ld.start) || mf.vertexEqual(el.end, ld.end));
+
+// TODO - not functional
+const vectorsConnected = (v1: VectorV, v2: VectorV): VectorConnection => {
+	if (mf.vertexEqual(v1.end, v2.start)) {
+		return VectorConnection.V1END_TO_V2START;
+
+	} else if (mf.vertexEqual(v2.end, v1.start)) {
+		return VectorConnection.V2END_TO_V1START;
+
+	} else if (mf.vertexEqual(v1.start, v2.start) || mf.vertexEqual(v1.end, v2.end)) {
+		return VectorConnection.REVERSED;
+	}
+	return VectorConnection.NONE;
+}
+
+// TODO - not functional
+const vectorReversed = (vectors: VectorV[]) => (ve: VectorV): boolean => {
+	for (let i = 0; i < vectors.length; i++) {
+		const con = vectorsConnected(ve, vectors[i]);
+		if (con === VectorConnection.V1END_TO_V2START || con === VectorConnection.V2END_TO_V1START) {
+			return false;
+		}
+	}
+	return true;
+}
 
 const findLastNotConnected = (linedefs: VectorV[]): Either<number> => {
 	for (let i = linedefs.length - 1; i > 0; i--) {
-		if (mf.vectorsConnected(linedefs[i], linedefs[i - 1]) === VectorConnection.NO) {
+		if (vectorsConnected(linedefs[i], linedefs[i - 1]) === VectorConnection.NONE) {
 			return Either.ofRight(i);
 		}
 	}
 	return Either.ofLeft('All vectors are connected');
 }
 
-const splitPath = <V extends VectorV>(unsorted: V[]): V[][] => {
-	return null;
-}
+const orderPath = <V extends VectorV>(path: V[]): V[] => path.map(v =>
+	vectorReversed(path)(v) ? mf.reverseVector(v) : v)
 
-const sortPath_ = <V extends VectorV>(unsorted: V[]): V[][] => {
-	const sorted = [...unsorted];
-	const notConnected = [];
-	for (let xx = 0; xx < 5000; xx++) {// max 5000 iterations
-		const notConnectedEi = findLastNotConnected(sorted);
-		if (notConnectedEi.isLeft()) {
-			break;
-		}
-		const notConnectedIdx = notConnectedEi.get();
-		const nc = sorted[notConnectedIdx];
-		let moved = false;
-		for (let i = 0; i < sorted.length; i++) {
-			const cur = sorted[i];
-			if (mf.vectorsConnected(cur, nc) === VectorConnection.NO) {
-				continue;
-			}
-
-			if (mf.vectorsConnected(cur, nc) === VectorConnection.V1_TO_V2) {
-				sorted.splice(i, 0, sorted.splice(notConnectedIdx, 1)[0]);
-				moved = true;
-				break;
-			}
-			if (mf.vectorsConnected(cur, nc) === VectorConnection.V2_TO_V1) {
-				sorted.splice(notConnectedIdx, 0, sorted.splice(i, 1)[0]);
-				moved = true;
-				break;
-			}
-		}
-		if (!moved) {
-			notConnected.push(sorted.splice(notConnectedIdx, 1)[0]);
-		}
-	}
-	//console.log('>V>', JSON.stringify(toSimpleVectors(sorted)));
-	return [sorted, notConnected];
-}
-
-const sortPath = <V extends VectorV>(unsorted: V[]): V[][] => {
-	const remaining = [...unsorted];
+// TODO - not functional
+const buildPaths = <V extends VectorV>(ordered: V[]): V[][] => {
+	const remaining = [...ordered];
 	const out = [[remaining.pop()]];
 
 	while (remaining.length > 0) {
 		let found = false;
 		out.forEach(oa => {
-			const el = oa[oa.length - 1];
-			for (let i = 0; i < remaining.length; i++) {
-				const cur = remaining[i];
-				if (mf.vectorsConnected(el, cur) === VectorConnection.NO) {
-					continue;
-				}
-
-				if (mf.vectorsConnected(el, cur) === VectorConnection.V1_TO_V2) {
-					const ne = remaining.splice(i, 1)[0];
-					oa.push(ne);
+			for (let oaIdx = 0; oaIdx < oa.length; oaIdx++) {
+				const oaEl = oa[oaIdx];
+				for (let remIdx = 0; remIdx < remaining.length; remIdx++) {
+					let rem = remaining[remIdx];
+					let connection = vectorsConnected(oaEl, rem);
+					if (connection === VectorConnection.NONE) {
+						continue;
+					}
 					found = true;
+					remaining.splice(remIdx, 1);
+
+					if (connection === VectorConnection.REVERSED) {
+						rem = mf.reverseVector(rem);
+						connection = vectorsConnected(oaEl, rem);
+					}
+					if (connection === VectorConnection.V1END_TO_V2START) {
+						oa.splice(oaIdx + 1, 0, rem);
+					} else {
+						oa.splice(Math.max(oaIdx - 1, 0), 0, rem);
+					}
 					break;
 				}
-				if (mf.vectorsConnected(el, cur) === VectorConnection.V2_TO_V1) {
-					const ne = remaining.splice(i, 1)[0];
-					oa.splice(oa.length - 2, 0, ne);
-					found = true;
+				if (found) {
 					break;
 				}
 			}
@@ -389,16 +407,53 @@ const sortPath = <V extends VectorV>(unsorted: V[]): V[][] => {
 			out.push([remaining.pop()])
 		}
 	}
-	//console.log('>V>', JSON.stringify(toSimpleVectors(sorted)));
 	return out;
 }
 
-const toSimpleVectors = (vectors: VectorV[]): VectorV[] => vectors.map(v => ({start: v.start, end: v.end}))
+const findMaxVectorVBy = (path: VectorV[]) => (maxFn: (a: VectorV) => number): VectorV =>
+	R.reduce(R.maxBy<VectorV>(maxFn), MIN_VECTOR_V, path);
+
+const createMaxVertex = (path: VectorV[]): Vertex => {
+	const maxFinder = findMaxVectorVBy(path);
+
+	const maxStartX = maxFinder(v => v.start.x).start.x;
+	const maxEndX = maxFinder(v => v.end.x).end.x;
+
+	const maxStartY = maxFinder(v => v.start.y).start.y;
+	const maxEndY = maxFinder(v => v.end.y).end.y;
+
+	return {x: Math.max(maxStartX, maxEndX), y: Math.max(maxStartY, maxEndY)};
+}
+
+const findMaxPathIdx = (paths: VectorV[][]): number => {
+	const maxVertex = paths.map(path => createMaxVertex(path));
+	let maxX = maxVertex[0].x;
+	let foundIdx = 0;
+	for (let i = 1; i < maxVertex.length; i++) {
+		const x = maxVertex[i].x;
+		if (x > maxX) {
+			foundIdx = i;
+			maxX = x;
+		}
+	}
+	return foundIdx;
+}
+
+const sortByHoles = <V extends VectorV>(path: V[][]): V[][] => {
+	if (path.length <= 1) {
+		return path;
+	}
+	const maxIdx = findMaxPathIdx(path);
+	const res = [...path];
+	const first = res.splice(maxIdx, 1)[0];
+	res.unshift(first);
+	return res;
+}
 
 // ############################ EXPORTS ############################
 export const testFunctions = {
-	findPathEl,
 	isMapName,
+	createMaxVertex,
 	findNextMapStartingDir,
 	parseThing,
 	parseThings,
@@ -425,7 +480,12 @@ export const testFunctions = {
 	createFlatLoader,
 	findBacksidesBySector,
 	findLastNotConnected,
-	sortPath
+	buildPaths,
+	orderPath,
+	vectorsConnected,
+	vectorReversed,
+	findMaxPathIdx,
+	sortByHoles
 };
 
 export const functions = {parseMaps, normalizeLinedefs};

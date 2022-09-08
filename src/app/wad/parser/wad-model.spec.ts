@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {functions as mf, VectorConnection} from './wad-model';
+import {functions as mf} from './wad-model';
+import {pathClosedMixed2} from "./testdata/data";
 
 describe('wad_model#vertexEqual', () => {
 	it('Equal', () => {
@@ -29,48 +30,38 @@ describe('wad_model#vertexEqual', () => {
 	});
 });
 
-describe('wad_model#vectorsConnected', () => {
-	it('Connected - the same', () => {
-		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.MIXED);
-	});
+describe('wad_model#reverseVector', () => {
 
-	it('Connected - start to start', () => {
-		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-		const v2 = {start: {x: 1, y: 2}, end: {x: 43, y: 54}}
-		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.MIXED);
-	});
+	it('reverse', () => {
+		const val = {"start": {"x": 700, "y": 800}, "end": {"x": 500, "y": 600}};
+		const reversed = mf.reverseVector(val);
 
-	it('Connected - start to end', () => {
-		const v1 = {start: {x: 1, y: 2}, end: {x: 34, y: 45}}
-		const v2 = {start: {x: 1, y: 2}, end: {x: 1, y: 2}}
-		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.V2_TO_V1);
-	});
+		expect(val.start.x).toEqual(700);
+		expect(reversed.start.x).toEqual(500);
 
-	it('Connected - end to end', () => {
-		const v1 = {start: {x: 41, y: 42}, end: {x: 4, y: 5}}
-		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.MIXED);
-	});
-
-	it('Connected - end to start', () => {
-		const v1 = {start: {x: 21, y: 12}, end: {x: 4, y: 5}}
-		const v2 = {start: {x: 4, y: 5}, end: {x: 4, y: 5}}
-		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.V1_TO_V2);
-	});
-
-	it('Connected - end to end', () => {
-		const v1 = {start: {x: 13, y: 24}, end: {x: 4, y: 5}}
-		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.MIXED);
-	});
-
-	it('Not connected', () => {
-		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-		const v2 = {start: {x: 11, y: 12}, end: {x: 14, y: 15}}
-		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.NO);
+		expect(val.end.x).toEqual(500);
+		expect(reversed.end.x).toEqual(700);
 	});
 
 });
+
+describe('wad_model#pathToPoints', () => {
+
+	it('Continuous path', () => {
+		const points = mf.pathToPoints(pathClosedMixed2);
+		expect(points.length).toEqual(5);
+
+		const val = new Set();
+		points.forEach(p => {
+				const value = p.x + "-" + p.y;
+				expect(val.has(value)).toBeFalse();
+				val.add(value);
+			}
+		)
+	});
+
+});
+
+
+
 

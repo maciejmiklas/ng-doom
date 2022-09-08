@@ -15,15 +15,31 @@
  */
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import * as THREE from 'three';
-import {Controls} from './controls';
+import {Controls} from '../controls';
 import {WadStorageService} from '../../wad/wad-storage.service';
-import {DoomMap, DoomTexture, Linedef, LinedefBySector, RgbaBitmap, Vertex, Wad} from '../../wad/parser/wad-model';
+import {
+	DoomMap,
+	DoomTexture,
+	functions as mf,
+	Linedef,
+	LinedefBySector,
+	ThingType,
+	Wad
+} from '../../wad/parser/wad-model';
+
+import {functions as tm} from '../three-mapper'
 import {CSS2DRenderer} from 'three/examples/jsm/renderers/CSS2DRenderer';
 import {Either} from '../../common/either';
 import {Side} from 'three/src/constants';
-import {Vector2} from 'three/src/math/Vector2';
-import {ColorRepresentation} from "three/src/utils";
-import * as R from 'ramda';
+
+
+const pointer = new THREE.Vector2();
+
+function onPointerMove(event) {
+	pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+	pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+	console.log('P', JSON.stringify(pointer));
+}
 
 @Component({
 	selector: 'app-play',
@@ -32,7 +48,7 @@ import * as R from 'ramda';
 })
 export class PlayComponent implements OnInit {
 
-	mapId = 0;
+	mapId = 3;
 
 	@ViewChild('canvas', {static: true})
 	private canvasRef: ElementRef<HTMLCanvasElement>;
@@ -42,6 +58,9 @@ export class PlayComponent implements OnInit {
 	private labelRenderer: CSS2DRenderer;
 	private controls: Controls;
 	private wad: Wad;
+	private map: DoomMap;
+	private floors: THREE.Mesh[] = []
+	private raycaster = new THREE.Raycaster();
 
 	constructor(private wadStorage: WadStorageService) {
 	}
@@ -55,10 +74,13 @@ export class PlayComponent implements OnInit {
 		this.camera = createCamera(this.canvas);
 		this.scene = createScene();
 		this.webGLRenderer = createWebGlRenderer(this.canvas);
-		this.createWorld(this.scene);
+		this.map = this.wad.maps[this.mapId];
+		this.createWorld(this.scene, this.map);
+		setupCamera(this.camera, this.map);
 		this.camera.lookAt(this.scene.position);
 		this.controls = new Controls(this.camera, this.canvas);
 		this.startRenderingLoop();
+		window.addEventListener('pointermove', onPointerMove);
 	}
 
 	private startRenderingLoop(): void {
@@ -66,6 +88,7 @@ export class PlayComponent implements OnInit {
 		(function render() {
 			requestAnimationFrame(render);
 			comp.controls.render();
+			comp.updatePlayerPosition();
 			comp.webGLRenderer.render(comp.scene, comp.camera);
 			if (comp.labelRenderer) {
 				comp.labelRenderer.render(comp.scene, comp.camera);
@@ -73,65 +96,67 @@ export class PlayComponent implements OnInit {
 		})();
 	}
 
-	private createWorld(scene: THREE.Scene) {
+	private updatePlayerPosition(): void {
+		const cp = this.camera.position;
+		this.raycaster.setFromCamera(cp, this.camera);
+		//	this.raycaster.ray.origin.y += 400;
+		const inters = this.raycaster.intersectObjects(this.floors);
+
+		if (inters.length > 0) {
+			// @ts-ignore
+			inters[0].object.material.color.setHex(0xFF0000);
+			//	cp.y = inters[0].point.y + gc.playerHeight;
+			//	console.log('>>>>', JSON.stringify(cp), inters.length)
+		} else {
+			//	console.log('EMPTY');
+		}
+	}
+
+	private createWorld(scene: THREE.Scene, map: DoomMap) {
 		const startTime = performance.now();
-		const map: DoomMap = this.wad.maps[this.mapId];
-		map.linedefBySector.forEach(renderSector(scene));
+
+		map.linedefBySector.forEach(renderSector(scene, fl => this.floors.push(fl)));
 		console.log('>TIME createWorld>', map.mapDirs[0].name, performance.now() - startTime);
 	}
 }
 
-const renderSector = (scene: THREE.Scene) => (lbs: LinedefBySector) => {
-	renderWalls(lbs).forEach(m => scene.add(m));
-	renderFloors(lbs).forEach(m => scene.add(m));
+const setupCamera = (camera: THREE.PerspectiveCamera, map: DoomMap) => {
+	const player = map.things.filter(th => th.thingType == ThingType.PLAYER)[0];
+	camera.position.set(1032, 500, 2170);
+	//camera.position.set(player.position.x, gc.playerHeight, -player.position.y);
+}
+
+const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => void) => (lbs: LinedefBySector) => {
+	//renderWalls(lbs).forEach(m => scene.add(m));
+	renderFloors(lbs).forEach(m => {
+		florCallback(m);
+		scene.add(m);
+	});
 };
 
-const toVector2 = (ve: Vertex): Vector2 => new Vector2(ve.x, ve.y);
 
-const renderFloors = (lbs: LinedefBySector): THREE.Object3D[] => {
-	/*
-	if ( lbs.sector.id !== 24) {
-		return [];
-	}*/
+const renderFloors = (lbs: LinedefBySector): THREE.Mesh[] => {
 
-	const texture = lbs.sector.floorTexture.map(tx => createDataTexture(tx));
-	if (texture.isLeft()) {
-		console.log('No Floor on: ', lbs);
+	if (lbs.sector.id !== 6) {
 		return [];
 	}
-	const ret = [];
-	/*
-	lbs.floor.walls.forEach(wall => {
-		ret.push(point(wall.start.x, lbs.sector.floorHeight, wall.start.y));
-		ret.push(point(wall.end.x, lbs.sector.floorHeight, wall.end.y));
-	})*/
 
-	const shapes = [];
-	lbs.floor.walls.forEach(wall => {
-		shapes.push(new THREE.Shape([toVector2(wall.start), toVector2(wall.end)]))
-	})
+	const floor = lbs.floor;
+	const wallPoints = mf.pathToPoints(floor.walls).map(p => tm.toVector2(p));
+	const wallShape = new THREE.Shape(wallPoints);
+	tm.getHoles(floor).exec(holes => holes.forEach(hole => wallShape.holes.push(hole)));
+	const geometry = new THREE.ShapeGeometry(wallShape);
 
-	const points = lbs.floor.walls.flatMap(ld => [toVector2(ld.start), toVector2(ld.end)])
-	const up = R.uniqWith((v1: Vector2, v2: Vector2) => v1.x == v2.x && v1.y == v2.y, points);
-	//const geometry = new THREE.ShapeGeometry(new THREE.Shape(up));
-	const geometry = new THREE.ShapeGeometry(shapes);
-	const floor = new THREE.Mesh(
-		geometry,
-		new THREE.MeshPhongMaterial({side: THREE.DoubleSide, map: texture.get()})
-	);
-	floor.rotation.set(Math.PI / 2, Math.PI, Math.PI);
-	//floor.rotation.set(Math.PI / 2, 0, 0);
-	floor.position.y = lbs.sector.floorHeight;
-	ret.push(floor)
-	return ret;
+	const material = floor.sector.floorTexture.map(tx => tm.createFloorDataTexture(tx)).map(tx => new THREE.MeshPhongMaterial({
+		side: THREE.DoubleSide,
+		map: tx
+	})).orElseGet(() => tm.createFallbackMaterial());
+
+	const mesh = new THREE.Mesh(geometry, material); // TODO tm.fallbackMaterial -> material
+	mesh.rotation.set(Math.PI / 2, Math.PI, Math.PI);
+	mesh.position.y = lbs.sector.floorHeight;
+	return [mesh];
 };
-
-const point = (x: number, y: number, z: number, color: ColorRepresentation = 0xff0000): THREE.Object3D => {
-	const dotGeometry = new THREE.BufferGeometry();
-	dotGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([x, y, z]), 3));
-	const dotMaterial = new THREE.PointsMaterial({size: 5, color});
-	return new THREE.Points(dotGeometry, dotMaterial);
-}
 
 const renderWalls = (lbs: LinedefBySector): THREE.Mesh[] => {
 	const mesh: THREE.Mesh[] = [];
@@ -182,68 +207,13 @@ const wall = (sideFunc: (ld: Linedef) => Side,
 		const vs = ld.start;
 		const ve = ld.end;
 		const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
-		const material = createMaterial(textureEi.get(), sideFunc(ld), color);
+		const material = tm.createWallMaterial(textureEi.get(), sideFunc(ld), color);
 		const wallHeight = wallHeightEi.get();
 		const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(wallWidth, wallHeight), material);
 		mesh.position.set((vs.x + ve.x) / 2, startHeightEi.get() + wallHeight / 2, (vs.y + ve.y) / -2);
 		mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x));
 		return mesh;
 	});
-};
-
-const createDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
-	const texture = new THREE.DataTexture(bitmap.rgba, bitmap.width, bitmap.height);
-	texture.needsUpdate = true;
-	texture.format = THREE.RGBAFormat;
-	texture.type = THREE.UnsignedByteType;
-	texture.magFilter = THREE.NearestFilter;
-	texture.minFilter = THREE.NearestFilter;
-	texture.mapping = THREE.UVMapping;
-	texture.wrapS = THREE.RepeatWrapping;
-	texture.wrapT = THREE.RepeatWrapping;
-	return texture;
-};
-
-const createMaterial = (dt: DoomTexture, side: Side, color = null): THREE.Material => {
-	let material;
-	if (dt) {
-		side = THREE.DoubleSide;// TODO remove for real game
-		material = new THREE.MeshBasicMaterial({
-			map: createDataTexture(dt),
-			transparent: true,
-			alphaTest: 0.5,
-			side,
-			color
-		});
-	} else {
-		material = new THREE.MeshStandardMaterial({transparent: true, color: 'green', side: THREE.DoubleSide});
-	}
-	return material;
-};
-
-const createGround = () => {
-	const groundTexture = createTexture('../../../assets/textures/dirt.jpg');
-	groundTexture.repeat.set(100, 100);
-	const groundDimension = 400;
-	const ground = meshPhongTexture(groundTexture)(new THREE.PlaneBufferGeometry(groundDimension, groundDimension));
-	ground.rotateX(-Math.PI / 2);
-	ground.position.z = -groundDimension / 2;
-	ground.position.x = groundDimension / 2;
-	return ground;
-};
-
-const meshPhongTexture = (texture: THREE.Texture) => (geometry: THREE.BufferGeometry): THREE.Mesh =>
-	new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
-		map: texture,
-		transparent: false,
-		alphaTest: 0.5,
-		side: THREE.DoubleSide
-	}));
-
-const createTexture = (path: string): THREE.Texture => {
-	const texture: THREE.Texture = new THREE.TextureLoader().load(path);
-	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-	return texture;
 };
 
 const createScene = (): THREE.Scene => {
@@ -257,12 +227,7 @@ const createScene = (): THREE.Scene => {
 	return scene;
 };
 
-const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera => {
-	const cam = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 1, 20000);
-	//cam.position.set(1032, 500, 2170);
-	cam.position.set(2200, 1000, 2600);
-	return cam;
-};
+const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera => new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 1, 20000);
 
 const createWebGlRenderer = (canvas: HTMLCanvasElement): THREE.WebGLRenderer => {
 	const renderer = new THREE.WebGLRenderer({antialias: true, canvas});

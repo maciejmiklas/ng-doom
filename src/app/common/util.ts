@@ -126,6 +126,8 @@ const findFrom = <T>(arr: T[]) => (offset: number, pred: (T, idx: number) => boo
 	return Either.ofLeft('Element not found from ' + offset + ' in ' + arr);
 };
 
+const nullSafeArray = <T>(arr: T[]): T[] => arr ? arr : [];
+
 const U = {
 	uint8ArrayToBase64,
 	base64ToUint8NumberArray,
@@ -141,7 +143,8 @@ const U = {
 	itn,
 	its,
 	findFrom,
-	parseTextureName
+	parseTextureName,
+	nullSafeArray
 };
 
 export default U;

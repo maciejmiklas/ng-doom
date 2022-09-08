@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {functions as mp, testFunctions as tf} from './map-parser';
-import * as R from 'ramda';
+import {functions as mp, testFunctions as tf, VectorConnection} from './map-parser';
 import {
 	Directory,
 	DoomMap,
@@ -25,7 +24,6 @@ import {
 	Sector,
 	Sidedef,
 	Thing,
-	VectorV,
 	Vertex,
 	WadType
 } from './wad-model';
@@ -44,7 +42,13 @@ import {
 	getSectors,
 	getTextures,
 	getWadBytes,
+	pathClosedMixed,
+	pathClosedMixed2,
+	pathClosedReversedMix,
+	pathClosedReversedOne,
+	pathClosedSorted,
 	validateDir,
+	VectorId,
 	VERTEX_0,
 	VERTEX_1,
 	VERTEX_2,
@@ -52,10 +56,18 @@ import {
 	VERTEX_27,
 	VERTEX_3,
 	VERTEX_466
-} from './testdata/data';
+} from "./testdata/data";
+import * as R from 'ramda';
 
 const E1M1_SECTORS = 85;
-/*
+
+const expectClosedPath = (path: VectorId[]) => {
+	for (let i = 0; i < path.length - 1; i++) {
+		const v1 = path[i];
+		const v2 = path[i + 1];
+		expect(v1.end).toEqual(v2.start);
+	}
+}
 describe('map-parser#parseHeader', () => {
 	it('IWAD', () => {
 		const header = getHeader().get();
@@ -394,7 +406,7 @@ const validateLindedef0 = (lindedef: Linedef) => {
 	validateVertex(VERTEX_0, lindedef.start);
 	validateVertex(VERTEX_1, lindedef.end);
 	expect(lindedef.flags.size).toEqual(1);
-	expect(lindedef.flags.has(LinedefFlag.blocks_players_monsters)).toBeTrue();
+	expect(lindedef.flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue();
 	expect(lindedef.sectorTag).toEqual(0);
 	validateSidedef0(lindedef.frontSide);
 	expect(lindedef.backSide.isLeft()).toBeTruthy();
@@ -404,7 +416,7 @@ const validateLindedef2 = (lindedef: Linedef) => {
 	validateVertex(VERTEX_3, lindedef.start);
 	validateVertex(VERTEX_0, lindedef.end);
 	expect(lindedef.flags.size).toEqual(1);
-	expect(lindedef.flags.has(LinedefFlag.blocks_players_monsters)).toBeTrue();
+	expect(lindedef.flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue();
 	expect(lindedef.sectorTag).toEqual(0);
 	validateSidedef2(lindedef.frontSide);
 	expect(lindedef.backSide.isLeft()).toBeTruthy();
@@ -414,10 +426,10 @@ const validateLindedef26 = (lindedef: Linedef) => {
 	validateVertex(VERTEX_27, lindedef.start);
 	validateVertex(VERTEX_26, lindedef.end);
 	expect(lindedef.flags.size).toEqual(4);
-	expect(lindedef.flags.has(LinedefFlag.blocks_players_monsters)).toBeTrue();
-	expect(lindedef.flags.has(LinedefFlag.two_sided)).toBeTrue();
-	expect(lindedef.flags.has(LinedefFlag.upper_texture_unpegged)).toBeTrue();
-	expect(lindedef.flags.has(LinedefFlag.lower_texture_unpegged)).toBeTrue();
+	expect(lindedef.flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue();
+	expect(lindedef.flags.has(LinedefFlag.TWO_SIDED)).toBeTrue();
+	expect(lindedef.flags.has(LinedefFlag.UPPER_TEXTURE_UNPEGGED)).toBeTrue();
+	expect(lindedef.flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)).toBeTrue();
 	expect(lindedef.sectorTag).toEqual(0);
 	validateSidedef26(lindedef.frontSide);
 	validateSidedef27(lindedef.backSide.get());
@@ -910,53 +922,53 @@ describe('map-parser#parseFlags', () => {
 	it('Bit 1', () => {
 		const flags = tf.parseFlags(1);
 		expect(flags.size).toEqual(1);
-		expect(flags.has(LinedefFlag.blocks_players_monsters)).toBeTrue();
+		expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue();
 	});
 
 	it('Bit 1,2', () => {
 		const flags = tf.parseFlags(0x3);
 		expect(flags.size).toEqual(2);
-		expect(flags.has(LinedefFlag.blocks_players_monsters)).toBeTrue();
-		expect(flags.has(LinedefFlag.blocks_monsters)).toBeTrue();
+		expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue();
+		expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue();
 	});
 
 	it('Bit 1,2,5', () => {
 		const flags = tf.parseFlags(0x13);
 		expect(flags.size).toEqual(3);
-		expect(flags.has(LinedefFlag.blocks_players_monsters)).toBeTrue();
-		expect(flags.has(LinedefFlag.blocks_monsters)).toBeTrue();
-		expect(flags.has(LinedefFlag.lower_texture_unpegged)).toBeTrue();
+		expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue();
+		expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue();
+		expect(flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)).toBeTrue();
 	});
 
 	it('Bit 2,5,8', () => {
 		const flags = tf.parseFlags(0x92);
 		expect(flags.size).toEqual(3);
-		expect(flags.has(LinedefFlag.blocks_monsters)).toBeTrue();
-		expect(flags.has(LinedefFlag.lower_texture_unpegged)).toBeTrue();
-		expect(flags.has(LinedefFlag.never_shows_on_automap)).toBeTrue();
+		expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue();
+		expect(flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)).toBeTrue();
+		expect(flags.has(LinedefFlag.NEVER_SHOWS_ON_AUTOMAP)).toBeTrue();
 	});
 
 	it('Bit 2,5,9', () => {
 		const flags = tf.parseFlags(0x112);
 		expect(flags.size).toEqual(3);
-		expect(flags.has(LinedefFlag.blocks_monsters)).toBeTrue();
-		expect(flags.has(LinedefFlag.lower_texture_unpegged)).toBeTrue();
-		expect(flags.has(LinedefFlag.always_shows_on_automap)).toBeTrue();
+		expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue();
+		expect(flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)).toBeTrue();
+		expect(flags.has(LinedefFlag.ALWAYS_SHOWS_ON_AUTOMAP)).toBeTrue();
 	});
 
 	it('Bit 1,2,5,9', () => {
 		const flags = tf.parseFlags(0x93);
 		expect(flags.size).toEqual(4);
-		expect(flags.has(LinedefFlag.blocks_players_monsters)).toBeTrue();
-		expect(flags.has(LinedefFlag.blocks_monsters)).toBeTrue();
-		expect(flags.has(LinedefFlag.lower_texture_unpegged)).toBeTrue();
-		expect(flags.has(LinedefFlag.never_shows_on_automap)).toBeTrue();
+		expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue();
+		expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue();
+		expect(flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)).toBeTrue();
+		expect(flags.has(LinedefFlag.NEVER_SHOWS_ON_AUTOMAP)).toBeTrue();
 	});
 
 	it('Bit 8', () => {
 		const flags = tf.parseFlags(0x100);
 		expect(flags.size).toEqual(1);
-		expect(flags.has(LinedefFlag.always_shows_on_automap)).toBeTrue();
+		expect(flags.has(LinedefFlag.ALWAYS_SHOWS_ON_AUTOMAP)).toBeTrue();
 	});
 
 	it('All bits set', () => {
@@ -989,7 +1001,7 @@ describe('map-parser#findLastNotConnected', () => {
 
 	it('Mixed', () => {
 		const ret = tf.findLastNotConnected(pathClosedMixed);
-		expect(ret.get()).toEqual(7);
+		expect(ret.get()).toEqual(8);
 	});
 
 	it('Sorted', () => {
@@ -999,84 +1011,33 @@ describe('map-parser#findLastNotConnected', () => {
 
 });
 
-describe('map-parser#findPathEl', () => {
-	const path: VectorV[] = [{start: {x: 1, y: 2}, end: {x: 4, y: 5}}, {start: {x: 10, y: 11}, end: {x: 20, y: 21}}];
+describe('map-parser#buildPaths', () => {
 
-	it('Not Found - non vector', () => {
-		expect(tf.findPathEl(path)({start: {x: 12, y: 22}, end: {x: 24, y: 25}})).toEqual(-1);
+	it('Path closed reversed mix', () => {
+		const sorted = tf.buildPaths(tf.orderPath(pathClosedReversedMix));
+		expect(sorted.length).toEqual(1);
+		expect(sorted[0].length).toEqual(8);
+		expectClosedPath(sorted[0]);
 	});
 
-	it('Found - Start -> End', () => {
-		expect(tf.findPathEl(path)({start: {x: 4, y: 5}, end: {x: 212, y: 211}})).toEqual(0);
-	});
-
-	it('Found - Start -> Start', () => {
-		expect(tf.findPathEl(path)({start: {x: 1, y: 2}, end: {x: 212, y: 211}})).toEqual(0);
-	});
-
-	it('Found - End -> Start', () => {
-		expect(tf.findPathEl(path)({start: {x: 231, y: 232}, end: {x: 1, y: 2}})).toEqual(0);
-	});
-
-	it('Found - End -> End', () => {
-		expect(tf.findPathEl(path)({start: {x: 231, y: 232}, end: {x: 4, y: 5}})).toEqual(0);
-	});
-});
-
-*/
-export type VectorId = VectorV & {
-	id: number
-}
-
-const pathClosedMixed = [
-	{"id": 8, "start": {"x": 1728, "y": -704}, "end": {"x": 1856, "y": -704}},
-	{"id": 2, "start": {"x": 2048, "y": -1024}, "end": {"x": 1792, "y": -1280}},
-	{"id": 5, "start": {"x": 1472, "y": -1088}, "end": {"x": 1472, "y": -960}},
-	{"id": 3, "start": {"x": 1792, "y": -1280}, "end": {"x": 1472, "y": -1280}},
-	{"id": 7, "start": {"x": 1472, "y": -704}, "end": {"x": 1728, "y": -704}},
-	{"id": 4, "start": {"x": 1472, "y": -1280}, "end": {"x": 1472, "y": -1088}},
-	{"id": 6, "start": {"x": 1472, "y": -960}, "end": {"x": 1472, "y": -704}},
-	{"id": 0, "start": {"x": 1856, "y": -704}, "end": {"x": 2048, "y": -704}},
-	{"id": 1, "start": {"x": 2048, "y": -704}, "end": {"x": 2048, "y": -1024}}
-];
-
-const pathClosedSorted = [
-	{"id": 0, "start": {"x": 1856, "y": -704}, "end": {"x": 2048, "y": -704}},
-	{"id": 1, "start": {"x": 2048, "y": -704}, "end": {"x": 2048, "y": -1024}},
-	{"id": 2, "start": {"x": 2048, "y": -1024}, "end": {"x": 1792, "y": -1280}},
-	{"id": 3, "start": {"x": 1792, "y": -1280}, "end": {"x": 1472, "y": -1280}},
-	{"id": 4, "start": {"x": 1472, "y": -1280}, "end": {"x": 1472, "y": -1088}},
-	{"id": 5, "start": {"x": 1472, "y": -1088}, "end": {"x": 1472, "y": -960}},
-	{"id": 6, "start": {"x": 1472, "y": -960}, "end": {"x": 1472, "y": -704}},
-	{"id": 7, "start": {"x": 1472, "y": -704}, "end": {"x": 1728, "y": -704}},
-	{"id": 8, "start": {"x": 1728, "y": -704}, "end": {"x": 1856, "y": -704}}];
-
-const pathClosedMixed2 = [
-	{"id": 10, "start": {"x": 10, "y": 20}, "end": {"x": 100, "y": 200}},
-	{"id": 14, "start": {"x": 700, "y": 800}, "end": {"x": 10, "y": 20}},
-	{"id": 12, "start": {"x": 300, "y": 400}, "end": {"x": 500, "y": 600}},
-	{"id": 13, "start": {"x": 500, "y": 600}, "end": {"x": 700, "y": 800}},
-	{"id": 11, "start": {"x": 100, "y": 200}, "end": {"x": 300, "y": 400}}];
-
-describe('map-parser#sortPath', () => {
 
 	it('Path closed mixed', () => {
-		const sorted = tf.sortPath(pathClosedMixed);
+		const sorted = tf.buildPaths(tf.orderPath(pathClosedMixed));
 		expect(sorted.length).toEqual(1);
 		expect(sorted[0].length).toEqual(9);
 		expectClosedPath(sorted[0]);
 	});
 
 	it('Path closed mixed 2', () => {
-		const sorted = tf.sortPath(pathClosedMixed2);
+		const sorted = tf.buildPaths(tf.orderPath(pathClosedMixed2));
 		expect(sorted.length).toEqual(1);
 		expect(sorted[0].length).toEqual(5);
 		expectClosedPath(sorted[0]);
 	});
 
 	it('Path closed with extra point', () => {
-		const sorted = tf.sortPath([...pathClosedMixed,
-			{"id": 99, "start": {"x": 999, "y": 999}, "end": {"x": 777, "y": 777}}]);
+		const sorted = tf.buildPaths(tf.orderPath([...pathClosedMixed,
+			{"id": 99, "start": {"x": 999, "y": 999}, "end": {"x": 777, "y": 777}}]));
 		expect(sorted.length).toEqual(2);
 		expect(sorted[0].length).toEqual(1);
 		expect(sorted[1].length).toEqual(9);
@@ -1084,16 +1045,15 @@ describe('map-parser#sortPath', () => {
 		expect(sorted[0][0].id).toEqual(99);
 	});
 
-
 	it('Path closed mixed and sorted', () => {
-		const sorted = tf.sortPath(pathClosedSorted);
+		const sorted = tf.buildPaths(tf.orderPath(pathClosedSorted));
 		expect(sorted.length).toEqual(1);
 		expect(sorted[0].length).toEqual(9);
 		expectClosedPath(sorted[0]);
 	});
 
 	it('Two Paths', () => {
-		const sorted = tf.sortPath([...pathClosedMixed, ...pathClosedMixed2]);
+		const sorted = tf.buildPaths(tf.orderPath([...pathClosedMixed, ...pathClosedMixed2]));
 		expect(sorted.length).toEqual(2);
 		expect(sorted[0].length).toEqual(5);
 		expect(sorted[1].length).toEqual(9);
@@ -1102,32 +1062,110 @@ describe('map-parser#sortPath', () => {
 	});
 
 	it('E1M1 - Sector nr: 35', () => {
-	const finder = tf.findBacksidesBySector(getLinedefs())
-	const lbs: LinedefBySector[] = tf.groupBySector(getLinedefs(), getSectors());
+		const lbs: LinedefBySector[] = tf.groupBySector(getLinedefs(), getSectors());
 		const s35 = lbs.find(ld => ld.sector.id == 35);
-		const ld = s35.linedefs.concat(finder(35).get())
-		const paths = tf.sortPath(ld);
-		expect(paths.length).toEqual(2);
+		const ldBacks = tf.findBacksidesBySector(getLinedefs())(35).get();
+		const ld = s35.linedefs.concat(ldBacks);
+		const sorted = tf.buildPaths(tf.orderPath(ld));
+		expect(sorted.length).toEqual(1);
+		expectClosedPath(sorted[0]);
+	});
+
+	it('Path closed vectors reversed', () => {
+		const sorted = tf.buildPaths(tf.orderPath(pathClosedReversedOne));
+		expect(sorted.length).toEqual(1);
+		expect(sorted[0].length).toEqual(5);
+		expectClosedPath(sorted[0]);
+	});
+});
+
+describe('map-parser#vectorsConnected', () => {
+	it('Connected - the same', () => {
+		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		expect(tf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED);
+	});
+
+	it('Connected - start to start', () => {
+		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 1, y: 2}, end: {x: 43, y: 54}}
+		expect(tf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED);
+	});
+
+	it('Connected - start to end', () => {
+		const v1 = {start: {x: 1, y: 2}, end: {x: 34, y: 45}}
+		const v2 = {start: {x: 1, y: 2}, end: {x: 1, y: 2}}
+		expect(tf.vectorsConnected(v1, v2)).toEqual(VectorConnection.V2END_TO_V1START);
+	});
+
+	it('Connected - end to end', () => {
+		const v1 = {start: {x: 41, y: 42}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		expect(tf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED);
+	});
+
+	it('Connected - end to start', () => {
+		const v1 = {start: {x: 21, y: 12}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 4, y: 5}, end: {x: 4, y: 5}}
+		expect(tf.vectorsConnected(v1, v2)).toEqual(VectorConnection.V1END_TO_V2START);
+	});
+
+	it('Connected - end to end 2', () => {
+		const v1 = {start: {x: 13, y: 24}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		expect(tf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED);
+	});
+
+	it('Not connected', () => {
+		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 11, y: 12}, end: {x: 14, y: 15}}
+		expect(tf.vectorsConnected(v1, v2)).toEqual(VectorConnection.NONE);
+	});
+});
+
+describe('map-parser#vectorReversed', () => {
+
+	it('In path', () => {
+		expect(tf.vectorReversed(pathClosedReversedOne)(
+			{"start": {"x": 700, "y": 800}, "end": {"x": 10, "y": 20}})).toBeFalse();
+	});
+
+	it('Not in path', () => {
+		expect(tf.vectorReversed(pathClosedReversedOne)(
+			{"start": {"x": 700, "y": 800}, "end": {"x": 500, "y": 600}})).toBeTrue();
 	});
 
 });
 
-const expectClosedPath = (path: VectorId[]) => {
-	let foundEnd = false
-	for (let i = 0; i < path.length - 1; i++) {
-		const v1 = path[i];
-		const v2 = path[i + 1];
-		const dif = Math.abs(v1.id - v2.id);
-		if (!foundEnd && dif > 1) {
-			foundEnd = true;
-			continue;
-		}
-		expect(dif).toEqual(1, v1 + " <-> " + v2);
-	}
-}
+describe('map-parser#createMaxVertex', () => {
 
+	it('Path closed mixed', () => {
+		const v = tf.createMaxVertex(pathClosedMixed)
+		expect(v.x).toEqual(2048);
+		expect(v.y).toEqual(-704);
+	});
 
+});
 
+describe('map-parser#findMaxPathIdx', () => {
 
+	it('Multiple paths', () => {
+		const idx = tf.findMaxPathIdx([pathClosedMixed, pathClosedMixed2])
+		expect(idx).toEqual(0);
+	});
 
+	it('Multiple paths reversed', () => {
+		const idx = tf.findMaxPathIdx([pathClosedMixed2, pathClosedMixed])
+		expect(idx).toEqual(1);
+	});
 
+});
+
+describe('map-parser#sortByHoles', () => {
+	it('Multiple paths', () => {
+		const paths = tf.buildPaths(tf.orderPath([...pathClosedMixed, ...pathClosedMixed2]));
+		const sorted = tf.sortByHoles(paths)
+		expect(sorted[0].length).toEqual(9);
+		expect(sorted[1].length).toEqual(5);
+	});
+});
