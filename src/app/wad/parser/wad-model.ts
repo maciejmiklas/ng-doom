@@ -204,6 +204,7 @@ export type Floor = {
 	sector: Sector
 	walls: Linedef[]
 	holes: Either<Linedef[][]>
+	rejected: Either<Linedef[]>
 };
 
 /**

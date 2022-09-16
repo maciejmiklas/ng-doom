@@ -113,7 +113,7 @@ const groupByWallAndAction = (linedefs: Linedef[]): Linedef[][] => {
 	const grouped = R.groupBy<Linedef>(ld => ld.specialType == 0 ? 'W' : 'A', linedefs);
 	const walls = grouped['W'];
 	const actions = grouped['A'];
-	return [U.nullSafeArray(walls),U.nullSafeArray(actions)];
+	return [U.nullSafeArray(walls), U.nullSafeArray(actions)];
 }
 
 const groupBySector = (linedefs: Linedef[], sectors: Sector[]): LinedefBySector[] => {
@@ -133,7 +133,7 @@ const groupBySector = (linedefs: Linedef[], sectors: Sector[]): LinedefBySector[
 		const linedefsByAction = groupByWallAndAction(linedefs);
 
 		// reverse vectors so that they can build a path
-		const ordered: Linedef[] = orderPath(linedefsByAction[0]);
+		const ordered: Linedef[] = orderPath(linedefs);
 
 		// build paths from vectors
 		const paths = buildPaths<Linedef>(ordered);
@@ -145,9 +145,10 @@ const groupBySector = (linedefs: Linedef[], sectors: Sector[]): LinedefBySector[
 			linedefs,
 			actions: linedefsByAction[1],
 			floor: {
+				rejected: null,
 				sector,
 				walls: pathsByHoles.shift(),
-				holes: Either.ofCondition(() => pathsByHoles.length > 1, () => 'No holes', () => pathsByHoles)
+				holes: Either.ofCondition(() => pathsByHoles.length > 0, () => 'No holes', () => pathsByHoles)
 			}
 		}
 	});
@@ -450,8 +451,17 @@ const sortByHoles = <V extends VectorV>(path: V[][]): V[][] => {
 	return res;
 }
 
+const continuosPath = (path: VectorV[]): boolean => {
+	// compare each element in list with next one.
+	// #nextRoll will ensure that we compare last element with first one
+	const next = U.nextRoll(path);
+	return path.every((el, idx) =>
+		mf.vertexEqual(el.end, next(idx + 1).start))
+}
+
 // ############################ EXPORTS ############################
 export const testFunctions = {
+	continuosPath,
 	isMapName,
 	createMaxVertex,
 	findNextMapStartingDir,

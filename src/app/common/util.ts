@@ -128,6 +128,9 @@ const findFrom = <T>(arr: T[]) => (offset: number, pred: (T, idx: number) => boo
 
 const nullSafeArray = <T>(arr: T[]): T[] => arr ? arr : [];
 
+const nextRoll = <V>(list: V[]) => (idx: number): V =>
+	idx === list.length ? list[0] : list[idx]
+
 const U = {
 	uint8ArrayToBase64,
 	base64ToUint8NumberArray,
@@ -144,7 +147,8 @@ const U = {
 	its,
 	findFrom,
 	parseTextureName,
-	nullSafeArray
+	nullSafeArray,
+	nextRoll
 };
 
 export default U;

@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {testFunctions as tf} from "./map-parser";
-import {getLinedefs, getSectors} from "./testdata/data";
-import {LinedefBySector} from "./wad-model";
+import {functions as mp} from "./map-parser";
+import {getAllDirs, getFlats, getTextures, getWadBytes} from "./testdata/data";
 
-describe('map-parser#buildPaths', () => {
-	it('E1M1 - Sector 74', () => {
-		const finder = tf.findBacksidesBySector(getLinedefs())
-		const lbs: LinedefBySector[] = tf.groupBySector(getLinedefs(), getSectors());
-		const s74 = lbs.find(ld => ld.sector.id == 74);
-		const ld = s74.linedefs.concat(finder(35).get())
-		const sorted = tf.buildPaths(tf.orderPath(ld));
-		expect(sorted.length).toEqual(1);
+describe('test', () => {
+	it('ABC', () => {
+		const maps = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats());
+		console.log('MAPS', maps);
 	});
 });

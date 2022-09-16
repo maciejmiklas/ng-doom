@@ -48,7 +48,7 @@ function onPointerMove(event) {
 })
 export class PlayComponent implements OnInit {
 
-	mapId = 3;
+	mapId = 1;
 
 	@ViewChild('canvas', {static: true})
 	private canvasRef: ElementRef<HTMLCanvasElement>;
@@ -127,7 +127,7 @@ const setupCamera = (camera: THREE.PerspectiveCamera, map: DoomMap) => {
 }
 
 const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => void) => (lbs: LinedefBySector) => {
-	//renderWalls(lbs).forEach(m => scene.add(m));
+	renderWalls(lbs).forEach(m => scene.add(m));
 	renderFloors(lbs).forEach(m => {
 		florCallback(m);
 		scene.add(m);
@@ -137,9 +137,9 @@ const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => v
 
 const renderFloors = (lbs: LinedefBySector): THREE.Mesh[] => {
 
-	if (lbs.sector.id !== 6) {
-		return [];
-	}
+	//if (lbs.sector.id !== 49) {
+	//	return [];
+//	}
 
 	const floor = lbs.floor;
 	const wallPoints = mf.pathToPoints(floor.walls).map(p => tm.toVector2(p));

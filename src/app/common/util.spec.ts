@@ -47,7 +47,7 @@ describe('util#parseUint32', () => {
 	});
 
 	it('max', () => {
-		expect(U.parseUint32([0x00, 0x80, 0x00, 0x00])(0,500)).toEqual(0);
+		expect(U.parseUint32([0x00, 0x80, 0x00, 0x00])(0, 500)).toEqual(0);
 	});
 
 	it('32 768', () => {
@@ -259,7 +259,7 @@ describe('util#parseUint16', () => {
 	});
 
 	it('max', () => {
-		expect(U.parseUint16([0xFF, 0xFA])(0,100)).toEqual(0);
+		expect(U.parseUint16([0xFF, 0xFA])(0, 100)).toEqual(0);
 	});
 
 	it('64255', () => {
@@ -286,7 +286,7 @@ describe('util#parseUint8', () => {
 	});
 
 	it('max', () => {
-		expect(U.parseUint8([0x7F])(0,100)).toEqual(0);
+		expect(U.parseUint8([0x7F])(0, 100)).toEqual(0);
 	});
 
 	it('128', () => {
@@ -434,7 +434,24 @@ describe('util#nullSafeArray', () => {
 	});
 
 	it('full', () => {
-		expect(U.nullSafeArray([1,2]).length).toEqual(2);
+		expect(U.nullSafeArray([1, 2]).length).toEqual(2);
 	});
 });
+
+describe('util#nextRoll', () => {
+	const roll = U.nextRoll([1, 3, 9, 2])
+	it('at 0', () => {
+		expect(roll(0)).toEqual(1);
+	});
+
+	it('at 1', () => {
+		expect(roll(1)).toEqual(3);
+	});
+
+	it('at 4', () => {
+		expect(roll(4)).toEqual(1);
+	});
+});
+
+
 
