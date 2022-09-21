@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {testFunctions as tf, testFunctions as mpt} from '../map-parser';
+import {functions as mp, testFunctions as tf, testFunctions as mpt} from '../map-parser';
 import {functions as dp} from '../directory-parser';
 import {functions as tp} from '../texture-parser';
 import {functions as pp} from '../playpal-parser';
@@ -23,6 +23,7 @@ import {
 	BitmapHeader,
 	Column,
 	Directory,
+	DoomMap,
 	DoomTexture,
 	Header,
 	Linedef,
@@ -30,7 +31,8 @@ import {
 	Palette,
 	Pnames,
 	Post,
-	Sector, VectorV,
+	Sector,
+	VectorV,
 	Vertex
 } from '../wad-model';
 
@@ -43,7 +45,7 @@ export type VectorId = VectorV & {
 }
 
 let _linedefs = null;
-export const getLinedefs = (): Linedef[] => {
+export const getE1M1Linedefs = (): Linedef[] => {
 	if (!_linedefs) {
 		const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
 		const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors());
@@ -60,6 +62,14 @@ export const getWadBytes = (): number[] => {
 	}
 	return _wadBytes;
 };
+
+let _maps = null;
+export const getMaps = (): DoomMap[] => {
+	if (!_maps) {
+		_maps = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats()).get();
+	}
+	return _maps;
+}
 
 let _e1M1Dirs = null;
 export const getE1M1Dirs = (): Directory[] => {

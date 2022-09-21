@@ -35,10 +35,11 @@ import {
 	getAllDirs,
 	getAllDirsOp,
 	getE1M1Dirs,
+	getE1M1Linedefs,
 	getFirstMap,
 	getFlats,
 	getHeader,
-	getLinedefs,
+	getMaps,
 	getSectors,
 	getTextures,
 	getWadBytes,
@@ -63,12 +64,7 @@ const E1M1_SECTORS = 85;
 
 // TODO test each map for closed areas!
 const expectClosedPath = (path: VectorId[]) => {
-	expect(path[path.length - 1].end).toEqual(path[0].start);
-	for (let i = 0; i < path.length - 1; i++) {
-		const v1 = path[i];
-		const v2 = path[i + 1];
-		expect(v1.end).toEqual(v2.start);
-	}
+	expect(tf.continuosPath(path)).toBeTrue();
 }
 
 describe('map-parser#parseHeader', () => {
@@ -469,15 +465,15 @@ describe('map-parser#parseLinedefs', () => {
 	});
 
 	it('First Linedef', () => {
-		validateLindedef0(getLinedefs()[0]);
+		validateLindedef0(getE1M1Linedefs()[0]);
 	});
 
 	it('Third Linedef', () => {
-		validateLindedef2(getLinedefs()[2]);
+		validateLindedef2(getE1M1Linedefs()[2]);
 	});
 
 	it('27th Linedef', () => {
-		validateLindedef26(getLinedefs()[26]);
+		validateLindedef26(getE1M1Linedefs()[26]);
 	});
 
 });
@@ -702,7 +698,7 @@ describe('map-parser#parseMapsDirs', () => {
 });
 
 describe('map-parser#parseMaps', () => {
-	const maps: DoomMap[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats()).get();
+	const maps: DoomMap[] = getMaps();
 
 	it('Maps Found', () => {
 		expect(maps.length).toEqual(9);
@@ -722,32 +718,25 @@ describe('map-parser#parseMaps', () => {
 			map.linedefBySector.forEach(lbs => {
 				const sectorId = lbs.sector.id;
 				lbs.linedefs.forEach(ld => {
-					expect(ld.sector.id).toEqual(sectorId);
+					if (ld.backSide.isLeft()) {
+						expect(ld.sector.id).toEqual(sectorId);
+					} else if (ld.sector.id != sectorId) {
+						expect(ld.backSide.get().sector.id).toEqual(sectorId);
+					}
 				})
 			})
 		})
 	});
 
-	it('No missing Linedefs on the floor', () => {
-		maps.forEach(map => {
-			map.linedefBySector.forEach(lbs => {
-				expect(lbs.linedefs.length).toEqual(
-					lbs.floor.walls.length +
-					lbs.floor.holes.orElseGet(() => []).length +
-					lbs.floor.rejected.orElseGet(() => []).length);
-			})
-		});
-	});
-
 	describe('map-parser#findMinX', () => {
-		const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats()).get()[0].linedefs;
+		const defs: Linedef[] = getMaps()[0].linedefs;
 		it('findMinX', () => {
 			expect(tf.findMinX(defs)).toEqual(-768);
 		});
 	});
 
 	describe('map-parser#findMinY', () => {
-		const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats()).get()[0].linedefs;
+		const defs: Linedef[] = getMaps()[0].linedefs;
 
 		it('findMinY', () => {
 			expect(tf.findMinY(defs)).toEqual(-4864);
@@ -756,7 +745,7 @@ describe('map-parser#parseMaps', () => {
 
 
 	describe('map-parser#normalizeMap', () => {
-		const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats()).get()[0].linedefs;
+		const defs: Linedef[] = getMaps()[0].linedefs;
 
 		it('findMax', () => {
 			expect(tf.findMax(defs)).toEqual(3808);
@@ -781,7 +770,7 @@ describe('map-parser#parseMaps', () => {
 	});
 
 	describe('map-parser#normalizeLinedefs', () => {
-		const defs: Linedef[] = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats()).get()[0].linedefs;
+		const defs: Linedef[] = getMaps()[0].linedefs;
 		const nt = (scale: number) => (xy: boolean) => R.reduce(R.max, Number.MIN_SAFE_INTEGER, mp.normalizeLinedefs(scale)(defs).map(d => xy ? d.start.x : d.start.y));
 
 		it('Matching sectorId ID', () => {
@@ -911,24 +900,29 @@ describe('map-parser#parseMaps', () => {
 
 	});
 
-	describe('map-parser#groupBySector', () => {
+	describe('map-parser#groupLinedefsBySectors', () => {
 		const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs());
 		const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors());
 		const linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors());
-		const gr: LinedefBySector[] = tf.groupBySector(linedefs, getSectors());
+		const gr: LinedefBySector[] = tf.groupLinedefsBySectors(linedefs, getSectors());
 
 		it('Sectors size on E1M1', () => {
 			let found = 0;
 			for (const ldId in gr) {
 				found++;
 			}
-			expect(found).toEqual(77);
+			expect(found).toEqual(81);
 		});
 
 		it('Sectors in one group has the same number', () => {
 			gr.forEach(lbs => {
 				lbs.linedefs.forEach(ld => {
-					expect(lbs.sector.id).toEqual(ld.sector.id);
+					const sectorId = lbs.sector.id;
+					if (ld.backSide.isLeft()) {
+						expect(ld.sector.id).toEqual(sectorId);
+					} else if (ld.sector.id != sectorId) {
+						expect(ld.backSide.get().sector.id).toEqual(sectorId);
+					}
 				});
 			});
 		});
@@ -938,16 +932,10 @@ describe('map-parser#parseMaps', () => {
 			gr.forEach(lbs => {
 				foundLinedefs.add(lbs.sector.id);
 			});
-			expect(foundLinedefs.size).toEqual(77);
+			expect(foundLinedefs.size).toEqual(81);
 		});
 
-		it('No missing Linedefs on the floor', () => {
-			gr.forEach(lbs => {
-				expect(lbs.linedefs.length).toEqual(lbs.floor.walls.length + lbs.floor.holes.orElseGet(() => []).length + lbs.floor.rejected.orElseGet(() => []).length)
-			});
-		});
 	});
-
 
 	describe('map-parser#parseFlags', () => {
 		it('Bit 1', () => {
@@ -1009,7 +997,7 @@ describe('map-parser#parseMaps', () => {
 	});
 
 	describe('map-parser#findBacksidesBySector', () => {
-		const finder = tf.findBacksidesBySector(getLinedefs())
+		const finder = tf.findBacksidesBySector(tf.findBackLinedefs(getE1M1Linedefs()))
 
 		it('E1M1 - Sector nr: 35', () => {
 			const sd = finder(35);
@@ -1024,6 +1012,10 @@ describe('map-parser#parseMaps', () => {
 		it('E1M1 - Sector nr: 41', () => {
 			const sd = finder(41);
 			expect(sd.get().length).toEqual(1);
+		});
+
+		it('E1M4 - Sector nr: 50 (only backsides)', () => {
+			expect(tf.findBacksidesBySector(tf.findBackLinedefs(getMaps()[3].linedefs))(50).get().length).toEqual(25);
 		});
 
 	});
@@ -1090,16 +1082,6 @@ describe('map-parser#parseMaps', () => {
 			expect(sorted[1].length).toEqual(9);
 			expectClosedPath(sorted[0]);
 			expectClosedPath(sorted[1]);
-		});
-
-		it('E1M1 - Sector nr: 35', () => {
-			const lbs: LinedefBySector[] = tf.groupBySector(getLinedefs(), getSectors());
-			const s35 = lbs.find(ld => ld.sector.id == 35);
-			const ldBacks = tf.findBacksidesBySector(getLinedefs())(35).get();
-			const ld = s35.linedefs.concat(ldBacks);
-			const sorted = tf.buildPaths(tf.orderPath(ld));
-			expect(sorted.length).toEqual(1);
-			expectClosedPath(sorted[0]);
 		});
 
 		it('Path closed vectors reversed', () => {
@@ -1222,5 +1204,20 @@ describe('map-parser#continuosPath', () => {
 
 	it('Reversed mix', () => {
 		expect(tf.continuosPath(pathClosedReversedMix)).toBeFalse();
+	});
+});
+
+describe('map-parser#findMaxSectorId', () => {
+
+	it('E1M1 - LD', () => {
+		expect(tf.findMaxSectorId(getE1M1Linedefs())).toEqual(84);
+	});
+
+	it('E1M1', () => {
+		expect(tf.findMaxSectorId(getMaps()[0].linedefs)).toEqual(84);
+	});
+
+	it('E1M4', () => {
+		expect(tf.findMaxSectorId(getMaps()[3].linedefs)).toEqual(138);
 	});
 });

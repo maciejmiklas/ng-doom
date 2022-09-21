@@ -68,7 +68,7 @@ export class PbmpAnimationComponent implements OnInit {
 		bp.bitmap.then(r => {
 			ctx.drawImage(r, 0, 0);
 		}).catch(e => {
-			Log.error("PAINT ERR", e) /* FIXME console.log('PAINT ERR in:', bp.patch.header.dir.name, ' -> ', e)*/
+			Log.error("PAINT ERR", e) // FIXME - fix this error
 		});
 	}
 

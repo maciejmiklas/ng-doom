@@ -173,33 +173,15 @@ describe('Either#orElse', () => {
 	const nn = Either.ofNullable(100, () => 'test 100');
 
 	it('from null', () => {
-		expect(nil.orElse('test 222')).toBe('test 222');
+		expect(nil.orElse(() => 'test 222')).toBe('test 222');
 	});
 
 	it('from nullable value', () => {
-		expect(nn.orElse(99)).toBe(100);
+		expect(nn.orElse(() => 99)).toBe(100);
 	});
 
 	it('from value', () => {
-		expect(of.orElse(99)).toBe(101);
-	});
-});
-
-describe('Either#orElseGet', () => {
-	const nil = Either.ofNullable(getNullOrString(), () => 'just null!');
-	const of = Either.ofRight(101);
-	const nn = Either.ofNullable(100, () => 'test 100');
-
-	it('from null', () => {
-		expect(nil.orElseGet(() => 'test 222')).toBe('test 222');
-	});
-
-	it('from nullable value', () => {
-		expect(nn.orElseGet(() => 99)).toBe(100);
-	});
-
-	it('from value', () => {
-		expect(of.orElseGet(() => 99)).toBe(101);
+		expect(of.orElse(() => 99)).toBe(101);
 	});
 });
 

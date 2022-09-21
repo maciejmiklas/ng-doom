@@ -13,12 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {functions as mp} from "./map-parser";
-import {getAllDirs, getFlats, getTextures, getWadBytes} from "./testdata/data";
+import {testFunctions as tf, functions as mp} from "./map-parser";
+import {getAllDirs, getFlats, getE1M1Linedefs, getTextures, getWadBytes} from "./testdata/data";
 
 describe('test', () => {
 	it('ABC', () => {
 		const maps = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats());
-		console.log('MAPS', maps);
+		const m1e4 = maps.get()[3];
+		const backs = tf.findBackLinedefs(m1e4.linedefs)
+
+		const finder = tf.findBacksidesBySector(backs);
+		let cnt = 0;
+		backs.forEach(ld => {
+			if (ld.sector.id == 50) {
+				console.log('>F>')
+			}
+
+			ld.backSide.map(bs => {
+				if (bs.sector.id == 50) {
+					//console.log('>B>')
+					cnt++;
+				}
+			})
+
+		})
+		console.log('>>B>>', cnt);
 	});
 });

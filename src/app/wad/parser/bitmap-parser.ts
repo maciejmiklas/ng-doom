@@ -179,7 +179,7 @@ const postPixelAt = (columns: Either<Column>[]) => (x: number, y: number): numbe
 		.map(p => p.data[y - p.topdelta])
 		.assert(p => p >= 0 && p <= 255,
 			p => 'Pixel out of range:(' + x + ',' + y + ') = ' + p)
-		.orElseGet(() => TRANSPARENT_RGBA_PIXEL);
+		.orElse(() => TRANSPARENT_RGBA_PIXEL);
 };
 
 const patchToRGBA = (bitmap: Bitmap) => (palette: Palette): Uint8ClampedArray =>

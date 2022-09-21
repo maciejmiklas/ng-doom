@@ -76,7 +76,7 @@ const parseMapDirs = (dirs: Directory[]) => (mapDir: Directory): Either<Director
 
 const parseMapsDirs = (allDirs: Directory[], startMapDirs: Directory[]): Directory[][] =>
 	R.mapAccum((acc, dir) =>
-		[acc, parseMapDirs(allDirs)(dir).orElseGet(() => null)], [], startMapDirs)[1].filter(v => !R.isNil(v));
+		[acc, parseMapDirs(allDirs)(dir).orElse(() => null)], [], startMapDirs)[1].filter(v => !R.isNil(v));
 
 const createTextureLoader = (textures: DoomTexture[]) => (name: string): Either<DoomTexture> =>
 	Either.ofNullable(textures.find(t => t.name === name), () => 'DoomTexture not found: ' + name);
@@ -98,7 +98,7 @@ const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomT
 		things: parseThings(bytes)(mapDirs),
 		linedefs,
 		sectors,
-		linedefBySector: groupBySector(linedefs, sectors)
+		linedefBySector: groupLinedefsBySectors(linedefs, sectors)
 	};
 };
 
@@ -116,42 +116,79 @@ const groupByWallAndAction = (linedefs: Linedef[]): Linedef[][] => {
 	return [U.nullSafeArray(walls), U.nullSafeArray(actions)];
 }
 
-const groupBySector = (linedefs: Linedef[], sectors: Sector[]): LinedefBySector[] => {
-	const bySectorArray = groupBySectorArray(linedefs);
-	const backFinder = findBacksidesBySector(linedefs);
+const findMaxSectorId = (linedefs: Linedef[]): number => R.reduce<number, number>(R.max, 0, linedefs.map(ld => ld.sector.id));
 
-	// transfer Linedef[][] into Map, where Key is the sector-number (ID)
-	const bySectorMap: { [sector: number]: Linedef[] } = R.indexBy((ld: Linedef[]) => ld[0].sector.id, bySectorArray);
+const orderAndBuildPaths = (linedefs: Linedef[]): Either<Linedef[][]> => {
+	// swap x with y in some vectors so that they can build a continuous path
+	const ordered: Linedef[] = orderPath(linedefs);
 
-	return Object.keys(bySectorMap).map(sectorId => {
-		const sector = sectors[sectorId];
-		const linedefs = bySectorMap[sectorId]
-			// for two sectors sharing common border vectors are defined only in one of those sectors as a backside
-			.concat(backFinder(Number(sectorId)).orElseGet(() => []));
+	// build paths from vectors
+	const paths = buildPaths<Linedef>(ordered);
+	return Either.ofCondition(() => paths.length > 0 && continuosPath(paths[0]), () => 'Could not build path', () => paths);
+}
 
-		// split linedefs into those building walls and actions
-		const linedefsByAction = groupByWallAndAction(linedefs);
+const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) => (sector: Sector): Either<LinedefBySector> => {
+	const linedefs: Linedef[] = mapLinedefs.filter(ld => ld.sector.id === sector.id)
+		// for two sectors sharing common border vectors are defined only in one of those sectors as a backside
+		.concat(findBacksidesBySector(backLinedefs)(sector.id).orElse(() => []));
 
-		// reverse vectors so that they can build a path
-		const ordered: Linedef[] = orderPath(linedefs);
+	if (linedefs.length === 0) {
+		return Either.ofLeft('No Linedefs for sector: ' + sector.id)
+	}
 
-		// build paths from vectors
-		const paths = buildPaths<Linedef>(ordered);
+	// split linedefs into those building walls and actions
+	const linedefsByAction = groupByWallAndAction(linedefs);
 
-		// sort paths, first is the main area, remaining are holes
-		const pathsByHoles: Linedef[][] = sortByHoles(paths);
-		return {
-			sector,
-			linedefs,
-			actions: linedefsByAction[1],
-			floor: {
-				rejected: null,
+	// build paths from vectors, first try to build path without action Linedefs
+	return orderAndBuildPaths(linedefsByAction[0])
+
+		// retry building path, this time use also action Linedefs
+		.orAnother(() => orderAndBuildPaths(linedefs))
+
+		// Either<Linedef[][]> => Either<LinedefBySector>
+		.map(paths => {
+			// sort paths, first is the main area, remaining are holes
+			const pathsByHoles: Linedef[][] = sortByHoles(paths);
+			return Either.ofRight({
 				sector,
-				walls: pathsByHoles.shift(),
-				holes: Either.ofCondition(() => pathsByHoles.length > 0, () => 'No holes', () => pathsByHoles)
-			}
-		}
-	});
+				linedefs,
+				actions: linedefsByAction[1],
+				floor: {
+					rejected: null,
+					sector,
+					walls: pathsByHoles.shift(),
+					holes: Either.ofCondition(() => pathsByHoles.length > 0, () => 'No holes', () => pathsByHoles)
+				}
+			})
+		})
+}
+
+const groupLinedefsBySectors = (mapLinedefs: Linedef[], sectors: Sector[]): LinedefBySector[] => {
+	const maxSectorId = findMaxSectorId(mapLinedefs);
+	const bySector = groupLinedefsBySector(mapLinedefs, findBackLinedefs(mapLinedefs));
+
+	// array contains #maxSectorId elements each increased by 1
+	return R.unfold((sectorId: number) => sectorId > maxSectorId ? false : [sectorId++, sectorId++], 0)
+
+		// map each #sectorId to Sector
+		.map(sectorId =>
+			Either.ofNullable(sectors.find(s => s.id === sectorId), () => 'No sector with id: ' + sectorId)
+		)
+
+		// remove not existing sectors from array
+		.filter(s => s.isRight())
+
+		// Either<Sector> => Sector
+		.map(s => s.get())
+
+		// Sector => Either<LinedefBySector>
+		.map(s => bySector(s))
+
+		// remove not existing LinedefBySector from array
+		.filter(ld => ld.isRight())
+
+		//Either<LinedefBySector> => LinedefBySector
+		.map(s => s.get())
 };
 
 const unfoldByDirectorySize = (dir: Directory, size: number): number[] =>
@@ -327,8 +364,10 @@ const normalizeLinedefs = (scale: number) => (linedefs: Linedef[]): Linedef[] =>
 	}, linedefs);
 };
 
-const findBacksidesBySector = (linedefs: Linedef[]) => (sectorId: number): Either<Linedef[]> =>
-	Either.ofArray(linedefs.filter(ld => ld.backSide.isRight()).filter(ld => ld.backSide.get().sector.id == sectorId),
+const findBackLinedefs = (linedefs: Linedef[]): Linedef[] => linedefs.filter(ld => ld.backSide.isRight());
+
+const findBacksidesBySector = (backLinedefs: Linedef[]) => (sectorId: number): Either<Linedef[]> =>
+	Either.ofArray(backLinedefs.filter(ld => ld.backSide.get().sector.id == sectorId),
 		() => 'No backsides for Sector: ' + sectorId);
 
 
@@ -347,6 +386,12 @@ const vectorsConnected = (v1: VectorV, v2: VectorV): VectorConnection => {
 }
 
 // TODO - not functional
+const vectorReversed1 = (vectors: VectorV[]) => (ve: VectorV): boolean =>
+	vectors.find(v=>{
+		const con = vectorsConnected(ve, v);
+		return con === VectorConnection.V1END_TO_V2START || con === VectorConnection.V2END_TO_V1START ? v:undefined
+	}) != undefined
+
 const vectorReversed = (vectors: VectorV[]) => (ve: VectorV): boolean => {
 	for (let i = 0; i < vectors.length; i++) {
 		const con = vectorsConnected(ve, vectors[i]);
@@ -452,6 +497,9 @@ const sortByHoles = <V extends VectorV>(path: V[][]): V[][] => {
 }
 
 const continuosPath = (path: VectorV[]): boolean => {
+	if (path.length <= 2) {
+		return false;
+	}
 	// compare each element in list with next one.
 	// #nextRoll will ensure that we compare last element with first one
 	const next = U.nextRoll(path);
@@ -483,7 +531,7 @@ export const testFunctions = {
 	scalePos,
 	parseSector,
 	parseSectors,
-	groupBySector,
+	groupLinedefsBySectors,
 	createTextureLoader,
 	groupBySectorArray,
 	parseFlags,
@@ -495,7 +543,9 @@ export const testFunctions = {
 	vectorsConnected,
 	vectorReversed,
 	findMaxPathIdx,
-	sortByHoles
+	sortByHoles,
+	findBackLinedefs,
+	findMaxSectorId
 };
 
 export const functions = {parseMaps, normalizeLinedefs};

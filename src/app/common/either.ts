@@ -72,9 +72,9 @@ export abstract class Either<T> {
 
 	abstract mapGet<VL, VR>(left: (msg: string) => VL, right: (v: T) => VR): VL | VR;
 
-	abstract orElse(other: T): T;
+	abstract orElse(fn: () => T): T;
 
-	abstract orElseGet(fn: () => T): T;
+	abstract orAnother(fn: () => Either<T>): Either<T>;
 
 	abstract isLeft(): boolean;
 
@@ -138,11 +138,11 @@ export class Left<T> extends Either<T> {
 		return false;
 	}
 
-	orElse(other: T): T {
-		return other;
+	orElse(fn: () => T): T {
+		return fn();
 	}
 
-	orElseGet(fn: () => T): T {
+	orAnother(fn: () => Either<T>): Either<T> {
 		return fn();
 	}
 
@@ -170,8 +170,12 @@ export class Right<T> extends Either<T> {
 		return this;
 	}
 
-	orElseGet(fn: () => T): T {
+	orElse(fn: () => T): T {
 		return this.val;
+	}
+
+	orAnother(fn: () => Either<T>): Either<T> {
+		return Either.ofRight(this.val);
 	}
 
 	exec(fn: (v: T) => void): Either<T> {
@@ -215,10 +219,6 @@ export class Right<T> extends Either<T> {
 
 	filter(): boolean {
 		return true;
-	}
-
-	orElse(other: T): T {
-		return R.isNil(this.val) ? other : this.val;
 	}
 
 	toString(): string {

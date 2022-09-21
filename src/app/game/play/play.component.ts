@@ -48,7 +48,7 @@ function onPointerMove(event) {
 })
 export class PlayComponent implements OnInit {
 
-	mapId = 1;
+	mapId = 3;
 
 	@ViewChild('canvas', {static: true})
 	private canvasRef: ElementRef<HTMLCanvasElement>;
@@ -127,7 +127,7 @@ const setupCamera = (camera: THREE.PerspectiveCamera, map: DoomMap) => {
 }
 
 const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => void) => (lbs: LinedefBySector) => {
-	renderWalls(lbs).forEach(m => scene.add(m));
+	//renderWalls(lbs).forEach(m => scene.add(m));
 	renderFloors(lbs).forEach(m => {
 		florCallback(m);
 		scene.add(m);
@@ -136,11 +136,9 @@ const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => v
 
 
 const renderFloors = (lbs: LinedefBySector): THREE.Mesh[] => {
-
-	//if (lbs.sector.id !== 49) {
+	//if (lbs.sector.id !== 49 && lbs.sector.id !== 50) {
 	//	return [];
-//	}
-
+	//}
 	const floor = lbs.floor;
 	const wallPoints = mf.pathToPoints(floor.walls).map(p => tm.toVector2(p));
 	const wallShape = new THREE.Shape(wallPoints);
@@ -150,7 +148,7 @@ const renderFloors = (lbs: LinedefBySector): THREE.Mesh[] => {
 	const material = floor.sector.floorTexture.map(tx => tm.createFloorDataTexture(tx)).map(tx => new THREE.MeshPhongMaterial({
 		side: THREE.DoubleSide,
 		map: tx
-	})).orElseGet(() => tm.createFallbackMaterial());
+	})).orElse(() => tm.createFallbackMaterial());
 
 	const mesh = new THREE.Mesh(geometry, material); // TODO tm.fallbackMaterial -> material
 	mesh.rotation.set(Math.PI / 2, Math.PI, Math.PI);

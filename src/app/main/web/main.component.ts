@@ -86,7 +86,7 @@ export class MainComponent {
 
 		this.eventBus.on(WadEvent.WAD_UPLOADED, (result: UploadResult) => {
 			if (result.status === UploadStatus.UPLOADED) {
-				this.headerImage = this.wadStorage.getCurrent().map(c => c.wad).map(w => w.title.mDoom).orElseGet(() => null);
+				this.headerImage = this.wadStorage.getCurrent().map(c => c.wad).map(w => w.title.mDoom).orElse(() => null);
 			}
 		});
 	}
