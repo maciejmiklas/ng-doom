@@ -370,36 +370,31 @@ const findBacksidesBySector = (backLinedefs: Linedef[]) => (sectorId: number): E
 	Either.ofArray(backLinedefs.filter(ld => ld.backSide.get().sector.id == sectorId),
 		() => 'No backsides for Sector: ' + sectorId);
 
+const vectorsConnected = (v1: VectorV, v2: VectorV): VectorConnection =>
+	R.cond([
+		[(v1, v2) => mf.vertexEqual(v1.end, v2.start), () => VectorConnection.V1END_TO_V2START],
+		[(v1, v2) => mf.vertexEqual(v2.end, v1.start), () => VectorConnection.V2END_TO_V1START],
+		[(v1, v2) => mf.vertexEqual(v1.start, v2.start) || mf.vertexEqual(v1.end, v2.end), () => VectorConnection.REVERSED],
+		[R.T, () => VectorConnection.NONE]
+	])(v1, v2)
 
-// TODO - not functional
-const vectorsConnected = (v1: VectorV, v2: VectorV): VectorConnection => {
-	if (mf.vertexEqual(v1.end, v2.start)) {
-		return VectorConnection.V1END_TO_V2START;
-
-	} else if (mf.vertexEqual(v2.end, v1.start)) {
-		return VectorConnection.V2END_TO_V1START;
-
-	} else if (mf.vertexEqual(v1.start, v2.start) || mf.vertexEqual(v1.end, v2.end)) {
-		return VectorConnection.REVERSED;
-	}
-	return VectorConnection.NONE;
-}
-
-// TODO - not functional
-const vectorReversed1 = (vectors: VectorV[]) => (ve: VectorV): boolean =>
-	vectors.find(v=>{
+const vectorReversed = (vectors: VectorV[]) => (ve: VectorV): boolean =>
+	!vectors.find(v => {
 		const con = vectorsConnected(ve, v);
-		return con === VectorConnection.V1END_TO_V2START || con === VectorConnection.V2END_TO_V1START ? v:undefined
-	}) != undefined
+		return con === VectorConnection.V1END_TO_V2START || con === VectorConnection.V2END_TO_V1START ? v : undefined
+	})
 
-const vectorReversed = (vectors: VectorV[]) => (ve: VectorV): boolean => {
-	for (let i = 0; i < vectors.length; i++) {
-		const con = vectorsConnected(ve, vectors[i]);
-		if (con === VectorConnection.V1END_TO_V2START || con === VectorConnection.V2END_TO_V1START) {
-			return false;
-		}
-	}
-	return true;
+const findLastNotConnected1 = (linedefs: VectorV[]): Either<number> => {
+
+	//const reversed = R.reverse(linedefs);
+	const findWithIndex = R.addIndex(R.findLast);
+	//const next = U.nextRoll(reversed)
+	findWithIndex((el, idx, all) => {
+		//const nextEl = next(idx+1)
+		console.log('>>', el, idx, all);
+	}, linedefs)
+
+	return Either.ofLeft('Vectors connected');
 }
 
 const findLastNotConnected = (linedefs: VectorV[]): Either<number> => {
@@ -408,13 +403,12 @@ const findLastNotConnected = (linedefs: VectorV[]): Either<number> => {
 			return Either.ofRight(i);
 		}
 	}
-	return Either.ofLeft('All vectors are connected');
+	return Either.ofLeft('Vectors connected');
 }
 
 const orderPath = <V extends VectorV>(path: V[]): V[] => path.map(v =>
 	vectorReversed(path)(v) ? mf.reverseVector(v) : v)
 
-// TODO - not functional
 const buildPaths = <V extends VectorV>(ordered: V[]): V[][] => {
 	const remaining = [...ordered];
 	const out = [[remaining.pop()]];

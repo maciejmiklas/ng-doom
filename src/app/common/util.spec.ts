@@ -440,8 +440,13 @@ describe('util#nullSafeArray', () => {
 
 describe('util#nextRoll', () => {
 	const roll = U.nextRoll([1, 3, 9, 2])
+
 	it('at 0', () => {
 		expect(roll(0)).toEqual(1);
+	});
+
+	it('at -1', () => {
+		expect(roll(-1)).toEqual(2);
 	});
 
 	it('at 1', () => {
