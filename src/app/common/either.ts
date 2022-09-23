@@ -39,7 +39,6 @@ export abstract class Either<T> {
 		return new Right<T>(val);
 	}
 
-	// TODO it should be taking function not string as param
 	static ofLeft<T>(msg: string): Either<T> {
 		return new Left(msg);
 	}

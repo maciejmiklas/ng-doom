@@ -62,7 +62,6 @@ import * as R from 'ramda';
 
 const E1M1_SECTORS = 85;
 
-// TODO test each map for closed areas!
 const expectClosedPath = (path: VectorId[]) => {
 	expect(tf.continuosPath(path)).toBeTrue();
 }

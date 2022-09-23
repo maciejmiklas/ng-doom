@@ -55,24 +55,11 @@ const parseTextureName = (bytes: number[]) => (pos: number, length: number): Eit
 	return parseStrOp(bytes)(v => v !== '-', () => '')(pos, length);
 };
 
-const uint8ArrayToBase64 = (bytes: number[]): string => {
-	let binary = '';
-	const len = bytes.length;
-	for (let i = 0; i < len; i++) {// TODO not functional
-		binary += String.fromCharCode(bytes[i]);
-	}
-	return window.btoa(binary);
-};
-
 const base64ToUint8Array = (base64: string): Uint8Array => {
 	const binary = window.atob(base64);
-	const len = binary.length;
-	const bytes = new Uint8Array(len);
-	for (let i = 0; i < len; i++) {// TODO not functional
-		bytes[i] = binary.charCodeAt(i);
-	}
-	return bytes;
+	return (new Uint8Array(binary.length)).map((v, idx) => binary.charCodeAt(idx));
 };
+
 
 const base64ToUint8NumberArray = (base64: string): number[] => {
 	return [].slice.call(base64ToUint8Array(base64));
@@ -80,7 +67,6 @@ const base64ToUint8NumberArray = (base64: string): number[] => {
 
 const trim0Padding = (bytes: number[], pos: number) =>
 	R.until((v: number) => bytes[v] !== 0, (v: number) => v - 1)(pos) + 1;
-
 
 /** Converts given signed 4-byte array to number. Notation: little-endian (two's complement) */
 const parseNumber = (bytes: number[]) => (pos: number): number => {
@@ -136,7 +122,6 @@ const nextRoll = <V>(list: V[]) => (idx: number): V =>
 	])(idx)
 
 const U = {
-	uint8ArrayToBase64,
 	base64ToUint8NumberArray,
 	trim0Padding,
 	parseStr,

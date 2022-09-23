@@ -384,53 +384,66 @@ const vectorReversed = (vectors: VectorV[]) => (ve: VectorV): boolean =>
 		return con === VectorConnection.V1END_TO_V2START || con === VectorConnection.V2END_TO_V1START ? v : undefined
 	})
 
-const findLastNotConnected1 = (linedefs: VectorV[]): Either<number> => {
-
-	//const reversed = R.reverse(linedefs);
-	const findWithIndex = R.addIndex(R.findLast);
-	//const next = U.nextRoll(reversed)
-	findWithIndex((el, idx, all) => {
-		//const nextEl = next(idx+1)
-		console.log('>>', el, idx, all);
-	}, linedefs)
-
-	return Either.ofLeft('Vectors connected');
-}
-
 const findLastNotConnected = (linedefs: VectorV[]): Either<number> => {
-	for (let i = linedefs.length - 1; i > 0; i--) {
-		if (vectorsConnected(linedefs[i], linedefs[i - 1]) === VectorConnection.NONE) {
-			return Either.ofRight(i);
-		}
-	}
-	return Either.ofLeft('Vectors connected');
+	const next = U.nextRoll(linedefs);
+
+	// @ts-ignore
+	// add #idx to R.findLastIndex: (el) => (el, idx)
+	const findWithIndex = R.addIndex<VectorV>(R.findLastIndex);
+
+	// go over list from last element and compare it with previous element until you find not connected vectors
+	const foundIdx: number = findWithIndex((el, idx) =>
+		vectorsConnected(el, next(linedefs.length - idx)) === VectorConnection.NONE)(linedefs)
+
+	return Either.ofCondition(() => foundIdx > 0, () => 'Vectors connected', () => foundIdx);
 }
 
 const orderPath = <V extends VectorV>(path: V[]): V[] => path.map(v =>
 	vectorReversed(path)(v) ? mf.reverseVector(v) : v)
 
 const buildPaths = <V extends VectorV>(ordered: V[]): V[][] => {
+
+	// we will remove elements one by one from this list and add them to #out
 	const remaining = [...ordered];
+
+	// #out contains array of connected paths: [[path1],[path2],...,[pathX]]
+	// start with first element and try to find vector connected to it
 	const out = [[remaining.pop()]];
 
+	// go until all elements in #remaining has been moved to #out
 	while (remaining.length > 0) {
 		let found = false;
+
+		// go over each path in #out and try to append to this path vector from #remaining
 		out.forEach(oa => {
+
+			// iterate over specific path
 			for (let oaIdx = 0; oaIdx < oa.length; oaIdx++) {
-				const oaEl = oa[oaIdx];
+				const oaEl = oa[oaIdx]; // Vector in current path
+
+				// go over all #remaining (not used) vectors and test whether we can append it to current path
 				for (let remIdx = 0; remIdx < remaining.length; remIdx++) {
 					let rem = remaining[remIdx];
 					let connection = vectorsConnected(oaEl, rem);
 					if (connection === VectorConnection.NONE) {
-						continue;
+						continue;// #rem is not connected to any vector from current path
 					}
+
+					// #rem is connected to one of the vectors in current path
 					found = true;
+
+					// remove vector from #remaining as we are going to append it to current path
 					remaining.splice(remIdx, 1);
 
+					// try to find proper postion to append removed vector to current path
+
+					// removed vector has to be flipped: x -> y
 					if (connection === VectorConnection.REVERSED) {
 						rem = mf.reverseVector(rem);
 						connection = vectorsConnected(oaEl, rem);
 					}
+
+					// now we have to insert removed vector at #oaIdx, but we have figure out whether it should go before or after
 					if (connection === VectorConnection.V1END_TO_V2START) {
 						oa.splice(oaIdx + 1, 0, rem);
 					} else {
@@ -443,6 +456,8 @@ const buildPaths = <V extends VectorV>(ordered: V[]): V[][] => {
 				}
 			}
 		})
+
+		// none of #remaining could be connected to already existing paths, so start new path
 		if (!found) {
 			out.push([remaining.pop()])
 		}
