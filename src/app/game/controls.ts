@@ -15,7 +15,7 @@
  */
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls';
 import * as THREE from 'three';
-import {functions as gc} from './game-config'
+import {config as gc} from './game-config'
 
 export class Controls {
 
@@ -35,7 +35,7 @@ export class Controls {
 
 	render(): void {
 		const time = performance.now();
-		const mf = (time - this.prevTime) / gc.moveSlow;
+		const mf = (time - this.prevTime) / gc.move.slow;
 
 		if (this.moveY === MoveY.FORWARD) {
 			this.controls.moveForward(mf);

@@ -14,8 +14,39 @@
  * limitations under the License.
  */
 
-const playerHeight = 75
-const moveSlow = 1
+const game = {
+	startLevel: 3
+}
+const player = {
+	height: 50
+}
+
+const move = {
+	slow: 3
+}
+
+const camera = {
+
+	perspective: {
+		/** Camera frustum vertical field of view */
+		fov: 70,
+
+		/** Camera frustum near plane */
+		near: 1,
+
+		/** Camera frustum far plane */
+		far: 200000
+	},
+
+	florRay: {
+		direction: {
+			x: 0,
+			y: -1,
+			z: 0
+		}
+	}
+}
+
 
 // ############################ EXPORTS ############################
-export const functions = {playerHeight,moveSlow};
+export const config = {player, move, camera, game};

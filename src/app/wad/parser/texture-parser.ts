@@ -212,6 +212,7 @@ const applyPatch = (width: number, height: number, to: Uint8ClampedArray) => (fr
 	const rgbaPixelOffsetFrom = rgbaPixelOffset(from.bitmap.width);
 	const rgbaPixelOffsetTo = rgbaPixelOffset(width);
 
+	// TODO not functional
 	for (let fromY = fromYInit, toY = toYInit; fromY < fromYMax; fromY++, toY++) {
 		for (let fromX = fromXInit, toX = toXInit; fromX < fromXMax; fromX++, toX++) {
 			copyRgbaPixel(from.bitmap.rgba, rgbaPixelOffsetFrom(fromX, fromY))(to, rgbaPixelOffsetTo(toX, toY));
@@ -228,6 +229,7 @@ export const testFunctions = {
 	parseTexturesByDir,
 	findFlatDirs
 };
+
 export const functions = {
 	parseTextures,
 	parsePatches,

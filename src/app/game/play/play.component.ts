@@ -28,18 +28,9 @@ import {
 } from '../../wad/parser/wad-model';
 
 import {functions as tm} from '../three-mapper'
-import {CSS2DRenderer} from 'three/examples/jsm/renderers/CSS2DRenderer';
 import {Either} from '../../common/either';
-import {Side} from 'three/src/constants';
-
-
-const pointer = new THREE.Vector2();
-
-function onPointerMove(event) {
-	pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-	pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-	console.log('P', JSON.stringify(pointer));
-}
+import {DoubleSide, Side} from 'three/src/constants';
+import {config as gc} from '../game-config'
 
 @Component({
 	selector: 'app-play',
@@ -48,19 +39,16 @@ function onPointerMove(event) {
 })
 export class PlayComponent implements OnInit {
 
-	mapId = 3;
-
 	@ViewChild('canvas', {static: true})
 	private canvasRef: ElementRef<HTMLCanvasElement>;
 	private camera: THREE.PerspectiveCamera;
 	private scene: THREE.Scene;
 	private webGLRenderer: THREE.WebGLRenderer;
-	private labelRenderer: CSS2DRenderer;
 	private controls: Controls;
 	private wad: Wad;
 	private map: DoomMap;
 	private floors: THREE.Mesh[] = []
-	private raycaster = new THREE.Raycaster();
+	private raycaster: THREE.Raycaster
 
 	constructor(private wadStorage: WadStorageService) {
 	}
@@ -74,13 +62,14 @@ export class PlayComponent implements OnInit {
 		this.camera = createCamera(this.canvas);
 		this.scene = createScene();
 		this.webGLRenderer = createWebGlRenderer(this.canvas);
-		this.map = this.wad.maps[this.mapId];
+		this.map = this.wad.maps[gc.game.startLevel];
 		this.createWorld(this.scene, this.map);
 		setupCamera(this.camera, this.map);
 		this.camera.lookAt(this.scene.position);
 		this.controls = new Controls(this.camera, this.canvas);
+		this.raycaster = new THREE.Raycaster();
+
 		this.startRenderingLoop();
-		window.addEventListener('pointermove', onPointerMove);
 	}
 
 	private startRenderingLoop(): void {
@@ -90,25 +79,18 @@ export class PlayComponent implements OnInit {
 			comp.controls.render();
 			comp.updatePlayerPosition();
 			comp.webGLRenderer.render(comp.scene, comp.camera);
-			if (comp.labelRenderer) {
-				comp.labelRenderer.render(comp.scene, comp.camera);
-			}
 		})();
 	}
 
 	private updatePlayerPosition(): void {
 		const cp = this.camera.position;
 		this.raycaster.setFromCamera(cp, this.camera);
-		//	this.raycaster.ray.origin.y += 400;
-		const inters = this.raycaster.intersectObjects(this.floors);
+		this.raycaster.ray.direction.set(gc.camera.florRay.direction.x, gc.camera.florRay.direction.y, gc.camera.florRay.direction.z);
 
+		this.raycaster.ray.origin.y += 400;
+		const inters = this.raycaster.intersectObjects(this.floors);
 		if (inters.length > 0) {
-			// @ts-ignore
-			inters[0].object.material.color.setHex(0xFF0000);
-			//	cp.y = inters[0].point.y + gc.playerHeight;
-			//	console.log('>>>>', JSON.stringify(cp), inters.length)
-		} else {
-			//	console.log('EMPTY');
+			cp.y = inters[0].point.y + gc.player.height;
 		}
 	}
 
@@ -121,9 +103,9 @@ export class PlayComponent implements OnInit {
 }
 
 const setupCamera = (camera: THREE.PerspectiveCamera, map: DoomMap) => {
+	//camera.position.set(1032, 500, 2170);
 	const player = map.things.filter(th => th.thingType == ThingType.PLAYER)[0];
-	camera.position.set(1032, 500, 2170);
-	//camera.position.set(player.position.x, gc.playerHeight, -player.position.y);
+	camera.position.set(player.position.x, gc.player.height, -player.position.y);
 }
 
 const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => void) => (lbs: LinedefBySector) => {
@@ -150,7 +132,7 @@ const renderFloors = (lbs: LinedefBySector): THREE.Mesh[] => {
 		map: tx
 	})).orElse(() => tm.createFallbackMaterial());
 
-	const mesh = new THREE.Mesh(geometry, material); // TODO tm.fallbackMaterial -> material
+	const mesh = new THREE.Mesh(geometry, material);
 	mesh.rotation.set(Math.PI / 2, Math.PI, Math.PI);
 	mesh.position.y = lbs.sector.floorHeight;
 	return [mesh];
@@ -205,7 +187,7 @@ const wall = (sideFunc: (ld: Linedef) => Side,
 		const vs = ld.start;
 		const ve = ld.end;
 		const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
-		const material = tm.createWallMaterial(textureEi.get(), sideFunc(ld), color);
+		const material = tm.createWallMaterial(textureEi.get(), DoubleSide, color);// TODO DoubleSide -> sideFunc(ld)
 		const wallHeight = wallHeightEi.get();
 		const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(wallWidth, wallHeight), material);
 		mesh.position.set((vs.x + ve.x) / 2, startHeightEi.get() + wallHeight / 2, (vs.y + ve.y) / -2);
@@ -225,7 +207,12 @@ const createScene = (): THREE.Scene => {
 	return scene;
 };
 
-const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera => new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 1, 20000);
+const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera =>
+	new THREE.PerspectiveCamera(
+		gc.camera.perspective.fov,
+		canvas.clientWidth / canvas.clientHeight,
+		gc.camera.perspective.near,
+		gc.camera.perspective.far);
 
 const createWebGlRenderer = (canvas: HTMLCanvasElement): THREE.WebGLRenderer => {
 	const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
