@@ -34,26 +34,29 @@ import {Either} from '../../common/either';
 
 const RGBA_BYTES = 4;
 
-const parsePnames = (wadBytes: number[], dirs: Directory[]): Pnames => {
-	const dir: Directory = dp.findDirectoryByName(dirs)(Directories.PNAMES).get();
-	const nummappatches = U.parseInt32(wadBytes)(dir.filepos);
-	const strParser = U.parseStr(wadBytes);
-	const names: string[] = R
-		.range(0, nummappatches) // ()=> Patches amount
-		.map(idx => strParser(dir.filepos + 0x04 + 8 * idx, 8).toUpperCase()); // (patch offset)=> patch names
-	return {dir, nummappatches, names};
+const parsePnames = (wadBytes: number[], dirs: Directory[]): Either<Pnames> => {
+	return dp.findDirectoryByName(dirs)(Directories.PNAMES).map(dir => {
+		const nummappatches = U.parseInt32(wadBytes)(dir.filepos);
+		const strParser = U.parseStr(wadBytes);
+		const names: string[] = R
+			.range(0, nummappatches) // ()=> Patches amount
+			.map(idx => strParser(dir.filepos + 0x04 + 8 * idx, 8).toUpperCase()); // (patch offset)=> patch names
+		return {dir, nummappatches, names};
+	})
 };
 
 const findPatchDir = (dirs: Directory[]) => (patchName: string): Either<Directory> =>
 	dp.findDirectoryByName(dirs)(patchName);
 
-const parsePatches = (wadBytes: number[], dirs: Directory[], palette: Palette): Bitmap[] => {
+const parsePatches = (wadBytes: number[], dirs: Directory[], palette: Palette, pnames: Pnames): Either<Bitmap[]> => {
 	const patchDirFinder = findPatchDir(dirs);
 	const bitmapParser = bp.parseBitmap(wadBytes, palette);
-	return parsePnames(wadBytes, dirs).names
+	const patches = pnames.names
 		.map(pn => patchDirFinder(pn)) // (dirName)=> Either<Directory>
 		.filter(d => d.isRight()).map(d => d.get()) // (Either<Directory>)=>Directory
 		.map(d => bitmapParser(d)).filter(b => b.isRight()).map(b => b.get()); // (Directory) => Bitmap
+
+	return Either.ofCondition(() => patches.length > 0, () => 'No patches', () => patches);
 };
 
 const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: Bitmap[]) => (offset: number): Either<Patch> => {

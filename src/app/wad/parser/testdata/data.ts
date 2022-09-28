@@ -90,7 +90,7 @@ export const getSectors = (): Sector[] => {
 let _palette = null;
 export const getPalette = (): Palette => {
 	if (_palette == null) {
-		_palette = pp.parsePlaypal(getWadBytes(), getAllDirs()).palettes[0];
+		_palette = pp.parsePlaypal(getWadBytes(), getAllDirs()).get().palettes[0];
 	}
 	return _palette;
 };
@@ -106,7 +106,7 @@ export const getPnames = (): Pnames => {
 let _patches = null;
 export const getPatches = (): Bitmap[] => {
 	if (_patches == null) {
-		_patches = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette());
+		_patches = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette(), getPnames());
 	}
 	return _patches;
 };

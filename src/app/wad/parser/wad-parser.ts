@@ -39,15 +39,14 @@ const parseTitlePic = (bytes: number[], dirs: Directory[], palette: Palette): Ei
 		}));
 };
 
-// TODO all wrapped methods: Either.ofRight should return Either
 const parseWad = (bytes: number[]): Either<Wad> =>
 	dp.parseHeader(bytes)
 		.map(header => ({header, bytes}))// header + bytes
 		.append(w => dp.parseAllDirectories(w.header, bytes), (w, v) => w.dirs = v) // dirs
-		.append(w => Either.ofRight(tp.parsePnames(bytes, w.dirs)), (w, v) => w.pnames = v) // pnames
-		.append(w => Either.ofRight(pp.parsePlaypal(bytes, w.dirs)), (w, v) => w.playpal = v) // playpal
+		.append(w => tp.parsePnames(bytes, w.dirs), (w, v) => w.pnames = v) // pnames
+		.append(w => pp.parsePlaypal(bytes, w.dirs), (w, v) => w.playpal = v) // playpal
 		.append(w => parseTitlePic(bytes, w.dirs, w.playpal.palettes[0]), (w, v) => w.title = v)// title
-		.append(w => Either.ofRight(tp.parsePatches(bytes, w.dirs, w.playpal.palettes[0])), (w, v) => w.patches = v)// patches
+		.append(w => tp.parsePatches(bytes, w.dirs, w.playpal.palettes[0],w.pnames), (w, v) => w.patches = v)// patches
 		.append(w => tp.parseTextures(bytes, w.dirs, w.pnames, w.patches), (w, v) => w.textures = v) // textures
 		.append(w => tp.parseFlats(bytes, w.dirs, w.playpal.palettes[0]), (w, v) => w.flats = v) // flats
 		.append(w => mp.parseMaps(bytes, w.dirs, w.textures, w.flats), (w, v) => w.maps = v); // maps

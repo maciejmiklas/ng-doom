@@ -32,7 +32,7 @@ describe('playpal-parser#parseRBG', () => {
 });
 
 describe('playpal-parser#parsePlaypal', () => {
-	const playpal = tp.parsePlaypal(getWadBytes(), getAllDirs());
+	const playpal = tp.parsePlaypal(getWadBytes(), getAllDirs()).get();
 
 	it('palettes amount', () => {
 		expect(playpal.palettes.length).toEqual(13);

@@ -16,6 +16,7 @@
 import {Directories, Directory, Palette, Playpal, RGBA} from './wad-model';
 import * as R from 'ramda';
 import {functions as dp} from './directory-parser';
+import {Either} from "../../common/either";
 
 const RBG_BYTES = 3;
 const PLAYPAL_COLORS = 256;
@@ -41,11 +42,12 @@ const parsePalette = (paletteBytes: number[], dir: Directory) => (paletteNumber:
 	return {colors, idx: paletteNumber};
 };
 
-const parsePlaypal = (wadBytes: number[], dirs: Directory[]): Playpal => {
-	const dir = dp.findDirectoryByName(dirs)(Directories.PLAYPAL).get();
-	const paletteParser = parsePalette(wadBytes, dir);
-	const palettes = R.range(0, 13).map(idx => paletteParser(idx));
-	return {dir, palettes};
+const parsePlaypal = (wadBytes: number[], dirs: Directory[]): Either<Playpal> => {
+	return dp.findDirectoryByName(dirs)(Directories.PLAYPAL).map(dir => {
+		const paletteParser = parsePalette(wadBytes, dir);
+		const palettes = R.range(0, 13).map(idx => paletteParser(idx));
+		return {dir, palettes};
+	})
 };
 
 // ############################ EXPORTS ############################

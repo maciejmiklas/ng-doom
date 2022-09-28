@@ -22,7 +22,7 @@ import {functions as sp} from './sprite-parser';
 import {functions as bp} from './bitmap-parser';
 
 describe('texture-parser#findPatchDir', () => {
-	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs());
+	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs()).get();
 	const finder = tf.findPatchDir(getAllDirs());
 
 	it('Find dirs for pnames', () => {
@@ -61,7 +61,7 @@ describe('texture-parser#findFlatDirs', () => {
 });
 
 describe('texture-parser#parsePnames', () => {
-	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs());
+	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs()).get();
 
 	it('Directory', () => {
 		expect(pn.dir.name).toEqual('PNAMES');
@@ -87,7 +87,7 @@ describe('texture-parser#parsePnames', () => {
 });
 
 describe('texture-parser#parsePnames', () => {
-	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs());
+	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs()).get();
 
 	it('Correct amount', () => {
 		expect(pn.nummappatches).toEqual(350);
@@ -111,7 +111,7 @@ describe('texture-parser#parsePnames', () => {
 });
 
 describe('texture-parser#parsePatches', () => {
-	const pb: Bitmap[] = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette());
+	const pb: Bitmap[] = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette(), getPnames());
 
 	it('Bitmap size', () => {
 		expect(pb.length).toEqual(163);
@@ -217,7 +217,7 @@ describe('texture-parser#maxSpriteSize', () => {
 
 
 describe('texture-parser#parseTextures', () => {
-	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs());
+	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs()).get();
 	const tx: DoomTexture[] = tp.parseTextures(getWadBytes(), getAllDirs(), getPnames(), getPatches()).get();
 
 	it('Textures amount', () => {
@@ -368,15 +368,15 @@ describe('texture-parser#parseFlats', () => {
 	});
 
 	it('dimensions', () => {
-		flats.forEach(fl=>{
+		flats.forEach(fl => {
 			expect(fl.width).toEqual(64);
 			expect(fl.height).toEqual(64);
 		})
 	});
 
 	it('bytes', () => {
-		flats.forEach(fl=>{
-			expect(fl.rgba.length).toBeGreaterThanOrEqual(64*64*4);
+		flats.forEach(fl => {
+			expect(fl.rgba.length).toBeGreaterThanOrEqual(64 * 64 * 4);
 		})
 	});
 

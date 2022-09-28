@@ -198,7 +198,7 @@ export type Linedef = VectorV & MapLump & {
 };
 
 /**
- * Flor is deducted from Linedef and contains closed shapes and holes
+ * Flor is deducted from Linedef and contains closed shapes and holes. It's actually a flor and the celling.
  */
 export type Floor = {
 	sector: Sector
