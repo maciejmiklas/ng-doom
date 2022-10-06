@@ -235,7 +235,7 @@ export type Sidedef = MapLump & {
 	offset: Position
 
 	/**
-	 * The name of a texture that will be displayed on the border between a sectorId and its neighboring ceiling of a different
+	 * The texture that will be displayed on the border between a sector and its neighboring ceiling of a different
 	 * height. If the linedef that contains this sidedef is one-sided this field is meaningless.
 	 */
 	upperTexture: Either<DoomTexture>

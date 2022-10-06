@@ -459,7 +459,7 @@ describe('map-parser#parseLinedef', () => {
 });
 
 describe('map-parser#parseLinedefs', () => {
-	it('Validate Lindedefs Dir', () => {
+	it('Validate Lindedefs dir', () => {
 		validateLindedefsDir(getAllDirs()[getFirstMap().idx + MapLumpType.LINEDEFS]);
 	});
 
@@ -475,6 +475,13 @@ describe('map-parser#parseLinedefs', () => {
 		validateLindedef26(getE1M1Linedefs()[26]);
 	});
 
+	it('TWO_SIDED set on each two sided Linedef', () => {
+		getE1M1Linedefs().filter(ld => ld.backSide.isRight()).forEach(ld => {
+			const flags = ld.flags;
+			console.log('F', flags);
+			expect(ld.flags.has(LinedefFlag.TWO_SIDED)).toBeTrue();
+		})
+	});
 });
 
 describe('map-parser -> Parse Map Directory', () => {

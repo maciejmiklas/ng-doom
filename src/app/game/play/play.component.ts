@@ -26,6 +26,7 @@ import {
 	Linedef,
 	LinedefBySector,
 	LinedefFlag,
+	Sector,
 	ThingType,
 	Wad
 } from '../../wad/parser/wad-model';
@@ -148,17 +149,23 @@ const renderFlat = (flat: Flat, texture: Either<Bitmap>, height: number, renderH
 	return [mesh];
 };
 
+
 /** front side -> upper wall */
-const renderFrontSideUpperWall = (ld: Linedef): THREE.Mesh[] => {
+const renderUpperWall = (sector: Sector, ld: Linedef): THREE.Mesh[] => {
 	const mesh: THREE.Mesh[] = [];
-	const unpegged = ld.flags.has(LinedefFlag.UPPER_TEXTURE_UNPEGGED);
 
 	const wallHeight = (ld) => Math.abs(ld.sector.cellingHeight - ld.backSide.get().sector.cellingHeight);
-	const texture = (ld) => ld.frontSide.upperTexture.get();
+
+	// when current Linedef belongs to current Sector take front-side texture, otherwise try backside as we are looking at
+	// the back wall of another Sector
+	const texture = (ld) => sector.id !== ld.sector.id && ld.backSide.isRight() && ld.backSide.get().upperTexture.isRight() ?
+		ld.backSide.get().upperTexture.get() : ld.frontSide.upperTexture.get();
+
 	const side = () => THREE.DoubleSide;
 	const condition = [ld.frontSide.upperTexture, ld.backSide]
 
 	// the upper texture will begin at the higher ceiling and be drawn downwards.
+	const unpegged = ld.flags.has(LinedefFlag.UPPER_TEXTURE_UNPEGGED);
 	wall(() => [...condition, Either.ofBoolean(unpegged)],
 		side,
 		texture,
@@ -174,8 +181,12 @@ const renderFrontSideUpperWall = (ld: Linedef): THREE.Mesh[] => {
 	return mesh;
 }
 
-/** front side -> middle wall */
-const renderFrontSideMiddleWall = (ld: Linedef): THREE.Mesh[] => {
+/**
+ * front side -> middle wall part.
+ *
+ * The top of the texture is at the ceiling, the texture continues downward to the floor.
+ */
+const renderMiddleWall = (ld: Linedef): THREE.Mesh[] => {
 	const mesh: THREE.Mesh[] = [];
 
 	wall(() => [ld.frontSide.middleTexture],
@@ -187,13 +198,18 @@ const renderFrontSideMiddleWall = (ld: Linedef): THREE.Mesh[] => {
 	return mesh;
 }
 
-/** front side -> lower wall */
-const renderFrontSideLowerWall = (ld: Linedef): THREE.Mesh[] => {
+/** front side -> lower wall part */
+const renderLowerWall = (sector: Sector, ld: Linedef): THREE.Mesh[] => {
 	const mesh: THREE.Mesh[] = [];
 
 	const lowerUnpegged = ld.flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED);
 	const side = () => THREE.DoubleSide;
-	const texture = (ld) => ld.frontSide.lowerTexture.get();
+
+	// when current Linedef belongs to current Sector take front-side texture, otherwise try backside as we are looking at
+	// the back wall of another Sector
+	const texture = (ld) => sector.id !== ld.sector.id && ld.backSide.isRight() && ld.backSide.get().lowerTexture.isRight() ?
+		ld.backSide.get().lowerTexture.get() : ld.frontSide.lowerTexture.get();
+
 	const condition = [ld.frontSide.lowerTexture, ld.backSide]
 	const height = (ld) => Math.abs(ld.sector.floorHeight - ld.backSide.get().sector.floorHeight);
 
@@ -215,14 +231,17 @@ const renderFrontSideLowerWall = (ld: Linedef): THREE.Mesh[] => {
 }
 
 // https://doomwiki.org/wiki/Texture_alignment
+// https://doomwiki.org/wiki/Sidedef
 const renderWalls = (lbs: LinedefBySector): THREE.Mesh[] => {
 	let mesh: THREE.Mesh[] = [];
 
+	// TODO render middleTexture: Middle floating textures can be used to achieve a variety of faux 3D effects such as 3D bridge
 	lbs.linedefs.forEach(ld => {
-		mesh = mesh.concat(renderFrontSideUpperWall(ld));
-		mesh = mesh.concat(renderFrontSideMiddleWall(ld));
-		mesh = mesh.concat(renderFrontSideLowerWall(ld));
+		mesh = mesh.concat(renderMiddleWall(ld));
+		mesh = mesh.concat(renderUpperWall(lbs.sector, ld));
+		mesh = mesh.concat(renderLowerWall(lbs.sector, ld));
 	});
+
 	return mesh;
 };
 

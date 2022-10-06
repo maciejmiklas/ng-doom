@@ -98,7 +98,7 @@ export const getPalette = (): Palette => {
 let _pnames = null;
 export const getPnames = (): Pnames => {
 	if (_pnames == null) {
-		_pnames = tp.parsePnames(getWadBytes(), getAllDirs());
+		_pnames = tp.parsePnames(getWadBytes(), getAllDirs()).get();
 	}
 	return _pnames;
 };
@@ -106,7 +106,7 @@ export const getPnames = (): Pnames => {
 let _patches = null;
 export const getPatches = (): Bitmap[] => {
 	if (_patches == null) {
-		_patches = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette(), getPnames());
+		_patches = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette(), getPnames()).get();
 	}
 	return _patches;
 };
