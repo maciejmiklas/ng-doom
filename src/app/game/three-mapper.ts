@@ -15,7 +15,7 @@
  */
 
 
-import {DoomTexture, Floor, functions as mf, RgbaBitmap, Vertex} from "../wad/parser/wad-model";
+import {DoomTexture, Flat, functions as mf, RgbaBitmap, Vertex} from "../wad/parser/wad-model";
 import * as THREE from "three";
 import {Side} from "three/src/constants";
 import {Vector2} from "three/src/math/Vector2";
@@ -45,14 +45,14 @@ const createWallMaterial = (dt: DoomTexture, side: Side, color = null): THREE.Ma
 	map: createWallDataTexture(dt),
 	transparent: true,
 	alphaTest: 0.5,
-	side: THREE.DoubleSide,// TODO remove for real game
+	side,
 	color
 });
 
 const toVector2 = (ve: Vertex): Vector2 => new Vector2(ve.x, ve.y);
 
-const getHoles = (flor: Floor): Either<THREE.Shape[]> =>
-	flor.holes.map(paths =>
+const getHoles = (flat: Flat): Either<THREE.Shape[]> =>
+	flat.holes.map(paths =>
 		paths.map(path => new THREE.Shape(mf.pathToPoints(path).map(p => toVector2(p))))
 	)
 

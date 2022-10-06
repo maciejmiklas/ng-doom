@@ -36,12 +36,12 @@ export class WadFlatsComponent implements OnInit, FlatsListControl {
 	}
 
 	ngOnInit(): void {
-		this.flats = this.wadStorage.getCurrent().get().wad.flats;
+		this.flats = this.wadStorage.getCurrent().get().wad.flatBitmaps;
 		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadPatchesNavbarComponent, this)));
 	}
 
 	applyFilter(filter: string) {
-		this.flats = this.wadStorage.getCurrent().get().wad.flats.filter(fl => fl.name.toUpperCase().includes(filter.toUpperCase()));
+		this.flats = this.wadStorage.getCurrent().get().wad.flatBitmaps.filter(fl => fl.name.toUpperCase().includes(filter.toUpperCase()));
 	}
 }
 

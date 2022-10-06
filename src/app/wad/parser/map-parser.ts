@@ -153,8 +153,7 @@ const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) 
 				sector,
 				linedefs,
 				actions: linedefsByAction[1],
-				floor: {
-					rejected: null,
+				flat: {
 					sector,
 					walls: pathsByHoles.shift(),
 					holes: Either.ofCondition(() => pathsByHoles.length > 0, () => 'No holes', () => pathsByHoles)

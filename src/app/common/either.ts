@@ -61,6 +61,10 @@ export abstract class Either<T> {
 		return truthLeft.length === 0 ? func() : new Left(truthLeft.map(l => l.message()).join(','));
 	}
 
+	static ofBoolean(val: boolean): Either<boolean> {
+		return val ? Either.ofRight(val) : Either.ofLeft('FALSE');
+	}
+
 	get(): T {
 		return this.val;
 	}

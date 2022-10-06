@@ -198,13 +198,12 @@ export type Linedef = VectorV & MapLump & {
 };
 
 /**
- * Flor is deducted from Linedef and contains closed shapes and holes. It's actually a flor and the celling.
+ * Flat(flor or celling) is deducted from Linedef and contains closed shapes and holes.
  */
-export type Floor = {
+export type Flat = {
 	sector: Sector
 	walls: Linedef[]
 	holes: Either<Linedef[][]>
-	rejected: Either<Linedef[]>
 };
 
 /**
@@ -311,7 +310,7 @@ export type LinedefBySector = {
 
 	/** Linedefs not bein part of a wall, but defining an action given by #specialType */
 	actions: Linedef[]
-	floor: Floor
+	flat: Flat
 }
 
 export enum WadType {
@@ -503,7 +502,7 @@ export type Wad = {
 	bytes: number[],
 	playpal: Playpal,
 	textures: DoomTexture[],
-	flats: RgbaBitmap[]
+	flatBitmaps: RgbaBitmap[]
 };
 
 export type WadEntry = {

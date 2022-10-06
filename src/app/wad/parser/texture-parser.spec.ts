@@ -111,7 +111,7 @@ describe('texture-parser#parsePnames', () => {
 });
 
 describe('texture-parser#parsePatches', () => {
-	const pb: Bitmap[] = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette(), getPnames());
+	const pb: Bitmap[] = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette(), getPnames()).get();
 
 	it('Bitmap size', () => {
 		expect(pb.length).toEqual(163);

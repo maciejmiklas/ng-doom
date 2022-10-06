@@ -48,8 +48,8 @@ const parseWad = (bytes: number[]): Either<Wad> =>
 		.append(w => parseTitlePic(bytes, w.dirs, w.playpal.palettes[0]), (w, v) => w.title = v)// title
 		.append(w => tp.parsePatches(bytes, w.dirs, w.playpal.palettes[0],w.pnames), (w, v) => w.patches = v)// patches
 		.append(w => tp.parseTextures(bytes, w.dirs, w.pnames, w.patches), (w, v) => w.textures = v) // textures
-		.append(w => tp.parseFlats(bytes, w.dirs, w.playpal.palettes[0]), (w, v) => w.flats = v) // flats
-		.append(w => mp.parseMaps(bytes, w.dirs, w.textures, w.flats), (w, v) => w.maps = v); // maps
+		.append(w => tp.parseFlats(bytes, w.dirs, w.playpal.palettes[0]), (w, v) => w.flatBitmaps = v) // flatBitmaps
+		.append(w => mp.parseMaps(bytes, w.dirs, w.textures, w.flatBitmaps), (w, v) => w.maps = v); // maps
 
 // ############################ EXPORTS ############################
 export const testFunctions = {

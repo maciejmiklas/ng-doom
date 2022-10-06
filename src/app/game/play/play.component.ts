@@ -18,18 +18,21 @@ import * as THREE from 'three';
 import {Controls} from '../controls';
 import {WadStorageService} from '../../wad/wad-storage.service';
 import {
+	Bitmap,
 	DoomMap,
 	DoomTexture,
+	Flat,
 	functions as mf,
 	Linedef,
 	LinedefBySector,
+	LinedefFlag,
 	ThingType,
 	Wad
 } from '../../wad/parser/wad-model';
 
 import {functions as tm} from '../three-mapper'
 import {Either} from '../../common/either';
-import {DoubleSide, Side} from 'three/src/constants';
+import {Side} from 'three/src/constants';
 import {config as gc} from '../game-config'
 
 @Component({
@@ -110,87 +113,132 @@ const setupCamera = (camera: THREE.PerspectiveCamera, map: DoomMap) => {
 
 const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => void) => (lbs: LinedefBySector) => {
 	renderWalls(lbs).forEach(m => scene.add(m));
-	renderFloors(lbs).forEach(m => {
+
+	// floor
+	renderFlat(lbs.flat, lbs.sector.floorTexture, lbs.sector.floorHeight, true).forEach(m => {
 		florCallback(m);
+		scene.add(m);
+	});
+
+	// celling
+	renderFlat(lbs.flat, lbs.sector.cellingTexture, lbs.sector.cellingHeight, false).forEach(m => {
 		scene.add(m);
 	});
 };
 
-
-const renderFloors = (lbs: LinedefBySector): THREE.Mesh[] => {
+const renderFlat = (flat: Flat, texture: Either<Bitmap>, height: number, renderHoles: boolean): THREE.Mesh[] => {
 	//if (lbs.sector.id !== 49 && lbs.sector.id !== 50) {
 	//	return [];
 	//}
-	const floor = lbs.floor;
-	const wallPoints = mf.pathToPoints(floor.walls).map(p => tm.toVector2(p));
+	const wallPoints = mf.pathToPoints(flat.walls).map(p => tm.toVector2(p));
 	const wallShape = new THREE.Shape(wallPoints);
-	tm.getHoles(floor).exec(holes => holes.forEach(hole => wallShape.holes.push(hole)));
+	if (renderHoles) {
+		tm.getHoles(flat).exec(holes => holes.forEach(hole => wallShape.holes.push(hole)));
+	}
 	const geometry = new THREE.ShapeGeometry(wallShape);
 
-	const material = floor.sector.floorTexture.map(tx => tm.createFloorDataTexture(tx)).map(tx => new THREE.MeshPhongMaterial({
+	const material = texture.map(tx => tm.createFloorDataTexture(tx)).map(tx => new THREE.MeshPhongMaterial({
 		side: THREE.DoubleSide,
 		map: tx
 	})).orElse(() => tm.createFallbackMaterial());
 
 	const mesh = new THREE.Mesh(geometry, material);
 	mesh.rotation.set(Math.PI / 2, Math.PI, Math.PI);
-	mesh.position.y = lbs.sector.floorHeight;
+	mesh.position.y = height;
 	return [mesh];
 };
 
-const renderWalls = (lbs: LinedefBySector): THREE.Mesh[] => {
+/** front side -> upper wall */
+const renderFrontSideUpperWall = (ld: Linedef): THREE.Mesh[] => {
+	const mesh: THREE.Mesh[] = [];
+	const unpegged = ld.flags.has(LinedefFlag.UPPER_TEXTURE_UNPEGGED);
+
+	const wallHeight = (ld) => Math.abs(ld.sector.cellingHeight - ld.backSide.get().sector.cellingHeight);
+	const texture = (ld) => ld.frontSide.upperTexture.get();
+	const side = () => THREE.DoubleSide;
+	const condition = [ld.frontSide.upperTexture, ld.backSide]
+
+	// the upper texture will begin at the higher ceiling and be drawn downwards.
+	wall(() => [...condition, Either.ofBoolean(unpegged)],
+		side,
+		texture,
+		(ld, wallHeight) => Math.max(ld.sector.cellingHeight, ld.backSide.get().sector.cellingHeight) + wallHeight / 2,
+		(ld) => wallHeight(ld) * -1)(ld).exec(m => mesh.push(m));
+
+	// the upper texture is pegged to the lowest ceiling
+	wall(() => [...condition, Either.ofBoolean(!unpegged)],
+		side,
+		texture,
+		(ld, wallHeight) => Math.min(ld.sector.cellingHeight, ld.backSide.get().sector.cellingHeight) + wallHeight / 2,
+		wallHeight)(ld).exec(m => mesh.push(m));
+	return mesh;
+}
+
+/** front side -> middle wall */
+const renderFrontSideMiddleWall = (ld: Linedef): THREE.Mesh[] => {
 	const mesh: THREE.Mesh[] = [];
 
-	const lowerUpperSide = () => THREE.DoubleSide;
-	const lowerUpperTexture = (ld) => ld.frontSide.lowerTexture;
+	wall(() => [ld.frontSide.middleTexture],
+		() => THREE.DoubleSide,
+		(ld) => ld.frontSide.middleTexture.get(),
+		(ld, wallHeight) => ld.sector.floorHeight + wallHeight / 2,
+		(ld) => ld.sector.cellingHeight - ld.sector.floorHeight)(ld).exec(m => mesh.push(m));
 
-	const lowerStartHeight = (ld) => ld.backSide.map(bs => bs.sector.floorHeight);
-	const lowerWallHeight = (ld) => ld.backSide.map(bs => ld.sector.floorHeight - bs.sector.floorHeight);
+	return mesh;
+}
 
-	const upperStartHeight = (ld) => ld.backSide.map(bs => bs.sector.ceilingHeight);
-	const upperWallHeight = (ld) => ld.backSide.map(bs => ld.sector.ceilingHeight - bs.sector.ceilingHeight);
+/** front side -> lower wall */
+const renderFrontSideLowerWall = (ld: Linedef): THREE.Mesh[] => {
+	const mesh: THREE.Mesh[] = [];
 
-	const middleFrontSide = () => THREE.FrontSide;
-	const middleFrontTexture = (ld: Linedef) => ld.frontSide.middleTexture;
+	const lowerUnpegged = ld.flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED);
+	const side = () => THREE.DoubleSide;
+	const texture = (ld) => ld.frontSide.lowerTexture.get();
+	const condition = [ld.frontSide.lowerTexture, ld.backSide]
+	const height = (ld) => Math.abs(ld.sector.floorHeight - ld.backSide.get().sector.floorHeight);
 
-	const middleBackSide = () => THREE.BackSide;
-	const middleBackTexture = (ld: Linedef) => ld.backSide.map(b => b.middleTexture);
+	// the upper texture is pegged to the highest flor
+	wall(() => [...condition, Either.ofBoolean(lowerUnpegged)],
+		side,
+		texture,
+		(ld, wallHeight) => Math.max(ld.sector.floorHeight, ld.backSide.get().sector.floorHeight) + wallHeight / 2,
+		(ld) => height(ld) * -1)(ld).exec(m => mesh.push(m));
 
-	const middleWallHeight = (ld: Linedef) => Either.ofRight(ld.sector.cellingHeight - ld.sector.floorHeight);
-	const middleStart = (ld: Linedef) => Either.ofRight(ld.sector.floorHeight);
+	// the upper texture is pegged to the lowest flor
+	wall(() => [...condition, Either.ofBoolean(!lowerUnpegged)],
+		side,
+		texture,
+		(ld, wallHeight) => Math.min(ld.sector.floorHeight, ld.backSide.get().sector.floorHeight) + wallHeight / 2,
+		height)(ld).exec(m => mesh.push(m));
+
+	return mesh;
+}
+
+// https://doomwiki.org/wiki/Texture_alignment
+const renderWalls = (lbs: LinedefBySector): THREE.Mesh[] => {
+	let mesh: THREE.Mesh[] = [];
 
 	lbs.linedefs.forEach(ld => {
-		// lower wall
-		wall(lowerUpperSide, lowerUpperTexture, lowerStartHeight, lowerWallHeight)(ld).exec(m => mesh.push(m));
-
-		// middle front wall
-		wall(middleFrontSide, middleFrontTexture, middleStart, middleWallHeight)(ld,).exec(m => mesh.push(m));
-
-		// middle back wall
-		wall(middleBackSide, middleBackTexture, middleStart, middleWallHeight)(ld).exec(m => mesh.push(m));
-
-		// Upper Wall
-		wall(lowerUpperSide, lowerUpperTexture, upperStartHeight, upperWallHeight)(ld).exec(m => mesh.push(m));
-
+		mesh = mesh.concat(renderFrontSideUpperWall(ld));
+		mesh = mesh.concat(renderFrontSideMiddleWall(ld));
+		mesh = mesh.concat(renderFrontSideLowerWall(ld));
 	});
 	return mesh;
 };
 
-const wall = (sideFunc: (ld: Linedef) => Side,
-							textureFunc: (ld: Linedef) => Either<DoomTexture>,
-							startHeightFunc: (ld: Linedef) => Either<number>,
-							wallHeightFunc: (ld: Linedef) => Either<number>) => (ld: Linedef, color = null): Either<THREE.Mesh> => {
-	const startHeightEi = startHeightFunc(ld);
-	const wallHeightEi = wallHeightFunc(ld);
-	const textureEi = textureFunc(ld);
-	return Either.ofTruth([startHeightEi, wallHeightEi, textureEi], () => {
+const wall = (precondition: () => Either<any>[],
+							sideFunc: (ld: Linedef) => Side,
+							textureFunc: (ld: Linedef) => DoomTexture,
+							wallOffsetFunc: (ld: Linedef, wallHeight: number) => number,
+							wallHeightFunc: (ld: Linedef) => number) => (ld: Linedef, color = null): Either<THREE.Mesh> => {
+	return Either.ofTruth(precondition(), () => {
+		const wallHeight = wallHeightFunc(ld);
 		const vs = ld.start;
 		const ve = ld.end;
 		const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y);
-		const material = tm.createWallMaterial(textureEi.get(), DoubleSide, color);// TODO DoubleSide -> sideFunc(ld)
-		const wallHeight = wallHeightEi.get();
+		const material = tm.createWallMaterial(textureFunc(ld), sideFunc(ld), color);
 		const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(wallWidth, wallHeight), material);
-		mesh.position.set((vs.x + ve.x) / 2, startHeightEi.get() + wallHeight / 2, (vs.y + ve.y) / -2);
+		mesh.position.set((vs.x + ve.x) / 2, wallOffsetFunc(ld, wallHeight), (vs.y + ve.y) / -2);
 		mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x));
 		return mesh;
 	});
@@ -199,7 +247,7 @@ const wall = (sideFunc: (ld: Linedef) => Side,
 const createScene = (): THREE.Scene => {
 	const scene = new THREE.Scene();
 	scene.background = new THREE.Color('skyblue');
-	scene.add(new THREE.AxesHelper(500).setColors(new THREE.Color('red'), new THREE.Color('black'), new THREE.Color('green')));
+	//scene.add(new THREE.AxesHelper(500).setColors(new THREE.Color('red'), new THREE.Color('black'), new THREE.Color('green')));
 	const light = new THREE.HemisphereLight(0XFFFFCC, 0X19BBDC, 1.5);
 	light.position.set(0, 0, 0);
 	light.visible = true;

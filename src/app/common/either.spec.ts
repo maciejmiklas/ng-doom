@@ -399,6 +399,18 @@ describe('Either#mapGet', () => {
 	});
 });
 
+
+describe('Either#ofBoolean', () => {
+	it('TRUE', () => {
+		expect(Either.ofBoolean(true).isRight()).toBeTrue();
+	});
+	it('FALSE', () => {
+		expect(Either.ofBoolean(false).isLeft()).toBeTrue();
+	});
+
+});
+
+
 describe('Either#ofCondition', () => {
 	const falsyInt = Either.ofCondition(() => false, () => 'cond false', () => 98);
 	const truthyInt = Either.ofCondition(() => true, () => 'cond true', () => 99);
