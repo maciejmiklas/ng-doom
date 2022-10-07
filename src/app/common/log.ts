@@ -19,35 +19,35 @@ export enum LogLevel {
 }
 
 export class Log {
-	static LOG_LEVEL = LogLevel.WARN;
+	static LOG_LEVEL = LogLevel.DEBUG;
 
 	static error(cmp: string, ...args: any[]): void {
 		if (Log.LOG_LEVEL >= LogLevel.ERROR) {
-			console.log('ERROR(' + cmp + '): ' + args);
+			console.log('ERROR(' + cmp + '): ', JSON.stringify(args));
 		}
 	}
 
 	static warn(cmp: string, ...args: any[]): void {
 		if (Log.LOG_LEVEL >= LogLevel.WARN) {
-			console.log('WARN(' + cmp + '): ' + args);
+			console.log('WARN(' + cmp + '): ', JSON.stringify(args));
 		}
 	}
 
 	static info(cmp: string, ...args: any[]): void {
 		if (Log.LOG_LEVEL >= LogLevel.INFO) {
-			console.log('INFO(' + cmp + '): ' + args);
+			console.log('INFO(' + cmp + '): ', JSON.stringify(args));
 		}
 	}
 
 	static debug(cmp: string, ...args: any[]): void {
 		if (Log.LOG_LEVEL >= LogLevel.DEBUG) {
-			console.log('DEBUG(' + cmp + '): ' + args);
+			console.log('DEBUG(' + cmp + '): ', JSON.stringify(args));
 		}
 	}
 
 	static trace(cmp: string, ...args: any[]): void {
 		if (Log.LOG_LEVEL >= LogLevel.TRACE) {
-			console.log('TRACE(' + cmp + '): ' + args);
+			console.log('TRACE(' + cmp + '): ', JSON.stringify(args));
 		}
 	}
 }

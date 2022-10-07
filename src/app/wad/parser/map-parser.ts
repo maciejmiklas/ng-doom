@@ -33,6 +33,7 @@ import {
 	Vertex
 } from './wad-model';
 import U from '../../common/util';
+import {Log} from "../../common/log";
 
 export enum VectorConnection {
 	V1END_TO_V2START,
@@ -91,6 +92,7 @@ const parseMaps = (bytes: number[], dirs: Directory[], textures: DoomTexture[], 
 };
 
 const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>, flatLoader: (name: string) => Either<Bitmap>) => (mapDirs: Directory[]): DoomMap => {
+	Log.debug('Parse Map:', mapDirs[0].name);
 	const sectors = parseSectors(bytes)(mapDirs, flatLoader);
 	const linedefs = parseLinedefs(bytes, mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes, textureLoader)(mapDirs, sectors), sectors);
 	return {
@@ -124,7 +126,9 @@ const orderAndBuildPaths = (linedefs: Linedef[]): Either<Linedef[][]> => {
 
 	// build paths from vectors
 	const paths = buildPaths<Linedef>(ordered);
-	return Either.ofCondition(() => paths.length > 0 && continuosPath(paths[0]), () => 'Could not build path', () => paths);
+	return Either.ofCondition(() => paths.length > 0 && continuosPath(paths[0]),
+		() => 'Could not build path for Sector: ' + R.path([0,'sector', 'id'],linedefs),
+		() => paths);
 }
 
 const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) => (sector: Sector): Either<LinedefBySector> => {
@@ -171,11 +175,11 @@ const groupLinedefsBySectors = (mapLinedefs: Linedef[], sectors: Sector[]): Line
 
 		// map each #sectorId to Sector
 		.map(sectorId =>
-			Either.ofNullable(sectors.find(s => s.id === sectorId), () => 'No sector with id: ' + sectorId)
+			Either.ofNullable(sectors.find(s => s.id === sectorId), () => 'No Sector: ' + sectorId)
 		)
 
 		// remove not existing sectors from array
-		.filter(s => s.isRight())
+		.filter(s => s.filter())
 
 		// Either<Sector> => Sector
 		.map(s => s.get())
@@ -184,7 +188,7 @@ const groupLinedefsBySectors = (mapLinedefs: Linedef[], sectors: Sector[]): Line
 		.map(s => bySector(s))
 
 		// remove not existing LinedefBySector from array
-		.filter(ld => ld.isRight())
+		.filter(ld => ld.filter())
 
 		//Either<LinedefBySector> => LinedefBySector
 		.map(s => s.get())
@@ -215,7 +219,7 @@ const parseThings = (bytes: number[]) => (mapDirs: Directory[]): Thing[] => {
 	return unfoldByDirectorySize(thingDir, 10).map((ofs, thingIdx) => parser(thingIdx)).map(th => th);
 };
 
-const parseSector = (bytes: number[], dir: Directory, flatLoader: (name: string) => Either<Bitmap>,) => (thingIdx: number): Sector => {
+const parseSector = (bytes: number[], dir: Directory, flatLoader: (name: string) => Either<Bitmap>) => (thingIdx: number): Sector => {
 	const offset = dir.filepos + 26 * thingIdx;
 	const shortParser = U.parseInt16(bytes);
 	const strParser = U.parseStr(bytes);
@@ -246,7 +250,7 @@ const parseSidedef = (bytes: number[], dir: Directory, textureLoader: (name: str
 	const sectorId = shortParser(offset + 0x1C);
 	return Either.ofCondition(
 		() => sectorId < sectors.length && sectorId > 0,
-		() => 'No Sidedef on ' + thingIdx,
+		() => 'Sector ' + sectorId + ' has no Sidedef on ' + thingIdx,
 		() => ({
 			dir,
 			lumpType: MapLumpType.SIDEDEFS,
