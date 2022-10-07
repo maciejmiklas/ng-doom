@@ -14,29 +14,45 @@
  * limitations under the License.
  */
 import {testFunctions as tf, functions as mp} from "./map-parser";
-import {getAllDirs, getFlats, getE1M1Linedefs, getTextures, getWadBytes} from "./testdata/data";
+import {
+	getAllDirs,
+	getFlats,
+	getE1M1Linedefs,
+	getTextures,
+	getWadBytes,
+	pathClosedReversedMix,
+	pathRectanglesMixedReversed
+} from "./testdata/data";
 
 describe('test', () => {
 	it('ABC', () => {
 		const maps = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats());
-		const m1e4 = maps.get()[3];
-		const backs = tf.findBackLinedefs(m1e4.linedefs)
-
-		const finder = tf.findBacksidesBySector(backs);
-		let cnt = 0;
-		backs.forEach(ld => {
-			if (ld.sector.id == 50) {
-				console.log('>F>')
-			}
-
-			ld.backSide.map(bs => {
-				if (bs.sector.id == 50) {
-					//console.log('>B>')
-					cnt++;
-				}
-			})
-
-		})
-		console.log('>>B>>', cnt);
+		const m1e1 = maps.get()[1];
 	});
 });
+
+
+describe('map-parser#buildPaths', () => {
+
+	it('Connected rectangles', () => {
+		const sorted = tf.buildPaths(tf.orderPath(pathClosedReversedMix));
+	});
+});
+
+
+describe('map-parser#orderPath', () => {
+
+	it('Rectangles mixed and reversed', () => {
+		const ordered = tf.orderPath(pathRectanglesMixedReversed);
+		console.log(ordered);
+	});
+});
+
+
+/*
+ - przerobic buildPaths tak zeby dzialal z vektorami reversed
+ - dopiero po znalezieniu sciezek zrobic order
+ - na poczatku sprawdzam czy sa przynajmniej 3 verktory ze wspolnym punktem, jak tak to mamy rozgalezienie figur
+ - bierzemy jakikolwiek z tych wektorow i szukamy nastepnego do kontynuacji, ale to nie moze byc zaden z tych wospolnych z rozgalezienia
+ *
+ */

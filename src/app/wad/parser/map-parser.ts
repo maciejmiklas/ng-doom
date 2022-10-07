@@ -119,19 +119,32 @@ const groupByWallAndAction = (linedefs: Linedef[]): Linedef[][] => {
 }
 
 const findMaxSectorId = (linedefs: Linedef[]): number => R.reduce<number, number>(R.max, 0, linedefs.map(ld => ld.sector.id));
+/*
+export type SV = {
+	id: number
+	start: Vertex,
+	end: Vertex
+}*/
 
 const orderAndBuildPaths = (linedefs: Linedef[]): Either<Linedef[][]> => {
 	// swap x with y in some vectors so that they can build a continuous path
 	const ordered: Linedef[] = orderPath(linedefs);
 
+	/*if (ordered[0]?.sector?.id == 37) {
+		const svs: SV[] = ordered.map<SV>(ld => ({id: ld.id, start: ld.start, end: ld.end}))
+		console.log('XXXX', JSON.stringify(svs));
+	}*/
 	// build paths from vectors
 	const paths = buildPaths<Linedef>(ordered);
 	return Either.ofCondition(() => paths.length > 0 && continuosPath(paths[0]),
-		() => 'Could not build path for Sector: ' + R.path([0,'sector', 'id'],linedefs),
+		() => 'Could not build path for Sector: ' + R.path([0, 'sector', 'id'], linedefs),
 		() => paths);
 }
 
 const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) => (sector: Sector): Either<LinedefBySector> => {
+/*	if (sector.id == 37) {
+		console.log('SID', sector.id)
+	}*/
 	const linedefs: Linedef[] = mapLinedefs.filter(ld => ld.sector.id === sector.id)
 		// for two sectors sharing common border vectors are defined only in one of those sectors as a backside
 		.concat(findBacksidesBySector(backLinedefs)(sector.id).orElse(() => []));
