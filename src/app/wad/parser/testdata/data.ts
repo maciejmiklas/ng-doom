@@ -354,7 +354,7 @@ export const validateTitlePatchHeader = (header: BitmapHeader) => {
 };
 
 
-export const pathClosedMixed = [
+export const pathClosedMixed: VectorId[] = [
 	{"id": 8, "start": {"x": 1728, "y": -704}, "end": {"x": 1856, "y": -704}},
 	{"id": 2, "start": {"x": 2048, "y": -1024}, "end": {"x": 1792, "y": -1280}},
 	{"id": 3, "start": {"x": 1792, "y": -1280}, "end": {"x": 1472, "y": -1280}},
@@ -366,7 +366,7 @@ export const pathClosedMixed = [
 	{"id": 5, "start": {"x": 1472, "y": -1088}, "end": {"x": 1472, "y": -960}}
 ];
 
-export const pathClosedSorted = [
+export const pathClosedSorted: VectorId[] = [
 	{"id": 0, "start": {"x": 1856, "y": -704}, "end": {"x": 2048, "y": -704}},
 	{"id": 1, "start": {"x": 2048, "y": -704}, "end": {"x": 2048, "y": -1024}},
 	{"id": 2, "start": {"x": 2048, "y": -1024}, "end": {"x": 1792, "y": -1280}},
@@ -377,32 +377,32 @@ export const pathClosedSorted = [
 	{"id": 7, "start": {"x": 1472, "y": -704}, "end": {"x": 1728, "y": -704}},
 	{"id": 8, "start": {"x": 1728, "y": -704}, "end": {"x": 1856, "y": -704}}];
 
-export const pathClosedMixed2 = [
+export const pathClosedMixed2: VectorId[] = [
 	{"id": 10, "start": {"x": 10, "y": 20}, "end": {"x": 100, "y": 200}},
 	{"id": 14, "start": {"x": 700, "y": 800}, "end": {"x": 10, "y": 20}},
 	{"id": 12, "start": {"x": 300, "y": 400}, "end": {"x": 500, "y": 600}},
 	{"id": 13, "start": {"x": 500, "y": 600}, "end": {"x": 700, "y": 800}},
 	{"id": 11, "start": {"x": 100, "y": 200}, "end": {"x": 300, "y": 400}}];
 
-export const pathClosedReversedOne = [
+export const pathClosedReversedOne: VectorId[] = [
 	{"id": 20, "start": {"x": 10, "y": 20}, "end": {"x": 100, "y": 200}},
 	{"id": 24, "start": {"x": 700, "y": 800}, "end": {"x": 10, "y": 20}},
 	{"id": 22, "start": {"x": 300, "y": 400}, "end": {"x": 500, "y": 600}},
-	{"id": 23, "start": {"x": 700, "y": 800}, "end": {"x": 500, "y": 600}, "reversed": true},
+	{"id": 23, "start": {"x": 700, "y": 800}, "end": {"x": 500, "y": 600}},// reversed
 	{"id": 21, "start": {"x": 100, "y": 200}, "end": {"x": 300, "y": 400}}];
 
-export const pathClosedReversedMix = [
-	{"id": 40, "start": {"x": 64, "y": -3392}, "end": {"x": 128, "y": -3264}, "direction": "40E->41S"},
-	{"id": 41, "start": {"x": 128, "y": -3264}, "end": {"x": 128, "y": -3200}, "direction": "41E->42E"},
-	{"id": 42, "start": {"x": 128, "y": -3200}, "end": {"x": 64, "y": -3072}, "direction": "42E->43E"},
-	{"id": 43, "start": {"x": 48, "y": -3072}, "end": {"x": 64, "y": -3072}, "direction": "43E->44E"},
-	{"id": 44, "start": {"x": -64, "y": -3136}, "end": {"x": 48, "y": -3072}, "direction": "44S->45S"},
-	{"id": 45, "start": {"x": -64, "y": -3136}, "end": {"x": -64, "y": -3328}, "direction": "45E->46E"},
-	{"id": 46, "start": {"x": 48, "y": -3392}, "end": {"x": -64, "y": -3328}, "direction": "46S->47E"},
-	{"id": 47, "start": {"x": 64, "y": -3392}, "end": {"x": 48, "y": -3392}, "direction": "47S->40S"},
+export const pathClosedReversedMix: VectorId[] = [
+	{"id": 40, "start": {"x": 64, "y": -3392}, "end": {"x": 128, "y": -3264}},
+	{"id": 41, "start": {"x": 128, "y": -3264}, "end": {"x": 128, "y": -3200}},
+	{"id": 42, "start": {"x": 128, "y": -3200}, "end": {"x": 64, "y": -3072}},
+	{"id": 43, "start": {"x": 48, "y": -3072}, "end": {"x": 64, "y": -3072}},
+	{"id": 44, "start": {"x": -64, "y": -3136}, "end": {"x": 48, "y": -3072}},
+	{"id": 45, "start": {"x": -64, "y": -3136}, "end": {"x": -64, "y": -3328}},
+	{"id": 46, "start": {"x": 48, "y": -3392}, "end": {"x": -64, "y": -3328}},
+	{"id": 47, "start": {"x": 64, "y": -3392}, "end": {"x": 48, "y": -3392}},
 ];
 
-export const pathRectanglesClosedReversed = [
+export const pathRectanglesClosedReversed: VectorId[] = [
 	{"id": 100, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}},
 	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}},
 	{"id": 102, "start": {"x": 1184, "y": -3072}, "end": {"x": 1184, "y": -3104}},
@@ -419,7 +419,7 @@ export const pathRectanglesClosedReversed = [
 	{"id": 303, "start": {"x": 928, "y": -3392}, "end": {"x": 928, "y": -3360}}
 ];
 
-export const pathRectanglesMixedReversed = [
+export const pathRectanglesMixedReversed: VectorId[] = [
 	{"id": 300, "start": {"x": 1184, "y": -3360}, "end": {"x": 928, "y": -3360}},
 	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}},
 	{"id": 302, "start": {"x": 1184, "y": -3392}, "end": {"x": 928, "y": -3392}},

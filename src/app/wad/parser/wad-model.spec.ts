@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {functions as mf} from './wad-model';
-import {pathClosedMixed2} from "./testdata/data";
+import {functions as mf, VectorConnection, VectorV} from './wad-model';
+import {pathClosedMixed2, pathClosedReversedOne} from "./testdata/data";
+import {testFunctions as tf} from "./map-parser";
 
 describe('wad_model#vertexEqual', () => {
 	it('Equal', () => {
@@ -62,6 +63,76 @@ describe('wad_model#pathToPoints', () => {
 
 });
 
+describe('wad_model#hasVertex', () => {
+	const vector: VectorV = {start: {x: 2, y: 4}, end: {x: 2, y: 4}}
+
+	it('has vertex', () => {
+		expect(mf.hasVertex({x: 2, y: 4})(vector)).toBeTrue();
+	});
+
+	it('has no vertex', () => {
+		expect(mf.hasVertex({x: 4, y: 4})(vector)).toBeFalse();
+	});
+});
+
+
+describe('map-parser#vectorsConnected', () => {
+	it('Connected - the same', () => {
+		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED);
+	});
+
+	it('Connected - start to start', () => {
+		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 1, y: 2}, end: {x: 43, y: 54}}
+		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED);
+	});
+
+	it('Connected - start to end', () => {
+		const v1 = {start: {x: 1, y: 2}, end: {x: 34, y: 45}}
+		const v2 = {start: {x: 1, y: 2}, end: {x: 1, y: 2}}
+		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.V2END_TO_V1START);
+	});
+
+	it('Connected - end to end', () => {
+		const v1 = {start: {x: 41, y: 42}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED);
+	});
+
+	it('Connected - end to start', () => {
+		const v1 = {start: {x: 21, y: 12}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 4, y: 5}, end: {x: 4, y: 5}}
+		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.V1END_TO_V2START);
+	});
+
+	it('Connected - end to end 2', () => {
+		const v1 = {start: {x: 13, y: 24}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED);
+	});
+
+	it('Not connected', () => {
+		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 11, y: 12}, end: {x: 14, y: 15}}
+		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.NONE);
+	});
+});
+
+describe('map-parser#vectorReversed', () => {
+
+	it('In path', () => {
+		expect(mf.vectorReversed(pathClosedReversedOne)(
+			{"start": {"x": 700, "y": 800}, "end": {"x": 10, "y": 20}})).toBeFalse();
+	});
+
+	it('Not in path', () => {
+		expect(mf.vectorReversed(pathClosedReversedOne)(
+			{"start": {"x": 700, "y": 800}, "end": {"x": 500, "y": 600}})).toBeTrue();
+	});
+
+});
 
 
 

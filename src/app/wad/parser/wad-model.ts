@@ -169,6 +169,13 @@ export type Vertex = Position & {
 	y: number
 };
 
+export enum VectorConnection {
+	V1END_TO_V2START,
+	V2END_TO_V1START,
+	REVERSED,
+	NONE,
+}
+
 export type VectorV = {
 	start: Vertex,
 	end: Vertex
@@ -528,4 +535,29 @@ const reverseVector = <V extends VectorV>(input: V): V => {
 const pathToPoints = (vectors: VectorV[]): Vertex[] =>
 	R.uniqWith<Vertex, Vertex>((v1, v2) => v1.x === v2.x && v1.y === v2.y)(R.flatten(vectors.map(v => [v.start, v.end])));
 
-export const functions = {vertexEqual, reverseVector, pathToPoints};
+const hasVertex = (vertex: Vertex) => (vector: VectorV): boolean =>
+	vertexEqual(vertex, vector.start) || vertexEqual(vertex, vector.end)
+
+const vectorReversed = (vectors: VectorV[]) => (ve: VectorV): boolean =>
+	!vectors.find(v => {
+		const con = vectorsConnected(ve, v);
+		return con === VectorConnection.V1END_TO_V2START || con === VectorConnection.V2END_TO_V1START ? v : undefined
+	})
+
+const vectorsConnected = (v1: VectorV, v2: VectorV): VectorConnection =>
+	R.cond([
+		[(v1, v2) => vertexEqual(v1.end, v2.start), () => VectorConnection.V1END_TO_V2START],
+		[(v1, v2) => vertexEqual(v2.end, v1.start), () => VectorConnection.V2END_TO_V1START],
+		[(v1, v2) => vertexEqual(v1.start, v2.start) || vertexEqual(v1.end, v2.end), () => VectorConnection.REVERSED],
+		[R.T, () => VectorConnection.NONE]
+	])(v1, v2)
+
+
+export const functions = {
+	vertexEqual,
+	reverseVector,
+	pathToPoints,
+	hasVertex,
+	vectorsConnected,
+	vectorReversed
+};

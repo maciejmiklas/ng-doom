@@ -13,38 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {testFunctions as tf, functions as mp} from "./map-parser";
-import {
-	getAllDirs,
-	getFlats,
-	getE1M1Linedefs,
-	getTextures,
-	getWadBytes,
-	pathClosedReversedMix,
-	pathRectanglesMixedReversed
-} from "./testdata/data";
+import {functions as mp} from "./map-parser";
+import {getAllDirs, getFlats, getTextures, getWadBytes} from "./testdata/data";
 
 describe('test', () => {
 	it('ABC', () => {
 		const maps = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats());
 		const m1e1 = maps.get()[1];
-	});
-});
-
-
-describe('map-parser#buildPaths', () => {
-
-	it('Connected rectangles', () => {
-		const sorted = tf.buildPaths(tf.orderPath(pathClosedReversedMix));
-	});
-});
-
-
-describe('map-parser#orderPath', () => {
-
-	it('Rectangles mixed and reversed', () => {
-		const ordered = tf.orderPath(pathRectanglesMixedReversed);
-		console.log(ordered);
 	});
 });
 

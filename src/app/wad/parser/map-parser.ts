@@ -28,18 +28,28 @@ import {
 	MIN_VECTOR_V,
 	Sector,
 	Sidedef,
-	Thing,
+	Thing, VectorConnection,
 	VectorV,
 	Vertex
 } from './wad-model';
 import U from '../../common/util';
 import {Log} from "../../common/log";
 
-export enum VectorConnection {
-	V1END_TO_V2START,
-	V2END_TO_V1START,
-	REVERSED,
-	NONE,
+
+export type CrossingVectors<V extends VectorV> = {
+
+	/**
+	 * Crossing consists of at least 3 vectors sharing common point.
+	 * In this case we have multiple shapes sharing common edge.
+	 */
+	crossing: Either<V[]>,
+	remaining: V[]
+}
+
+const buildPaths1 = <V extends VectorV>(vectors: V[]): CrossingVectors<V> => {
+	const todo = [...vectors];
+	const remaining = [];
+	return null;
 }
 
 /** The type of the map has to be in the form ExMy or MAPxx */
@@ -127,24 +137,25 @@ export type SV = {
 }*/
 
 const orderAndBuildPaths = (linedefs: Linedef[]): Either<Linedef[][]> => {
-	// swap x with y in some vectors so that they can build a continuous path
-	const ordered: Linedef[] = orderPath(linedefs);
+	if (linedefs.length == 0) {
+		return Either.ofLeft('Cannot build Path - Linedef[] is empty');
+	}
 
-	/*if (ordered[0]?.sector?.id == 37) {
-		const svs: SV[] = ordered.map<SV>(ld => ({id: ld.id, start: ld.start, end: ld.end}))
+	/*if (linedefs[0]?.sector?.id == 37) {
+		const svs: SV[] = linedefs.map<SV>(ld => ({id: ld.id, start: ld.start, end: ld.end}))
 		console.log('XXXX', JSON.stringify(svs));
 	}*/
 	// build paths from vectors
-	const paths = buildPaths<Linedef>(ordered);
+	const paths = buildPaths<Linedef>(linedefs);
 	return Either.ofCondition(() => paths.length > 0 && continuosPath(paths[0]),
 		() => 'Could not build path for Sector: ' + R.path([0, 'sector', 'id'], linedefs),
 		() => paths);
 }
 
 const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) => (sector: Sector): Either<LinedefBySector> => {
-/*	if (sector.id == 37) {
-		console.log('SID', sector.id)
-	}*/
+	/*	if (sector.id == 37) {
+			console.log('SID', sector.id)
+		}*/
 	const linedefs: Linedef[] = mapLinedefs.filter(ld => ld.sector.id === sector.id)
 		// for two sectors sharing common border vectors are defined only in one of those sectors as a backside
 		.concat(findBacksidesBySector(backLinedefs)(sector.id).orElse(() => []));
@@ -386,19 +397,6 @@ const findBacksidesBySector = (backLinedefs: Linedef[]) => (sectorId: number): E
 	Either.ofArray(backLinedefs.filter(ld => ld.backSide.get().sector.id == sectorId),
 		() => 'No backsides for Sector: ' + sectorId);
 
-const vectorsConnected = (v1: VectorV, v2: VectorV): VectorConnection =>
-	R.cond([
-		[(v1, v2) => mf.vertexEqual(v1.end, v2.start), () => VectorConnection.V1END_TO_V2START],
-		[(v1, v2) => mf.vertexEqual(v2.end, v1.start), () => VectorConnection.V2END_TO_V1START],
-		[(v1, v2) => mf.vertexEqual(v1.start, v2.start) || mf.vertexEqual(v1.end, v2.end), () => VectorConnection.REVERSED],
-		[R.T, () => VectorConnection.NONE]
-	])(v1, v2)
-
-const vectorReversed = (vectors: VectorV[]) => (ve: VectorV): boolean =>
-	!vectors.find(v => {
-		const con = vectorsConnected(ve, v);
-		return con === VectorConnection.V1END_TO_V2START || con === VectorConnection.V2END_TO_V1START ? v : undefined
-	})
 
 const findLastNotConnected = (linedefs: VectorV[]): Either<number> => {
 	const next = U.nextRoll(linedefs);
@@ -409,18 +407,14 @@ const findLastNotConnected = (linedefs: VectorV[]): Either<number> => {
 
 	// go over list from last element and compare it with previous element until you find not connected vectors
 	const foundIdx: number = findWithIndex((el, idx) =>
-		vectorsConnected(el, next(linedefs.length - idx)) === VectorConnection.NONE)(linedefs)
+		mf.vectorsConnected(el, next(linedefs.length - idx)) === VectorConnection.NONE)(linedefs)
 
 	return Either.ofCondition(() => foundIdx > 0, () => 'Vectors connected', () => foundIdx);
 }
 
-const orderPath = <V extends VectorV>(path: V[]): V[] => path.map(v =>
-	vectorReversed(path)(v) ? mf.reverseVector(v) : v)
-
-const buildPaths = <V extends VectorV>(ordered: V[]): V[][] => {
-
+const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
 	// we will remove elements one by one from this list and add them to #out
-	const remaining = [...ordered];
+	const remaining = [...vectors];
 
 	// #out contains array of connected paths: [[path1],[path2],...,[pathX]]
 	// start with first element and try to find vector connected to it
@@ -440,7 +434,7 @@ const buildPaths = <V extends VectorV>(ordered: V[]): V[][] => {
 				// go over all #remaining (not used) vectors and test whether we can append it to current path
 				for (let remIdx = 0; remIdx < remaining.length; remIdx++) {
 					let rem = remaining[remIdx];
-					let connection = vectorsConnected(oaEl, rem);
+					let connection = mf.vectorsConnected(oaEl, rem);
 					if (connection === VectorConnection.NONE) {
 						continue;// #rem is not connected to any vector from current path
 					}
@@ -456,7 +450,7 @@ const buildPaths = <V extends VectorV>(ordered: V[]): V[][] => {
 					// removed vector has to be flipped: x -> y
 					if (connection === VectorConnection.REVERSED) {
 						rem = mf.reverseVector(rem);
-						connection = vectorsConnected(oaEl, rem);
+						connection = mf.vectorsConnected(oaEl, rem);
 					}
 
 					// now we have to insert removed vector at #oaIdx, but we have figure out whether it should go before or after
@@ -564,9 +558,6 @@ export const testFunctions = {
 	findBacksidesBySector,
 	findLastNotConnected,
 	buildPaths,
-	orderPath,
-	vectorsConnected,
-	vectorReversed,
 	findMaxPathIdx,
 	sortByHoles,
 	findBackLinedefs,

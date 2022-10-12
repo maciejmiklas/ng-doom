@@ -113,10 +113,10 @@ const setupCamera = (camera: THREE.PerspectiveCamera, map: DoomMap) => {
 }
 
 const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => void) => (lbs: LinedefBySector) => {
-	if (lbs.sector.id !== 37) {
+/*	if (lbs.sector.id !== 37) {
 		return;
 	}
-
+*/
 	renderWalls(lbs).forEach(m => scene.add(m));
 
 	// floor
@@ -126,9 +126,9 @@ const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => v
 	});
 
 	// celling
-/*	renderFlat(lbs.flat, lbs.sector.cellingTexture, lbs.sector.cellingHeight, false).forEach(m => {
+	renderFlat(lbs.flat, lbs.sector.cellingTexture, lbs.sector.cellingHeight, false).forEach(m => {
 		scene.add(m);
-	});*/
+	});
 };
 
 const renderFlat = (flat: Flat, texture: Either<Bitmap>, height: number, renderHoles: boolean): THREE.Mesh[] => {

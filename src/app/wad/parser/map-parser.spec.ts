@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {functions as mp, testFunctions as tf, VectorConnection} from './map-parser';
+import {functions as mp, testFunctions as tf} from './map-parser';
 import {
 	Directory,
 	DoomMap,
@@ -24,6 +24,7 @@ import {
 	Sector,
 	Sidedef,
 	Thing,
+	VectorConnection,
 	Vertex,
 	WadType
 } from './wad-model';
@@ -1043,7 +1044,7 @@ describe('map-parser#parseMaps', () => {
 	describe('map-parser#buildPaths', () => {
 
 		it('Path closed reversed mix', () => {
-			const sorted = tf.buildPaths(tf.orderPath(pathClosedReversedMix));
+			const sorted = tf.buildPaths(pathClosedReversedMix);
 			expect(sorted.length).toEqual(1);
 			expect(sorted[0].length).toEqual(8);
 			expectClosedPath(sorted[0]);
@@ -1051,22 +1052,22 @@ describe('map-parser#parseMaps', () => {
 
 
 		it('Path closed mixed', () => {
-			const sorted = tf.buildPaths(tf.orderPath(pathClosedMixed));
+			const sorted = tf.buildPaths(pathClosedMixed);
 			expect(sorted.length).toEqual(1);
 			expect(sorted[0].length).toEqual(9);
 			expectClosedPath(sorted[0]);
 		});
 
 		it('Path closed mixed 2', () => {
-			const sorted = tf.buildPaths(tf.orderPath(pathClosedMixed2));
+			const sorted = tf.buildPaths(pathClosedMixed2);
 			expect(sorted.length).toEqual(1);
 			expect(sorted[0].length).toEqual(5);
 			expectClosedPath(sorted[0]);
 		});
 
 		it('Path closed with extra point', () => {
-			const sorted = tf.buildPaths(tf.orderPath([...pathClosedMixed,
-				{"id": 99, "start": {"x": 999, "y": 999}, "end": {"x": 777, "y": 777}}]));
+			const sorted = tf.buildPaths([...pathClosedMixed,
+				{"id": 99, "start": {"x": 999, "y": 999}, "end": {"x": 777, "y": 777}}]);
 			expect(sorted.length).toEqual(2);
 			expect(sorted[0].length).toEqual(1);
 			expect(sorted[1].length).toEqual(9);
@@ -1075,14 +1076,14 @@ describe('map-parser#parseMaps', () => {
 		});
 
 		it('Path closed mixed and sorted', () => {
-			const sorted = tf.buildPaths(tf.orderPath(pathClosedSorted));
+			const sorted = tf.buildPaths(pathClosedSorted);
 			expect(sorted.length).toEqual(1);
 			expect(sorted[0].length).toEqual(9);
 			expectClosedPath(sorted[0]);
 		});
 
 		it('Two Paths', () => {
-			const sorted = tf.buildPaths(tf.orderPath([...pathClosedMixed, ...pathClosedMixed2]));
+			const sorted = tf.buildPaths([...pathClosedMixed, ...pathClosedMixed2]);
 			expect(sorted.length).toEqual(2);
 			expect(sorted[0].length).toEqual(5);
 			expect(sorted[1].length).toEqual(9);
@@ -1091,69 +1092,11 @@ describe('map-parser#parseMaps', () => {
 		});
 
 		it('Path closed vectors reversed', () => {
-			const sorted = tf.buildPaths(tf.orderPath(pathClosedReversedOne));
+			const sorted = tf.buildPaths(pathClosedReversedOne);
 			expect(sorted.length).toEqual(1);
 			expect(sorted[0].length).toEqual(5);
 			expectClosedPath(sorted[0]);
 		});
-	});
-
-	describe('map-parser#vectorsConnected', () => {
-		it('Connected - the same', () => {
-			const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-			const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-			expect(tf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED);
-		});
-
-		it('Connected - start to start', () => {
-			const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-			const v2 = {start: {x: 1, y: 2}, end: {x: 43, y: 54}}
-			expect(tf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED);
-		});
-
-		it('Connected - start to end', () => {
-			const v1 = {start: {x: 1, y: 2}, end: {x: 34, y: 45}}
-			const v2 = {start: {x: 1, y: 2}, end: {x: 1, y: 2}}
-			expect(tf.vectorsConnected(v1, v2)).toEqual(VectorConnection.V2END_TO_V1START);
-		});
-
-		it('Connected - end to end', () => {
-			const v1 = {start: {x: 41, y: 42}, end: {x: 4, y: 5}}
-			const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-			expect(tf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED);
-		});
-
-		it('Connected - end to start', () => {
-			const v1 = {start: {x: 21, y: 12}, end: {x: 4, y: 5}}
-			const v2 = {start: {x: 4, y: 5}, end: {x: 4, y: 5}}
-			expect(tf.vectorsConnected(v1, v2)).toEqual(VectorConnection.V1END_TO_V2START);
-		});
-
-		it('Connected - end to end 2', () => {
-			const v1 = {start: {x: 13, y: 24}, end: {x: 4, y: 5}}
-			const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-			expect(tf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED);
-		});
-
-		it('Not connected', () => {
-			const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-			const v2 = {start: {x: 11, y: 12}, end: {x: 14, y: 15}}
-			expect(tf.vectorsConnected(v1, v2)).toEqual(VectorConnection.NONE);
-		});
-	});
-
-	describe('map-parser#vectorReversed', () => {
-
-		it('In path', () => {
-			expect(tf.vectorReversed(pathClosedReversedOne)(
-				{"start": {"x": 700, "y": 800}, "end": {"x": 10, "y": 20}})).toBeFalse();
-		});
-
-		it('Not in path', () => {
-			expect(tf.vectorReversed(pathClosedReversedOne)(
-				{"start": {"x": 700, "y": 800}, "end": {"x": 500, "y": 600}})).toBeTrue();
-		});
-
 	});
 
 	describe('map-parser#createMaxVertex', () => {
@@ -1182,7 +1125,7 @@ describe('map-parser#parseMaps', () => {
 
 	describe('map-parser#sortByHoles', () => {
 		it('Multiple paths', () => {
-			const paths = tf.buildPaths(tf.orderPath([...pathClosedMixed, ...pathClosedMixed2]));
+			const paths = tf.buildPaths([...pathClosedMixed, ...pathClosedMixed2]);
 			const sorted = tf.sortByHoles(paths)
 			expect(sorted[0].length).toEqual(9);
 			expect(sorted[1].length).toEqual(5);
