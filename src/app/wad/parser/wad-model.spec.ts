@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 import {functions as mf, VectorConnection, VectorV} from './wad-model'
-import {pathClosedMixed2, pathClosedReversedOne, pathRectanglesMixedReversed} from "./testdata/data"
+import {
+	pathClosedMixed2,
+	pathClosedReversedMix,
+	pathClosedReversedOne,
+	pathRectanglesMixedReversed
+} from "./testdata/data"
 
 describe('wad_model#vertexEqual', () => {
 	it('Equal', () => {
@@ -211,6 +216,10 @@ describe('map-parser#groupCrossingVectors', () => {
 		crossing.crossing[0].forEach(v => expect(v.msg).toEqual('Crossing B 928,-3360'))
 		crossing.crossing[1].forEach(v => expect(v.msg).toEqual('Crossing A 928,-3104'))
 		crossing.remaining.forEach(v => expect(v.msg).toBeUndefined())
+	})
+
+	it('Not found', () => {
+		expect(mf.groupCrossingVectors(pathClosedReversedMix).isLeft()).toBeTrue();
 	})
 
 })

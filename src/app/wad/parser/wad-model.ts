@@ -583,24 +583,33 @@ const findFirstVectorByVertex = (vectors: VectorV[]) => (vertex: Vertex): Either
 const groupByVertex = <V extends VectorV>(vectors: V[]) => (vertex: Vertex): Either<V[][]> => {
 	const remaining = vectors.filter(v => !hasVertex(vertex)(v), vectors)
 	const crossing = vectors.filter(v => hasVertex(vertex)(v), vectors)
-	return Either.ofCondition(() => crossing.length > 0, () => 'No crossings for Vertex: ' + JSON.stringify(vertex), () => [crossing, remaining])
+	return Either.ofCondition(
+		() => crossing.length > 0,
+		() => 'No crossings for Vertex: ' + JSON.stringify(vertex),
+		() => [crossing, remaining])
 }
 
 const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingVectors<V>> => {
-	const crossing = []
-
-	// Vectors are crossing when at least 3 points are the same
+	// Vectors are crossing when at least 3 vectors has a common vertex
 	const crossingVertex = uniqueVertex(vectors).filter(v => countVertex(vectors)(v) > 3)
-	if (crossingVertex.length == 0) {
-		return Either.ofLeft('No crossings');
-	}
-	let remaining = vectors;
-	crossingVertex.forEach(cv => {
-		const grouped = groupByVertex(remaining)(cv).get();
-		crossing.push(grouped[0]);
-		remaining = grouped[1];
-	})
-	return Either.ofRight({crossing, remaining});
+	return Either.ofCondition(
+		() => crossingVertex.length > 0,
+		() => 'No crossings',
+		() => {
+			let remaining = vectors;
+			const crossing: V[][] = crossingVertex.map(cv =>
+
+				// Vertex => Either<V[][]> where V[0] contains crossings, V[1] remaining vectors
+				groupByVertex(remaining)(cv)
+
+					// use for next iteration only remaining vectors to avoid duplicates
+					.exec(v => remaining = v[1])
+
+					// put crossings into output array
+					.get()[0]
+			)
+			return {crossing, remaining};
+		})
 }
 
 export const functions = {

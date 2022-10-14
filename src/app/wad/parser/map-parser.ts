@@ -115,22 +115,11 @@ const groupByWallAndAction = (linedefs: Linedef[]): Linedef[][] => {
 }
 
 const findMaxSectorId = (linedefs: Linedef[]): number => R.reduce<number, number>(R.max, 0, linedefs.map(ld => ld.sector.id))
-/*
-export type SV = {
-	id: number
-	start: Vertex,
-	end: Vertex
-}*/
-
 const orderAndBuildPaths = (linedefs: Linedef[]): Either<Linedef[][]> => {
 	if (linedefs.length == 0) {
 		return Either.ofLeft('Cannot build Path - Linedef[] is empty')
 	}
 
-	/*if (linedefs[0]?.sector?.id == 37) {
-		const svs: SV[] = linedefs.map<SV>(ld => ({id: ld.id, start: ld.start, end: ld.end}))
-		console.log('XXXX', JSON.stringify(svs))
-	}*/
 	// build paths from vectors
 	const paths = buildPaths<Linedef>(linedefs)
 	return Either.ofCondition(() => paths.length > 0 && continuosPath(paths[0]),
