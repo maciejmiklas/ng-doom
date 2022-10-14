@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {functions as mp} from "./map-parser";
-import {getAllDirs, getFlats, getTextures, getWadBytes} from "./testdata/data";
+import {functions as mp} from "./map-parser"
+import {getAllDirs, getFlats, getTextures, getWadBytes} from "./testdata/data"
 
 describe('test', () => {
 	it('ABC', () => {
-		const maps = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats());
-		const m1e1 = maps.get()[1];
-	});
-});
+		const maps = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats())
+		const m1e1 = maps.get()[1]
+	})
+})
 
 
 /*

@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -15,31 +15,31 @@
  */
 
 
-import {DoomTexture, Flat, functions as mf, RgbaBitmap, Vertex} from "../wad/parser/wad-model";
-import * as THREE from "three";
-import {Side} from "three/src/constants";
-import {Vector2} from "three/src/math/Vector2";
-import {Either} from "../common/either";
-import {ColorRepresentation} from "three/src/utils";
+import {DoomTexture, Flat, functions as mf, RgbaBitmap, Vertex} from "../wad/parser/wad-model"
+import * as THREE from "three"
+import {Side} from "three/src/constants"
+import {Vector2} from "three/src/math/Vector2"
+import {Either} from "../common/either"
+import {ColorRepresentation} from "three/src/utils"
 
 const createWallDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
-	const texture = new THREE.DataTexture(bitmap.rgba, bitmap.width, bitmap.height);
-	texture.needsUpdate = true;
-	texture.format = THREE.RGBAFormat;
-	texture.type = THREE.UnsignedByteType;
-	texture.magFilter = THREE.NearestFilter;
-	texture.minFilter = THREE.NearestFilter;
-	texture.mapping = THREE.UVMapping;
-	texture.wrapS = THREE.RepeatWrapping;
-	texture.wrapT = THREE.RepeatWrapping;
-	return texture;
-};
+	const texture = new THREE.DataTexture(bitmap.rgba, bitmap.width, bitmap.height)
+	texture.needsUpdate = true
+	texture.format = THREE.RGBAFormat
+	texture.type = THREE.UnsignedByteType
+	texture.magFilter = THREE.NearestFilter
+	texture.minFilter = THREE.NearestFilter
+	texture.mapping = THREE.UVMapping
+	texture.wrapS = THREE.RepeatWrapping
+	texture.wrapT = THREE.RepeatWrapping
+	return texture
+}
 
 const createFloorDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
-	const texture = createWallDataTexture(bitmap);
-	texture.repeat.set(0.02, 0.02);
-	return texture;
-};
+	const texture = createWallDataTexture(bitmap)
+	texture.repeat.set(0.02, 0.02)
+	return texture
+}
 
 const createWallMaterial = (dt: DoomTexture, side: Side, color = null): THREE.Material => new THREE.MeshBasicMaterial({
 	map: createWallDataTexture(dt),
@@ -47,9 +47,9 @@ const createWallMaterial = (dt: DoomTexture, side: Side, color = null): THREE.Ma
 	alphaTest: 0.5,
 	side,
 	color
-});
+})
 
-const toVector2 = (ve: Vertex): Vector2 => new Vector2(ve.x, ve.y);
+const toVector2 = (ve: Vertex): Vector2 => new Vector2(ve.x, ve.y)
 
 const getHoles = (flat: Flat): Either<THREE.Shape[]> =>
 	flat.holes.map(paths =>
@@ -57,17 +57,17 @@ const getHoles = (flat: Flat): Either<THREE.Shape[]> =>
 	)
 
 const point = (x: number, y: number, z: number, color: ColorRepresentation = 0xff0000): THREE.Object3D => {
-	const dotGeometry = new THREE.BufferGeometry();
-	dotGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([x, y, z]), 3));
-	const dotMaterial = new THREE.PointsMaterial({size: 5, color});
-	return new THREE.Points(dotGeometry, dotMaterial);
+	const dotGeometry = new THREE.BufferGeometry()
+	dotGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([x, y, z]), 3))
+	const dotMaterial = new THREE.PointsMaterial({size: 5, color})
+	return new THREE.Points(dotGeometry, dotMaterial)
 }
 
 const createFallbackMaterial = () => new THREE.MeshStandardMaterial({
 	transparent: true,
 	color: 'green',
 	side: THREE.DoubleSide
-});
+})
 
 // ############################ EXPORTS ############################
-export const functions = {createFloorDataTexture, createWallMaterial, toVector2, getHoles, point, createFallbackMaterial};
+export const functions = {createFloorDataTexture, createWallMaterial, toVector2, getHoles, point, createFallbackMaterial}

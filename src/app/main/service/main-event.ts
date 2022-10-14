@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {IEvent} from 'ngrx-event-bus';
+import {IEvent} from 'ngrx-event-bus'
 
 export class MainEvent implements IEvent {
 	/** Event Data: NavbarPluginFactory */
-	public static SET_NAVBAR_PLUGIN = 'SET_NAVBAR_PLUGIN';
+	public static SET_NAVBAR_PLUGIN = 'SET_NAVBAR_PLUGIN'
 
 	/** Event Data: value for x-overflow on .app-main */
-	public static SET_MAIN_OVERFLOW = 'SET_MAIN_OVERFLOW';
+	public static SET_MAIN_OVERFLOW = 'SET_MAIN_OVERFLOW'
 }

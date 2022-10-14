@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -25,8 +25,8 @@
  *
  * Map consists of Lumps such: Thing (monster) or Linedef (wall), but Lump can be also a texture or sound.
  */
-import {Either} from '../../common/either';
-import * as R from 'ramda';
+import {Either} from '../../common/either'
+import * as R from 'ramda'
 
 export type Header = {
 	identification: WadType
@@ -36,7 +36,7 @@ export type Header = {
 
 	/** Offset in WAD to the location of the directory. */
 	infotableofs: number
-};
+}
 
 /**
  * The directory associates names of lumps with the data that belong to them. It consists of a number of entries,
@@ -57,7 +57,7 @@ export type Directory = {
 
 	/** Lump's name. Map contains of few predefined Lumps (MapLumpType), but there are also types of Lumps. */
 	name: string
-};
+}
 
 /**
  * Names of static directories
@@ -101,26 +101,26 @@ export enum MapLumpType {
  */
 export type Lump = {
 	dir: Directory
-};
+}
 
 /**
  * @see https://doomwiki.org/wiki/PLAYPAL
  */
 export type Playpal = Lump & {
 	palettes: Palette[]
-};
+}
 
 export type Palette = {
 	idx: number
 	colors: RGBA[]
-};
+}
 
 export type RGBA = {
 	r: number,
 	g: number,
 	b: number,
 	a: number
-};
+}
 
 /**
  * Lump is an abstract data type found in each map.
@@ -128,13 +128,13 @@ export type RGBA = {
  */
 export type MapLump = Lump & {
 	lumpType: MapLumpType
-};
+}
 
 /** range from -32768 to +32767 */
 export type Position = {
 	x: number,
 	y: number
-};
+}
 
 /**
  * Things represent players, monsters, pick-ups, and projectiles. Inside the game, these are known as actors, or mobjs. They also represent
@@ -151,7 +151,7 @@ export type Thing = MapLump & {
 	angleFacing: number,
 	thingType: number,// TODO type should be enum from https://doomwiki.org/wiki/Thing_types#Monsters
 	flags: number
-};
+}
 
 export enum ThingType {
 	PLAYER = 1
@@ -167,7 +167,7 @@ export enum ThingType {
 export type Vertex = Position & {
 	x: number,
 	y: number
-};
+}
 
 export enum VectorConnection {
 	V1END_TO_V2START,
@@ -179,12 +179,22 @@ export enum VectorConnection {
 export type VectorV = {
 	start: Vertex,
 	end: Vertex
-};
+}
+
+export type CrossingVectors<V extends VectorV> = {
+
+	/**
+	 * Crossing consists of at least 3 vectors sharing common point.
+	 * In this case we have multiple shapes sharing common edge.
+	 */
+	crossing: V[][],
+	remaining: V[]
+}
 
 export const MIN_VECTOR_V = <VectorV>{
 	start: {x: -Infinity, y: -Infinity},
 	end: {x: -Infinity, y: -Infinity}
-};
+}
 
 /**
  * Linedef represents single wall on the map, or action. Wall is more like a line between #start and #end.
@@ -202,7 +212,7 @@ export type Linedef = VectorV & MapLump & {
 	sector: Sector
 	frontSide: Sidedef
 	backSide: Either<Sidedef>
-};
+}
 
 /**
  * Flat(flor or celling) is deducted from Linedef and contains closed shapes and holes.
@@ -211,7 +221,7 @@ export type Flat = {
 	sector: Sector
 	walls: Linedef[]
 	holes: Either<Linedef[][]>
-};
+}
 
 /**
  * @see https://doomwiki.org/wiki/Linedef#Linedef_flags
@@ -263,7 +273,7 @@ export type Sidedef = MapLump & {
 
 	/** Sector this sidedef 'faces' */
 	sector: Sector
-};
+}
 
 /**
  * A Sector is an area defined by a few Sidedef (wall) building a room. Each Sector has a height of the celling, texture on celling and
@@ -280,7 +290,7 @@ export type Sector = MapLump & {
 	lightLevel: number
 	specialType: number
 	tagNumber: number
-};
+}
 
 /**
  * Map can be found within WAD as a directory with Name following syntax: ExMy or MAPxx. This directory is being followed by:
@@ -306,7 +316,7 @@ export type DoomMap = {
 	linedefBySector: LinedefBySector[]
 	sectors: Sector[]
 	linedefs: Linedef[]
-};
+}
 
 /** Linedefs for a given sector.  */
 export type LinedefBySector = {
@@ -344,7 +354,7 @@ export type BitmapHeader = {
 	 * For picture 320x200 we have #columnofs with 320 entries, each one pointing to array in WAD that is 200 bytes long
 	 */
 	columnofs: number[]
-};
+}
 
 /**
  * Bitmap column (known as post) of Doom's bitmap. Offset to each column is given by BitmapHeader#columnofs
@@ -364,7 +374,7 @@ export type Post = {
 
 	/** Starting position in WAD of this Post */
 	filepos: number
-};
+}
 
 /**
  * Data of each column is divided into posts, which are lines going downward on the screen (columns).
@@ -374,7 +384,7 @@ export type Post = {
  */
 export type Column = {
 	posts: Post[]
-};
+}
 
 /**
  * Picture/bitmap in Doom's Patch format
@@ -389,7 +399,7 @@ export type Bitmap = RgbaBitmap & {
 	columns: Either<Column>[]
 
 	rgba: Uint8ClampedArray
-};
+}
 
 /**
  * Title pictures from WAD
@@ -401,7 +411,7 @@ export type TitlePic = {
 	title: Bitmap,
 	credit: Bitmap,
 	mDoom: Bitmap
-};
+}
 
 /**
  * Sprites represent graphics used in Things, for example: gun, monster, pickup, power up.
@@ -427,7 +437,7 @@ export type Sprite = {
 	 * for example: Bitmap[0] -> A, Bitmap[1] -> B
 	 */
 	animations: Record<string, FrameDir[]>
-};
+}
 
 /**
  * Contains names for all patches (texture name) for single wall texture.
@@ -497,7 +507,7 @@ export type FrameDir = {
 	mirror: boolean,
 	bitmap: Either<Bitmap>,
 	dir: Directory,
-};
+}
 
 export type Wad = {
 	header: Header,
@@ -510,37 +520,37 @@ export type Wad = {
 	playpal: Playpal,
 	textures: DoomTexture[],
 	flatBitmaps: RgbaBitmap[]
-};
+}
 
 export type WadEntry = {
-	wad: Wad;
-	name: string;
-	gameSave: GameSave[];
-};
+	wad: Wad
+	name: string
+	gameSave: GameSave[]
+}
 
 export type GameSave = {
-	name: string;
-};
+	name: string
+}
 
 // ######################### FUNCTIONS #########################
 const vertexEqual = (v1: Vertex, v2: Vertex): boolean => v1.x === v2.x && v1.y === v2.y
 
 const reverseVector = <V extends VectorV>(input: V): V => {
-	const resp = {...input};
-	resp.end = input.start;
-	resp.start = input.end;
-	return resp;
+	const resp = {...input}
+	resp.end = input.start
+	resp.start = input.end
+	return resp
 }
 
 const pathToPoints = (vectors: VectorV[]): Vertex[] =>
-	R.uniqWith<Vertex, Vertex>((v1, v2) => v1.x === v2.x && v1.y === v2.y)(R.flatten(vectors.map(v => [v.start, v.end])));
+	R.uniqWith<Vertex, Vertex>((v1, v2) => v1.x === v2.x && v1.y === v2.y)(R.flatten(vectors.map(v => [v.start, v.end])))
 
 const hasVertex = (vertex: Vertex) => (vector: VectorV): boolean =>
 	vertexEqual(vertex, vector.start) || vertexEqual(vertex, vector.end)
 
 const vectorReversed = (vectors: VectorV[]) => (ve: VectorV): boolean =>
 	!vectors.find(v => {
-		const con = vectorsConnected(ve, v);
+		const con = vectorsConnected(ve, v)
 		return con === VectorConnection.V1END_TO_V2START || con === VectorConnection.V2END_TO_V1START ? v : undefined
 	})
 
@@ -552,6 +562,46 @@ const vectorsConnected = (v1: VectorV, v2: VectorV): VectorConnection =>
 		[R.T, () => VectorConnection.NONE]
 	])(v1, v2)
 
+const countVertex = (vectors: VectorV[]) => (vertex: Vertex) =>
+	R.reduce<VectorV, number>((acc, v) => hasVertex(vertex)(v) ? ++acc : acc, 0, vectors)
+
+const uniqueVertex = (vectors: VectorV[]): Vertex[] => {
+
+	// collect all Vertex from #vectors int list
+	const vertexes = R.flatten(vectors.map(v => [v.start, v.end]))
+
+	// remove duplicates
+	return R.uniqWith(vertexEqual, vertexes)
+}
+
+const findFirstVectorByVertex = (vectors: VectorV[]) => (vertex: Vertex): Either<number> => {
+	const idx = vectors.findIndex(v => hasVertex(vertex)(v))
+	return Either.ofCondition(() => idx >= 0, () => 'No Vector for:' + JSON.stringify(vertex), () => idx)
+}
+
+/** V[0] - grouped by vertex, V[1] - the rest. */
+const groupByVertex = <V extends VectorV>(vectors: V[]) => (vertex: Vertex): Either<V[][]> => {
+	const remaining = vectors.filter(v => !hasVertex(vertex)(v), vectors)
+	const crossing = vectors.filter(v => hasVertex(vertex)(v), vectors)
+	return Either.ofCondition(() => crossing.length > 0, () => 'No crossings for Vertex: ' + JSON.stringify(vertex), () => [crossing, remaining])
+}
+
+const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingVectors<V>> => {
+	const crossing = []
+
+	// Vectors are crossing when at least 3 points are the same
+	const crossingVertex = uniqueVertex(vectors).filter(v => countVertex(vectors)(v) > 3)
+	if (crossingVertex.length == 0) {
+		return Either.ofLeft('No crossings');
+	}
+	let remaining = vectors;
+	crossingVertex.forEach(cv => {
+		const grouped = groupByVertex(remaining)(cv).get();
+		crossing.push(grouped[0]);
+		remaining = grouped[1];
+	})
+	return Either.ofRight({crossing, remaining});
+}
 
 export const functions = {
 	vertexEqual,
@@ -559,5 +609,10 @@ export const functions = {
 	pathToPoints,
 	hasVertex,
 	vectorsConnected,
-	vectorReversed
-};
+	vectorReversed,
+	countVertex,
+	uniqueVertex,
+	findFirstVectorByVertex,
+	groupByVertex,
+	groupCrossingVectors
+}

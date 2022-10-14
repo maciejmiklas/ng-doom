@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component, Input, OnInit} from '@angular/core';
-import * as R from 'ramda';
-import {Palette, RGBA} from '../parser/wad-model';
+import {Component, Input, OnInit} from '@angular/core'
+import * as R from 'ramda'
+import {Palette, RGBA} from '../parser/wad-model'
 
 @Component({
 	selector: 'app-wad-palette',
@@ -25,13 +25,13 @@ import {Palette, RGBA} from '../parser/wad-model';
 export class WadPaletteComponent implements OnInit {
 
 	@Input()
-	palette: Palette;
+	palette: Palette
 
 	/** 16 rows, each containing 16xRGB */
-	rows: RGBA[][];
+	rows: RGBA[][]
 
 	ngOnInit(): void {
-		this.rows = R.splitEvery(16, this.palette.colors);
+		this.rows = R.splitEvery(16, this.palette.colors)
 	}
 
 }

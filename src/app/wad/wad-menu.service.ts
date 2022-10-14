@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Injectable} from '@angular/core';
-import {MenuDecorator} from '../menu/menu-model';
-import {WadStorageService} from './wad-storage.service';
+import {Injectable} from '@angular/core'
+import {MenuDecorator} from '../menu/menu-model'
+import {WadStorageService} from './wad-storage.service'
 
 @Injectable({
 	providedIn: 'root'
 })
 export class WadUploadMenuDecorator implements MenuDecorator {
 	visible(): boolean {
-		return true;
+		return true
 	}
 }
 
@@ -34,6 +34,6 @@ export class WasLoadedMenuDecorator implements MenuDecorator {
 	}
 
 	visible(): boolean {
-		return this.wadStorage.isLoaded();
+		return this.wadStorage.isLoaded()
 	}
 }

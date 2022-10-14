@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component} from '@angular/core';
-import {NavbarPlugin} from "../../../main/service/navbar_plugin";
-import {FlatsListControl} from "../wad-flats.component";
+import {Component} from '@angular/core'
+import {NavbarPlugin} from "../../../main/service/navbar_plugin"
+import {FlatsListControl} from "../wad-flats.component"
 
 @Component({
 	selector: 'app-wad-flats-navbar',
@@ -23,18 +23,18 @@ import {FlatsListControl} from "../wad-flats.component";
 	styleUrls: ['./wad-flats-navbar.component.scss']
 })
 export class WadFlatsNavbarComponent implements NavbarPlugin<FlatsListControl> {
-	private data: FlatsListControl;
+	private data: FlatsListControl
 
 	setData(data: FlatsListControl): void {
-		this.data = data;
+		this.data = data
 	}
 
 	set filter(val: string) {
-		this.data.applyFilter(val);
+		this.data.applyFilter(val)
 	}
 
 	get filter(): string {
-		return '';
+		return ''
 	}
 
 }

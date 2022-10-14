@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {NgModule} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
-import {WadTitleImgComponent} from './wad/wad-title-img/wad-title-img.component';
-import {WadPlaypalComponent} from './wad/wad-playpal/wad-playpal.component';
-import {WadUploadComponent} from './wad/wad-upload/wad-upload.component';
-import {EmptyComponent} from './common/empty/empty.component';
-import {WadSpritesComponent} from './wad/wad-sprites/wad-sprites.component';
-import {AppSetupService} from './app-setup.service';
-import {WadDirsComponent} from './wad/wad-dirs/wad-dirs.component';
-import {WadMapComponent} from './wad/wad-map/wad-map.component';
-import {PlayComponent} from './game/play/play.component';
-import {WadPatchesComponent} from './wad/wad-patches/wad-patches.component';
-import {WadTexturesComponent} from './wad/wad-textures/wad-textures.component';
-import {WadFlatsComponent} from "./wad/wad-flats/wad-flats.component";
+import {NgModule} from '@angular/core'
+import {RouterModule, Routes} from '@angular/router'
+import {WadTitleImgComponent} from './wad/wad-title-img/wad-title-img.component'
+import {WadPlaypalComponent} from './wad/wad-playpal/wad-playpal.component'
+import {WadUploadComponent} from './wad/wad-upload/wad-upload.component'
+import {EmptyComponent} from './common/empty/empty.component'
+import {WadSpritesComponent} from './wad/wad-sprites/wad-sprites.component'
+import {AppSetupService} from './app-setup.service'
+import {WadDirsComponent} from './wad/wad-dirs/wad-dirs.component'
+import {WadMapComponent} from './wad/wad-map/wad-map.component'
+import {PlayComponent} from './game/play/play.component'
+import {WadPatchesComponent} from './wad/wad-patches/wad-patches.component'
+import {WadTexturesComponent} from './wad/wad-textures/wad-textures.component'
+import {WadFlatsComponent} from "./wad/wad-flats/wad-flats.component"
 
 
 const routes: Routes = [
@@ -46,7 +46,7 @@ const routes: Routes = [
 	{path: 'path_game_load', component: EmptyComponent},
 	{path: 'path_game_save', component: EmptyComponent},
 	{path: 'path_game_manage', component: EmptyComponent}
-];
+]
 
 @NgModule({
 	imports: [RouterModule.forRoot(routes)],
@@ -55,7 +55,7 @@ const routes: Routes = [
 export class AppRoutingModule {
 
 	constructor(private appSetupService: AppSetupService) {
-		appSetupService.setup();
+		appSetupService.setup()
 	}
 
 }

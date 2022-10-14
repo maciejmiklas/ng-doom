@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component, OnInit} from '@angular/core';
-import {WadStorageService} from '../wad-storage.service';
-import {Directory} from '../parser/wad-model';
-import * as R from 'ramda';
-import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
-import {MainEvent} from '../../main/service/main-event';
-import {NavbarPluginFactory} from '../../main/service/navbar_plugin';
-import {WadDirsNavbarComponent} from './wad-dirs-navbar/wad-dirs-navbar.component';
+import {Component, OnInit} from '@angular/core'
+import {WadStorageService} from '../wad-storage.service'
+import {Directory} from '../parser/wad-model'
+import * as R from 'ramda'
+import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus'
+import {MainEvent} from '../../main/service/main-event'
+import {NavbarPluginFactory} from '../../main/service/navbar_plugin'
+import {WadDirsNavbarComponent} from './wad-dirs-navbar/wad-dirs-navbar.component'
 
 @Component({
 	selector: 'app-wad-dirs',
@@ -28,57 +28,57 @@ import {WadDirsNavbarComponent} from './wad-dirs-navbar/wad-dirs-navbar.componen
 	styleUrls: ['./wad-dirs.component.scss']
 })
 export class WadDirsComponent implements OnInit, DirsListControl {
-	initDirs: Directory[];
-	allDirs: Directory[];
-	pageDirs: Directory[];
-	pageSize = 20;
+	initDirs: Directory[]
+	allDirs: Directory[]
+	pageDirs: Directory[]
+	pageSize = 20
 
 	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService) {
 	}
 
 	ngOnInit(): void {
-		this.initDirs = this.wadStorage.getCurrent().get().wad.dirs;
-		this.allDirs = this.initDirs;
-		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadDirsNavbarComponent, this)));
-		this.onPageChange(1);
+		this.initDirs = this.wadStorage.getCurrent().get().wad.dirs
+		this.allDirs = this.initDirs
+		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadDirsNavbarComponent, this)))
+		this.onPageChange(1)
 	}
 
 	applyFilter(filter: string) {
 		if (R.isEmpty(filter)) {
-			this.allDirs = this.initDirs;
+			this.allDirs = this.initDirs
 		} else {
-			const filterFun = filterDir(filter);
-			this.allDirs = R.filter(filterFun, this.initDirs);
-			this.onPageChange(1);
+			const filterFun = filterDir(filter)
+			this.allDirs = R.filter(filterFun, this.initDirs)
+			this.onPageChange(1)
 		}
 	}
 
 	onPageChange(page: number) {
-		const from = (page - 1) * this.pageSize;
-		const to = from + this.pageSize;
-		this.pageDirs = R.slice(from, to)(this.allDirs);
+		const from = (page - 1) * this.pageSize
+		const to = from + this.pageSize
+		this.pageDirs = R.slice(from, to)(this.allDirs)
 	}
 
 	getListSize(): number {
-		return this.allDirs.length;
+		return this.allDirs.length
 	}
 
 	getPageSize(): number {
-		return this.pageSize;
+		return this.pageSize
 	}
 }
 
 const filterDir = (filter: string) => (dir: Directory): boolean =>
-	(dir.filepos + ',' + dir.name + ',' + dir.idx + ',' + dir.size).toLowerCase().includes(filter.toLowerCase());
+	(dir.filepos + ',' + dir.name + ',' + dir.idx + ',' + dir.size).toLowerCase().includes(filter.toLowerCase())
 
 
 export interface DirsListControl {
-	onPageChange(page: number);
+	onPageChange(page: number)
 
-	getListSize(): number;
+	getListSize(): number
 
-	getPageSize(): number;
+	getPageSize(): number
 
-	applyFilter(filter: string);
+	applyFilter(filter: string)
 
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -16,27 +16,27 @@
 export type MenuRoot = {
 	l1: MenuL1[],
 	initialState: MenuState
-};
+}
 
 export type MenuL1 = {
 	title: string,
 	id: string,
 	l2: MenuL2[]
-};
+}
 
 export type MenuL2 = {
 	id: string,
 	title: string,
 	path: string
-	decorator: string;
-};
+	decorator: string
+}
 
 export interface MenuDecorator {
-	visible(): boolean;
+	visible(): boolean
 }
 
 export type MenuState = {
 	idL1: string,
-	idL2: string;
-};
+	idL2: string
+}
 

@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {enableProdMode} from '@angular/core';
-import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
+import {enableProdMode} from '@angular/core'
+import {platformBrowserDynamic} from '@angular/platform-browser-dynamic'
 
-import {AppModule} from './app/app.module';
-import {environment} from './environments/environment';
+import {AppModule} from './app/app.module'
+import {environment} from './environments/environment'
 
 if (environment.production) {
-	enableProdMode();
+	enableProdMode()
 }
 
 platformBrowserDynamic().bootstrapModule(AppModule)
-	.catch(err => console.error(err));
+	.catch(err => console.error(err))

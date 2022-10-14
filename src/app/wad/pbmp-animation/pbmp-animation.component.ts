@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import {Bitmap} from '../parser/wad-model';
-import {functions as tp} from '../parser/texture-parser';
-import {Log} from "../../common/log";
+import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core'
+import {Bitmap} from '../parser/wad-model'
+import {functions as tp} from '../parser/texture-parser'
+import {Log} from "../../common/log"
 
 @Component({
 	selector: 'app-pbmp-animation',
@@ -25,62 +25,62 @@ import {Log} from "../../common/log";
 export class PbmpAnimationComponent implements OnInit {
 
 	@Input()
-	bitmaps: Bitmap[];
+	bitmaps: Bitmap[]
 
 	@Input()
-	scale = 1;
+	scale = 1
 
 	@Input()
-	frameDelayMs = 200;
+	frameDelayMs = 200
 
-	private bIdx = 0;
+	private bIdx = 0
 
 	@ViewChild('canvas', {static: true})
-	canvasRef: ElementRef<HTMLCanvasElement>;
-	private canvas: HTMLCanvasElement;
+	canvasRef: ElementRef<HTMLCanvasElement>
+	private canvas: HTMLCanvasElement
 
-	private images: BitmapPromise[];
+	private images: BitmapPromise[]
 
 	ngOnInit(): void {
-		this.images = this.bitmaps.map(b => this.createBitmap(b));
+		this.images = this.bitmaps.map(b => this.createBitmap(b))
 
-		this.paintNext();
+		this.paintNext()
 
 		if (this.images.length > 1) {
 			setInterval(() => {
-				this.paintNext();
-			}, this.frameDelayMs);
+				this.paintNext()
+			}, this.frameDelayMs)
 		}
 	}
 
 	private paintNext(): void {
-		this.paint(this.images[this.bIdx++]);
+		this.paint(this.images[this.bIdx++])
 		if (this.bIdx === this.bitmaps.length) {
-			this.bIdx = 0;
+			this.bIdx = 0
 		}
 	}
 
 	private paint(bp: BitmapPromise): void {
-		this.canvas = this.canvasRef.nativeElement;
-		this.canvas.width = bp.width;
-		this.canvas.height = bp.height;
-		const ctx = this.canvas.getContext('2d');
+		this.canvas = this.canvasRef.nativeElement
+		this.canvas.width = bp.width
+		this.canvas.height = bp.height
+		const ctx = this.canvas.getContext('2d')
 		bp.bitmap.then(r => {
-			ctx.drawImage(r, 0, 0);
+			ctx.drawImage(r, 0, 0)
 		}).catch(e => {
 			Log.error("PAINT ERR", e) // FIXME - fix this error
-		});
+		})
 	}
 
 	private createBitmap(patch: Bitmap): BitmapPromise {
-		const width = patch.header.width * this.scale;
-		const height = patch.header.height * this.scale;
+		const width = patch.header.width * this.scale
+		const height = patch.header.height * this.scale
 		return {
 			bitmap: tp.toImageBitmap(patch)(width, height),
 			patch,
 			width,
 			height,
-		};
+		}
 	}
 }
 

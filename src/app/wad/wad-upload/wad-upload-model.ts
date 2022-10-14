@@ -1,7 +1,7 @@
 /*
  * Copyright 2002-2019 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 export type UploadResult = {
-	fileName: string;
-	status: UploadStatus;
-	message: string | undefined;
-};
+	fileName: string
+	status: UploadStatus
+	message: string | undefined
+}
 
 export enum UploadStatus {
 	UPLOADED = 'Upload successful',

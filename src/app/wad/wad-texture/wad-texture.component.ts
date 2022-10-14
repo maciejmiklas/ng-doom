@@ -1,6 +1,6 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {WadStorageService} from '../wad-storage.service';
-import {Bitmap, DoomTexture} from '../parser/wad-model';
+import {Component, Input, OnInit} from '@angular/core'
+import {WadStorageService} from '../wad-storage.service'
+import {Bitmap, DoomTexture} from '../parser/wad-model'
 
 @Component({
 	selector: 'app-wad-texture',
@@ -10,28 +10,28 @@ import {Bitmap, DoomTexture} from '../parser/wad-model';
 export class WadTextureComponent implements OnInit {
 
 	@Input()
-	textureZoom = 4;
+	textureZoom = 4
 
 	@Input()
-	textureMaxSize = 300;
+	textureMaxSize = 300
 
 	@Input()
-	patchMaxSize = 128;
+	patchMaxSize = 128
 
 	@Input()
-	patchZoom = 1;
+	patchZoom = 1
 
 	@Input()
-	name;
+	name
 
-	texture: DoomTexture;
-	patches: Bitmap[];
+	texture: DoomTexture
+	patches: Bitmap[]
 
 	constructor(private wadStorage: WadStorageService) {
 	}
 
 	ngOnInit(): void {
-		this.texture = this.wadStorage.getCurrent().get().wad.textures.find(tx => tx.name == this.name);
+		this.texture = this.wadStorage.getCurrent().get().wad.textures.find(tx => tx.name == this.name)
 	}
 
 }

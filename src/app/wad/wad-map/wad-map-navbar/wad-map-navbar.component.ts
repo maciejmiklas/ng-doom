@@ -1,6 +1,6 @@
-import {Component} from '@angular/core';
-import {NavbarPlugin} from '../../../main/service/navbar_plugin';
-import {MapControl} from '../wad-map.component';
+import {Component} from '@angular/core'
+import {NavbarPlugin} from '../../../main/service/navbar_plugin'
+import {MapControl} from '../wad-map.component'
 
 @Component({
 	selector: 'app-wad-map-navbar',
@@ -9,33 +9,33 @@ import {MapControl} from '../wad-map.component';
 })
 export class WadMapNavbarComponent implements NavbarPlugin<MapControl> {
 
-	private _zoom = 1;
-	control: MapControl;
-	maps: string[];
+	private _zoom = 1
+	control: MapControl
+	maps: string[]
 
 	constructor() {
 	}
 
 	set zoom(zoom: number) {
-		this._zoom = zoom;
-		this.control.onZoomChange(zoom);
+		this._zoom = zoom
+		this.control.onZoomChange(zoom)
 	}
 
 	get zoom(): number {
-		return this._zoom;
+		return this._zoom
 	}
 
 	setData(control: MapControl): void {
-		this.control = control;
-		this.maps = control.mapNames();
+		this.control = control
+		this.maps = control.mapNames()
 	}
 
 	zoomFormatter = (value) => {
-		return 'x ' + value;
-	};
+		return 'x ' + value
+	}
 
 	onMapSelect(name: string): void {
-		this.control.onMapChange(name);
+		this.control.onMapChange(name)
 	}
 
 

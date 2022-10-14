@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -19,35 +19,35 @@ export enum LogLevel {
 }
 
 export class Log {
-	static LOG_LEVEL = LogLevel.DEBUG;
+	static LOG_LEVEL = LogLevel.WARN
 
 	static error(cmp: string, ...args: any[]): void {
 		if (Log.LOG_LEVEL >= LogLevel.ERROR) {
-			console.log('ERROR(' + cmp + '): ', JSON.stringify(args));
+			console.log('ERROR(' + cmp + '): ', JSON.stringify(args))
 		}
 	}
 
 	static warn(cmp: string, ...args: any[]): void {
 		if (Log.LOG_LEVEL >= LogLevel.WARN) {
-			console.log('WARN(' + cmp + '): ', JSON.stringify(args));
+			console.log('WARN(' + cmp + '): ', JSON.stringify(args))
 		}
 	}
 
 	static info(cmp: string, ...args: any[]): void {
 		if (Log.LOG_LEVEL >= LogLevel.INFO) {
-			console.log('INFO(' + cmp + '): ', JSON.stringify(args));
+			console.log('INFO(' + cmp + '): ', JSON.stringify(args))
 		}
 	}
 
 	static debug(cmp: string, ...args: any[]): void {
 		if (Log.LOG_LEVEL >= LogLevel.DEBUG) {
-			console.log('DEBUG(' + cmp + '): ', JSON.stringify(args));
+			console.log('DEBUG(' + cmp + '): ', JSON.stringify(args))
 		}
 	}
 
 	static trace(cmp: string, ...args: any[]): void {
 		if (Log.LOG_LEVEL >= LogLevel.TRACE) {
-			console.log('TRACE(' + cmp + '): ', JSON.stringify(args));
+			console.log('TRACE(' + cmp + '): ', JSON.stringify(args))
 		}
 	}
 }

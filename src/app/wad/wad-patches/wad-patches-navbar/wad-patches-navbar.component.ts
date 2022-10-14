@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component} from '@angular/core';
-import {NavbarPlugin} from '../../../main/service/navbar_plugin';
-import {PatchesListControl} from '../wad-patches.component';
+import {Component} from '@angular/core'
+import {NavbarPlugin} from '../../../main/service/navbar_plugin'
+import {PatchesListControl} from '../wad-patches.component'
 
 @Component({
 	selector: 'app-wad-patches-navbar',
@@ -24,17 +24,17 @@ import {PatchesListControl} from '../wad-patches.component';
 })
 export class WadPatchesNavbarComponent implements NavbarPlugin<PatchesListControl> {
 
-	private data: PatchesListControl;
+	private data: PatchesListControl
 
 	setData(data: PatchesListControl): void {
-		this.data = data;
+		this.data = data
 	}
 
 	set filter(val: string) {
-		this.data.applyFilter(val);
+		this.data.applyFilter(val)
 	}
 
 	get filter(): string {
-		return '';
+		return ''
 	}
 }

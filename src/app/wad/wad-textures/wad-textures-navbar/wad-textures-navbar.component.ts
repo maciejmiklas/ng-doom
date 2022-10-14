@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component} from '@angular/core';
-import {TexturesListControl} from '../wad-textures.component';
-import {NavbarPlugin} from '../../../main/service/navbar_plugin';
+import {Component} from '@angular/core'
+import {TexturesListControl} from '../wad-textures.component'
+import {NavbarPlugin} from '../../../main/service/navbar_plugin'
 
 @Component({
 	selector: 'app-wad-textures-navbar',
@@ -24,18 +24,18 @@ import {NavbarPlugin} from '../../../main/service/navbar_plugin';
 })
 export class WadTexturesNavbarComponent implements NavbarPlugin<TexturesListControl> {
 
-	private data: TexturesListControl;
+	private data: TexturesListControl
 
 	setData(data: TexturesListControl): void {
-		this.data = data;
+		this.data = data
 	}
 
 	set filter(val: string) {
-		this.data.applyFilter(val);
+		this.data.applyFilter(val)
 	}
 
 	get filter(): string {
-		return '';
+		return ''
 	}
 
 }

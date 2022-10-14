@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component} from '@angular/core';
-import {DirsListControl} from '../wad-dirs.component';
-import {NavbarPlugin} from '../../../main/service/navbar_plugin';
+import {Component} from '@angular/core'
+import {DirsListControl} from '../wad-dirs.component'
+import {NavbarPlugin} from '../../../main/service/navbar_plugin'
 
 @Component({
 	selector: 'app-wad-dirs-wad-map-navbar',
@@ -23,20 +23,20 @@ import {NavbarPlugin} from '../../../main/service/navbar_plugin';
 	styleUrls: ['./wad-dirs-navbar.component.scss']
 })
 export class WadDirsNavbarComponent implements NavbarPlugin<DirsListControl> {
-	maxSize = 10;
+	maxSize = 10
 
-	dirsListControl: DirsListControl;
+	dirsListControl: DirsListControl
 
 	setData(dirsListControl: DirsListControl): void {
-		this.dirsListControl = dirsListControl;
+		this.dirsListControl = dirsListControl
 	}
 
 	set filter(val: string) {
-		this.dirsListControl.applyFilter(val);
+		this.dirsListControl.applyFilter(val)
 	}
 
 	get filter(): string {
-		return '';
+		return ''
 	}
 
 }

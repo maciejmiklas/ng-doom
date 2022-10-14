@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Directive, ElementRef} from '@angular/core';
-import {NgRxEventBusService} from 'ngrx-event-bus';
-import {MainEvent} from '../service/main-event';
+import {Directive, ElementRef} from '@angular/core'
+import {NgRxEventBusService} from 'ngrx-event-bus'
+import {MainEvent} from '../service/main-event'
 
 @Directive({
 	selector: '[appMainOverflow]'
@@ -23,11 +23,11 @@ import {MainEvent} from '../service/main-event';
 export class MainOverflowDirective {
 
 	constructor(el: ElementRef, private eventBus: NgRxEventBusService) {
-		el.nativeElement.style.overflowX = 'visible';
+		el.nativeElement.style.overflowX = 'visible'
 
 		this.eventBus.on(MainEvent.SET_MAIN_OVERFLOW, (val: string) => {
-			el.nativeElement.style.overflowX = val;
-		});
+			el.nativeElement.style.overflowX = val
+		})
 	}
 
 }

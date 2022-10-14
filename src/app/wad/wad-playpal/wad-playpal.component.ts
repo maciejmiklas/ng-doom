@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component, OnInit} from '@angular/core';
-import {WadStorageService} from '../wad-storage.service';
-import {Slide} from '../../common/carousel/carousel-model';
+import {Component, OnInit} from '@angular/core'
+import {WadStorageService} from '../wad-storage.service'
+import {Slide} from '../../common/carousel/carousel-model'
 
 @Component({
 	selector: 'app-wad-playpal',
@@ -23,15 +23,15 @@ import {Slide} from '../../common/carousel/carousel-model';
 	styleUrls: ['./wad-playpal.component.scss']
 })
 export class WadPlaypalComponent implements OnInit {
-	static CMP = 'app-wad-playpal';
-	palettes: Slide[];
+	static CMP = 'app-wad-playpal'
+	palettes: Slide[]
 
 	constructor(private wadStorage: WadStorageService) {
 	}
 
 	ngOnInit(): void {
-		const wad = this.wadStorage.getCurrent().get();
-		this.palettes = wad.wad.playpal.palettes.map((p, idx) => ({item: p, name: 'Palette[' + idx + ']'}));
+		const wad = this.wadStorage.getCurrent().get()
+		this.palettes = wad.wad.playpal.palettes.map((p, idx) => ({item: p, name: 'Palette[' + idx + ']'}))
 	}
 
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component, OnInit} from '@angular/core';
-import * as paper from 'paper';
-import {Path, Point} from 'paper';
-import {WadStorageService} from '../wad-storage.service';
-import {WadEntry, DoomMap} from '../parser/wad-model';
-import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus';
-import {MainEvent} from '../../main/service/main-event';
-import {NavbarPluginFactory} from '../../main/service/navbar_plugin';
-import {WadMapNavbarComponent} from './wad-map-navbar/wad-map-navbar.component';
-import {functions as mp} from '../parser/map-parser';
+import {Component, OnInit} from '@angular/core'
+import * as paper from 'paper'
+import {Path, Point} from 'paper'
+import {WadStorageService} from '../wad-storage.service'
+import {WadEntry, DoomMap} from '../parser/wad-model'
+import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus'
+import {MainEvent} from '../../main/service/main-event'
+import {NavbarPluginFactory} from '../../main/service/navbar_plugin'
+import {WadMapNavbarComponent} from './wad-map-navbar/wad-map-navbar.component'
+import {functions as mp} from '../parser/map-parser'
 
 @Component({
 	selector: 'app-wad-map',
@@ -30,78 +30,78 @@ import {functions as mp} from '../parser/map-parser';
 	styleUrls: ['./wad-map.component.css']
 })
 export class WadMapComponent implements OnInit, MapControl {
-	private zoom = 1;
-	private scope: paper.PaperScope;
-	private lastDragPos: paper.Point;
-	private lastZoom = -1;
-	private wad: WadEntry;
-	private _mapNames: string[];
+	private zoom = 1
+	private scope: paper.PaperScope
+	private lastDragPos: paper.Point
+	private lastZoom = -1
+	private wad: WadEntry
+	private _mapNames: string[]
 
 	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService) {
 	}
 
 	onZoomChange(zoom: number): void {
-		this.zoom = zoom;
+		this.zoom = zoom
 
 		if (this.zoom > this.lastZoom) {
-			this.scope.view.scale(1.2, new Point(0, 0));
+			this.scope.view.scale(1.2, new Point(0, 0))
 		} else {
-			this.scope.view.scale(0.8, new Point(0, 0));
+			this.scope.view.scale(0.8, new Point(0, 0))
 		}
 
-		this.lastZoom = zoom;
+		this.lastZoom = zoom
 	}
 
 	ngOnInit(): void {
-		this.wad = this.wadStorage.getCurrent().get();
-		this._mapNames = this.wad.wad.maps.map(m => m.mapDirs[0].name);
-		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadMapNavbarComponent, this)));
+		this.wad = this.wadStorage.getCurrent().get()
+		this._mapNames = this.wad.wad.maps.map(m => m.mapDirs[0].name)
+		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadMapNavbarComponent, this)))
 	}
 
 	onMouseDrag(point: paper.Point): void {
 		if (this.lastDragPos != null) {
-			this.scope.view.translate(new Point(point.x - this.lastDragPos.x, point.y - this.lastDragPos.y));
+			this.scope.view.translate(new Point(point.x - this.lastDragPos.x, point.y - this.lastDragPos.y))
 		}
-		this.lastDragPos = point;
+		this.lastDragPos = point
 	}
 
 	onMouseDragEnd(point: paper.Point): void {
-		this.lastDragPos = null;
+		this.lastDragPos = null
 	}
 
 	onPapertInit(scope: paper.PaperScope): void {
-		this.scope = scope;
-		const wad: WadEntry = this.wadStorage.getCurrent().get();
-		this.plotMap(wad.wad.maps[0]);
+		this.scope = scope
+		const wad: WadEntry = this.wadStorage.getCurrent().get()
+		this.plotMap(wad.wad.maps[0])
 	}
 
 	private plotMap(map: DoomMap): void {
-		this.scope.project.activeLayer.removeChildren();
+		this.scope.project.activeLayer.removeChildren()
 		mp.normalizeLinedefs(6)(map.linedefs).forEach(ld => {
 			const path = new Path({
 				strokeColor: '#66ff00',
 				strokeWidth: 2,
 				strokeCap: 'round'
-			});
+			})
 			path.add(
 				new Point(ld.start.x, ld.start.y),
-				new Point(ld.end.x, ld.end.y));
-		});
+				new Point(ld.end.x, ld.end.y))
+		})
 	}
 
 	mapNames(): string[] {
-		return this._mapNames;
+		return this._mapNames
 	}
 
 	onMapChange(name: string) {
-		this.plotMap(this.wad.wad.maps.filter(m => m.mapDirs[0].name === name)[0]);
+		this.plotMap(this.wad.wad.maps.filter(m => m.mapDirs[0].name === name)[0])
 	}
 }
 
 export interface MapControl {
-	onMapChange(name: string);
+	onMapChange(name: string)
 
-	onZoomChange(zoom: number): void;
+	onZoomChange(zoom: number): void
 
-	mapNames(): string[];
+	mapNames(): string[]
 }

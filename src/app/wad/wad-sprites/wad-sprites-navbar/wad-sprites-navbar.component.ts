@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component} from '@angular/core';
-import {NavbarPlugin} from '../../../main/service/navbar_plugin';
-import {SpritesListControl} from '../wad-sprites.component';
+import {Component} from '@angular/core'
+import {NavbarPlugin} from '../../../main/service/navbar_plugin'
+import {SpritesListControl} from '../wad-sprites.component'
 
 @Component({
 	selector: 'app-wad-sprites-navbar',
@@ -24,18 +24,18 @@ import {SpritesListControl} from '../wad-sprites.component';
 })
 export class WadSpritesNavbarComponent implements NavbarPlugin<SpritesListControl> {
 
-	private spritesListControl: SpritesListControl;
+	private spritesListControl: SpritesListControl
 
 	setData(data: SpritesListControl): void {
-		this.spritesListControl = data;
+		this.spritesListControl = data
 	}
 
 	set filter(val: string) {
-		this.spritesListControl.applyFilter(val);
+		this.spritesListControl.applyFilter(val)
 	}
 
 	get filter(): string {
-		return '';
+		return ''
 	}
 
 }

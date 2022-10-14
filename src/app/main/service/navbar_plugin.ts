@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Type} from '@angular/core';
+import {Type} from '@angular/core'
 
 export class NavbarPluginFactory<CT extends NavbarPlugin<any>> {
 	constructor(public readonly component: Type<CT>, public readonly data: any) {
@@ -21,5 +21,5 @@ export class NavbarPluginFactory<CT extends NavbarPlugin<any>> {
 }
 
 export interface NavbarPlugin<C> {
-	setData(data: C): void;
+	setData(data: C): void
 }

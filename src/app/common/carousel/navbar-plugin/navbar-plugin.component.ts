@@ -1,7 +1,7 @@
 /*
  * Copyright 2022 Maciej Miklas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component} from '@angular/core';
-import {NavbarPlugin} from '../../../main/service/navbar_plugin';
-import {CarouselControl} from '../carousel.component';
+import {Component} from '@angular/core'
+import {NavbarPlugin} from '../../../main/service/navbar_plugin'
+import {CarouselControl} from '../carousel.component'
 
 @Component({
 	selector: 'app-wad-map-navbar',
@@ -24,33 +24,30 @@ import {CarouselControl} from '../carousel.component';
 })
 export class NavbarCarouselPluginComponent implements NavbarPlugin<CarouselControl> {
 
-	control: CarouselControl;
-
-	constructor() {
-	}
+	control: CarouselControl
 
 	zoomFormatter = (value) => {
-		return 'x ' + value;
-	};
+		return 'x ' + value
+	}
 
 	pauseClass(): string {
-		return this.control.zoomVisible() ? 'col-1' : 'col-4';
+		return this.control.zoomVisible() ? 'col-1' : 'col-4'
 	}
 
 	setData(carouselControl: CarouselControl): void {
-		this.control = carouselControl;
+		this.control = carouselControl
 	}
 
 	set zoom(zoom: number) {
-		this.control.setZoom(zoom);
+		this.control.setZoom(zoom)
 	}
 
 	get zoom(): number {
-		return this.control.getZoom();
+		return this.control.getZoom()
 	}
 
 	togglePaused(): void {
-		this.control.togglePaused();
+		this.control.togglePaused()
 	}
 
 
