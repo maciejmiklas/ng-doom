@@ -15,13 +15,15 @@
  */
 import {functions as mf, VectorConnection, VectorV} from './wad-model'
 import {
+	pathClosedMixed,
 	pathClosedMixed2,
 	pathClosedReversedMix,
-	pathClosedReversedOne,
+	pathClosedReversedOne, pathClosedSorted,
 	pathRectanglesMixedReversed
 } from "./testdata/data"
+import {testFunctions as tf} from "./map-parser";
 
-describe('wad_model#vertexEqual', () => {
+describe('wad-model#vertexEqual', () => {
 	it('Equal', () => {
 		const v1 = {x: 2, y: 3}
 		const v2 = {x: 2, y: 3}
@@ -35,7 +37,7 @@ describe('wad_model#vertexEqual', () => {
 	})
 })
 
-describe('wad_model#reverseVector', () => {
+describe('wad-model#reverseVector', () => {
 
 	it('reverse', () => {
 		const val = {"start": {"x": 700, "y": 800}, "end": {"x": 500, "y": 600}}
@@ -50,7 +52,7 @@ describe('wad_model#reverseVector', () => {
 
 })
 
-describe('wad_model#pathToPoints', () => {
+describe('wad-model#pathToPoints', () => {
 
 	it('Continuous path', () => {
 		const points = mf.pathToPoints(pathClosedMixed2)
@@ -67,7 +69,7 @@ describe('wad_model#pathToPoints', () => {
 
 })
 
-describe('wad_model#hasVertex', () => {
+describe('wad-model#hasVertex', () => {
 	const vector: VectorV = {start: {x: 2, y: 4}, end: {x: 2, y: 4}}
 
 	it('has vertex', () => {
@@ -80,7 +82,7 @@ describe('wad_model#hasVertex', () => {
 })
 
 
-describe('map-parser#vectorsConnected', () => {
+describe('wad-model#vectorsConnected', () => {
 	it('Connected - the same', () => {
 		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
 		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
@@ -124,7 +126,7 @@ describe('map-parser#vectorsConnected', () => {
 	})
 })
 
-describe('map-parser#vectorReversed', () => {
+describe('wad-model#vectorReversed', () => {
 
 	it('In path', () => {
 		expect(mf.vectorReversed(pathClosedReversedOne)(
@@ -138,7 +140,7 @@ describe('map-parser#vectorReversed', () => {
 
 })
 
-describe('map-parser#countVertex', () => {
+describe('wad-model#countVertex', () => {
 
 	it('found 4', () => {
 		expect(mf.countVertex(pathRectanglesMixedReversed)({"x": 928, "y": -3360})).toEqual(4)
@@ -150,7 +152,7 @@ describe('map-parser#countVertex', () => {
 
 })
 
-describe('map-parser#uniqueVertex', () => {
+describe('wad-model#uniqueVertex', () => {
 
 	it('count', () => {
 		expect(mf.uniqueVertex(pathClosedMixed2).length).toEqual(pathClosedMixed2.length)
@@ -170,7 +172,7 @@ describe('map-parser#uniqueVertex', () => {
 	})
 })
 
-describe('map-parser#findFirstVectorByVertex', () => {
+describe('wad-model#findFirstVectorByVertex', () => {
 
 	it('found', () => {
 		expect(mf.findFirstVectorByVertex(pathRectanglesMixedReversed)({"x": 928, "y": -3072}).get()).toEqual(8)
@@ -181,7 +183,7 @@ describe('map-parser#findFirstVectorByVertex', () => {
 	})
 })
 
-describe('map-parser#groupByVertex', () => {
+describe('wad-model#groupByVertex', () => {
 
 	it('Found', () => {
 		const v = {"x": 928, "y": -3360}
@@ -204,7 +206,7 @@ describe('map-parser#groupByVertex', () => {
 
 })
 
-describe('map-parser#groupCrossingVectors', () => {
+describe('wad-model#groupCrossingVectors', () => {
 
 	it('found', () => {
 		const crossing = mf.groupCrossingVectors(pathRectanglesMixedReversed).get();
@@ -219,9 +221,43 @@ describe('map-parser#groupCrossingVectors', () => {
 	})
 
 	it('Not found', () => {
-		expect(mf.groupCrossingVectors(pathClosedReversedMix).isLeft()).toBeTrue();
+		expect(mf.groupCrossingVectors(pathClosedReversedMix).isLeft()).toBeTrue()
 	})
 
+})
+
+describe('wad-model#pathClosed', () => {
+
+	it('closed', () => {
+		expect(mf.pathClosed(pathClosedSorted)).toBeTrue()
+	})
+
+	it('not closed', () => {
+		expect(mf.pathClosed(pathClosedMixed)).toBeFalse()
+	})
+})
+
+describe('wad-model#continuosPath', () => {
+
+	it('Closed', () => {
+		expect(mf.continuosPath(pathClosedSorted)).toBeTrue()
+	})
+
+	it('Mixed', () => {
+		expect(mf.continuosPath(pathClosedMixed)).toBeFalse()
+	})
+
+	it('Mixed 2', () => {
+		expect(mf.continuosPath(pathClosedMixed2)).toBeFalse()
+	})
+
+	it('Reversed one', () => {
+		expect(mf.continuosPath(pathClosedReversedOne)).toBeFalse()
+	})
+
+	it('Reversed mix', () => {
+		expect(mf.continuosPath(pathClosedReversedMix)).toBeFalse()
+	})
 })
 
 

@@ -27,6 +27,7 @@
  */
 import {Either} from '../../common/either'
 import * as R from 'ramda'
+import U from "../../common/util";
 
 export type Header = {
 	identification: WadType
@@ -612,7 +613,22 @@ const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingV
 		})
 }
 
+const pathClosed = (vectors: VectorV[]): boolean =>
+	vectors.length > 3 && vectorsConnected(vectors[0], vectors[vectors.length - 1]) !== VectorConnection.NONE
+
+const continuosPath = (path: VectorV[]): boolean => {
+	if (path.length <= 2) {
+		return false
+	}
+	// compare each element in list with next one.
+	// #nextRoll will ensure that we compare last element with first one
+	const next = U.nextRoll(path)
+	return path.every((el, idx) =>
+		vertexEqual(el.end, next(idx + 1).start))
+}
+
 export const functions = {
+	continuosPath,
 	vertexEqual,
 	reverseVector,
 	pathToPoints,
@@ -623,5 +639,6 @@ export const functions = {
 	uniqueVertex,
 	findFirstVectorByVertex,
 	groupByVertex,
-	groupCrossingVectors
+	groupCrossingVectors,
+	pathClosed
 }

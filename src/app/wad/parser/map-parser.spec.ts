@@ -65,7 +65,7 @@ import * as R from 'ramda'
 const E1M1_SECTORS = 85
 
 const expectClosedPath = (path: VectorId[]) => {
-	expect(tf.continuosPath(path)).toBeTrue()
+	expect(mf.continuosPath(path)).toBeTrue()
 }
 
 describe('map-parser#parseHeader', () => {
@@ -1131,29 +1131,6 @@ describe('map-parser#parseMaps', () => {
 			expect(sorted[0].length).toEqual(9)
 			expect(sorted[1].length).toEqual(5)
 		})
-	})
-})
-
-describe('map-parser#continuosPath', () => {
-
-	it('Closed', () => {
-		expect(tf.continuosPath(pathClosedSorted)).toBeTrue()
-	})
-
-	it('Mixed', () => {
-		expect(tf.continuosPath(pathClosedMixed)).toBeFalse()
-	})
-
-	it('Mixed 2', () => {
-		expect(tf.continuosPath(pathClosedMixed2)).toBeFalse()
-	})
-
-	it('Reversed one', () => {
-		expect(tf.continuosPath(pathClosedReversedOne)).toBeFalse()
-	})
-
-	it('Reversed mix', () => {
-		expect(tf.continuosPath(pathClosedReversedMix)).toBeFalse()
 	})
 })
 

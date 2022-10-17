@@ -122,7 +122,7 @@ const orderAndBuildPaths = (linedefs: Linedef[]): Either<Linedef[][]> => {
 
 	// build paths from vectors
 	const paths = buildPaths<Linedef>(linedefs)
-	return Either.ofCondition(() => paths.length > 0 && continuosPath(paths[0]),
+	return Either.ofCondition(() => paths.length > 0 && mf.continuosPath(paths[0]),
 		() => 'Could not build path for Sector: ' + R.path([0, 'sector', 'id'], linedefs),
 		() => paths)
 }
@@ -388,8 +388,13 @@ const findLastNotConnected = (linedefs: VectorV[]): Either<number> => {
 }
 
 const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
+
+	//const crossings = mf.groupCrossingVectors(vectors)
+
 	// we will remove elements one by one from this list and add them to #out
+	//const remaining = [...crossings.isRight() ? crossings.get().remaining : vectors]
 	const remaining = [...vectors]
+
 
 	// #out contains array of connected paths: [[path1],[path2],...,[pathX]]
 	// start with first element and try to find vector connected to it
@@ -400,11 +405,11 @@ const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
 		let found = false
 
 		// go over each path in #out and try to append to this path vector from #remaining
-		out.forEach(oa => {
+		out.forEach(path => {
 
-			// iterate over specific path
-			for (let oaIdx = 0; oaIdx < oa.length; oaIdx++) {
-				const oaEl = oa[oaIdx]; // Vector in current path
+			// iterate over specific path, but do not alter already closed path
+			for (let oaIdx = 0; oaIdx < path.length && !mf.pathClosed(path); oaIdx++) {
+				const oaEl = path[oaIdx]; // Vector in current path
 
 				// go over all #remaining (not used) vectors and test whether we can append it to current path
 				for (let remIdx = 0; remIdx < remaining.length; remIdx++) {
@@ -428,11 +433,11 @@ const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
 						connection = mf.vectorsConnected(oaEl, rem)
 					}
 
-					// now we have to insert removed vector at #oaIdx, but we have figure out whether it should go before or after
+					// insert removed vector at #oaIdx, first figure out whether it should go before or after
 					if (connection === VectorConnection.V1END_TO_V2START) {
-						oa.splice(oaIdx + 1, 0, rem)
+						path.splice(oaIdx + 1, 0, rem)
 					} else {
-						oa.splice(Math.max(oaIdx - 1, 0), 0, rem)
+						path.splice(Math.max(oaIdx - 1, 0), 0, rem)
 					}
 					break
 				}
@@ -443,7 +448,7 @@ const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
 		})
 
 		// none of #remaining could be connected to already existing paths, so start new path
-		if (!found) {
+		if (remaining.length > 0 && !found) {
 			out.push([remaining.pop()])
 		}
 	}
@@ -454,15 +459,19 @@ const findMaxVectorVBy = (path: VectorV[]) => (maxFn: (a: VectorV) => number): V
 	R.reduce(R.maxBy<VectorV>(maxFn), MIN_VECTOR_V, path)
 
 const createMaxVertex = (path: VectorV[]): Vertex => {
-	const maxFinder = findMaxVectorVBy(path)
+	try {
+		const maxFinder = findMaxVectorVBy(path)
 
-	const maxStartX = maxFinder(v => v.start.x).start.x
-	const maxEndX = maxFinder(v => v.end.x).end.x
+		const maxStartX = maxFinder(v => v.start.x).start.x
+		const maxEndX = maxFinder(v => v.end.x).end.x
 
-	const maxStartY = maxFinder(v => v.start.y).start.y
-	const maxEndY = maxFinder(v => v.end.y).end.y
+		const maxStartY = maxFinder(v => v.start.y).start.y
+		const maxEndY = maxFinder(v => v.end.y).end.y
 
-	return {x: Math.max(maxStartX, maxEndX), y: Math.max(maxStartY, maxEndY)}
+		return {x: Math.max(maxStartX, maxEndX), y: Math.max(maxStartY, maxEndY)}
+	} catch (e) {
+		return null;
+	}
 }
 
 const findMaxPathIdx = (paths: VectorV[][]): number => {
@@ -490,20 +499,9 @@ const sortByHoles = <V extends VectorV>(path: V[][]): V[][] => {
 	return res
 }
 
-const continuosPath = (path: VectorV[]): boolean => {
-	if (path.length <= 2) {
-		return false
-	}
-	// compare each element in list with next one.
-	// #nextRoll will ensure that we compare last element with first one
-	const next = U.nextRoll(path)
-	return path.every((el, idx) =>
-		mf.vertexEqual(el.end, next(idx + 1).start))
-}
 
 // ############################ EXPORTS ############################
 export const testFunctions = {
-	continuosPath,
 	isMapName,
 	createMaxVertex,
 	findNextMapStartingDir,

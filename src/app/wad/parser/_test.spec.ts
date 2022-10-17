@@ -15,14 +15,14 @@
  */
 import {functions as mp} from "./map-parser"
 import {getAllDirs, getFlats, getTextures, getWadBytes} from "./testdata/data"
-
+/*
 describe('test', () => {
 	it('ABC', () => {
 		const maps = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats())
 		const m1e1 = maps.get()[1]
 	})
 })
-
+*/
 
 /*
  - przerobic buildPaths tak zeby dzialal z vektorami reversed
