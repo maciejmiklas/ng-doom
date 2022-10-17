@@ -583,16 +583,19 @@ const findFirstVectorByVertex = (vectors: VectorV[]) => (vertex: Vertex): Either
 /** V[0] - grouped by vertex, V[1] - the rest. */
 const groupByVertex = <V extends VectorV>(vectors: V[]) => (vertex: Vertex): Either<V[][]> => {
 	const remaining = vectors.filter(v => !hasVertex(vertex)(v), vectors)
-	const crossing = vectors.filter(v => hasVertex(vertex)(v), vectors)
+	const found = vectors.filter(v => hasVertex(vertex)(v), vectors)
 	return Either.ofCondition(
-		() => crossing.length > 0,
-		() => 'No crossings for Vertex: ' + JSON.stringify(vertex),
-		() => [crossing, remaining])
+		() => found.length > 0,
+		() => 'Vertex: ' + JSON.stringify(vertex) + ' not found in: ' + JSON.stringify(toVector(vectors)),
+		() => [found, remaining])
 }
 
 const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingVectors<V>> => {
 	// Vectors are crossing when at least 3 vectors has a common vertex
 	const crossingVertex = uniqueVertex(vectors).filter(v => countVertex(vectors)(v) > 3)
+	const vs = JSON.stringify(toVector(vectors))
+	const cs = JSON.stringify(crossingVertex)
+
 	return Either.ofCondition(
 		() => crossingVertex.length > 0,
 		() => 'No crossings',
@@ -607,9 +610,9 @@ const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingV
 					.exec(v => remaining = v[1])
 
 					// put crossings into output array
-					.get()[0]
+					.orElse(() => [])[0]
 			)
-			return {crossing, remaining};
+			return {crossing: crossing.filter(c => c != undefined && c.length > 0), remaining};
 		})
 }
 
@@ -627,6 +630,9 @@ const continuosPath = (path: VectorV[]): boolean => {
 		vertexEqual(el.end, next(idx + 1).start))
 }
 
+
+const toVector = <V extends VectorV>(vectors: V[]): VectorV[] => vectors.map(v => ({start: v.start, end: v.end}))
+
 export const functions = {
 	continuosPath,
 	vertexEqual,
@@ -640,5 +646,6 @@ export const functions = {
 	findFirstVectorByVertex,
 	groupByVertex,
 	groupCrossingVectors,
-	pathClosed
+	pathClosed,
+	toVector
 }

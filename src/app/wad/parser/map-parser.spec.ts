@@ -479,8 +479,6 @@ describe('map-parser#parseLinedefs', () => {
 
 	it('TWO_SIDED set on each two sided Linedef', () => {
 		getE1M1Linedefs().filter(ld => ld.backSide.isRight()).forEach(ld => {
-			const flags = ld.flags
-			console.log('F', flags)
 			expect(ld.flags.has(LinedefFlag.TWO_SIDED)).toBeTrue()
 		})
 	})

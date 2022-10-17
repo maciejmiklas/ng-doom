@@ -387,9 +387,14 @@ const findLastNotConnected = (linedefs: VectorV[]): Either<number> => {
 	return Either.ofCondition(() => foundIdx > 0, () => 'Vectors connected', () => foundIdx)
 }
 
+
+class PathIterator {
+
+}
+
 const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
 
-	//const crossings = mf.groupCrossingVectors(vectors)
+	const crossings = mf.groupCrossingVectors(vectors)
 
 	// we will remove elements one by one from this list and add them to #out
 	//const remaining = [...crossings.isRight() ? crossings.get().remaining : vectors]

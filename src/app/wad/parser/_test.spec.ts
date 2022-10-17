@@ -15,19 +15,11 @@
  */
 import {functions as mp} from "./map-parser"
 import {getAllDirs, getFlats, getTextures, getWadBytes} from "./testdata/data"
-/*
+
 describe('test', () => {
 	it('ABC', () => {
-		const maps = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats())
-		const m1e1 = maps.get()[1]
+//		const maps = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats())
+	//	const m1e1 = maps.get()[1]
+		expect(true).toBeTruthy();
 	})
 })
-*/
-
-/*
- - przerobic buildPaths tak zeby dzialal z vektorami reversed
- - dopiero po znalezieniu sciezek zrobic order
- - na poczatku sprawdzam czy sa przynajmniej 3 verktory ze wspolnym punktem, jak tak to mamy rozgalezienie figur
- - bierzemy jakikolwiek z tych wektorow i szukamy nastepnego do kontynuacji, ale to nie moze byc zaden z tych wospolnych z rozgalezienia
- *
- */
