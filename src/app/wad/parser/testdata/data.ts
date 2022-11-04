@@ -355,6 +355,13 @@ export const validateTitlePatchHeader = (header: BitmapHeader) => {
 }
 
 
+export const pathContinuousOpen: VectorId[] = [
+	{"id": 201, "start": {"x": 100, "y": 200}, "end": {"x": 110, "y": 210}},
+	{"id": 202, "start": {"x": 110, "y": 210}, "end": {"x": 120, "y": 220}},
+	{"id": 203, "start": {"x": 120, "y": 220}, "end": {"x": 130, "y": 230}},
+	{"id": 204, "start": {"x": 130, "y": 230}, "end": {"x": 140, "y": 240}},
+	{"id": 205, "start": {"x": 140, "y": 240}, "end": {"x": 150, "y": 250}}]
+
 export const pathClosedMixed: VectorId[] = [
 	{"id": 8, "start": {"x": 1728, "y": -704}, "end": {"x": 1856, "y": -704}},
 	{"id": 2, "start": {"x": 2048, "y": -1024}, "end": {"x": 1792, "y": -1280}},

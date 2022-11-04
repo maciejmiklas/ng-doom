@@ -237,26 +237,26 @@ describe('wad-model#pathClosed', () => {
 	})
 })
 
-describe('wad-model#continuosPath', () => {
+describe('wad-model#pathContinuos', () => {
 
 	it('Closed', () => {
-		expect(mf.continuosPath(pathClosedSorted)).toBeTrue()
+		expect(mf.pathContinuos(pathClosedSorted)).toBeTrue()
 	})
 
 	it('Mixed', () => {
-		expect(mf.continuosPath(pathClosedMixed)).toBeFalse()
+		expect(mf.pathContinuos(pathClosedMixed)).toBeFalse()
 	})
 
 	it('Mixed 2', () => {
-		expect(mf.continuosPath(pathClosedMixed2)).toBeFalse()
+		expect(mf.pathContinuos(pathClosedMixed2)).toBeFalse()
 	})
 
 	it('Reversed one', () => {
-		expect(mf.continuosPath(pathClosedReversedOne)).toBeFalse()
+		expect(mf.pathContinuos(pathClosedReversedOne)).toBeFalse()
 	})
 
 	it('Reversed mix', () => {
-		expect(mf.continuosPath(pathClosedReversedMix)).toBeFalse()
+		expect(mf.pathContinuos(pathClosedReversedMix)).toBeFalse()
 	})
 })
 

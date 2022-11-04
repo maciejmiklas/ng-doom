@@ -44,6 +44,10 @@ export abstract class Either<T> {
 		return new Left(msg)
 	}
 
+	static ofWarn<T>(msg: () => string): Either<T> {
+		return new Left(msg())
+	}
+
 	static ofNullable<T>(val: T | undefined, msg: () => string): Either<T> {
 		return R.isNil(val) ? new Left<T>(msg()) : new Right<T>(val)
 	}

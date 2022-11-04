@@ -49,6 +49,7 @@ import {
 	pathClosedReversedMix,
 	pathClosedReversedOne,
 	pathClosedSorted,
+	pathContinuousOpen,
 	pathRectanglesMixedReversed,
 	validateDir,
 	VectorId,
@@ -65,7 +66,7 @@ import * as R from 'ramda'
 const E1M1_SECTORS = 85
 
 const expectClosedPath = (path: VectorId[]) => {
-	expect(mf.continuosPath(path)).toBeTrue()
+	expect(mf.pathContinuos(path)).toBeTrue()
 }
 
 describe('map-parser#parseHeader', () => {
@@ -1162,5 +1163,64 @@ describe('map-parser#findCrossingVertex', () => {
 	})
 
 })
+
+describe('map-parser#insertIntoPath', () => {
+
+	it('Insert on the start do not reverse', () => {
+		const inserted = tf.insertIntoPath(pathContinuousOpen)({
+			"id": 999,
+			"start": {"x": 901, "y": 902},
+			"end": {"x": 100, "y": 200}
+		})
+		expect(inserted.isRight()).toBeTrue()
+		expect(inserted.get().length).toEqual(6)
+		expect(inserted.get()[0].id).toEqual(999)
+		expect(inserted.get()[0].start.x).toEqual(901)
+		expect(inserted.get()[0].end.x).toEqual(100)
+	})
+
+	it('Insert on the start and reverse', () => {
+		const inserted = tf.insertIntoPath(pathContinuousOpen)({
+			"id": 999,
+			"start": {"x": 100, "y": 200},
+			"end": {"x": 901, "y": 902}
+		})
+		expect(inserted.isRight()).toBeTrue()
+		expect(inserted.get().length).toEqual(6)
+		expect(inserted.get()[0].id).toEqual(999)
+		expect(inserted.get()[0].start.x).toEqual(901)
+		expect(inserted.get()[0].end.x).toEqual(100)
+	})
+
+	it('Break path - existing element', () => {
+		const inserted = tf.insertIntoPath(pathContinuousOpen)({
+			"id": 999,
+			"start": {"x": 120, "y": 220},
+			"end": {"x": 130, "y": 230}
+		})
+		expect(inserted.isLeft()).toBeTrue()
+	})
+
+	it('Break path - start connecting to 203', () => {
+		const inserted = tf.insertIntoPath(pathContinuousOpen)({
+			"id": 203,
+			"start": {"x": 120, "y": 220},
+			"end": {"x": 930, "y": 930}
+		})
+		expect(inserted.isLeft()).toBeTrue()
+	})
+
+	it('Break path - end connecting to 203', () => {
+		const inserted = tf.insertIntoPath(pathContinuousOpen)({
+			"id": 999,
+			"start": {"x": 920, "y": 920},
+			"end": {"x": 130, "y": 230}
+		})
+		expect(inserted.isLeft()).toBeTrue()
+	})
+
+})
+
+
 
 

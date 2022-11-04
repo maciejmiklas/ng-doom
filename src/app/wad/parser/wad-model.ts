@@ -580,21 +580,19 @@ const findFirstVectorByVertex = (vectors: VectorV[]) => (vertex: Vertex): Either
 	return Either.ofCondition(() => idx >= 0, () => 'No Vector for:' + JSON.stringify(vertex), () => idx)
 }
 
-/** V[0] - grouped by vertex, V[1] - the rest. */
+/** V[0] - vectors containing given vertex, V[1] - remaining vectors. */
 const groupByVertex = <V extends VectorV>(vectors: V[]) => (vertex: Vertex): Either<V[][]> => {
 	const remaining = vectors.filter(v => !hasVertex(vertex)(v), vectors)
 	const found = vectors.filter(v => hasVertex(vertex)(v), vectors)
 	return Either.ofCondition(
 		() => found.length > 0,
-		() => 'Vertex: ' + JSON.stringify(vertex) + ' not found in: ' + JSON.stringify(toVector(vectors)),
+		() => 'Vertex: ' + stringifyVertex(vertex) + ' not found in: ' + stringifyVectors(vectors),
 		() => [found, remaining])
 }
 
 const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingVectors<V>> => {
 	// Vectors are crossing when at least 3 vectors has a common vertex
 	const crossingVertex = uniqueVertex(vectors).filter(v => countVertex(vectors)(v) > 3)
-	const vs = JSON.stringify(toVector(vectors))
-	const cs = JSON.stringify(crossingVertex)
 
 	return Either.ofCondition(
 		() => crossingVertex.length > 0,
@@ -616,25 +614,36 @@ const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingV
 		})
 }
 
+/** Closed path where last element connect to first one, might be not continuos. */
 const pathClosed = (vectors: VectorV[]): boolean =>
-	vectors.length > 3 && vectorsConnected(vectors[0], vectors[vectors.length - 1]) !== VectorConnection.NONE
+	vectors.length > 2 && vectorsConnected(vectors[0], vectors[vectors.length - 1]) !== VectorConnection.NONE
 
-const continuosPath = (path: VectorV[]): boolean => {
-	if (path.length <= 2) {
-		return false
-	}
-	// compare each element in list with next one.
-	// #nextRoll will ensure that we compare last element with first one
-	const next = U.nextRoll(path)
-	return path.every((el, idx) =>
-		vertexEqual(el.end, next(idx + 1).start))
+/** Continuos and closed path. */
+const pathContinuos = (path: VectorV[]): boolean => {
+
+	// #nextRoll will ensure that we compare last element with first one once iterator gets to the end of the path
+	const nextRoll = U.nextRoll(path)
+
+	// path needs at least 3 elements
+	return path.length > 2 &&
+
+		// optimization - do not iterate over whole path, when start does not connect to an end
+		pathClosed(path) &&
+
+		// compare each element in list with next one to ensure that siblings are connected
+		path.every((el, idx) =>
+			vertexEqual(el.end, nextRoll(idx + 1).start))
 }
 
+const toSimpleVectors = <V extends VectorV>(vectors: V[]): VectorV[] => vectors.map(v => toSimpleVector(v))
+const toSimpleVector = <V extends VectorV>(v: V): VectorV => ({start: v.start, end: v.end})
 
-const toVector = <V extends VectorV>(vectors: V[]): VectorV[] => vectors.map(v => ({start: v.start, end: v.end}))
+const stringifyVectors = (vectors: VectorV[]): string => JSON.stringify(toSimpleVectors(vectors))
+const stringifyVector = (v: VectorV): string => JSON.stringify(toSimpleVector(v))
+const stringifyVertex = (v: Vertex): string => JSON.stringify(v)
 
 export const functions = {
-	continuosPath,
+	pathContinuos,
 	vertexEqual,
 	reverseVector,
 	pathToPoints,
@@ -647,5 +656,8 @@ export const functions = {
 	groupByVertex,
 	groupCrossingVectors,
 	pathClosed,
-	toVector
+	toSimpleVectors,
+	toSimpleVector,
+	stringifyVectors,
+	stringifyVector
 }

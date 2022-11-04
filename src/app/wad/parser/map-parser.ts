@@ -122,7 +122,7 @@ const orderAndBuildPaths = (linedefs: Linedef[]): Either<Linedef[][]> => {
 
 	// build paths from vectors
 	const paths = buildPaths<Linedef>(linedefs)
-	return Either.ofCondition(() => paths.length > 0 && mf.continuosPath(paths[0]),
+	return Either.ofCondition(() => paths.length > 0 && mf.pathContinuos(paths[0]),
 		() => 'Could not build path for Sector: ' + R.path([0, 'sector', 'id'], linedefs),
 		() => paths)
 }
@@ -387,75 +387,70 @@ const findLastNotConnected = (linedefs: VectorV[]): Either<number> => {
 	return Either.ofCondition(() => foundIdx > 0, () => 'Vectors connected', () => foundIdx)
 }
 
+/** Tries to insert given #candidate into #path */
+const insertIntoPath = <V extends VectorV>(path: V[]) => (candidate: V): Either<V[]> => {
+	for (let pathIdx = 0; pathIdx < path.length; pathIdx++) {
+		const pathEl = path[pathIdx]; // Vector in current path
 
-class PathIterator {
+		let connection = mf.vectorsConnected(pathEl, candidate)
+		if (connection === VectorConnection.NONE) {
+			continue
+		}
 
+		// removed vector has to be flipped: x -> y
+		if (connection === VectorConnection.REVERSED) {
+			candidate = mf.reverseVector(candidate)
+			connection = mf.vectorsConnected(pathEl, candidate)
+		}
+
+		// new element can be inserted before of after candidate in #path
+		const insertIdx = connection === VectorConnection.V1END_TO_V2START ? pathIdx + 1 : pathIdx
+
+		// we are inserting within path, make sure not to break already good path
+		if (insertIdx > 0 && insertIdx < path.length - 1) {
+			return Either.ofWarn(() => 'Vector: ' + mf.stringifyVector(candidate) + ' would break existing path ' + mf.stringifyVectors(path));
+		}
+		return Either.ofRight(R.insert(insertIdx, candidate, path))
+	}
+	return Either.ofLeft('Vector: ' + mf.stringifyVector(candidate) + ' not within path ' + mf.stringifyVectors(path))
 }
 
 const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
 
-	const crossings = mf.groupCrossingVectors(vectors)
-
 	// we will remove elements one by one from this list and add them to #out
-	//const remaining = [...crossings.isRight() ? crossings.get().remaining : vectors]
 	const remaining = [...vectors]
 
+	// #out contains array of paths: [[path1],[path2],...,[pathX]] that will be created of elements from #remaining
+	const out = []
 
-	// #out contains array of connected paths: [[path1],[path2],...,[pathX]]
-	// start with first element and try to find vector connected to it
-	const out = [[remaining.pop()]]
+	let appended = false
 
 	// go until all elements in #remaining has been moved to #out
 	while (remaining.length > 0) {
-		let found = false
 
-		// go over each path in #out and try to append to this path vector from #remaining
-		out.forEach(path => {
-
-			// iterate over specific path, but do not alter already closed path
-			for (let oaIdx = 0; oaIdx < path.length && !mf.pathClosed(path); oaIdx++) {
-				const oaEl = path[oaIdx]; // Vector in current path
-
-				// go over all #remaining (not used) vectors and test whether we can append it to current path
-				for (let remIdx = 0; remIdx < remaining.length; remIdx++) {
-					let rem = remaining[remIdx]
-					let connection = mf.vectorsConnected(oaEl, rem)
-					if (connection === VectorConnection.NONE) {
-						continue;// #rem is not connected to any vector from current path
-					}
-
-					// #rem is connected to one of the vectors in current path
-					found = true
-
-					// remove vector from #remaining as we are going to append it to current path
-					remaining.splice(remIdx, 1)
-
-					// try to find proper postion to append removed vector to current path
-
-					// removed vector has to be flipped: x -> y
-					if (connection === VectorConnection.REVERSED) {
-						rem = mf.reverseVector(rem)
-						connection = mf.vectorsConnected(oaEl, rem)
-					}
-
-					// insert removed vector at #oaIdx, first figure out whether it should go before or after
-					if (connection === VectorConnection.V1END_TO_V2START) {
-						path.splice(oaIdx + 1, 0, rem)
-					} else {
-						path.splice(Math.max(oaIdx - 1, 0), 0, rem)
-					}
-					break
-				}
-				if (found) {
-					break
-				}
-			}
-		})
-
-		// none of #remaining could be connected to already existing paths, so start new path
-		if (remaining.length > 0 && !found) {
+		// none of #remaining could be connected to already existing paths, so start a new path
+		if (!appended) {
 			out.push([remaining.pop()])
 		}
+
+		appended = false
+		// go over each path in #out and try to append to this path vector from #remaining
+		out
+			//.filter(p => !mf.pathContinuos(p))
+			.forEach((path, pathIdx) => {
+				const pathBuilder = insertIntoPath(path)
+
+				// go over all #remaining (not used) vectors and test whether we can append it to current path
+				for (let remIdx = 0; !appended && remIdx < remaining.length; remIdx++) {
+					pathBuilder(remaining[remIdx]).exec(alteredPath => {
+						appended = true
+						out[pathIdx] = alteredPath
+
+						// remove vector from #remaining as we have appended it to current path
+						remaining.splice(remIdx, 1)
+					})
+				}
+			})
 	}
 	return out
 }
@@ -464,19 +459,15 @@ const findMaxVectorVBy = (path: VectorV[]) => (maxFn: (a: VectorV) => number): V
 	R.reduce(R.maxBy<VectorV>(maxFn), MIN_VECTOR_V, path)
 
 const createMaxVertex = (path: VectorV[]): Vertex => {
-	try {
-		const maxFinder = findMaxVectorVBy(path)
+	const maxFinder = findMaxVectorVBy(path)
 
-		const maxStartX = maxFinder(v => v.start.x).start.x
-		const maxEndX = maxFinder(v => v.end.x).end.x
+	const maxStartX = maxFinder(v => v.start.x).start.x
+	const maxEndX = maxFinder(v => v.end.x).end.x
 
-		const maxStartY = maxFinder(v => v.start.y).start.y
-		const maxEndY = maxFinder(v => v.end.y).end.y
+	const maxStartY = maxFinder(v => v.start.y).start.y
+	const maxEndY = maxFinder(v => v.end.y).end.y
 
-		return {x: Math.max(maxStartX, maxEndX), y: Math.max(maxStartY, maxEndY)}
-	} catch (e) {
-		return null;
-	}
+	return {x: Math.max(maxStartX, maxEndX), y: Math.max(maxStartY, maxEndY)}
 }
 
 const findMaxPathIdx = (paths: VectorV[][]): number => {
@@ -540,7 +531,8 @@ export const testFunctions = {
 	sortByHoles,
 	findBackLinedefs,
 	findMaxSectorId,
-	findCrossingVertex
+	findCrossingVertex,
+	insertIntoPath
 }
 
 export const functions = {parseMaps, normalizeLinedefs}
