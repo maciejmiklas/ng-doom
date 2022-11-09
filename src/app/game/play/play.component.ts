@@ -117,7 +117,7 @@ const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => v
 		return
 	}
 */
-//	renderWalls(lbs).forEach(m => scene.add(m))
+	renderWalls(lbs).forEach(m => scene.add(m))
 
 	// floor
 	renderFlat(lbs.flat, lbs.sector.floorTexture, lbs.sector.floorHeight, true).forEach(m => {
@@ -126,9 +126,9 @@ const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => v
 	})
 
 	// celling
-	//renderFlat(lbs.flat, lbs.sector.cellingTexture, lbs.sector.cellingHeight, false).forEach(m => {
-	//	scene.add(m)
-	//})
+	renderFlat(lbs.flat, lbs.sector.cellingTexture, lbs.sector.cellingHeight, false).forEach(m => {
+		scene.add(m)
+	})
 }
 
 const renderFlat = (flat: Flat, texture: Either<Bitmap>, height: number, renderHoles: boolean): THREE.Mesh[] => {

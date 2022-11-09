@@ -35,15 +35,15 @@ function getNullOrString(): string | null {
 
 describe('Either#assert', () => {
 	it('Assert Left', () => {
-		expect(Either.ofLeft('H!').assert(() => false, () => 'NONE!').isLeft()).toBeTruthy()
+		expect(Either.ofLeft(() => 'H!').assert(() => false, () => () => 'NONE!').isLeft()).toBeTruthy()
 	})
 
 	it('Right Positive', () => {
-		expect(Either.ofRight('H!').assert(() => true, () => 'NONE!').get()).toEqual('H!')
+		expect(Either.ofRight('H!').assert(() => true, () => () => 'NONE!').get()).toEqual('H!')
 	})
 
 	it('Right Negative', () => {
-		expect(() => Either.ofRight('H!').assert(() => false, () => 'NONE!').isLeft()).toBeTruthy()
+		expect(() => Either.ofRight('H!').assert(() => false, () => () => 'NONE!').isLeft()).toBeTruthy()
 	})
 })
 
@@ -127,7 +127,7 @@ describe('Either#ofTruthFlat', () => {
 	})
 
 	it('Condition Left, Return Left ', () => {
-		const val = Either.ofTruthFlat([falsy1, falsy2, truthy1, truthy2], () => Either.ofLeft('nope'))
+		const val = Either.ofTruthFlat([falsy1, falsy2, truthy1, truthy2], () => Either.ofLeft(() => 'nope'))
 		expect(val.isLeft()).toBeTruthy()
 		expect(val.message()).toEqual('cond false 1,cond false 2')
 	})
@@ -140,7 +140,7 @@ describe('Either#ofTruthFlat', () => {
 
 
 	it('Condition Right, Return Left ', () => {
-		const val = Either.ofTruthFlat([truthy1, truthy2], () => Either.ofLeft('nope'))
+		const val = Either.ofTruthFlat([truthy1, truthy2], () => Either.ofLeft(() => 'nope'))
 		expect(val.isLeft()).toBeTruthy()
 	})
 })
@@ -254,7 +254,7 @@ describe('Either#of', () => {
 })
 
 describe('Either#ofLeft', () => {
-	const left = Either.ofLeft('123') as Either<number>
+	const left = Either.ofLeft(() => '123') as Either<number>
 
 	it('isLeft', () => {
 		expect(left.isLeft()).toBeTruthy()
@@ -342,7 +342,7 @@ describe('Either#ofArray', () => {
 
 describe('Either#ofEitherArray', () => {
 	it('All Left', () => {
-		const res = Either.ofEitherArray(Either.ofLeft('l1'), Either.ofLeft('l2'), Either.ofLeft('l3'))
+		const res = Either.ofEitherArray(Either.ofLeft(() => 'l1'), Either.ofLeft(() => 'l2'), Either.ofLeft(() => 'l3'))
 		expect(res.isLeft()).toBeTruthy()
 	})
 
@@ -353,7 +353,7 @@ describe('Either#ofEitherArray', () => {
 	})
 
 	it('Mix', () => {
-		const res = Either.ofEitherArray(Either.ofRight(1), Either.ofLeft('l2'), Either.ofRight(10), Either.ofRight(3))
+		const res = Either.ofEitherArray(Either.ofRight(1), Either.ofLeft(() => 'l2'), Either.ofRight(10), Either.ofRight(3))
 		expect(res.isRight()).toBeTruthy()
 		expect(res.get()).toEqual([1, 10, 3])
 	})
@@ -367,12 +367,12 @@ describe('Either#unitl', () => {
 	})
 
 	it('Empty Result', () => {
-		const res = Either.until<number>(v => Either.ofCondition(() => false, () => 'End', () => v + 1), Either.ofLeft('LEFT'))
+		const res = Either.until<number>(v => Either.ofCondition(() => false, () => 'End', () => v + 1), Either.ofLeft(() => 'LEFT'))
 		expect(res.isLeft()).toBeTruthy()
 	})
 
 	it('Empty Result with Custom Message', () => {
-		const res = Either.until<number>(v => Either.ofCondition(() => false, () => 'End', () => v + 1), Either.ofLeft('LEFT'), () => 'Nothing there')
+		const res = Either.until<number>(v => Either.ofCondition(() => false, () => 'End', () => v + 1), Either.ofLeft(() => 'LEFT'), () => 'Nothing there')
 		expect(res.isLeft()).toBeTruthy()
 		expect(res.message()).toEqual('Nothing there')
 	})
@@ -380,13 +380,13 @@ describe('Either#unitl', () => {
 
 describe('Either#mapGet', () => {
 	it('left', () => {
-		const res = Either.ofLeft('Im left').mapGet(msg => TwoStrings.create(msg, 'left ret'), v => TwoStrings.create('right ret', 'right ret'))
+		const res = Either.ofLeft(() => 'Im left').mapGet(msg => TwoStrings.create(msg(), 'left ret'), v => TwoStrings.create('right ret', 'right ret'))
 		expect(res.vv).toEqual('Im left')
 		expect(res.pp).toEqual('left ret')
 	})
 
 	it('right', () => {
-		const res = Either.ofRight(new OneString('right in')).mapGet(msg => TwoStrings.create(msg, 'left ret'), v => TwoStrings.create(v.vv, 'right ret'))
+		const res = Either.ofRight(new OneString('right in')).mapGet(msg => TwoStrings.create(msg(), 'left ret'), v => TwoStrings.create(v.vv, 'right ret'))
 		expect(res.vv).toEqual('right in')
 		expect(res.pp).toEqual('right ret')
 	})

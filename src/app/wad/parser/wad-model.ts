@@ -172,8 +172,9 @@ export type Vertex = Position & {
 
 export enum VectorConnection {
 	V1END_TO_V2START,
-	V2END_TO_V1START,
-	REVERSED,
+	V1START_TO_V2END,
+	V1START_TO_V2START,
+	V1END_TO_V2END,
 	NONE,
 }
 
@@ -552,16 +553,19 @@ const hasVertex = (vertex: Vertex) => (vector: VectorV): boolean =>
 const vectorReversed = (vectors: VectorV[]) => (ve: VectorV): boolean =>
 	!vectors.find(v => {
 		const con = vectorsConnected(ve, v)
-		return con === VectorConnection.V1END_TO_V2START || con === VectorConnection.V2END_TO_V1START ? v : undefined
+		return con === VectorConnection.V1END_TO_V2START || con === VectorConnection.V1START_TO_V2END ? v : undefined
 	})
 
 const vectorsConnected = (v1: VectorV, v2: VectorV): VectorConnection =>
 	R.cond([
+		[(v1, v2) => vertexEqual(v1.start, v2.end), () => VectorConnection.V1START_TO_V2END],
+		[(v1, v2) => vertexEqual(v1.start, v2.start), () => VectorConnection.V1START_TO_V2START],
 		[(v1, v2) => vertexEqual(v1.end, v2.start), () => VectorConnection.V1END_TO_V2START],
-		[(v1, v2) => vertexEqual(v2.end, v1.start), () => VectorConnection.V2END_TO_V1START],
-		[(v1, v2) => vertexEqual(v1.start, v2.start) || vertexEqual(v1.end, v2.end), () => VectorConnection.REVERSED],
+		[(v1, v2) => vertexEqual(v1.end, v2.end), () => VectorConnection.V1END_TO_V2END],
 		[R.T, () => VectorConnection.NONE]
 	])(v1, v2)
+
+const reversed = (con: VectorConnection) => con === VectorConnection.V1START_TO_V2START || con === VectorConnection.V1END_TO_V2END;
 
 const countVertex = (vectors: VectorV[]) => (vertex: Vertex) =>
 	R.reduce<VectorV, number>((acc, v) => hasVertex(vertex)(v) ? ++acc : acc, 0, vectors)
@@ -659,5 +663,6 @@ export const functions = {
 	toSimpleVectors,
 	toSimpleVector,
 	stringifyVectors,
-	stringifyVector
+	stringifyVector,
+	reversed
 }

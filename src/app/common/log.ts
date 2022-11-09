@@ -22,34 +22,40 @@ export class Log {
 	static LOG_LEVEL = LogLevel.WARN
 
 	static error(cmp: string, ...args: any[]): void {
-		if (Log.LOG_LEVEL >= LogLevel.ERROR) {
+		if (Log.isError()) {
 			console.log('ERROR(' + cmp + '): ', JSON.stringify(args))
 		}
 	}
 
 	static warn(cmp: string, ...args: any[]): void {
-		if (Log.LOG_LEVEL >= LogLevel.WARN) {
+		if (Log.isWarn()) {
 			console.log('WARN(' + cmp + '): ', JSON.stringify(args))
 		}
 	}
 
 	static info(cmp: string, ...args: any[]): void {
-		if (Log.LOG_LEVEL >= LogLevel.INFO) {
+		if (Log.isInfo()) {
 			console.log('INFO(' + cmp + '): ', JSON.stringify(args))
 		}
 	}
 
 	static debug(cmp: string, ...args: any[]): void {
-		if (Log.LOG_LEVEL >= LogLevel.DEBUG) {
+		if (Log.isDebug()) {
 			console.log('DEBUG(' + cmp + '): ', JSON.stringify(args))
 		}
 	}
 
 	static trace(cmp: string, ...args: any[]): void {
-		if (Log.LOG_LEVEL >= LogLevel.TRACE) {
+		if (Log.isTrace()) {
 			console.log('TRACE(' + cmp + '): ', JSON.stringify(args))
 		}
 	}
+
+	static isTrace = (): boolean => Log.LOG_LEVEL >= LogLevel.TRACE;
+	static isDebug = (): boolean => Log.LOG_LEVEL >= LogLevel.DEBUG;
+	static isInfo = (): boolean => Log.LOG_LEVEL >= LogLevel.INFO;
+	static isWarn = (): boolean => Log.LOG_LEVEL >= LogLevel.WARN;
+	static isError = (): boolean => Log.LOG_LEVEL >= LogLevel.ERROR;
 }
 
 

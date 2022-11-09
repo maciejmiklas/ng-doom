@@ -354,7 +354,6 @@ export const validateTitlePatchHeader = (header: BitmapHeader) => {
 	expect(header.yOffset).toEqual(0)
 }
 
-
 export const pathContinuousOpen: VectorId[] = [
 	{"id": 201, "start": {"x": 100, "y": 200}, "end": {"x": 110, "y": 210}},
 	{"id": 202, "start": {"x": 110, "y": 210}, "end": {"x": 120, "y": 220}},

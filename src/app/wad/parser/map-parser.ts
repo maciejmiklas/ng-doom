@@ -117,7 +117,7 @@ const groupByWallAndAction = (linedefs: Linedef[]): Linedef[][] => {
 const findMaxSectorId = (linedefs: Linedef[]): number => R.reduce<number, number>(R.max, 0, linedefs.map(ld => ld.sector.id))
 const orderAndBuildPaths = (linedefs: Linedef[]): Either<Linedef[][]> => {
 	if (linedefs.length == 0) {
-		return Either.ofLeft('Cannot build Path - Linedef[] is empty')
+		return Either.ofLeft(() => 'Cannot build Path - Linedef[] is empty')
 	}
 
 	// build paths from vectors
@@ -136,7 +136,7 @@ const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) 
 		.concat(findBacksidesBySector(backLinedefs)(sector.id).orElse(() => []))
 
 	if (linedefs.length === 0) {
-		return Either.ofLeft('No Linedefs for sector: ' + sector.id)
+		return Either.ofLeft(() => 'No Linedefs for sector: ' + sector.id)
 	}
 
 	// split linedefs into those building walls and actions
@@ -388,31 +388,31 @@ const findLastNotConnected = (linedefs: VectorV[]): Either<number> => {
 }
 
 /** Tries to insert given #candidate into #path */
-const insertIntoPath = <V extends VectorV>(path: V[]) => (candidate: V): Either<V[]> => {
-	for (let pathIdx = 0; pathIdx < path.length; pathIdx++) {
-		const pathEl = path[pathIdx]; // Vector in current path
+const insertIntoPath = <V extends VectorV>(path: V[]) => (candidate: V): Either<V[]> =>
+	prependToPath(path)(candidate).orAnother(() => appendToPath(path)(candidate))
 
-		let connection = mf.vectorsConnected(pathEl, candidate)
-		if (connection === VectorConnection.NONE) {
-			continue
-		}
+/** Tries to insert given #candidate at the beginning #path. Inserted element will be eventually flipped. */
+const prependToPath = <V extends VectorV>(path: V[]) => (candidate: V): Either<V[]> => {
+	const element = path[0]
+	const connection = mf.vectorsConnected(candidate, element)
+	return R.cond([
+		[(con) => con === VectorConnection.NONE, () => Either.ofLeft<V[]>(() => 'Vector does not connect with path start.')],
+		[(con) => con === VectorConnection.V1END_TO_V2START, () => Either.ofRight([candidate].concat(path))],
+		[(con) => con === VectorConnection.V1START_TO_V2START, () => Either.ofRight([mf.reverseVector(candidate)].concat(path))],
+		[R.T, () => Either.ofWarn<V[]>(() => 'Unsupported connection: [' + connection + '] to prepend: ' + mf.stringifyVector(candidate) + ' to ' + mf.stringifyVectors(path))]
+	])(connection)
+}
 
-		// removed vector has to be flipped: x -> y
-		if (connection === VectorConnection.REVERSED) {
-			candidate = mf.reverseVector(candidate)
-			connection = mf.vectorsConnected(pathEl, candidate)
-		}
-
-		// new element can be inserted before of after candidate in #path
-		const insertIdx = connection === VectorConnection.V1END_TO_V2START ? pathIdx + 1 : pathIdx
-
-		// we are inserting within path, make sure not to break already good path
-		if (insertIdx > 0 && insertIdx < path.length - 1) {
-			return Either.ofWarn(() => 'Vector: ' + mf.stringifyVector(candidate) + ' would break existing path ' + mf.stringifyVectors(path));
-		}
-		return Either.ofRight(R.insert(insertIdx, candidate, path))
-	}
-	return Either.ofLeft('Vector: ' + mf.stringifyVector(candidate) + ' not within path ' + mf.stringifyVectors(path))
+/** Tries to insert given #candidate on the end of the #path. Inserted element will be eventually flipped. */
+const appendToPath = <V extends VectorV>(path: V[]) => (candidate: V): Either<V[]> => {
+	const element = path[path.length - 1]
+	const connection = mf.vectorsConnected(element, candidate)
+	return R.cond([
+		[(con) => con === VectorConnection.NONE, () => Either.ofLeft<V[]>(() => 'Vector does not connect with path end.')],
+		[(con) => con === VectorConnection.V1END_TO_V2START, () => Either.ofRight(path.concat(candidate))],
+		[(con) => con === VectorConnection.V1END_TO_V2END, () => Either.ofRight(path.concat(mf.reverseVector(candidate)))],
+		[R.T, () => Either.ofWarn<V[]>(() => 'Unsupported connection: [' + connection + '] to append: ' + mf.stringifyVector(candidate) + ' to ' + mf.stringifyVectors(path))]
+	])(connection)
 }
 
 const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
@@ -435,22 +435,24 @@ const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
 
 		appended = false
 		// go over each path in #out and try to append to this path vector from #remaining
-		out
-			//.filter(p => !mf.pathContinuos(p))
-			.forEach((path, pathIdx) => {
-				const pathBuilder = insertIntoPath(path)
+		for (let pathIdx = 0; pathIdx < out.length; pathIdx++) {
+			const path = out[pathIdx];
+			if (mf.pathContinuos(path)) {
+				continue;
+			}
+			const pathBuilder = insertIntoPath(path)
 
-				// go over all #remaining (not used) vectors and test whether we can append it to current path
-				for (let remIdx = 0; !appended && remIdx < remaining.length; remIdx++) {
-					pathBuilder(remaining[remIdx]).exec(alteredPath => {
-						appended = true
-						out[pathIdx] = alteredPath
+			// go over all #remaining (not used) vectors and test whether we can append it to current path
+			for (let remIdx = 0; !appended && remIdx < remaining.length; remIdx++) {
+				pathBuilder(remaining[remIdx]).exec(alteredPath => {
+					appended = true
+					out[pathIdx] = alteredPath
 
-						// remove vector from #remaining as we have appended it to current path
-						remaining.splice(remIdx, 1)
-					})
-				}
-			})
+					// remove vector from #remaining as we have appended it to current path
+					remaining.splice(remIdx, 1)
+				})
+			}
+		}
 	}
 	return out
 }
@@ -532,7 +534,9 @@ export const testFunctions = {
 	findBackLinedefs,
 	findMaxSectorId,
 	findCrossingVertex,
-	insertIntoPath
+	insertIntoPath,
+	prependToPath,
+	appendToPath
 }
 
 export const functions = {parseMaps, normalizeLinedefs}

@@ -18,10 +18,11 @@ import {
 	pathClosedMixed,
 	pathClosedMixed2,
 	pathClosedReversedMix,
-	pathClosedReversedOne, pathClosedSorted,
+	pathClosedReversedOne,
+	pathClosedSorted,
+	pathContinuousOpen,
 	pathRectanglesMixedReversed
 } from "./testdata/data"
-import {testFunctions as tf} from "./map-parser";
 
 describe('wad-model#vertexEqual', () => {
 	it('Equal', () => {
@@ -86,25 +87,25 @@ describe('wad-model#vectorsConnected', () => {
 	it('Connected - the same', () => {
 		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
 		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED)
+		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.V1START_TO_V2START)
 	})
 
 	it('Connected - start to start', () => {
 		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
 		const v2 = {start: {x: 1, y: 2}, end: {x: 43, y: 54}}
-		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED)
+		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.V1START_TO_V2START)
 	})
 
 	it('Connected - start to end', () => {
 		const v1 = {start: {x: 1, y: 2}, end: {x: 34, y: 45}}
 		const v2 = {start: {x: 1, y: 2}, end: {x: 1, y: 2}}
-		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.V2END_TO_V1START)
+		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.V1START_TO_V2END)
 	})
 
 	it('Connected - end to end', () => {
 		const v1 = {start: {x: 41, y: 42}, end: {x: 4, y: 5}}
 		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED)
+		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.V1END_TO_V2END)
 	})
 
 	it('Connected - end to start', () => {
@@ -116,7 +117,7 @@ describe('wad-model#vectorsConnected', () => {
 	it('Connected - end to end 2', () => {
 		const v1 = {start: {x: 13, y: 24}, end: {x: 4, y: 5}}
 		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.REVERSED)
+		expect(mf.vectorsConnected(v1, v2)).toEqual(VectorConnection.V1END_TO_V2END)
 	})
 
 	it('Not connected', () => {
@@ -258,8 +259,11 @@ describe('wad-model#pathContinuos', () => {
 	it('Reversed mix', () => {
 		expect(mf.pathContinuos(pathClosedReversedMix)).toBeFalse()
 	})
-})
 
+	it('Continuous open', () => {
+		expect(mf.pathContinuos(pathContinuousOpen)).toBeFalse()
+	})
+})
 
 
 

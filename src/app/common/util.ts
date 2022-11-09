@@ -109,7 +109,7 @@ const findFrom = <T>(arr: T[]) => (offset: number, pred: (T, idx: number) => boo
 			return Either.ofRight(val)
 		}
 	}
-	return Either.ofLeft('Element not found from ' + offset)
+	return Either.ofLeft(() => 'Element not found from ' + offset)
 }
 
 const nullSafeArray = <T>(arr: T[]): T[] => arr ? arr : []

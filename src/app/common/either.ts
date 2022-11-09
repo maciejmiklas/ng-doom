@@ -4,14 +4,14 @@ import {Log} from './log'
 export abstract class Either<T> {
 
 	protected readonly val: T
-	protected readonly msg: string
+	protected readonly msg: () => string
 
-	protected constructor(value: T, msg: string) {
+	protected constructor(value: T, msg: () => string) {
 		this.val = value
 		this.msg = msg
 	}
 
-	static until = <T>(next: (previous: T) => Either<T>, init: Either<T>, msg: () => string = () => 'Empty result for ' + init, max: number = 500): Either<T[]> => {
+	static until = <T>(next: (previous: T) => Either<T>, init: Either<T>, msg: () => string = () => 'Empty result for ' + init, max = 500): Either<T[]> => {
 		let val = init
 		const all: T[] = []
 		let cnt = 0
@@ -40,34 +40,37 @@ export abstract class Either<T> {
 	}
 
 	// TODO: string -> ()=>string
-	static ofLeft<T>(msg: string): Either<T> {
+	static ofLeft<T>(msg: () => string): Either<T> {
 		return new Left(msg)
 	}
 
 	static ofWarn<T>(msg: () => string): Either<T> {
-		return new Left(msg())
+		if (Log.isWarn()) {
+			Log.warn(Left.CMP, msg())
+		}
+		return new Left(msg)
 	}
 
 	static ofNullable<T>(val: T | undefined, msg: () => string): Either<T> {
-		return R.isNil(val) ? new Left<T>(msg()) : new Right<T>(val)
+		return R.isNil(val) ? new Left<T>(msg) : new Right<T>(val)
 	}
 
 	static ofCondition<T>(cnd: () => boolean, left: () => string, right: () => T): Either<T> {
-		return cnd() ? new Right<T>(right()) : new Left<T>(left())
+		return cnd() ? new Right<T>(right()) : new Left<T>(left)
 	}
 
 	static ofTruth<T>(truth: Either<any>[], right: () => T): Either<T> {
 		const left = truth.filter(e => e.isLeft())
-		return left.length === 0 ? new Right<T>(right()) : new Left(left.map(l => l.message()).join(','))
+		return left.length === 0 ? new Right<T>(right()) : new Left(() => left.map(l => l.message()).join(','))
 	}
 
 	static ofTruthFlat<T>(truth: Either<any>[], func: () => Either<T>): Either<T> {
 		const truthLeft = truth.filter(e => e.isLeft())
-		return truthLeft.length === 0 ? func() : new Left(truthLeft.map(l => l.message()).join(','))
+		return truthLeft.length === 0 ? func() : new Left(() => truthLeft.map(l => l.message()).join(','))
 	}
 
 	static ofBoolean(val: boolean): Either<boolean> {
-		return val ? Either.ofRight(val) : Either.ofLeft('FALSE')
+		return val ? Either.ofRight(val) : Either.ofLeft(() => 'FALSE')
 	}
 
 	get(): T {
@@ -75,10 +78,10 @@ export abstract class Either<T> {
 	}
 
 	message(): string {
-		return this.msg
+		return this.msg()
 	}
 
-	abstract mapGet<VL, VR>(left: (msg: string) => VL, right: (v: T) => VR): VL | VR
+	abstract mapGet<VL, VR>(left: (msg: () => string) => VL, right: (v: T) => VR): VL | VR
 
 	abstract orElse(fn: () => T): T
 
@@ -98,22 +101,24 @@ export abstract class Either<T> {
 
 	abstract exec(fn: (v: T) => void): Either<T>
 
-	abstract assert(cnd: (v: T) => boolean, left: (v: T) => string): Either<T>
+	abstract assert(cnd: (v: T) => boolean, left: (v: T) => () => string): Either<T>
 }
 
 export class Left<T> extends Either<T> {
-	static CMP = 'EI'
+	static CMP = 'LEFT'
 
-	constructor(msg: string) {
+	constructor(msg: () => string) {
 		super(null as any, msg)
-		Log.trace(Left.CMP, 'Left created: ', msg)
+		if (Log.isTrace()) {
+			Log.trace(Left.CMP, 'Left created: ', msg())
+		}
 	}
 
-	mapGet<VL, VR>(left: (msg: string) => VL, right: (v: T) => VR): VL | VR {
+	mapGet<VL, VR>(left: (msg: () => string) => VL, right: (v: T) => VR): VL | VR {
 		return left(this.msg)
 	}
 
-	assert(cnd: (v: T) => boolean, left: (v: T) => string): Either<T> {
+	assert(cnd: (v: T) => boolean, left: (v: T) => () => string): Either<T> {
 		return this
 	}
 
@@ -142,7 +147,9 @@ export class Left<T> extends Either<T> {
 	}
 
 	filter(): boolean {
-		Log.debug(Left.CMP, 'Filter false: ', this.message())
+		if (Log.isDebug()) {
+			Log.debug(Left.CMP, 'Filter false: ', this.message())
+		}
 		return false
 	}
 
@@ -164,15 +171,18 @@ export class Left<T> extends Either<T> {
 }
 
 export class Right<T> extends Either<T> {
+	static CMP = 'RIGHT'
 
 	constructor(value: T) {
-		super(value, 'Right')
+		super(value, () => Right.CMP)
 	}
 
-	assert(cnd: (v: T) => boolean, left: (v: T) => string): Either<T> {
+	assert(cnd: (v: T) => boolean, left: (v: T) => () => string): Either<T> {
 		if (!cnd(this.val)) {
 			const msg = left(this.val)
-			Log.warn(Left.CMP, 'Assert:', msg)
+			if (Log.isWarn()) {
+				Log.warn(Right.CMP, 'Assert:', msg())
+			}
 			return Either.ofLeft(msg)
 		}
 		return this
@@ -195,7 +205,7 @@ export class Right<T> extends Either<T> {
 		const val = this.get()
 		const res = producer(val)
 		if (R.isNil(res) || res.isLeft()) {
-			return Either.ofLeft('append got null for ' + val)
+			return Either.ofLeft(() => 'append got null for ' + val)
 		}
 		appender(val, res.get())
 		return new Right(val)
@@ -204,14 +214,14 @@ export class Right<T> extends Either<T> {
 	map(fn: (v: T) => any): Either<any> {
 		const val = this.get()
 		const res = fn(val)
-		return R.isNil(res) ? Either.ofLeft('map got null for ' + val) : res instanceof Either ? res : new Right(res)
+		return R.isNil(res) ? Either.ofLeft(() => 'map got null for ' + val) : res instanceof Either ? res : new Right(res)
 	}
 
 	remap<V>(mf: (val: T) => Either<V>, jf: (v: V, t: T) => void): Either<V> {
 		const val = this.get()
 		const res = mf(val)
 		if (R.isNil(res) || res.isLeft()) {
-			return Either.ofLeft('remap got null for ' + val)
+			return Either.ofLeft(() => 'remap got null for ' + val)
 		}
 		jf(res.get(), val)
 		return res
@@ -233,7 +243,7 @@ export class Right<T> extends Either<T> {
 		return `Right[${this.get()}]`
 	}
 
-	mapGet<VL, VR>(left: (msg: string) => VL, right: (v: T) => VR): VL | VR {
+	mapGet<VL, VR>(left: (msg: () => string) => VL, right: (v: T) => VR): VL | VR {
 		return right(this.val)
 	}
 }

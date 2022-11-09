@@ -918,7 +918,7 @@ describe('map-parser#parseMaps', () => {
 			for (const ldId in gr) {
 				found++
 			}
-			expect(found).toEqual(81)
+			expect(found).toEqual(83)
 		})
 
 		it('Sectors in one group has the same number', () => {
@@ -939,7 +939,7 @@ describe('map-parser#parseMaps', () => {
 			gr.forEach(lbs => {
 				foundLinedefs.add(lbs.sector.id)
 			})
-			expect(foundLinedefs.size).toEqual(81)
+			expect(foundLinedefs.size).toEqual(83)
 		})
 
 	})
@@ -1217,6 +1217,120 @@ describe('map-parser#insertIntoPath', () => {
 			"end": {"x": 130, "y": 230}
 		})
 		expect(inserted.isLeft()).toBeTrue()
+	})
+
+})
+
+describe('map-parser#prependToPath', () => {
+
+	it('VectorConnection:NONE', () => {
+		const res = tf.prependToPath(pathContinuousOpen)({
+			"id": 999,
+			"start": {"x": 920, "y": 920},
+			"end": {"x": 333, "y": 222}
+		})
+		expect(res.isLeft()).toBeTrue()
+	})
+
+	it('VectorConnection:V1END_TO_V2START', () => {
+		const res = tf.prependToPath(pathContinuousOpen)({
+			"id": 999,
+			"start": {"x": 920, "y": 920},
+			"end": {"x": 100, "y": 200}
+		})
+		expect(res.isRight()).toBeTrue()
+		expect(res.get()[0].id).toEqual(999);
+		expect(res.get()[0].start.x).toEqual(920);
+		expect(res.get().length).toEqual(pathContinuousOpen.length + 1);
+	})
+
+
+	it('VectorConnection:V1START_TO_V2START', () => {
+		const res = tf.prependToPath(pathContinuousOpen)({
+			"id": 999,
+			"start": {"x": 100, "y": 200},
+			"end": {"x": 333, "y": 444}
+		})
+		expect(res.isRight()).toBeTrue()
+		expect(res.get()[0].id).toEqual(999);
+		expect(res.get()[0].start.x).toEqual(333);
+		expect(res.get().length).toEqual(pathContinuousOpen.length + 1);
+	})
+
+	it('VectorConnection:V1END_TO_V2END', () => {
+		const res = tf.prependToPath(pathContinuousOpen)({
+			"id": 999,
+			"start": {"x": 920, "y": 920},
+			"end": {"x": 110, "y": 210}
+		})
+		expect(res.isLeft()).toBeTrue()
+	})
+
+	it('VectorConnection:V1START_TO_V2END', () => {
+		const res = tf.prependToPath(pathContinuousOpen)({
+			"id": 999,
+			"start": {"x": 110, "y": 210},
+			"end": {"x": 333, "y": 444}
+		})
+		expect(res.isLeft()).toBeTrue()
+	})
+
+})
+
+describe('map-parser#appendToPath', () => {
+
+	it('VectorConnection:NONE', () => {
+		const res = tf.appendToPath(pathContinuousOpen)({
+			"id": 999,
+			"start": {"x": 920, "y": 920},
+			"end": {"x": 333, "y": 222}
+		})
+		expect(res.isLeft()).toBeTrue()
+	})
+
+	it('VectorConnection:V1END_TO_V2START', () => {
+		const res = tf.appendToPath(pathContinuousOpen)({
+			"id": 999,
+			"start": {"x": 150, "y": 250},
+			"end": {"x": 111, "y": 222}
+		})
+		expect(res.isRight()).toBeTrue()
+		const el = res.get()[pathContinuousOpen.length];
+		expect(el.id).toEqual(999);
+		expect(el.start.x).toEqual(150);
+		expect(res.get().length).toEqual(pathContinuousOpen.length + 1);
+	})
+
+
+	it('VectorConnection:V1START_TO_V2START', () => {
+		const res = tf.appendToPath(pathContinuousOpen)({
+			"id": 999,
+			"start": {"x": 140, "y": 240},
+			"end": {"x": 333, "y": 444}
+		})
+		expect(res.isLeft()).toBeTrue()
+	})
+
+	it('VectorConnection:V1END_TO_V2END', () => {
+		const res = tf.appendToPath(pathContinuousOpen)({
+			"id": 999,
+			"start": {"x": 920, "y": 920},
+			"end": {"x": 150, "y": 250}
+		})
+		expect(res.isRight()).toBeTrue()
+		const el = res.get()[pathContinuousOpen.length];
+		expect(el.id).toEqual(999);
+		expect(el.start.x).toEqual(150);
+		expect(res.get().length).toEqual(pathContinuousOpen.length + 1);
+	})
+
+	it('VectorConnection:V1START_TO_V2END', () => {
+		const res = tf.appendToPath(pathContinuousOpen)({
+			"id": 999,
+			"start": {"x": 111, "y": 222},
+			"end": {"x": 140, "y": 240}
+		})
+		expect(res.isLeft()).toBeTrue()
 	})
 
 })

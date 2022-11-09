@@ -16,11 +16,10 @@
 
 import {Injectable} from '@angular/core'
 import {UploadResult, UploadStatus} from './wad-upload/wad-upload-model'
-import {WadEntry} from './parser/wad-model'
+import {Wad, WadEntry} from './parser/wad-model'
 import * as R from 'ramda'
 import {Either} from '../common/either'
 import {functions as wp} from './parser/wad-parser'
-import {Wad} from './parser/wad-model'
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus'
 import {Log} from '../common/log'
 import {WadEvent} from './wad-event'
@@ -52,7 +51,7 @@ export class WadStorageService {
 		}
 		return file.arrayBuffer().then(ab => {
 			return this.load(ab).mapGet<UploadResult, UploadResult>(message => {
-					return {fileName: file.name, status: UploadStatus.PARSE_ERROR, message}
+					return {fileName: file.name, status: UploadStatus.PARSE_ERROR, message: message()}
 				},
 				wad => {
 					this.wads.push({wad, name: file.name, gameSave: []})

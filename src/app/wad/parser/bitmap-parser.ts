@@ -105,7 +105,7 @@ const unfoldFlatColFilePos = (filepos: number): number[] =>
 	R.unfold((idx) => idx === FLAT_WIDTH ? false : [filepos + idx * FLAT_WIDTH, idx + 1], 0)
 
 const unfoldFlatColumn = (wadBytes: number[]) => (filepos: number): Either<Column> => {
-	const uint8Parser =  U.parseUint8(wadBytes)
+	const uint8Parser = U.parseUint8(wadBytes)
 	const posts: Post[] = [{
 		topdelta: 0,
 		data: R.unfold((idx) => idx === FLAT_HEIGHT ? false : [uint8Parser(filepos + idx), idx + 1], 0),
@@ -175,10 +175,10 @@ const postAt = (columns: Either<Column>[]) => (x: number, y: number): Either<Pos
 const postPixelAt = (columns: Either<Column>[]) => (x: number, y: number): number => {
 	return postAt(columns)(x, y)
 		.assert(p => p.data.length > y - p.topdelta,
-			p => 'Pixel out of range at:(' + x + ',' + y + ')->' + p.data.length + '<=' + y + '-' + p.topdelta)
+			p => () => 'Pixel out of range at:(' + x + ',' + y + ')->' + p.data.length + '<=' + y + '-' + p.topdelta)
 		.map(p => p.data[y - p.topdelta])
 		.assert(p => p >= 0 && p <= 255,
-			p => 'Pixel out of range:(' + x + ',' + y + ') = ' + p)
+			p => () => 'Pixel out of range:(' + x + ',' + y + ') = ' + p)
 		.orElse(() => TRANSPARENT_RGBA_PIXEL)
 }
 
