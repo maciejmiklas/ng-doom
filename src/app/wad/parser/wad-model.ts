@@ -186,8 +186,10 @@ export type VectorV = {
 export type CrossingVectors<V extends VectorV> = {
 
 	/**
-	 * Crossing consists of at least 3 vectors sharing common point.
-	 * In this case we have multiple shapes sharing common edge.
+	 * Crossing consists of at least three vectors sharing a common point.
+	 * In this case, we have multiple shapes sharing the same edge.
+	 *
+	 * Each vector from this list has a mark that can be checked with: #isCrossing(...)
 	 */
 	crossing: V[][],
 	remaining: V[]
@@ -594,8 +596,10 @@ const groupByVertex = <V extends VectorV>(vectors: V[]) => (vertex: Vertex): Eit
 		() => [found, remaining])
 }
 
+const CROSSING_FLAG = "crossing_flag";
+
 const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingVectors<V>> => {
-	// Vectors are crossing when at least 3 vectors has a common vertex
+	// Vectors are crossing when at least 3 vectors share a common point
 	const crossingVertex = uniqueVertex(vectors).filter(v => countVertex(vectors)(v) > 3)
 
 	return Either.ofCondition(
@@ -608,15 +612,25 @@ const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingV
 				// Vertex => Either<V[][]> where V[0] contains crossings, V[1] remaining vectors
 				groupByVertex(remaining)(cv)
 
-					// use for next iteration only remaining vectors to avoid duplicates
-					.exec(v => remaining = v[1])
+					.exec(v => {
+						// use for next iteration vectors from grouping to avoid duplicates
+						remaining = v[1]
+
+						// mark crossing vectors so that we can recognize those later on
+						v[0].forEach(cc => cc[CROSSING_FLAG] = true)
+					})
 
 					// put crossings into output array
 					.orElse(() => [])[0]
 			)
-			return {crossing: crossing.filter(c => c != undefined && c.length > 0), remaining};
+			return {
+				crossing: crossing.filter(c => c != undefined && c.length > 0),
+				remaining
+			};
 		})
 }
+
+const isCrossing = (v: VectorV) => v[CROSSING_FLAG] !== undefined
 
 /** Closed path where last element connect to first one, might be not continuos. */
 const pathClosed = (vectors: VectorV[]): boolean =>
@@ -664,5 +678,6 @@ export const functions = {
 	toSimpleVector,
 	stringifyVectors,
 	stringifyVector,
-	reversed
+	reversed,
+	isCrossing
 }

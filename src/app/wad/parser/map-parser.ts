@@ -415,28 +415,57 @@ const appendToPath = <V extends VectorV>(path: V[]) => (candidate: V): Either<V[
 	])(connection)
 }
 
+/**
+ * Shapes can have common ages. To close such forms properly, they require special treatment. We will separate all
+ * vectors into two groups: crossing vectors (having a common point) and remaining. The problem is to figure out to
+ * which shape crossing vectors belong so that we do not connect shapes meant to be separated. A path building
+ * will be spread into two phases to solve that problem: 1) create paths from remaining vectors without crossings.
+ * That will make some open paths; a few might be closed if they do not need a vector from crossings to build a closed shape.
+ * 2) add crossing vectors to already existing paths, BUT ensure that vectors from crossings do not connect directly.
+ * It would result in a path between two shapes. To achieve that, we will add to existing paths vectors from crossing,
+ * one by one, but we will connect those to that path side, which does not contain already vector from crossing.
+ */
 const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
+	/*
+	const grouped = mf.groupCrossingVectors(vectors)
+	if (grouped.isRight()) {
+		const cv = grouped.get();
+		const crossing = cv.crossing.flat();
 
-	// we will remove elements one by one from this list and add them to #out
+		// start first iteration where first path contains one vector from crossing.
+		let paths = expendPaths(cv.remaining, [[crossing.pop()]])
+
+		// try to add to existing path remaining vectors from crossing, one by one.
+		crossing.forEach(cr => {
+			paths = expendPaths([cr], paths)
+		})
+
+		return null;
+	} else {*/
+		return expendPaths(vectors, [])
+	//}
+}
+
+/** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
+const expendPaths = <V extends VectorV>(vectors: V[], paths: V[][]): V[][] => {
+
+	// we will remove elements one by one from this list and add them to #paths
 	const remaining = [...vectors]
-
-	// #out contains array of paths: [[path1],[path2],...,[pathX]] that will be created of elements from #remaining
-	const out = []
 
 	let appended = false
 
-	// go until all elements in #remaining has been moved to #out
+	// go until all elements in #remaining has been moved to #paths
 	while (remaining.length > 0) {
 
 		// none of #remaining could be connected to already existing paths, so start a new path
 		if (!appended) {
-			out.push([remaining.pop()])
+			paths.push([remaining.pop()])
 		}
 
 		appended = false
-		// go over each path in #out and try to append to this path vector from #remaining
-		for (let pathIdx = 0; pathIdx < out.length; pathIdx++) {
-			const path = out[pathIdx];
+		// go over each path in #paths and try to append to this path vector from #remaining
+		for (let pathIdx = 0; pathIdx < paths.length; pathIdx++) {
+			const path = paths[pathIdx];
 			if (mf.pathContinuos(path)) {
 				continue;
 			}
@@ -446,7 +475,7 @@ const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
 			for (let remIdx = 0; !appended && remIdx < remaining.length; remIdx++) {
 				pathBuilder(remaining[remIdx]).exec(alteredPath => {
 					appended = true
-					out[pathIdx] = alteredPath
+					paths[pathIdx] = alteredPath
 
 					// remove vector from #remaining as we have appended it to current path
 					remaining.splice(remIdx, 1)
@@ -454,7 +483,7 @@ const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
 			}
 		}
 	}
-	return out
+	return paths
 }
 
 const findMaxVectorVBy = (path: VectorV[]) => (maxFn: (a: VectorV) => number): VectorV =>

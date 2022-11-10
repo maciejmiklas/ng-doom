@@ -225,6 +225,13 @@ describe('wad-model#groupCrossingVectors', () => {
 		expect(mf.groupCrossingVectors(pathClosedReversedMix).isLeft()).toBeTrue()
 	})
 
+	it('Crossing flag', () => {
+		const crossing = mf.groupCrossingVectors(pathRectanglesMixedReversed).get();
+		crossing.remaining.forEach(v => expect(mf.isCrossing(v)).toBeFalse());
+		crossing.crossing.forEach(vv => vv.forEach(v => expect(mf.isCrossing(v)).toBeTrue()));
+
+	})
+
 })
 
 describe('wad-model#pathClosed', () => {
