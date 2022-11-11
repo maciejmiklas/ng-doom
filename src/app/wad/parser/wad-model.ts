@@ -631,6 +631,7 @@ const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingV
 }
 
 const isCrossing = (v: VectorV) => v[CROSSING_FLAG] !== undefined
+const areCrossing = (v1: VectorV, v2: VectorV) => isCrossing(v1) && isCrossing(v2)
 
 /** Closed path where last element connect to first one, might be not continuos. */
 const pathClosed = (vectors: VectorV[]): boolean =>
@@ -679,5 +680,6 @@ export const functions = {
 	stringifyVectors,
 	stringifyVector,
 	reversed,
-	isCrossing
+	isCrossing,
+	areCrossing
 }

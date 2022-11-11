@@ -50,7 +50,7 @@ import {
 	pathClosedReversedOne,
 	pathClosedSorted,
 	pathContinuousOpen,
-	pathRectanglesMixedReversed,
+	pathCrossingMixedReversed,
 	validateDir,
 	VectorId,
 	VERTEX_0,
@@ -1151,7 +1151,7 @@ describe('map-parser#findMaxSectorId', () => {
 describe('map-parser#findCrossingVertex', () => {
 
 	it('Has crossing', () => {
-		const found = tf.findCrossingVertex(pathRectanglesMixedReversed)
+		const found = tf.findCrossingVertex(pathCrossingMixedReversed)
 		expect(found.length).toEqual(2)
 		expect(mf.vertexEqual(found[0], {"x": 928, "y": -3360})).toBeTrue()
 		expect(mf.vertexEqual(found[1], {"x": 928, "y": -3104})).toBeTrue()

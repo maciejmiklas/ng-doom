@@ -409,24 +409,49 @@ export const pathClosedReversedMix: VectorId[] = [
 	{"id": 47, "start": {"x": 64, "y": -3392}, "end": {"x": 48, "y": -3392}},
 ]
 
-export const pathRectanglesClosedReversed: VectorId[] = [
-	{"id": 100, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}, msg: 'Crossing A 928,-3104'},
-	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}, msg: 'Crossing A 928,-3104'},
-	{"id": 102, "start": {"x": 1184, "y": -3072}, "end": {"x": 1184, "y": -3104}},
-	{"id": 103, "start": {"x": 928, "y": -3072}, "end": {"x": 1184, "y": -3072}},
+/**
+ Sector37, two crossings A and B
 
-	{"id": 200, "start": {"x": 896, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A 928,-3104'},
-	{"id": 201, "start": {"x": 928, "y": -3360}, "end": {"x": 928, "y": -3104}, msg: 'Crossing B 928,-3360'},
-	{"id": 202, "start": {"x": 928, "y": -3360}, "end": {"x": 896, "y": -3360}, msg: 'Crossing B 928,-3360'},
+           -------------------102-----------------------
+       101 -                                           - 103
+   ---204--A------------------104-----------------------
+   -       -
+   -       -
+   -       -
+   -       -
+   -       -
+   2       2
+   0       0
+   3       1
+   -       -
+   -       -
+   -       -
+   -       -
+   -       -
+   ---202--B-------------------301----------------------
+       304 -                                           - 302
+           --------------------303----------------------
+ */
+export const pathCrossingClosedOrdered: VectorId[] = [
+	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}, msg: 'Crossing A on: [928, -3104]'},
+	{"id": 102, "start": {"x": 928, "y": -3072}, "end": {"x": 1184, "y": -3072}},
+	{"id": 103, "start": {"x": 1184, "y": -3072}, "end": {"x": 1184, "y": -3104}},
+	{"id": 104, "start": {"x": 1184, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A on: [928, -3104]'},
+
+	// @formatter:off
+	{"id": 201, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3360}, msg: 'Crossing A on: [928, -3104] and B on: [928, -3360]'},
+	// @formatter:on
+	{"id": 202, "start": {"x": 928, "y": -3360}, "end": {"x": 896, "y": -3360}, msg: 'Crossing B on: [928, -3360]'},
 	{"id": 203, "start": {"x": 896, "y": -3360}, "end": {"x": 896, "y": -3104}},
+	{"id": 204, "start": {"x": 896, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A on: [928, -3104]'},
 
-	{"id": 300, "start": {"x": 1184, "y": -3360}, "end": {"x": 928, "y": -3360}, msg: 'Crossing B 928,-3360'},
-	{"id": 301, "start": {"x": 1184, "y": -3360}, "end": {"x": 1184, "y": -3392}},
-	{"id": 302, "start": {"x": 1184, "y": -3392}, "end": {"x": 928, "y": -3392}},
-	{"id": 303, "start": {"x": 928, "y": -3392}, "end": {"x": 928, "y": -3360}, msg: 'Crossing B 928,-3360'}
+	{"id": 301, "start": {"x": 928, "y": -3360}, "end": {"x": 1184, "y": -3360}, msg: 'Crossing B on: [928, -3360]'},
+	{"id": 302, "start": {"x": 1184, "y": -3360}, "end": {"x": 1184, "y": -3392}},
+	{"id": 303, "start": {"x": 1184, "y": -3392}, "end": {"x": 928, "y": -3392}},
+	{"id": 304, "start": {"x": 928, "y": -3392}, "end": {"x": 928, "y": -3360}, msg: 'Crossing B on: [928, -3360]'},
 ]
 
-export const pathRectanglesMixedReversed: VectorId[] = [
+export const pathCrossingMixedReversed: VectorId[] = [
 	{"id": 300, "start": {"x": 1184, "y": -3360}, "end": {"x": 928, "y": -3360}, msg: 'Crossing B 928,-3360'},
 	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}, msg: 'Crossing A 928,-3104'},
 	{"id": 302, "start": {"x": 1184, "y": -3392}, "end": {"x": 928, "y": -3392}},
@@ -434,7 +459,12 @@ export const pathRectanglesMixedReversed: VectorId[] = [
 	{"id": 202, "start": {"x": 928, "y": -3360}, "end": {"x": 896, "y": -3360}, msg: 'Crossing B 928,-3360'},
 	{"id": 200, "start": {"x": 896, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A 928,-3104'},
 	{"id": 303, "start": {"x": 928, "y": -3392}, "end": {"x": 928, "y": -3360}, msg: 'Crossing B 928,-3360'},
-	{"id": 201, "start": {"x": 928, "y": -3360}, "end": {"x": 928, "y": -3104}, msg: 'Crossing B 928,-3360'},
+	{
+		"id": 201,
+		"start": {"x": 928, "y": -3360},
+		"end": {"x": 928, "y": -3104},
+		msg: 'Crossing A 928,-3104 and Crossing B 928,-3360\''
+	},
 	{"id": 103, "start": {"x": 928, "y": -3072}, "end": {"x": 1184, "y": -3072}},
 	{"id": 203, "start": {"x": 896, "y": -3360}, "end": {"x": 896, "y": -3104}},
 	{"id": 100, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}, msg: 'Crossing A 928,-3104'},

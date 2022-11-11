@@ -128,9 +128,6 @@ const orderAndBuildPaths = (linedefs: Linedef[]): Either<Linedef[][]> => {
 }
 
 const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) => (sector: Sector): Either<LinedefBySector> => {
-	/*	if (sector.id == 37) {
-			console.log('SID', sector.id)
-		}*/
 	const linedefs: Linedef[] = mapLinedefs.filter(ld => ld.sector.id === sector.id)
 		// for two sectors sharing common border vectors are defined only in one of those sectors as a backside
 		.concat(findBacksidesBySector(backLinedefs)(sector.id).orElse(() => []))
@@ -391,24 +388,38 @@ const findLastNotConnected = (linedefs: VectorV[]): Either<number> => {
 const insertIntoPath = <V extends VectorV>(path: V[]) => (candidate: V): Either<V[]> =>
 	prependToPath(path)(candidate).orAnother(() => appendToPath(path)(candidate))
 
-/** Tries to insert given #candidate at the beginning #path. Inserted element will be eventually flipped. */
+/**
+ * Tries to insert given #candidate at the beginning #path.
+ * Inserted element will be eventually flipped.
+ * It will not directly connect two crossing vectors.
+ */
 const prependToPath = <V extends VectorV>(path: V[]) => (candidate: V): Either<V[]> => {
 	const element = path[0]
 	const connection = mf.vectorsConnected(candidate, element)
 	return R.cond([
+		[() => mf.areCrossing(candidate, element), () => Either.ofLeft<V[]>(() => 'Crossing vectors.')],
 		[(con) => con === VectorConnection.NONE, () => Either.ofLeft<V[]>(() => 'Vector does not connect with path start.')],
+		[(con) => ((con === VectorConnection.V1START_TO_V2END || con === VectorConnection.V1END_TO_V2END) && path.length == 1),
+			() => Either.ofLeft<V[]>(() => 'Vector should be appended.')],
 		[(con) => con === VectorConnection.V1END_TO_V2START, () => Either.ofRight([candidate].concat(path))],
 		[(con) => con === VectorConnection.V1START_TO_V2START, () => Either.ofRight([mf.reverseVector(candidate)].concat(path))],
 		[R.T, () => Either.ofWarn<V[]>(() => 'Unsupported connection: [' + connection + '] to prepend: ' + mf.stringifyVector(candidate) + ' to ' + mf.stringifyVectors(path))]
 	])(connection)
 }
 
-/** Tries to insert given #candidate on the end of the #path. Inserted element will be eventually flipped. */
+/**
+ * Tries to insert given #candidate on the end of the #path.
+ * Inserted element will be eventually flipped.
+ * It will not directly connect two crossing vectors.
+ */
 const appendToPath = <V extends VectorV>(path: V[]) => (candidate: V): Either<V[]> => {
 	const element = path[path.length - 1]
 	const connection = mf.vectorsConnected(element, candidate)
 	return R.cond([
+		[() => mf.areCrossing(candidate, element), () => Either.ofLeft<V[]>(() => 'Crossing vectors.')],
 		[(con) => con === VectorConnection.NONE, () => Either.ofLeft<V[]>(() => 'Vector does not connect with path end.')],
+		[(con) => ((con === VectorConnection.V1START_TO_V2END || con === VectorConnection.V1END_TO_V2END) && path.length == 1),
+			() => Either.ofLeft<V[]>(() => 'Vector should be prepended.')],
 		[(con) => con === VectorConnection.V1END_TO_V2START, () => Either.ofRight(path.concat(candidate))],
 		[(con) => con === VectorConnection.V1END_TO_V2END, () => Either.ofRight(path.concat(mf.reverseVector(candidate)))],
 		[R.T, () => Either.ofWarn<V[]>(() => 'Unsupported connection: [' + connection + '] to append: ' + mf.stringifyVector(candidate) + ' to ' + mf.stringifyVectors(path))]
@@ -421,38 +432,31 @@ const appendToPath = <V extends VectorV>(path: V[]) => (candidate: V): Either<V[
  * which shape crossing vectors belong so that we do not connect shapes meant to be separated. A path building
  * will be spread into two phases to solve that problem: 1) create paths from remaining vectors without crossings.
  * That will make some open paths; a few might be closed if they do not need a vector from crossings to build a closed shape.
- * 2) add crossing vectors to already existing paths, BUT ensure that vectors from crossings do not connect directly.
+ * 2) Add crossing vectors to already existing paths, BUT ensure that vectors from crossings do not connect directly.
  * It would result in a path between two shapes. To achieve that, we will add to existing paths vectors from crossing,
  * one by one, but we will connect those to that path side, which does not contain already vector from crossing.
  */
 const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
-	/*
 	const grouped = mf.groupCrossingVectors(vectors)
 	if (grouped.isRight()) {
 		const cv = grouped.get();
-		const crossing = cv.crossing.flat();
-
-		// start first iteration where first path contains one vector from crossing.
-		let paths = expendPaths(cv.remaining, [[crossing.pop()]])
-
-		// try to add to existing path remaining vectors from crossing, one by one.
-		crossing.forEach(cr => {
+		let paths = expendPaths(cv.remaining, [])
+		cv.crossing.flat().forEach(cr => {
 			paths = expendPaths([cr], paths)
 		})
-
-		return null;
-	} else {*/
+		return paths;
+	} else {
 		return expendPaths(vectors, [])
-	//}
+	}
 }
 
 /** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
-const expendPaths = <V extends VectorV>(vectors: V[], paths: V[][]): V[][] => {
+const expendPaths = <V extends VectorV>(vectors: V[], existingPaths: V[][]): V[][] => {
 
 	// we will remove elements one by one from this list and add them to #paths
 	const remaining = [...vectors]
-
-	let appended = false
+	const paths = [...existingPaths]
+	let appended = paths.length > 0
 
 	// go until all elements in #remaining has been moved to #paths
 	while (remaining.length > 0) {
