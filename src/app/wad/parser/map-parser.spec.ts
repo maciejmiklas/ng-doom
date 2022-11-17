@@ -17,7 +17,6 @@ import {functions as mp, testFunctions as tf} from './map-parser'
 import {
 	Directory,
 	DoomMap,
-	functions as mf,
 	Linedef,
 	LinedefBySector,
 	LinedefFlag,
@@ -46,13 +45,8 @@ import {
 	getWadBytes,
 	pathClosedMixed,
 	pathClosedMixed2,
-	pathClosedReversedMix,
-	pathClosedReversedOne,
 	pathClosedSorted,
-	pathContinuousOpen,
-	pathCrossingMixedReversed,
 	validateDir,
-	VectorId,
 	VERTEX_0,
 	VERTEX_1,
 	VERTEX_2,
@@ -62,12 +56,7 @@ import {
 	VERTEX_466
 } from "./testdata/data"
 import * as R from 'ramda'
-
-const E1M1_SECTORS = 85
-
-const expectClosedPath = (path: VectorId[]) => {
-	expect(mf.pathContinuos(path)).toBeTrue()
-}
+import {functions as fb} from './flat-builder'
 
 describe('map-parser#parseHeader', () => {
 	it('IWAD', () => {
@@ -1041,63 +1030,6 @@ describe('map-parser#parseMaps', () => {
 
 	})
 
-	describe('map-parser#buildPaths', () => {
-
-		it('Path closed reversed mix', () => {
-			const sorted = tf.buildPaths(pathClosedReversedMix)
-			expect(sorted.length).toEqual(1)
-			expect(sorted[0].length).toEqual(8)
-			expectClosedPath(sorted[0])
-		})
-
-
-		it('Path closed mixed', () => {
-			const sorted = tf.buildPaths(pathClosedMixed)
-			expect(sorted.length).toEqual(1)
-			expect(sorted[0].length).toEqual(9)
-			expectClosedPath(sorted[0])
-		})
-
-		it('Path closed mixed 2', () => {
-			const sorted = tf.buildPaths(pathClosedMixed2)
-			expect(sorted.length).toEqual(1)
-			expect(sorted[0].length).toEqual(5)
-			expectClosedPath(sorted[0])
-		})
-
-		it('Path closed with extra point', () => {
-			const sorted = tf.buildPaths([...pathClosedMixed,
-				{"id": 99, "start": {"x": 999, "y": 999}, "end": {"x": 777, "y": 777}}])
-			expect(sorted.length).toEqual(2)
-			expect(sorted[0].length).toEqual(1)
-			expect(sorted[1].length).toEqual(9)
-			expectClosedPath(sorted[1])
-			expect(sorted[0][0].id).toEqual(99)
-		})
-
-		it('Path closed mixed and sorted', () => {
-			const sorted = tf.buildPaths(pathClosedSorted)
-			expect(sorted.length).toEqual(1)
-			expect(sorted[0].length).toEqual(9)
-			expectClosedPath(sorted[0])
-		})
-
-		it('Two Paths', () => {
-			const sorted = tf.buildPaths([...pathClosedMixed, ...pathClosedMixed2])
-			expect(sorted.length).toEqual(2)
-			expect(sorted[0].length).toEqual(5)
-			expect(sorted[1].length).toEqual(9)
-			expectClosedPath(sorted[0])
-			expectClosedPath(sorted[1])
-		})
-
-		it('Path closed vectors reversed', () => {
-			const sorted = tf.buildPaths(pathClosedReversedOne)
-			expect(sorted.length).toEqual(1)
-			expect(sorted[0].length).toEqual(5)
-			expectClosedPath(sorted[0])
-		})
-	})
 
 	describe('map-parser#createMaxVertex', () => {
 
@@ -1125,7 +1057,7 @@ describe('map-parser#parseMaps', () => {
 
 	describe('map-parser#sortByHoles', () => {
 		it('Multiple paths', () => {
-			const paths = tf.buildPaths([...pathClosedMixed, ...pathClosedMixed2])
+			const paths = fb.buildPaths([...pathClosedMixed, ...pathClosedMixed2])
 			const sorted = tf.sortByHoles(paths)
 			expect(sorted[0].length).toEqual(9)
 			expect(sorted[1].length).toEqual(5)
@@ -1147,194 +1079,3 @@ describe('map-parser#findMaxSectorId', () => {
 		expect(tf.findMaxSectorId(getMaps()[3].linedefs)).toEqual(138)
 	})
 })
-
-describe('map-parser#findCrossingVertex', () => {
-
-	it('Has crossing', () => {
-		const found = tf.findCrossingVertex(pathCrossingMixedReversed)
-		expect(found.length).toEqual(2)
-		expect(mf.vertexEqual(found[0], {"x": 928, "y": -3360})).toBeTrue()
-		expect(mf.vertexEqual(found[1], {"x": 928, "y": -3104})).toBeTrue()
-	})
-
-	it('Not crossing', () => {
-		const found = tf.findCrossingVertex(pathClosedReversedOne)
-		expect(found.length).toEqual(0)
-	})
-
-})
-
-describe('map-parser#insertIntoPath', () => {
-
-	it('Insert on the start do not reverse', () => {
-		const inserted = tf.insertIntoPath(pathContinuousOpen)({
-			"id": 999,
-			"start": {"x": 901, "y": 902},
-			"end": {"x": 100, "y": 200}
-		})
-		expect(inserted.isRight()).toBeTrue()
-		expect(inserted.get().length).toEqual(6)
-		expect(inserted.get()[0].id).toEqual(999)
-		expect(inserted.get()[0].start.x).toEqual(901)
-		expect(inserted.get()[0].end.x).toEqual(100)
-	})
-
-	it('Insert on the start and reverse', () => {
-		const inserted = tf.insertIntoPath(pathContinuousOpen)({
-			"id": 999,
-			"start": {"x": 100, "y": 200},
-			"end": {"x": 901, "y": 902}
-		})
-		expect(inserted.isRight()).toBeTrue()
-		expect(inserted.get().length).toEqual(6)
-		expect(inserted.get()[0].id).toEqual(999)
-		expect(inserted.get()[0].start.x).toEqual(901)
-		expect(inserted.get()[0].end.x).toEqual(100)
-	})
-
-	it('Break path - existing element', () => {
-		const inserted = tf.insertIntoPath(pathContinuousOpen)({
-			"id": 999,
-			"start": {"x": 120, "y": 220},
-			"end": {"x": 130, "y": 230}
-		})
-		expect(inserted.isLeft()).toBeTrue()
-	})
-
-	it('Break path - start connecting to 203', () => {
-		const inserted = tf.insertIntoPath(pathContinuousOpen)({
-			"id": 203,
-			"start": {"x": 120, "y": 220},
-			"end": {"x": 930, "y": 930}
-		})
-		expect(inserted.isLeft()).toBeTrue()
-	})
-
-	it('Break path - end connecting to 203', () => {
-		const inserted = tf.insertIntoPath(pathContinuousOpen)({
-			"id": 999,
-			"start": {"x": 920, "y": 920},
-			"end": {"x": 130, "y": 230}
-		})
-		expect(inserted.isLeft()).toBeTrue()
-	})
-
-})
-
-describe('map-parser#prependToPath', () => {
-
-	it('VectorConnection:NONE', () => {
-		const res = tf.prependToPath(pathContinuousOpen)({
-			"id": 999,
-			"start": {"x": 920, "y": 920},
-			"end": {"x": 333, "y": 222}
-		})
-		expect(res.isLeft()).toBeTrue()
-	})
-
-	it('VectorConnection:V1END_TO_V2START', () => {
-		const res = tf.prependToPath(pathContinuousOpen)({
-			"id": 999,
-			"start": {"x": 920, "y": 920},
-			"end": {"x": 100, "y": 200}
-		})
-		expect(res.isRight()).toBeTrue()
-		expect(res.get()[0].id).toEqual(999);
-		expect(res.get()[0].start.x).toEqual(920);
-		expect(res.get().length).toEqual(pathContinuousOpen.length + 1);
-	})
-
-
-	it('VectorConnection:V1START_TO_V2START', () => {
-		const res = tf.prependToPath(pathContinuousOpen)({
-			"id": 999,
-			"start": {"x": 100, "y": 200},
-			"end": {"x": 333, "y": 444}
-		})
-		expect(res.isRight()).toBeTrue()
-		expect(res.get()[0].id).toEqual(999);
-		expect(res.get()[0].start.x).toEqual(333);
-		expect(res.get().length).toEqual(pathContinuousOpen.length + 1);
-	})
-
-	it('VectorConnection:V1END_TO_V2END', () => {
-		const res = tf.prependToPath(pathContinuousOpen)({
-			"id": 999,
-			"start": {"x": 920, "y": 920},
-			"end": {"x": 110, "y": 210}
-		})
-		expect(res.isLeft()).toBeTrue()
-	})
-
-	it('VectorConnection:V1START_TO_V2END', () => {
-		const res = tf.prependToPath(pathContinuousOpen)({
-			"id": 999,
-			"start": {"x": 110, "y": 210},
-			"end": {"x": 333, "y": 444}
-		})
-		expect(res.isLeft()).toBeTrue()
-	})
-
-})
-
-describe('map-parser#appendToPath', () => {
-
-	it('VectorConnection:NONE', () => {
-		const res = tf.appendToPath(pathContinuousOpen)({
-			"id": 999,
-			"start": {"x": 920, "y": 920},
-			"end": {"x": 333, "y": 222}
-		})
-		expect(res.isLeft()).toBeTrue()
-	})
-
-	it('VectorConnection:V1END_TO_V2START', () => {
-		const res = tf.appendToPath(pathContinuousOpen)({
-			"id": 999,
-			"start": {"x": 150, "y": 250},
-			"end": {"x": 111, "y": 222}
-		})
-		expect(res.isRight()).toBeTrue()
-		const el = res.get()[pathContinuousOpen.length];
-		expect(el.id).toEqual(999);
-		expect(el.start.x).toEqual(150);
-		expect(res.get().length).toEqual(pathContinuousOpen.length + 1);
-	})
-
-
-	it('VectorConnection:V1START_TO_V2START', () => {
-		const res = tf.appendToPath(pathContinuousOpen)({
-			"id": 999,
-			"start": {"x": 140, "y": 240},
-			"end": {"x": 333, "y": 444}
-		})
-		expect(res.isLeft()).toBeTrue()
-	})
-
-	it('VectorConnection:V1END_TO_V2END', () => {
-		const res = tf.appendToPath(pathContinuousOpen)({
-			"id": 999,
-			"start": {"x": 920, "y": 920},
-			"end": {"x": 150, "y": 250}
-		})
-		expect(res.isRight()).toBeTrue()
-		const el = res.get()[pathContinuousOpen.length];
-		expect(el.id).toEqual(999);
-		expect(el.start.x).toEqual(150);
-		expect(res.get().length).toEqual(pathContinuousOpen.length + 1);
-	})
-
-	it('VectorConnection:V1START_TO_V2END', () => {
-		const res = tf.appendToPath(pathContinuousOpen)({
-			"id": 999,
-			"start": {"x": 111, "y": 222},
-			"end": {"x": 140, "y": 240}
-		})
-		expect(res.isLeft()).toBeTrue()
-	})
-
-})
-
-
-
-

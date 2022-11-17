@@ -410,13 +410,87 @@ describe('Either#ofBoolean', () => {
 
 })
 
-
 describe('Either#ofCondition', () => {
 	const falsyInt = Either.ofCondition(() => false, () => 'cond false', () => 98)
 	const truthyInt = Either.ofCondition(() => true, () => 'cond true', () => 99)
 
 	const falsyObj = Either.ofCondition(() => false, () => 'cond false', () => new OneString('False!'))
 	const truthyObj = Either.ofCondition(() => true, () => 'cond true', () => new OneString('True!'))
+
+	it('falsyObj - isLeft', () => {
+		expect(falsyObj.isLeft()).toBeTruthy()
+		const map = falsyObj.map(v => v.vv = 'mapped!')
+		expect(map.isLeft).toBeTruthy()
+		expect(map.toString()).toEqual('Left[cond false]')
+	})
+
+	it('falsyObj - toString', () => {
+		expect(falsyObj.toString()).toEqual('Left[cond false]')
+	})
+
+	it('falsyObj - isRight', () => {
+		expect(falsyObj.isRight()).toBeFalsy()
+	})
+
+	it('truthyObj - isLeft', () => {
+		expect(truthyObj.isLeft()).toBeFalsy()
+	})
+
+	it('truthyObj - isRight', () => {
+		expect(truthyObj.isRight()).toBeTruthy()
+	})
+
+	it('truthyObj - toString', () => {
+		expect(truthyObj.toString()).toEqual('Right[OneString [vv: True!]]')
+	})
+
+	it('truthyObj - get', () => {
+		expect(truthyObj.get().vv).toEqual('True!')
+	})
+
+	it('truthyObj - map', () => {
+		expect(truthyObj.map(v => 'mapped!').get()).toEqual('mapped!')
+	})
+
+	it('falsyInt - isLeft', () => {
+		expect(falsyInt.isLeft()).toBeTruthy()
+	})
+
+	it('falsyInt - isRight', () => {
+		expect(falsyInt.isRight()).toBeFalsy()
+	})
+
+	it('falsyInt - toString', () => {
+		expect(falsyInt.toString()).toEqual('Left[cond false]')
+	})
+
+	it('falsyInt - get', () => {
+		expect(() => falsyInt.get()).toThrowError(TypeError)
+	})
+
+	it('truthyInt - isLeft', () => {
+		expect(truthyInt.isLeft()).toBeFalsy()
+	})
+
+	it('truthyInt - isRight', () => {
+		expect(truthyInt.isRight()).toBeTruthy()
+	})
+
+	it('truthyInt - toString', () => {
+		expect(truthyInt.toString()).toEqual('Right[99]')
+	})
+
+	it('truthyInt - get', () => {
+		expect(truthyInt.get()).toEqual(99)
+	})
+})
+
+describe('Either#ofConditionFlat', () => {
+	const falsyInt = Either.ofConditionFlat(() => false, () => 'cond false', () => Either.ofRight(98))
+	const truthyInt = Either.ofConditionFlat(() => true, () => 'cond true', () => Either.ofRight(99))
+
+	const falsyObj = Either.ofConditionFlat(() => false, () => 'cond false', () => Either.ofRight(new OneString('False!')))
+	const truthyObj = Either.ofConditionFlat(() => true, () => 'cond true', () => Either.ofRight(new OneString('True!')))
 
 	it('falsyObj - isLeft', () => {
 		expect(falsyObj.isLeft()).toBeTruthy()

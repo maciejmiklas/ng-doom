@@ -55,6 +55,10 @@ export abstract class Either<T> {
 		return R.isNil(val) ? new Left<T>(msg) : new Right<T>(val)
 	}
 
+	static ofConditionFlat<T>(cnd: () => boolean, left: () => string, right: () =>  Either<T>): Either<T> {
+		return cnd() ? right() : new Left<T>(left)
+	}
+
 	static ofCondition<T>(cnd: () => boolean, left: () => string, right: () => T): Either<T> {
 		return cnd() ? new Right<T>(right()) : new Left<T>(left)
 	}
