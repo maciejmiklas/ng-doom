@@ -21,7 +21,9 @@ import {
 	pathClosedReversedOne,
 	pathClosedSorted,
 	pathContinuousOpen,
-	pathCrossingMixedReversed
+	pathCrossingClosedOrdered,
+	pathCrossingMixed,
+	VectorId
 } from "./testdata/data"
 
 describe('wad-model#vertexEqual', () => {
@@ -82,6 +84,26 @@ describe('wad-model#hasVertex', () => {
 	})
 })
 
+describe('wad-model#vectorsEqual', () => {
+
+	it('Equal - the same', () => {
+		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		expect(mf.vectorsEqual(v1, v2)).toBeTrue()
+	})
+
+	it('Equal - reversed', () => {
+		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 4, y: 5}, end: {x: 1, y: 2}}
+		expect(mf.vectorsEqual(v1, v2)).toBeTrue()
+	})
+
+	it('Not equal', () => {
+		const v1 = {start: {x: 1, y: 22}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		expect(mf.vectorsEqual(v1, v2)).toBeFalse()
+	})
+})
 
 describe('wad-model#vectorsConnected', () => {
 	it('Connected - the same', () => {
@@ -144,11 +166,11 @@ describe('wad-model#vectorReversed', () => {
 describe('wad-model#countVertex', () => {
 
 	it('found 4', () => {
-		expect(mf.countVertex(pathCrossingMixedReversed)({"x": 928, "y": -3360})).toEqual(4)
+		expect(mf.countVertex(pathCrossingMixed)({"x": 928, "y": -3104})).toEqual(4)
 	})
 
 	it('found 0', () => {
-		expect(mf.countVertex(pathCrossingMixedReversed)({"x": 928, "y": 3360})).toEqual(0)
+		expect(mf.countVertex(pathCrossingMixed)({"x": 928, "y": 3360})).toEqual(0)
 	})
 
 })
@@ -176,32 +198,32 @@ describe('wad-model#uniqueVertex', () => {
 describe('wad-model#findFirstVectorByVertex', () => {
 
 	it('found', () => {
-		expect(mf.findFirstVectorByVertex(pathCrossingMixedReversed)({"x": 928, "y": -3072}).get()).toEqual(8)
+		expect(mf.findFirstVectorByVertex(pathCrossingMixed)({"x": 1184, "y": -3360}).get()).toEqual(5)
 	})
 
 	it('not found', () => {
-		expect(mf.findFirstVectorByVertex(pathCrossingMixedReversed)({"x": 928, "y": 3360}).isLeft).toBeTruthy()
+		expect(mf.findFirstVectorByVertex(pathCrossingMixed)({"x": 928, "y": 3360}).isLeft()).toBeTruthy()
 	})
 })
 
 describe('wad-model#groupByVertex', () => {
 
 	it('Found', () => {
-		const v = {"x": 928, "y": -3360}
-		const either = mf.groupByVertex(pathCrossingMixedReversed)(v)
+		const v = {"x": 928, "y": -3104}
+		const either = mf.groupByVertex(pathCrossingMixed)(v)
 		expect(either.isRight()).toBeTrue()
 		const res = either.get()
 		expect(res.length).toEqual(2)
 
 		expect(res[0].length).toEqual(4)
-		expect(res[1].length).toEqual(pathCrossingMixedReversed.length - 4)
+		expect(res[1].length).toEqual(pathCrossingMixed.length - 4)
 		const has = mf.hasVertex(v)
 		res[0].forEach(vv => expect(has(vv)).toBeTrue())
 		res[1].forEach(vv => expect(has(vv)).toBeFalse())
 	})
 
 	it('Not found', () => {
-		const either = mf.groupByVertex(pathCrossingMixedReversed)({"x": 928, "y": 3360})
+		const either = mf.groupByVertex(pathCrossingMixed)({"x": 928, "y": 3360})
 		expect(either.isRight()).toBeFalse()
 	})
 
@@ -209,30 +231,45 @@ describe('wad-model#groupByVertex', () => {
 
 describe('wad-model#groupCrossingVectors', () => {
 
-	it('found', () => {
-		const crossing = mf.groupCrossingVectors(pathCrossingMixedReversed).get();
-		expect(crossing.crossing.length).toEqual(2);
-		expect(crossing.crossing[0].length).toEqual(4);
-		expect(crossing.crossing[1].length).toEqual(3);
-		expect(crossing.remaining.length).toEqual(pathCrossingMixedReversed.length - (crossing.crossing[0].length + crossing.crossing[1].length));
-
-		crossing.crossing[0].forEach(v => expect(v.msg).toEqual('Crossing B 928,-3360'))
-		crossing.crossing[1].forEach(v => expect(v.msg).toEqual('Crossing A 928,-3104'))
-		crossing.remaining.forEach(v => expect(v.msg).toBeUndefined())
-	})
-
 	it('Not found', () => {
 		expect(mf.groupCrossingVectors(pathClosedReversedMix).isLeft()).toBeTrue()
 	})
 
 	it('Crossing flag', () => {
-		const crossing = mf.groupCrossingVectors(pathCrossingMixedReversed).get();
+		const crossing = mf.groupCrossingVectors(pathCrossingClosedOrdered).get();
 		crossing.remaining.forEach(v => expect(mf.isCrossing(v)).toBeFalse());
 		crossing.crossing.forEach(vv => vv.forEach(v => expect(mf.isCrossing(v)).toBeTrue()));
+	})
 
+	it('closed crossing path and ordered', () => {
+		execCrossingTest(pathCrossingClosedOrdered)
+	})
+
+	it('closed crossing path and mixed', () => {
+		execCrossingTest(pathCrossingMixed)
 	})
 
 })
+
+const execCrossingTest = (data: VectorId[]) => {
+	const crossing = mf.groupCrossingVectors(data).get();
+	const cr0 = crossing.crossing[0];
+	expect(cr0.length).toEqual(4)
+	cr0.forEach(cr => {
+		expect(cr.msg.startsWith('Crossing A')).toBeTrue()
+		expect(mf.isCrossing(cr)).toBeTrue()
+	})
+
+	const cr1 = crossing.crossing[1];
+	expect(cr1.length).toEqual(3)
+	cr1.forEach(cr => {
+		expect(cr.msg.startsWith('Crossing B')).toBeTrue()
+		expect(mf.isCrossing(cr)).toBeTrue()
+	})
+
+	crossing.remaining.forEach(v => expect(mf.isCrossing(v)).toBeFalse());
+	crossing.remaining.forEach(v => expect(v.msg).toBeUndefined());
+}
 
 describe('wad-model#pathClosed', () => {
 

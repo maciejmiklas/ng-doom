@@ -16,6 +16,8 @@
 import {functions as fb, testFunctions as tf} from './flat-builder'
 import {functions as mf} from './wad-model'
 import {
+	getCCOById,
+	path300Full, path300Full100Started,
 	pathClosedMixed,
 	pathClosedMixed2,
 	pathClosedReversedMix,
@@ -30,7 +32,7 @@ const expectClosedPath = (path: VectorId[]) => {
 	expect(mf.pathContinuos(path)).toBeTrue()
 }
 
-describe('map-parser#buildPaths', () => {
+describe('flat-builder#buildPaths', () => {
 
 	it('Path closed reversed mix', () => {
 		const sorted = fb.buildPaths(pathClosedReversedMix)
@@ -88,7 +90,7 @@ describe('map-parser#buildPaths', () => {
 	})
 })
 
-describe('map-parser#insertIntoPath', () => {
+describe('flat-builder#insertIntoPath', () => {
 
 	it('Insert on the start do not reverse', () => {
 		const inserted = tf.insertIntoPath(pathContinuousOpen)({
@@ -145,7 +147,7 @@ describe('map-parser#insertIntoPath', () => {
 
 })
 
-describe('map-parser#prependToPath', () => {
+describe('flat-builder#prependToPath', () => {
 
 	it('VectorConnection:NONE', () => {
 		const res = tf.prependToPath(pathContinuousOpen)({
@@ -201,7 +203,7 @@ describe('map-parser#prependToPath', () => {
 
 })
 
-describe('map-parser#appendToPath', () => {
+describe('flat-builder#appendToPath', () => {
 
 	it('VectorConnection:NONE', () => {
 		const res = tf.appendToPath(pathContinuousOpen)({
@@ -255,6 +257,37 @@ describe('map-parser#appendToPath', () => {
 			"end": {"x": 140, "y": 240}
 		})
 		expect(res.isLeft()).toBeTrue()
+	})
+})
+
+describe('flat-builder#expandPath', () => {
+
+	it('Never start new path', () => {
+		expect(tf.expandPath(path300Full, getCCOById(102)).isLeft()).toBeTrue()
+		expect(tf.expandPath(path300Full, getCCOById(202)).isLeft()).toBeTrue()
+		expect(tf.expandPath(path300Full100Started, getCCOById(202)).isLeft()).toBeTrue()
+	})
+
+	it('Do not break closed path', () => {
+		expect(tf.expandPath(path300Full, getCCOById(301)).isLeft()).toBeTrue()
+		expect(tf.expandPath(path300Full, getCCOById(302)).isLeft()).toBeTrue()
+	})
+
+	it('Ignore already existing', () => {
+		expect(tf.expandPath(path300Full100Started, getCCOById(102)).isLeft()).toBeTrue()
+	})
+
+	it('Expand 102', () => {
+		let path = tf.expandPath(path300Full100Started, getCCOById(103)).get()
+		expect(path[0].length).toEqual(2)
+		expect(path[0][0].id).toEqual(102)
+		expect(path[0][1].id).toEqual(103)
+
+		path = tf.expandPath(path, getCCOById(101)).get()
+		expect(path[0].length).toEqual(3)
+		expect(path[0][0].id).toEqual(101)
+		expect(path[0][1].id).toEqual(102)
+		expect(path[0][2].id).toEqual(103)
 	})
 
 })

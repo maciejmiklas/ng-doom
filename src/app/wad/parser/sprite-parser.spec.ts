@@ -168,7 +168,7 @@ describe('sprite_parser#toFramesByAngle', () => {
 	it('Sprite POSS - Names', () => {
 		const fd: FrameDir[] = tf.toFrameDirs(getWadBytes(), getPalette())(poss)
 		const byAngle: Record<string, FrameDir[]> = tf.toFramesByAngle(fd)
-		for (let angle in byAngle) {
+		for (const angle in byAngle) {
 			const frames: FrameDir[] = byAngle[angle]
 			frames.forEach(f => expect(f.dir.name.startsWith('POSS')).toBeTruthy())
 		}
@@ -177,7 +177,7 @@ describe('sprite_parser#toFramesByAngle', () => {
 	it('Sprite POSS - Angles of the Child', () => {
 		const fd: FrameDir[] = tf.toFrameDirs(getWadBytes(), getPalette())(poss)
 		const byAngle: Record<string, FrameDir[]> = tf.toFramesByAngle(fd)
-		for (let angle in byAngle) {
+		for (const angle in byAngle) {
 			byAngle[angle].forEach(f => expect(f.angle).toEqual(Number(angle)))
 		}
 	})
@@ -226,9 +226,9 @@ describe('sprite_parser#toFramesByAngle', () => {
 describe('sprite_parser#parseSprites', () => {
 	it('Keys correspond to names', () => {
 		const sprites: Record<string, Sprite> = sp.parseSpritesAsMap(getWadBytes(), getAllDirs())
-		for (let spriteName in sprites) {
+		for (const spriteName in sprites) {
 			const sprite: Sprite = sprites[spriteName]
-			for (let angle in sprite.animations) {
+			for (const angle in sprite.animations) {
 				const frame: FrameDir[] = sprite.animations[angle]
 				frame.forEach(f => {
 					expect(f.spriteName).toEqual(spriteName)

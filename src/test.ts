@@ -32,7 +32,7 @@ getTestBed().initTestEnvironment(
 	platformBrowserDynamicTesting()
 )
 // Then we find all the tests.
-const context = require.context('./', true, /\.spec\.ts$/)
-//const context = require.context('./', true, /_test.spec.ts/)
+//const context = require.context('./', true, /\.spec\.ts$/)
+const context = require.context('./', true, /flat-builder.spec.ts/)
 // And load the modules.
 context.keys().map(context)

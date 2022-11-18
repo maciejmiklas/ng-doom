@@ -539,6 +539,10 @@ export type GameSave = {
 // ######################### FUNCTIONS #########################
 const vertexEqual = (v1: Vertex, v2: Vertex): boolean => v1.x === v2.x && v1.y === v2.y
 
+const vectorsEqual = (v1: VectorV, v2: VectorV): boolean =>
+	(vertexEqual(v1.start, v2.start) && vertexEqual(v1.end, v2.end)) ||
+	(vertexEqual(v1.start, v2.end) && vertexEqual(v1.end, v2.start))
+
 const reverseVector = <V extends VectorV>(input: V): V => {
 	const resp = {...input}
 	resp.end = input.start
@@ -681,5 +685,6 @@ export const functions = {
 	stringifyVector,
 	reversed,
 	isCrossing,
-	areCrossing
+	areCrossing,
+	vectorsEqual
 }

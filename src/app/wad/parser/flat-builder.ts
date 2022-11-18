@@ -41,7 +41,7 @@ const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
 		// 1) create paths from remaining vectors without crossings
 		const p1res = expandPaths(cv.remaining, [])
 
-		// 2)Add crossing vectors to already existing paths
+		// 2)Add crossing vectors to already existing pathsf
 		const p2res = expandPaths(cv.crossing.flat(), p1res.paths)
 
 		let paths = p2res.paths;
@@ -138,6 +138,7 @@ const prependToPath = <V extends VectorV>(path: V[]) => (candidate: V, ignoreCro
 	const connection = mf.vectorsConnected(candidate, element)
 	return R.cond([
 		[() => ignoreCrossing && mf.areCrossing(candidate, element), () => Either.ofLeft<V[]>(() => 'Crossing vectors.')],
+		[() => mf.vectorsEqual(candidate, element), () => Either.ofLeft<V[]>(() => 'Equal vectors')],
 		[(con) => con === VectorConnection.NONE, () => Either.ofLeft<V[]>(() => 'Vector does not connect with path start.')],
 		[(con) => ((con === VectorConnection.V1START_TO_V2END || con === VectorConnection.V1END_TO_V2END) && path.length == 1),
 			() => Either.ofLeft<V[]>(() => 'Vector should be appended.')],
@@ -157,6 +158,7 @@ const appendToPath = <V extends VectorV>(path: V[]) => (candidate: V, ignoreCros
 	const connection = mf.vectorsConnected(element, candidate)
 	return R.cond([
 		[() => ignoreCrossing && mf.areCrossing(candidate, element), () => Either.ofLeft<V[]>(() => 'Crossing vectors.')],
+		[() => mf.vectorsEqual(candidate, element), () => Either.ofLeft<V[]>(() => 'Equal vectors')],
 		[(con) => con === VectorConnection.NONE, () => Either.ofLeft<V[]>(() => 'Vector does not connect with path end.')],
 		[(con) => ((con === VectorConnection.V1START_TO_V2END || con === VectorConnection.V1END_TO_V2END) && path.length == 1),
 			() => Either.ofLeft<V[]>(() => 'Vector should be prepended.')],
@@ -208,7 +210,8 @@ const expandPaths_ = <V extends VectorV>(vectors: V[], existingPaths: V[][]): V[
 export const testFunctions = {
 	insertIntoPath,
 	prependToPath,
-	appendToPath
+	appendToPath,
+	expandPath
 }
 
 export const functions = {buildPaths}
