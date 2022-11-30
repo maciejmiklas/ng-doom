@@ -32,9 +32,9 @@ const parseInt16 = (bytes: number[]) => (pos: number, min = -32767, max = 32767)
 	return ensureRange(pos, parseNumber([bytes[pos], bytes[pos + 1], padding, padding])(0), min, max)
 }
 
-const parseInt16Op = (bytes: number[]) => (cnd: (val: number) => boolean, emsg: (val: number) => string) => (pos: number): Either<number> => {
+const parseInt16Op = (bytes: number[]) => (cnd: (val: number) => boolean, eMsg: (val: number) => string) => (pos: number): Either<number> => {
 	const parsed = parseInt16(bytes)(pos)
-	return Either.ofCondition(() => cnd(parsed), () => emsg(parsed), () => parsed)
+	return Either.ofCondition(() => cnd(parsed), () => eMsg(parsed), () => parsed)
 }
 
 /** little-endian 4-byte int without sign. Notation: little-endian (two's complement) */
@@ -46,9 +46,9 @@ const parseInt32 = (bytes: number[]) => (pos: number, min = -2147483647, max = 2
 const parseStr = (bytes: number[]) => (pos: number, length: number): string =>
 	String.fromCharCode.apply(null, bytes.slice(pos, trim0Padding(bytes, pos + length - 1)))
 
-const parseStrOp = (bytes: number[]) => (cnd: (val: string) => boolean, emsg: (val: string) => string) => (pos: number, length: number): Either<string> => {
+const parseStrOp = (bytes: number[]) => (cnd: (val: string) => boolean, eMsg: (val: string) => string) => (pos: number, length: number): Either<string> => {
 	const str = parseStr(bytes)(pos, length)
-	return Either.ofCondition(() => cnd(str), () => emsg(str), () => str)
+	return Either.ofCondition(() => cnd(str), () => eMsg(str), () => str)
 }
 
 const parseTextureName = (bytes: number[]) => (pos: number, length: number): Either<string> => {

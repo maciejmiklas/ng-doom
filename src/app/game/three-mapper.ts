@@ -14,12 +14,22 @@
  * limitations under the License.
  */
 
-
-import {DoomTexture, Flat, functions as mf, RgbaBitmap, Vertex} from "../wad/parser/wad-model"
+import * as R from 'ramda'
+import {
+	DoomTexture,
+	Flat,
+	FlatArea,
+	FlatType,
+	FlatWithHoles,
+	FlatWithShapes,
+	functions as mf,
+	Linedef,
+	RgbaBitmap,
+	Vertex
+} from "../wad/parser/wad-model"
 import * as THREE from "three"
 import {Side} from "three/src/constants"
 import {Vector2} from "three/src/math/Vector2"
-import {Either} from "../common/either"
 import {ColorRepresentation} from "three/src/utils"
 
 const createWallDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
@@ -51,10 +61,32 @@ const createWallMaterial = (dt: DoomTexture, side: Side, color = null): THREE.Ma
 
 const toVector2 = (ve: Vertex): Vector2 => new Vector2(ve.x, ve.y)
 
-const getHoles = (flat: Flat): Either<THREE.Shape[]> =>
-	flat.holes.map(paths =>
-		paths.map(path => new THREE.Shape(mf.pathToPoints(path).map(p => toVector2(p))))
-	)
+const createShapeFromPath = (path: Linedef[]): THREE.Shape => {
+	return new THREE.Shape(mf.pathToPoints(path).map(p => toVector2(p)));
+}
+
+const createShapesFromFlatArea = (flat: FlatArea): THREE.Shape[] => {
+	return [createShapeFromPath(flat.walls)];
+}
+
+const createShapesFromFlatWithShapes = (flat: FlatWithShapes): THREE.Shape[] => {
+	return flat.walls.map(wall => createShapeFromPath(wall));
+}
+
+const createShapesFromFlatWithHoles = (flat: FlatWithHoles, renderHoles: boolean): THREE.Shape[] => {
+	const shape = createShapeFromPath(flat.walls)
+	if (renderHoles) {
+		flat.holes.map(hole => createShapeFromPath(hole)).forEach(hole => shape.holes.push(hole))
+	}
+	return [shape];
+}
+
+const createShapesFromFlat = (flat: Flat, renderHoles: boolean): THREE.Shape[] =>
+	R.cond<Flat[], THREE.Shape[]>([
+		[(f) => f.type === FlatType.AREA, (f) => createShapesFromFlatArea(f as FlatArea)],
+		[(f) => f.type === FlatType.SHAPES, (f) => createShapesFromFlatWithShapes(f as FlatWithShapes)],
+		[R.T, (f) => createShapesFromFlatWithHoles(f as FlatWithHoles, renderHoles)]
+	])(flat)
 
 const point = (x: number, y: number, z: number, color: ColorRepresentation = 0xff0000): THREE.Object3D => {
 	const dotGeometry = new THREE.BufferGeometry()
@@ -70,4 +102,14 @@ const createFallbackMaterial = () => new THREE.MeshStandardMaterial({
 })
 
 // ############################ EXPORTS ############################
-export const functions = {createFloorDataTexture, createWallMaterial, toVector2, getHoles, point, createFallbackMaterial}
+export const functions = {
+	createFloorDataTexture,
+	createWallMaterial,
+	toVector2,
+	createShapesFromFlatArea,
+	createShapesFromFlatWithShapes,
+	createShapesFromFlatWithHoles,
+	point,
+	createFallbackMaterial,
+	createShapesFromFlat
+}

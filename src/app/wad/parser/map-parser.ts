@@ -25,7 +25,6 @@ import {
 	LinedefBySector,
 	LinedefFlag,
 	MapLumpType,
-	MIN_VECTOR_V,
 	Sector,
 	Sidedef,
 	Thing,
@@ -129,17 +128,6 @@ const groupByWallAndAction = (linedefs: Linedef[]): Linedef[][] => {
 }
 
 const findMaxSectorId = (linedefs: Linedef[]): number => R.reduce<number, number>(R.max, 0, linedefs.map(ld => ld.sector.id))
-const orderAndBuildPaths = (linedefs: Linedef[]): Either<Linedef[][]> => {
-	if (linedefs.length == 0) {
-		return Either.ofLeft(() => 'Cannot build Path - Linedef[] is empty')
-	}
-
-	// build paths from vectors
-	const paths = fb.buildPaths<Linedef>(linedefs)
-	return Either.ofCondition(() => paths.length > 0 && mf.pathContinuos(paths[0]),
-		() => 'Could not build path for Sector: ' + R.path([0, 'sector', 'id'], linedefs),
-		() => paths)
-}
 
 const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) => (sector: Sector): Either<LinedefBySector> => {
 	const linedefs: Linedef[] = mapLinedefs.filter(ld => ld.sector.id === sector.id)
@@ -150,30 +138,17 @@ const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) 
 		return Either.ofLeft(() => 'No Linedefs for sector: ' + sector.id)
 	}
 
-	// split linedefs into those building walls and actions
+	// split Linedefs into those building walls and actions, as the actions are selten a part of the wall
 	const linedefsByAction = groupByWallAndAction(linedefs)
-
-	// build paths from vectors, first try to build path without action Linedefs
-	return orderAndBuildPaths(linedefsByAction[0])
-
-		// retry building path, this time use also action Linedefs
-		.orAnother(() => orderAndBuildPaths(linedefs))
-
-		// Either<Linedef[][]> => Either<LinedefBySector>
-		.map(paths => {
-			// sort paths, first is the main area, remaining are holes
-			const pathsByHoles: Linedef[][] = sortByHoles(paths)
-			return Either.ofRight({
-				sector,
-				linedefs,
-				actions: linedefsByAction[1],
-				flat: {
-					sector,
-					walls: pathsByHoles.shift(),
-					holes: Either.ofCondition(() => pathsByHoles.length > 0, () => 'No holes', () => pathsByHoles)
-				}
-			})
-		})
+	const flatFactory = fb.createFlat(sector)
+	return flatFactory(linedefsByAction[0])//First try to build a path without action Linedefs
+		//retry building path, this time use also action Linedefs
+		.orAnother(() => flatFactory(linedefs)).map(flat => ({
+			sector,
+			linedefs,
+			actions: linedefsByAction[1],
+			flat
+		}))
 }
 
 const groupLinedefsBySectors = (mapLinedefs: Linedef[], sectors: Sector[]): LinedefBySector[] => {
@@ -384,57 +359,9 @@ const findBacksidesBySector = (backLinedefs: Linedef[]) => (sectorId: number): E
 		() => 'No backsides for Sector: ' + sectorId)
 
 
-
-
-
-
-
-
-const findMaxVectorVBy = (path: VectorV[]) => (maxFn: (a: VectorV) => number): VectorV =>
-	R.reduce(R.maxBy<VectorV>(maxFn), MIN_VECTOR_V, path)
-
-const createMaxVertex = (path: VectorV[]): Vertex => {
-	const maxFinder = findMaxVectorVBy(path)
-
-	const maxStartX = maxFinder(v => v.start.x).start.x
-	const maxEndX = maxFinder(v => v.end.x).end.x
-
-	const maxStartY = maxFinder(v => v.start.y).start.y
-	const maxEndY = maxFinder(v => v.end.y).end.y
-
-	return {x: Math.max(maxStartX, maxEndX), y: Math.max(maxStartY, maxEndY)}
-}
-
-const findMaxPathIdx = (paths: VectorV[][]): number => {
-	const maxVertex = paths.map(path => createMaxVertex(path))
-	let maxX = maxVertex[0].x
-	let foundIdx = 0
-	for (let i = 1; i < maxVertex.length; i++) {
-		const x = maxVertex[i].x
-		if (x > maxX) {
-			foundIdx = i
-			maxX = x
-		}
-	}
-	return foundIdx
-}
-
-const sortByHoles = <V extends VectorV>(path: V[][]): V[][] => {
-	if (path.length <= 1) {
-		return path
-	}
-	const maxIdx = findMaxPathIdx(path)
-	const res = [...path]
-	const first = res.splice(maxIdx, 1)[0]
-	res.unshift(first)
-	return res
-}
-
-
 // ############################ EXPORTS ############################
 export const testFunctions = {
 	isMapName,
-	createMaxVertex,
 	findNextMapStartingDir,
 	parseThing,
 	parseThings,
@@ -461,8 +388,6 @@ export const testFunctions = {
 	createFlatLoader,
 	findBacksidesBySector,
 	findLastNotConnected,
-	findMaxPathIdx,
-	sortByHoles,
 	findBackLinedefs,
 	findMaxSectorId,
 }

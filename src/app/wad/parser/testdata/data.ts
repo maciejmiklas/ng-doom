@@ -43,6 +43,7 @@ import {Either} from '../../../common/either'
 export type VectorId = VectorV & {
 	id: number,
 	msg?: string
+	crossing_flag?: boolean
 }
 
 let _linedefs = null
@@ -433,56 +434,67 @@ export const pathClosedReversedMix: VectorId[] = [
            --------------------303----------------------
  */
 export const pathCrossingClosedOrdered: VectorId[] = [
-	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}, msg: 'Crossing A on: [928, -3104]'},
+	// @formatter:off
+	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
 	{"id": 102, "start": {"x": 928, "y": -3072}, "end": {"x": 1184, "y": -3072}},
 	{"id": 103, "start": {"x": 1184, "y": -3072}, "end": {"x": 1184, "y": -3104}},
-	{"id": 104, "start": {"x": 1184, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A on: [928, -3104]'},
-
-	// @formatter:off
-	{"id": 201, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3360}, msg: 'Crossing A on: [928, -3104] and B on: [928, -3360]'},
-	// @formatter:on
-	{"id": 202, "start": {"x": 928, "y": -3360}, "end": {"x": 896, "y": -3360}, msg: 'Crossing B on: [928, -3360]'},
+	{"id": 104, "start": {"x": 1184, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
+	{"id": 201, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3360}, msg: 'Crossing A on: [928, -3104] and B on: [928, -3360]', crossing_flag:true},
+	{"id": 202, "start": {"x": 928, "y": -3360}, "end": {"x": 896, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
 	{"id": 203, "start": {"x": 896, "y": -3360}, "end": {"x": 896, "y": -3104}},
-	{"id": 204, "start": {"x": 896, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A on: [928, -3104]'},
-
-	{"id": 301, "start": {"x": 928, "y": -3360}, "end": {"x": 1184, "y": -3360}, msg: 'Crossing B on: [928, -3360]'},
+	{"id": 204, "start": {"x": 896, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
+	{"id": 301, "start": {"x": 928, "y": -3360}, "end": {"x": 1184, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
 	{"id": 302, "start": {"x": 1184, "y": -3360}, "end": {"x": 1184, "y": -3392}},
 	{"id": 303, "start": {"x": 1184, "y": -3392}, "end": {"x": 928, "y": -3392}},
-	{"id": 304, "start": {"x": 928, "y": -3392}, "end": {"x": 928, "y": -3360}, msg: 'Crossing B on: [928, -3360]'},
+	{"id": 304, "start": {"x": 928, "y": -3392}, "end": {"x": 928, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
+	// @formatter:on
+]
+
+export const pathCrossingMixed: VectorId[] = [
+	// @formatter:off
+	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
+	{"id": 103, "start": {"x": 1184, "y": -3104}, "end": {"x": 1184, "y": -3072}},
+	{"id": 201, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3360}, msg: 'Crossing A on: [928, -3104] and B on: [928, -3360]', crossing_flag:true},
+	{"id": 104, "start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
+	{"id": 202, "start": {"x": 928, "y": -3360}, "end": {"x": 896, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
+	{"id": 302, "start": {"x": 1184, "y": -3360}, "end": {"x": 1184, "y": -3392}},
+	{"id": 304, "start": {"x": 928, "y": -3392}, "end": {"x": 928, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
+	{"id": 102, "start": {"x": 928, "y": -3072}, "end": {"x": 1184, "y": -3072}},
+	{"id": 301, "start": {"x": 928, "y": -3360}, "end": {"x": 1184, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
+	{"id": 203, "start": {"x": 896, "y": -3104}, "end": {"x": 896, "y": -3360}},
+	{"id": 204, "start": {"x": 896, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
+	{"id": 303, "start": {"x": 1184, "y": -3392}, "end": {"x": 928, "y": -3392}},
+	// @formatter:on
 ]
 
 const getById = (vectors: VectorId[]) => (id: number) => vectors.find(v => v.id === id)
 export const getCCOById = getById(pathCrossingClosedOrdered)
 
-export const path300Full100Started: VectorId[][] = [
+export const pathCrossingClosedMixed: VectorId[] = [
+	getCCOById(301), getCCOById(103), getCCOById(104), getCCOById(201), getCCOById(202), getCCOById(302),
+	getCCOById(203), getCCOById(304), getCCOById(102), getCCOById(204), getCCOById(101), getCCOById(303)
+]
+
+export const pathCrossing300Full100Started: VectorId[][] = [
 	[getCCOById(102)],
 	[getCCOById(301), getCCOById(302), getCCOById(303), getCCOById(304)]
 ]
 
-export const path300Full: VectorId[][] = [
+export const pathCrossing300Full: VectorId[][] = [
 	[getCCOById(301), getCCOById(302), getCCOById(303), getCCOById(304)]
 ]
 
-export const pathPartialNoCrossings: VectorId[][] = [
+export const pathCrossingsPartial: VectorId[][] = [
 	[getCCOById(102), getCCOById(103)],
 	[getCCOById(203)],
 	[getCCOById(302), getCCOById(303)]
 ]
 
-export const pathCrossingMixed: VectorId[] = [
-	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}, msg: 'Crossing A on: [928, -3104]'},
-	{"id": 103, "start": {"x": 1184, "y": -3104}, "end": {"x": 1184, "y": -3072}},
-	// @formatter:off
-	{"id": 201, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3360}, msg: 'Crossing A on: [928, -3104] and B on: [928, -3360]'},
-	// @formatter:on
-	{"id": 104, "start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}, msg: 'Crossing A on: [928, -3104]'},
-	{"id": 202, "start": {"x": 928, "y": -3360}, "end": {"x": 896, "y": -3360}, msg: 'Crossing B on: [928, -3360]'},
-	{"id": 302, "start": {"x": 1184, "y": -3360}, "end": {"x": 1184, "y": -3392}},
-	{"id": 304, "start": {"x": 928, "y": -3392}, "end": {"x": 928, "y": -3360}, msg: 'Crossing B on: [928, -3360]'},
-	{"id": 102, "start": {"x": 928, "y": -3072}, "end": {"x": 1184, "y": -3072}},
-	{"id": 301, "start": {"x": 928, "y": -3360}, "end": {"x": 1184, "y": -3360}, msg: 'Crossing B on: [928, -3360]'},
-	{"id": 203, "start": {"x": 896, "y": -3104}, "end": {"x": 896, "y": -3360}},
-	{"id": 204, "start": {"x": 896, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A on: [928, -3104]'},
-	{"id": 303, "start": {"x": 1184, "y": -3392}, "end": {"x": 928, "y": -3392}},
-
+export const pathCrossingsMissing200: VectorId[][] = [
+	[getCCOById(101), getCCOById(102), getCCOById(103), getCCOById(104)],
+	[getCCOById(301), getCCOById(302), getCCOById(303), getCCOById(304)],
+	[getCCOById(203)],
 ]
+
+
+

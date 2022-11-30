@@ -218,18 +218,32 @@ export type Linedef = VectorV & MapLump & {
 	backSide: Either<Sidedef>
 }
 
-/**
- * Flat(flor or celling) is deducted from Linedef and contains closed shapes and holes.
- */
-export type Flat = {
-	sector: Sector
-	walls: Linedef[]
-	holes: Either<Linedef[][]>
+export enum FlatType {
+	HOLES, // FlatWithHoles
+	SHAPES, // FlatWithShapes
+	AREA//FlatArea
 }
 
-/**
- * @see https://doomwiki.org/wiki/Linedef#Linedef_flags
- */
+/**  Flat(flor or celling) is deducted from Linedef and contains closed shapes and holes. */
+export type Flat = {
+	sector: Sector
+	type: FlatType
+}
+
+export type FlatWithHoles = Flat & {
+	walls: Linedef[],
+	holes: Linedef[][]
+}
+
+export type FlatWithShapes = Flat & {
+	walls: Linedef[][],
+}
+
+export type FlatArea = Flat & {
+	walls: Linedef[],
+}
+
+/**  @see https://doomwiki.org/wiki/Linedef#Linedef_flags  */
 export enum LinedefFlag {
 	BLOCKS_PLAYERS_MONSTERS = 1,
 	BLOCKS_MONSTERS = 2,
@@ -664,6 +678,7 @@ const toSimpleVector = <V extends VectorV>(v: V): VectorV => ({start: v.start, e
 const stringifyVectors = (vectors: VectorV[]): string => JSON.stringify(toSimpleVectors(vectors))
 const stringifyVector = (v: VectorV): string => JSON.stringify(toSimpleVector(v))
 const stringifyVertex = (v: Vertex): string => JSON.stringify(v)
+
 
 export const functions = {
 	pathContinuos,

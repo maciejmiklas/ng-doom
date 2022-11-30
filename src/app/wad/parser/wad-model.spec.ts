@@ -249,6 +249,18 @@ describe('wad-model#groupCrossingVectors', () => {
 		execCrossingTest(pathCrossingMixed)
 	})
 
+	it('Crossing mixed', () => {
+		const crossing = mf.groupCrossingVectors(pathCrossingMixed).get();
+		crossing.remaining.forEach(v => {
+			expect(mf.isCrossing(v)).toBeFalse()
+			expect(v.msg).toBeUndefined()
+		});
+		crossing.crossing.forEach(vv => vv.forEach(v => {
+			expect(mf.isCrossing(v)).toBeTrue()
+			expect(v.msg.startsWith('Crossing')).toBeTrue()
+		}));
+	})
+
 })
 
 const execCrossingTest = (data: VectorId[]) => {

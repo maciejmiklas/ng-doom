@@ -635,7 +635,6 @@ describe('map-parser#findAllMapStartDirs', () => {
 	it('E1M9', () => {
 		expect(dirs[8].name).toEqual('E1M9')
 	})
-
 })
 
 describe('map-parser#parseMap', () => {
@@ -723,347 +722,314 @@ describe('map-parser#parseMaps', () => {
 			})
 		})
 	})
-
-	describe('map-parser#findMinX', () => {
-		const defs: Linedef[] = getMaps()[0].linedefs
-		it('findMinX', () => {
-			expect(tf.findMinX(defs)).toEqual(-768)
-		})
-	})
-
-	describe('map-parser#findMinY', () => {
-		const defs: Linedef[] = getMaps()[0].linedefs
-
-		it('findMinY', () => {
-			expect(tf.findMinY(defs)).toEqual(-4864)
-		})
-	})
-
-
-	describe('map-parser#normalizeMap', () => {
-		const defs: Linedef[] = getMaps()[0].linedefs
-
-		it('findMax', () => {
-			expect(tf.findMax(defs)).toEqual(3808)
-		})
-	})
-
-	describe('map-parser#scalePos', () => {
-		const scale = tf.scalePos(4)(3)
-
-		it('0', () => {
-			expect(scale(1)).toEqual(1); // (3 + 1)/4 = 1
-		})
-
-		it('2', () => {
-			expect(scale(20)).toEqual(6)
-		})
-
-		it('8', () => {
-			expect(scale(80)).toEqual(21)
-		})
-
-	})
-
-	describe('map-parser#normalizeLinedefs', () => {
-		const defs: Linedef[] = getMaps()[0].linedefs
-		const nt = (scale: number) => (xy: boolean) => R.reduce(R.max, Number.MIN_SAFE_INTEGER, mp.normalizeLinedefs(scale)(defs).map(d => xy ? d.start.x : d.start.y))
-
-		it('Matching sectorId ID', () => {
-			defs.forEach(ld => expect(ld.sector.id).toEqual(ld.frontSide.sector.id))
-		})
-
-		it('Positive values', () => {
-			mp.normalizeLinedefs(3)(defs).forEach(ld => {
-				expect(ld.start.x).toBeGreaterThanOrEqual(0)
-				expect(ld.start.y).toBeGreaterThanOrEqual(0)
-				expect(ld.end.x).toBeGreaterThanOrEqual(0)
-				expect(ld.end.y).toBeGreaterThanOrEqual(0)
-			})
-		})
-
-		it('Max values for 2x', () => {
-			const nt3 = nt(2)
-			expect(nt3(true)).toEqual(2288)
-			expect(nt3(false)).toEqual(1408)
-		})
-
-		it('Max values for 3x', () => {
-			const nt3 = nt(3)
-			expect(nt3(true)).toEqual(1525)
-			expect(nt3(false)).toEqual(939)
-		})
-
-
-		it('Max values for 10x', () => {
-			const nt3 = nt(10)
-			expect(nt3(true)).toEqual(458)
-			expect(nt3(false)).toEqual(282)
-		})
-	})
-
-	describe('map-parser#parseSector', () => {
-		const parser = tf.parseSector(getWadBytes(), getE1M1Dirs()[MapLumpType.SECTORS], tf.createFlatLoader(getFlats()))
-
-		it('E1M1 - Sector nr: 0', () => {
-			validateSectorE1M1_0(parser(0))
-		})
-
-		it('E1M1 - Sector nr: 1', () => {
-			validateSectorE1M1_1(parser(1))
-		})
-
-		it('E1M1 - Sector nr: 4', () => {
-			validateSectorE1M1_4(parser(4))
-		})
-	})
-
-
-	describe('map-parser#parseSectors', () => {
-		const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createFlatLoader(getFlats()))
-
-		it('E1M1 - Sector nr: 0', () => {
-			validateSectorE1M1_0(sectors[0])
-		})
-
-		it('E1M1 - Sector nr: 1', () => {
-			validateSectorE1M1_1(sectors[1])
-		})
-
-		it('E1M1 - Sector nr: 4', () => {
-			validateSectorE1M1_4(sectors[4])
-		})
-
-		it('E1M1 - sectorId number', () => {
-			sectors.forEach((s: Sector, idx: number) => expect(s.id).toEqual(idx))
-		})
-
-	})
-
-	describe('map-parser#groupBySectorArray', () => {
-		const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createFlatLoader(getFlats()))
-		const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs())
-		const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
-		const linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors())
-		const gr: Linedef[][] = tf.groupBySectorArray(linedefs)
-
-		it('No duplicates', () => {
-			const found = new Set<number>()
-			const info = {}
-			gr.forEach((ld, idx) => {
-				const sid = ld[0].sector.id
-				expect(found.has(sid)).toBe(false, 'Duplicated sectorId:' + sid + ' on:' + idx + ' and:' + info[sid])
-				found.add(sid)
-				info[sid] = idx
-			})
-		})
-
-		it('Sectors size', () => {
-			expect(gr.length).toEqual(77)
-		})
-
-		it('No empty sectors', () => {
-			gr.forEach(ld => {
-				expect(ld.length).toBeGreaterThan(0)
-			})
-		})
-
-		it('Sectors in one group has the same number', () => {
-			gr.forEach(ld => {
-				const st = ld[0].sector.id
-				ld.forEach(ld => {
-					expect(ld.sector.id).toEqual(st)
-				})
-			})
-		})
-
-		it('Each #sectorId within #sectors[]', () => {
-			gr.forEach(ld => {
-				ld.forEach(ld => {
-					expect(ld.sector.id).toBeLessThan(sectors.length)
-					expect(ld.sector.id).toBeGreaterThanOrEqual(0)
-				})
-			})
-		})
-
-		it('Walls amount', () => {
-			let cnt = 0
-			gr.forEach(ld => {
-				cnt += ld.length
-			})
-			expect(cnt).toBe(472)
-		})
-
-	})
-
-	describe('map-parser#groupLinedefsBySectors', () => {
-		const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs())
-		const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
-		const linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors())
-		const gr: LinedefBySector[] = tf.groupLinedefsBySectors(linedefs, getSectors())
-
-		it('Sectors size on E1M1', () => {
-			let found = 0
-			for (const ldId in gr) {
-				found++
-			}
-			expect(found).toEqual(83)
-		})
-
-		it('Sectors in one group has the same number', () => {
-			gr.forEach(lbs => {
-				lbs.linedefs.forEach(ld => {
-					const sectorId = lbs.sector.id
-					if (ld.backSide.isLeft()) {
-						expect(ld.sector.id).toEqual(sectorId)
-					} else if (ld.sector.id != sectorId) {
-						expect(ld.backSide.get().sector.id).toEqual(sectorId)
-					}
-				})
-			})
-		})
-
-		it('IDs', () => {
-			const foundLinedefs = new Set<number>()
-			gr.forEach(lbs => {
-				foundLinedefs.add(lbs.sector.id)
-			})
-			expect(foundLinedefs.size).toEqual(83)
-		})
-
-	})
-
-	describe('map-parser#parseFlags', () => {
-		it('Bit 1', () => {
-			const flags = tf.parseFlags(1)
-			expect(flags.size).toEqual(1)
-			expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue()
-		})
-
-		it('Bit 1,2', () => {
-			const flags = tf.parseFlags(0x3)
-			expect(flags.size).toEqual(2)
-			expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue()
-			expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue()
-		})
-
-		it('Bit 1,2,5', () => {
-			const flags = tf.parseFlags(0x13)
-			expect(flags.size).toEqual(3)
-			expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue()
-			expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue()
-			expect(flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)).toBeTrue()
-		})
-
-		it('Bit 2,5,8', () => {
-			const flags = tf.parseFlags(0x92)
-			expect(flags.size).toEqual(3)
-			expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue()
-			expect(flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)).toBeTrue()
-			expect(flags.has(LinedefFlag.NEVER_SHOWS_ON_AUTOMAP)).toBeTrue()
-		})
-
-		it('Bit 2,5,9', () => {
-			const flags = tf.parseFlags(0x112)
-			expect(flags.size).toEqual(3)
-			expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue()
-			expect(flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)).toBeTrue()
-			expect(flags.has(LinedefFlag.ALWAYS_SHOWS_ON_AUTOMAP)).toBeTrue()
-		})
-
-		it('Bit 1,2,5,9', () => {
-			const flags = tf.parseFlags(0x93)
-			expect(flags.size).toEqual(4)
-			expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue()
-			expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue()
-			expect(flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)).toBeTrue()
-			expect(flags.has(LinedefFlag.NEVER_SHOWS_ON_AUTOMAP)).toBeTrue()
-		})
-
-		it('Bit 8', () => {
-			const flags = tf.parseFlags(0x100)
-			expect(flags.size).toEqual(1)
-			expect(flags.has(LinedefFlag.ALWAYS_SHOWS_ON_AUTOMAP)).toBeTrue()
-		})
-
-		it('All bits set', () => {
-			const flags = tf.parseFlags(0x1FF)
-			expect(flags.size).toEqual(9)
-		})
-	})
-
-	describe('map-parser#findBacksidesBySector', () => {
-		const finder = tf.findBacksidesBySector(tf.findBackLinedefs(getE1M1Linedefs()))
-
-		it('E1M1 - Sector nr: 35', () => {
-			const sd = finder(35)
-			expect(sd.get().length).toEqual(4)
-		})
-
-		it('E1M1 - Sector nr: 24', () => {
-			const sd = finder(24)
-			expect(sd.isLeft).toBeTruthy()
-		})
-
-		it('E1M1 - Sector nr: 41', () => {
-			const sd = finder(41)
-			expect(sd.get().length).toEqual(1)
-		})
-
-		it('E1M4 - Sector nr: 50 (only backsides)', () => {
-			expect(tf.findBacksidesBySector(tf.findBackLinedefs(getMaps()[3].linedefs))(50).get().length).toEqual(25)
-		})
-
-	})
-
-	describe('map-parser#findLastNotConnected', () => {
-
-		it('Mixed', () => {
-			const ret = tf.findLastNotConnected(pathClosedMixed)
-			expect(ret.get()).toEqual(8)
-		})
-
-		it('Sorted', () => {
-			const ret = tf.findLastNotConnected(pathClosedSorted)
-			expect(ret.isLeft()).toBeTrue()
-		})
-
-	})
-
-
-	describe('map-parser#createMaxVertex', () => {
-
-		it('Path closed mixed', () => {
-			const v = tf.createMaxVertex(pathClosedMixed)
-			expect(v.x).toEqual(2048)
-			expect(v.y).toEqual(-704)
-		})
-
-	})
-
-	describe('map-parser#findMaxPathIdx', () => {
-
-		it('Multiple paths', () => {
-			const idx = tf.findMaxPathIdx([pathClosedMixed, pathClosedMixed2])
-			expect(idx).toEqual(0)
-		})
-
-		it('Multiple paths reversed', () => {
-			const idx = tf.findMaxPathIdx([pathClosedMixed2, pathClosedMixed])
-			expect(idx).toEqual(1)
-		})
-
-	})
-
-	describe('map-parser#sortByHoles', () => {
-		it('Multiple paths', () => {
-			const paths = fb.buildPaths([...pathClosedMixed, ...pathClosedMixed2])
-			const sorted = tf.sortByHoles(paths)
-			expect(sorted[0].length).toEqual(9)
-			expect(sorted[1].length).toEqual(5)
-		})
+})
+
+describe('map-parser#findMinX', () => {
+	const defs: Linedef[] = getMaps()[0].linedefs
+	it('findMinX', () => {
+		expect(tf.findMinX(defs)).toEqual(-768)
 	})
 })
+
+describe('map-parser#findMinY', () => {
+	const defs: Linedef[] = getMaps()[0].linedefs
+
+	it('findMinY', () => {
+		expect(tf.findMinY(defs)).toEqual(-4864)
+	})
+})
+
+
+describe('map-parser#normalizeMap', () => {
+	const defs: Linedef[] = getMaps()[0].linedefs
+
+	it('findMax', () => {
+		expect(tf.findMax(defs)).toEqual(3808)
+	})
+})
+
+describe('map-parser#scalePos', () => {
+	const scale = tf.scalePos(4)(3)
+
+	it('0', () => {
+		expect(scale(1)).toEqual(1); // (3 + 1)/4 = 1
+	})
+
+	it('2', () => {
+		expect(scale(20)).toEqual(6)
+	})
+
+	it('8', () => {
+		expect(scale(80)).toEqual(21)
+	})
+
+})
+
+describe('map-parser#normalizeLinedefs', () => {
+	const defs: Linedef[] = getMaps()[0].linedefs
+	const nt = (scale: number) => (xy: boolean) => R.reduce(R.max, Number.MIN_SAFE_INTEGER, mp.normalizeLinedefs(scale)(defs).map(d => xy ? d.start.x : d.start.y))
+
+	it('Matching sectorId ID', () => {
+		defs.forEach(ld => expect(ld.sector.id).toEqual(ld.frontSide.sector.id))
+	})
+
+	it('Positive values', () => {
+		mp.normalizeLinedefs(3)(defs).forEach(ld => {
+			expect(ld.start.x).toBeGreaterThanOrEqual(0)
+			expect(ld.start.y).toBeGreaterThanOrEqual(0)
+			expect(ld.end.x).toBeGreaterThanOrEqual(0)
+			expect(ld.end.y).toBeGreaterThanOrEqual(0)
+		})
+	})
+
+	it('Max values for 2x', () => {
+		const nt3 = nt(2)
+		expect(nt3(true)).toEqual(2288)
+		expect(nt3(false)).toEqual(1408)
+	})
+
+	it('Max values for 3x', () => {
+		const nt3 = nt(3)
+		expect(nt3(true)).toEqual(1525)
+		expect(nt3(false)).toEqual(939)
+	})
+
+
+	it('Max values for 10x', () => {
+		const nt3 = nt(10)
+		expect(nt3(true)).toEqual(458)
+		expect(nt3(false)).toEqual(282)
+	})
+})
+
+describe('map-parser#parseSector', () => {
+	const parser = tf.parseSector(getWadBytes(), getE1M1Dirs()[MapLumpType.SECTORS], tf.createFlatLoader(getFlats()))
+
+	it('E1M1 - Sector nr: 0', () => {
+		validateSectorE1M1_0(parser(0))
+	})
+
+	it('E1M1 - Sector nr: 1', () => {
+		validateSectorE1M1_1(parser(1))
+	})
+
+	it('E1M1 - Sector nr: 4', () => {
+		validateSectorE1M1_4(parser(4))
+	})
+})
+
+
+describe('map-parser#parseSectors', () => {
+	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createFlatLoader(getFlats()))
+
+	it('E1M1 - Sector nr: 0', () => {
+		validateSectorE1M1_0(sectors[0])
+	})
+
+	it('E1M1 - Sector nr: 1', () => {
+		validateSectorE1M1_1(sectors[1])
+	})
+
+	it('E1M1 - Sector nr: 4', () => {
+		validateSectorE1M1_4(sectors[4])
+	})
+
+	it('E1M1 - sectorId number', () => {
+		sectors.forEach((s: Sector, idx: number) => expect(s.id).toEqual(idx))
+	})
+
+})
+
+describe('map-parser#groupBySectorArray', () => {
+	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createFlatLoader(getFlats()))
+	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs())
+	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
+	const linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors())
+	const gr: Linedef[][] = tf.groupBySectorArray(linedefs)
+
+	it('No duplicates', () => {
+		const found = new Set<number>()
+		const info = {}
+		gr.forEach((ld, idx) => {
+			const sid = ld[0].sector.id
+			expect(found.has(sid)).toBe(false, 'Duplicated sectorId:' + sid + ' on:' + idx + ' and:' + info[sid])
+			found.add(sid)
+			info[sid] = idx
+		})
+	})
+
+	it('Sectors size', () => {
+		expect(gr.length).toEqual(77)
+	})
+
+	it('No empty sectors', () => {
+		gr.forEach(ld => {
+			expect(ld.length).toBeGreaterThan(0)
+		})
+	})
+
+	it('Sectors in one group has the same number', () => {
+		gr.forEach(ld => {
+			const st = ld[0].sector.id
+			ld.forEach(ld => {
+				expect(ld.sector.id).toEqual(st)
+			})
+		})
+	})
+
+	it('Each #sectorId within #sectors[]', () => {
+		gr.forEach(ld => {
+			ld.forEach(ld => {
+				expect(ld.sector.id).toBeLessThan(sectors.length)
+				expect(ld.sector.id).toBeGreaterThanOrEqual(0)
+			})
+		})
+	})
+
+	it('Walls amount', () => {
+		let cnt = 0
+		gr.forEach(ld => {
+			cnt += ld.length
+		})
+		expect(cnt).toBe(472)
+	})
+
+})
+
+describe('map-parser#groupLinedefsBySectors', () => {
+	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs())
+	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
+	const linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors())
+	const gr: LinedefBySector[] = tf.groupLinedefsBySectors(linedefs, getSectors())
+
+	it('Sectors size on E1M1', () => {
+		let found = 0
+		for (const ldId in gr) {
+			found++
+		}
+		expect(found).toEqual(81)
+	})
+
+	it('Sectors in one group has the same number', () => {
+		gr.forEach(lbs => {
+			lbs.linedefs.forEach(ld => {
+				const sectorId = lbs.sector.id
+				if (ld.backSide.isLeft()) {
+					expect(ld.sector.id).toEqual(sectorId)
+				} else if (ld.sector.id != sectorId) {
+					expect(ld.backSide.get().sector.id).toEqual(sectorId)
+				}
+			})
+		})
+	})
+
+	it('IDs', () => {
+		const foundLinedefs = new Set<number>()
+		gr.forEach(lbs => {
+			foundLinedefs.add(lbs.sector.id)
+		})
+		expect(foundLinedefs.size).toEqual(81)
+	})
+
+})
+
+describe('map-parser#parseFlags', () => {
+	it('Bit 1', () => {
+		const flags = tf.parseFlags(1)
+		expect(flags.size).toEqual(1)
+		expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue()
+	})
+
+	it('Bit 1,2', () => {
+		const flags = tf.parseFlags(0x3)
+		expect(flags.size).toEqual(2)
+		expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue()
+		expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue()
+	})
+
+	it('Bit 1,2,5', () => {
+		const flags = tf.parseFlags(0x13)
+		expect(flags.size).toEqual(3)
+		expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue()
+		expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue()
+		expect(flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)).toBeTrue()
+	})
+
+	it('Bit 2,5,8', () => {
+		const flags = tf.parseFlags(0x92)
+		expect(flags.size).toEqual(3)
+		expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue()
+		expect(flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)).toBeTrue()
+		expect(flags.has(LinedefFlag.NEVER_SHOWS_ON_AUTOMAP)).toBeTrue()
+	})
+
+	it('Bit 2,5,9', () => {
+		const flags = tf.parseFlags(0x112)
+		expect(flags.size).toEqual(3)
+		expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue()
+		expect(flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)).toBeTrue()
+		expect(flags.has(LinedefFlag.ALWAYS_SHOWS_ON_AUTOMAP)).toBeTrue()
+	})
+
+	it('Bit 1,2,5,9', () => {
+		const flags = tf.parseFlags(0x93)
+		expect(flags.size).toEqual(4)
+		expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue()
+		expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue()
+		expect(flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)).toBeTrue()
+		expect(flags.has(LinedefFlag.NEVER_SHOWS_ON_AUTOMAP)).toBeTrue()
+	})
+
+	it('Bit 8', () => {
+		const flags = tf.parseFlags(0x100)
+		expect(flags.size).toEqual(1)
+		expect(flags.has(LinedefFlag.ALWAYS_SHOWS_ON_AUTOMAP)).toBeTrue()
+	})
+
+	it('All bits set', () => {
+		const flags = tf.parseFlags(0x1FF)
+		expect(flags.size).toEqual(9)
+	})
+})
+
+describe('map-parser#findBacksidesBySector', () => {
+	const finder = tf.findBacksidesBySector(tf.findBackLinedefs(getE1M1Linedefs()))
+
+	it('E1M1 - Sector nr: 35', () => {
+		const sd = finder(35)
+		expect(sd.get().length).toEqual(4)
+	})
+
+	it('E1M1 - Sector nr: 24', () => {
+		const sd = finder(24)
+		expect(sd.isLeft).toBeTruthy()
+	})
+
+	it('E1M1 - Sector nr: 41', () => {
+		const sd = finder(41)
+		expect(sd.get().length).toEqual(1)
+	})
+
+	it('E1M4 - Sector nr: 50 (only backsides)', () => {
+		expect(tf.findBacksidesBySector(tf.findBackLinedefs(getMaps()[3].linedefs))(50).get().length).toEqual(25)
+	})
+
+})
+
+describe('map-parser#findLastNotConnected', () => {
+
+	it('Mixed', () => {
+		const ret = tf.findLastNotConnected(pathClosedMixed)
+		expect(ret.get()).toEqual(8)
+	})
+
+	it('Sorted', () => {
+		const ret = tf.findLastNotConnected(pathClosedSorted)
+		expect(ret.isLeft()).toBeTrue()
+	})
+
+})
+
 
 describe('map-parser#findMaxSectorId', () => {
 

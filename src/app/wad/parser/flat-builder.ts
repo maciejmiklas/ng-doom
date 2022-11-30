@@ -15,7 +15,20 @@
  */
 import * as R from 'ramda'
 import {Either} from '../../common/either'
-import {functions as mf, VectorConnection, VectorV} from './wad-model'
+import {
+	Flat,
+	FlatArea,
+	FlatType,
+	FlatWithHoles,
+	FlatWithShapes,
+	functions as mf,
+	Linedef,
+	MIN_VECTOR_V,
+	Sector,
+	VectorConnection,
+	VectorV,
+	Vertex
+} from './wad-model'
 import {Log} from "../../common/log";
 
 const CMP = 'FL-BI'
@@ -33,18 +46,24 @@ const CMP = 'FL-BI'
  * 3)If there are still some unconnected vectors in the crossing collection, add them to existing paths whenever
  *   they would fit.
  */
-const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
+const buildPaths = <V extends VectorV>(vectors: V[]): Either<V[][]> => {
+	if (vectors.length == 0) {
+		return Either.ofLeft(() => 'Cannot build Path - empty V[]')
+	}
+
 	const grouped = mf.groupCrossingVectors(vectors)
+
+	let paths
 	if (grouped.isRight()) {
 		const cv = grouped.get();
 
 		// 1) create paths from remaining vectors without crossings
 		const p1res = expandPaths(cv.remaining, [])
 
-		// 2)Add crossing vectors to already existing pathsf
-		const p2res = expandPaths(cv.crossing.flat(), p1res.paths)
+		// 2)Add crossing vectors to already existing paths
+		const p2res = expandPaths(cv.crossing.concat(p1res.skipped).flat(), p1res.paths)
 
-		let paths = p2res.paths;
+		paths = p2res.paths;
 		if (p2res.skipped.length > 0) {
 			const p3res = expandPaths(p2res.skipped, p2res.paths, true)
 			paths = p3res.paths
@@ -53,10 +72,13 @@ const buildPaths = <V extends VectorV>(vectors: V[]): V[][] => {
 				Log.warn(CMP, 'Unexpected elements in skipped on buildPaths', mf.stringifyVector(p3res.skipped))
 			}
 		}
-		return paths;
 	} else {
-		return expandPaths(vectors, []).paths
+		paths = expandPaths(vectors, []).paths
 	}
+
+	return Either.ofCondition(() => paths.length > 0 && mf.pathContinuos(paths[0]),
+		() => 'Could not build path for Sector: ' + R.path([0, 'sector', 'id'], paths),
+		() => paths)
 }
 
 type ExpandResult<V extends VectorV> = {
@@ -65,11 +87,11 @@ type ExpandResult<V extends VectorV> = {
 }
 
 /** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
-const expandPaths = <V extends VectorV>(vectors: V[], existingPaths: V[][], ignoreCrossing = false): ExpandResult<V> => {
+const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][], connectCrossing = false): ExpandResult<V> => {
 	// we will remove elements one by one from this list and add them to #paths
-	const remaining = [...vectors]
+	const remaining = [...candidates]
 	let paths = [...existingPaths]
-	const skipped = [];
+	let skipped = [];
 	let appended = paths.length > 0
 
 	// go until all elements in #remaining has been moved to #paths
@@ -77,7 +99,10 @@ const expandPaths = <V extends VectorV>(vectors: V[], existingPaths: V[][], igno
 
 		// none of #remaining could be connected to already existing paths, so start a new path
 		if (!appended) {
-			const next = remaining.pop();
+
+			// first, try to get not crossing vector #remaining. Otherwise, take the first one
+			const firstNotCrossingIdx = remaining.findIndex(v => !mf.isCrossing(v))
+			const next = firstNotCrossingIdx > 0 ? remaining.splice(firstNotCrossingIdx, 1)[0] : remaining.shift();
 
 			// never start a new path with a crossing vector. Always try to add crossing into existing routes
 			if (mf.isCrossing(next)) {
@@ -89,7 +114,7 @@ const expandPaths = <V extends VectorV>(vectors: V[], existingPaths: V[][], igno
 		appended = false
 
 		for (let remIdx = 0; !appended && remIdx < remaining.length; remIdx++) {
-			expandPath(paths, remaining[remIdx], ignoreCrossing).exec(np => {
+			expandPath(paths, remaining[remIdx], connectCrossing).exec(np => {
 				paths = np;
 				// remove vector from #remaining as we have appended it to current path
 				remaining.splice(remIdx, 1)
@@ -97,17 +122,21 @@ const expandPaths = <V extends VectorV>(vectors: V[], existingPaths: V[][], igno
 			})
 		}
 	}
+
+	// move all paths with a single vector into skipped.Otherwise, we could break a single path into few
+	skipped = R.flatten([skipped, paths.filter(p => p.length == 1)])
+	paths = paths.filter(p => p.length > 1)
 	return {paths, skipped};
 }
 
 /** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
-const expandPath = <V extends VectorV>(paths: V[][], candidate: V, ignoreCrossing = false): Either<V[][]> => {
+const expandPath = <V extends VectorV>(paths: V[][], candidate: V, connectCrossing = false): Either<V[][]> => {
 	let found = Either.ofLeft<V[][]>(() => 'Candidate not appended');
 
 	// go over paths and try finding one where we can append candidate
 	R.addIndex<V[]>(R.find)((path, pathIdx) => {
 		// inserting #candidate into the path will return a new path
-		found = insertIntoPath(path)(candidate, ignoreCrossing)
+		found = insertIntoPath(path)(candidate, connectCrossing)
 
 			// insert into #paths the new extended path
 			.map(foundPath => R.update(pathIdx, foundPath, paths))
@@ -118,29 +147,29 @@ const expandPath = <V extends VectorV>(paths: V[][], candidate: V, ignoreCrossin
 
 /**
  * Tries to insert given #candidate into #path only if it's not fully built.
- * It will not directly connect two crossing vectors unless #ignoreCrossing is true
+ * It will not directly connect two crossing vectors unless #connectCrossing is true
  */
-const insertIntoPath = <V extends VectorV>(path: V[]) => (candidate: V, ignoreCrossing = false): Either<V[]> =>
+const insertIntoPath = <V extends VectorV>(path: V[]) => (candidate: V, connectCrossing = false): Either<V[]> =>
 	Either.ofConditionFlat(
 		// do not alter already closed path
 		() => !mf.pathContinuos(path), () => 'Path already closed.',
 
 		// try inserting into path from left and eventually on the right
-		() => prependToPath(path)(candidate, ignoreCrossing).orAnother(() => appendToPath(path)(candidate, ignoreCrossing)))
+		() => prependToPath(path)(candidate, connectCrossing).orAnother(() => appendToPath(path)(candidate, connectCrossing)))
 
 /**
  * Tries to insert given #candidate at the beginning #path.
  * Inserted element will be eventually flipped.
- * It will not directly connect two crossing vectors unless #ignoreCrossing is true
+ * It will not directly connect two crossing vectors unless #connectCrossing is true
  */
-const prependToPath = <V extends VectorV>(path: V[]) => (candidate: V, ignoreCrossing = false): Either<V[]> => {
-	const element = path[0]
-	const connection = mf.vectorsConnected(candidate, element)
+const prependToPath = <V extends VectorV>(path: V[]) => (candidate: V, connectCrossing = false): Either<V[]> => {
+	const pathEl = path[0]
+	const connection = mf.vectorsConnected(candidate, pathEl)
 	return R.cond([
-		[() => ignoreCrossing && mf.areCrossing(candidate, element), () => Either.ofLeft<V[]>(() => 'Crossing vectors.')],
-		[() => mf.vectorsEqual(candidate, element), () => Either.ofLeft<V[]>(() => 'Equal vectors')],
+		[() => !connectCrossing && mf.areCrossing(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Crossing vectors.')],
+		[() => mf.vectorsEqual(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Equal vectors')],
 		[(con) => con === VectorConnection.NONE, () => Either.ofLeft<V[]>(() => 'Vector does not connect with path start.')],
-		[(con) => ((con === VectorConnection.V1START_TO_V2END || con === VectorConnection.V1END_TO_V2END) && path.length == 1),
+		[(con) => ((con === VectorConnection.V1START_TO_V2END || con === VectorConnection.V1END_TO_V2END)),
 			() => Either.ofLeft<V[]>(() => 'Vector should be appended.')],
 		[(con) => con === VectorConnection.V1END_TO_V2START, () => Either.ofRight([candidate].concat(path))],
 		[(con) => con === VectorConnection.V1START_TO_V2START, () => Either.ofRight([mf.reverseVector(candidate)].concat(path))],
@@ -151,22 +180,91 @@ const prependToPath = <V extends VectorV>(path: V[]) => (candidate: V, ignoreCro
 /**
  * Tries to insert given #candidate on the end of the #path.
  * Inserted element will be eventually flipped.
- * It will not directly connect two crossing vectors unless #ignoreCrossing is true
+ * It will not directly connect two crossing vectors unless #connectCrossing is true
  */
-const appendToPath = <V extends VectorV>(path: V[]) => (candidate: V, ignoreCrossing = false): Either<V[]> => {
-	const element = path[path.length - 1]
-	const connection = mf.vectorsConnected(element, candidate)
+const appendToPath = <V extends VectorV>(path: V[]) => (candidate: V, connectCrossing = false): Either<V[]> => {
+	const pathEl = path[path.length - 1]
+	const connection = mf.vectorsConnected(pathEl, candidate)
 	return R.cond([
-		[() => ignoreCrossing && mf.areCrossing(candidate, element), () => Either.ofLeft<V[]>(() => 'Crossing vectors.')],
-		[() => mf.vectorsEqual(candidate, element), () => Either.ofLeft<V[]>(() => 'Equal vectors')],
+		[() => !connectCrossing && mf.areCrossing(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Crossing vectors.')],
+		[() => mf.vectorsEqual(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Equal vectors')],
 		[(con) => con === VectorConnection.NONE, () => Either.ofLeft<V[]>(() => 'Vector does not connect with path end.')],
-		[(con) => ((con === VectorConnection.V1START_TO_V2END || con === VectorConnection.V1END_TO_V2END) && path.length == 1),
+		[(con) => ((con === VectorConnection.V1START_TO_V2END || con === VectorConnection.V1START_TO_V2START)),
 			() => Either.ofLeft<V[]>(() => 'Vector should be prepended.')],
 		[(con) => con === VectorConnection.V1END_TO_V2START, () => Either.ofRight(path.concat(candidate))],
 		[(con) => con === VectorConnection.V1END_TO_V2END, () => Either.ofRight(path.concat(mf.reverseVector(candidate)))],
 		[R.T, () => Either.ofWarn<V[]>(() => 'Unsupported connection: [' + connection + '] to append: ' + mf.stringifyVector(candidate) + ' to ' + mf.stringifyVectors(path))]
 	])(connection)
 }
+
+/**
+ * @param paths paths[0] - outer path surrounding remaining paths in #paths[1...x]
+ */
+const groupByOuterPath = (paths: VectorV[][]): number => {
+	const maxVertex = paths.map(path => createMaxVertex(path))
+	let maxX = maxVertex[0].x
+	let foundIdx = 0
+	for (let i = 1; i < maxVertex.length; i++) {
+		const x = maxVertex[i].x
+		if (x > maxX) {
+			foundIdx = i
+			maxX = x
+		}
+	}
+	return foundIdx
+}
+
+const findMaxVectorVBy = (path: VectorV[]) => (maxFn: (a: VectorV) => number): VectorV =>
+	R.reduce(R.maxBy<VectorV>(maxFn), MIN_VECTOR_V, path)
+
+const createMaxVertex = (path: VectorV[]): Vertex => {
+	const maxFinder = findMaxVectorVBy(path)
+
+	const maxStartX = maxFinder(v => v.start.x).start.x
+	const maxEndX = maxFinder(v => v.end.x).end.x
+
+	const maxStartY = maxFinder(v => v.start.y).start.y
+	const maxEndY = maxFinder(v => v.end.y).end.y
+
+	return {x: Math.max(maxStartX, maxEndX), y: Math.max(maxStartY, maxEndY)}
+}
+
+const sortByHoles = <V extends VectorV>(paths: V[][]): V[][] => {
+	const res = [...paths]
+	// find outer shape and shift it on the beginning
+	const first = res.splice(groupByOuterPath(paths), 1)[0]
+	res.unshift(first)
+	return res;
+}
+
+const createFlat = (sector: Sector) => (lindedefs: Linedef[]): Either<Flat> =>
+	buildPaths(lindedefs).map(paths => buildFlat(sector, paths))
+
+/**
+ * Two scenarios are supported where there are multiple shapes within one sector:
+ * 1) few crossing shapes,
+ * 2) one large shape with holes.
+ */
+const buildFlat = (sector: Sector, paths: Linedef[][]): Flat => {
+	return R.cond<Linedef[][][], Flat>([
+		// only one shape in #paths
+		[(p) => p.length == 1, (p) => ({sector, walls: p[0], type: FlatType.AREA}) as FlatArea],
+
+		// multiple crossings shapes in #paths
+		[(p) => p[0].findIndex(v => mf.isCrossing(v)) > 0, (p) => ({
+			sector,
+			walls: p,
+			type: FlatType.SHAPES
+		}) as FlatWithShapes],
+
+		// one large shape with a few holes
+		[R.T, (p) => {
+			const sorted = sortByHoles(p);
+			return {sector, walls: sorted.shift(), holes: sorted} as FlatWithHoles;
+		}]
+	])(paths)
+}
+
 /** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
 const expandPaths_ = <V extends VectorV>(vectors: V[], existingPaths: V[][]): V[][] => {
 
@@ -211,7 +309,12 @@ export const testFunctions = {
 	insertIntoPath,
 	prependToPath,
 	appendToPath,
-	expandPath
+	expandPath,
+	expandPaths,
+	sortByHoles,
+	groupByOuterPath,
+	buildPaths,
+	createMaxVertex
 }
 
-export const functions = {buildPaths}
+export const functions = {createFlat}

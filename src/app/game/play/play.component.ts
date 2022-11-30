@@ -22,7 +22,6 @@ import {
 	DoomMap,
 	DoomTexture,
 	Flat,
-	functions as mf,
 	Linedef,
 	LinedefBySector,
 	LinedefFlag,
@@ -113,10 +112,10 @@ const setupCamera = (camera: THREE.PerspectiveCamera, map: DoomMap) => {
 }
 
 const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => void) => (lbs: LinedefBySector) => {
-/*	if (lbs.sector.id !== 37) {
-		return
-	}
-*/
+	//if (lbs.sector.id !== 37) {
+	//	return
+	//}
+
 	renderWalls(lbs).forEach(m => scene.add(m))
 
 	// floor
@@ -132,14 +131,8 @@ const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => v
 }
 
 const renderFlat = (flat: Flat, texture: Either<Bitmap>, height: number, renderHoles: boolean): THREE.Mesh[] => {
-
-	const wallPoints = mf.pathToPoints(flat.walls).map(p => tm.toVector2(p))
-	const wallShape = new THREE.Shape(wallPoints)
-	if (renderHoles) {
-		tm.getHoles(flat).exec(holes => holes.forEach(hole => wallShape.holes.push(hole)))
-	}
-	const geometry = new THREE.ShapeGeometry(wallShape)
-
+	const shapes = tm.createShapesFromFlat(flat, renderHoles)
+	const geometry = new THREE.ShapeGeometry(shapes)
 	const material = texture.map(tx => tm.createFloorDataTexture(tx)).map(tx => new THREE.MeshPhongMaterial({
 		side: THREE.DoubleSide,
 		map: tx
