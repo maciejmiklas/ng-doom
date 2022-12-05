@@ -30,7 +30,7 @@ const parseTitlePic = (bytes: number[], dirs: Directory[], palette: Palette): Ei
 		.map(d => bp.parseBitmap(bytes, palette)(d)), find('HELP2')
 		.map(d => bp.parseBitmap(bytes, palette)(d)))
 
-	return Either.ofCondition(() => title.isRight() && credit.isRight() && credit.isRight(),
+	return Either.ofConditionWarn(() => title.isRight() && credit.isRight() && credit.isRight(),
 		() => 'Image Folders not found', () => ({
 			help,
 			title: title.get(),

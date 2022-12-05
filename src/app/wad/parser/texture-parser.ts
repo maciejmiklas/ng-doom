@@ -62,7 +62,7 @@ const parsePatches = (wadBytes: number[], dirs: Directory[], palette: Palette, p
 const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: Bitmap[]) => (offset: number): Either<Patch> => {
 	const shortParser = U.parseInt16(wadBytes)
 	const patchIdx = shortParser(offset + 0x04)
-	const patchName = Either.ofCondition(
+	const patchName = Either.ofConditionWarn(
 		() => patchIdx < pnames.names.length,
 		() => 'patchIdx (' + patchIdx + ') out of bound (' + pnames.names.length + ') at:' + offset,
 		() => pnames.names[patchIdx])
@@ -90,7 +90,7 @@ const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pna
 		.map(e => e.get()); // (Either<Patch>) => Patch
 	const width = shortParser(offset + 0x0C)
 	const height = shortParser(offset + 0x0E)
-	return Either.ofCondition(() => patchCountWad === patches.length,
+	return Either.ofConditionWarn(() => patchCountWad === patches.length,
 		() => 'Incorrect Patches amount for Texture from ' + dir + ', found: ' + patches.length,
 		() => ({
 			dir,
@@ -108,7 +108,7 @@ const parseTextures = (wadBytes: number[], dirs: Directory[], pnames: Pnames, pa
 	const parser = parseTexturesByDir(wadBytes, dirs, pnames, patches)
 	parser(Directories.TEXTURE1).exec(tx => textures.push(...tx))
 	parser(Directories.TEXTURE2).exec(tx => textures.push(...tx))
-	return Either.ofCondition(() => textures.length > 0, () => 'No textures at all!', () => textures)
+	return Either.ofConditionWarn(() => textures.length > 0, () => 'No textures at all!', () => textures)
 }
 
 const parseTexturesByDir = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: Bitmap[]) => (td: Directories): Either<DoomTexture[]> =>
@@ -122,7 +122,7 @@ const parseTexturesByDir = (wadBytes: number[], dirs: Directory[], pnames: Pname
 			.map(offset => textureParser(offset))// ()=> Either<DoomTexture>
 			.filter(dt => dt.filter())
 			.map(dt => dt.get())
-		return Either.ofCondition(() => textures.length > 0, () => 'No textures found', () => textures)
+		return Either.ofConditionWarn(() => textures.length > 0, () => 'No textures found', () => textures)
 	})
 
 const findFlatDirs = (dirs: Directory[]): Either<Directory[]> =>

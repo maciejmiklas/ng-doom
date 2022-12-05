@@ -115,10 +115,10 @@ const findFrom = <T>(arr: T[]) => (offset: number, pred: (T, idx: number) => boo
 const nullSafeArray = <T>(arr: T[]): T[] => arr ? arr : []
 
 const nextRoll = <V>(list: V[]) => (idx: number): V =>
-	R.cond([
-		[(v) => v === list.length, () => list[0]], // we are after last element in list -> return first one
-		[(v) => v < 0, () => list[list.length - 1]], // we are before first element in list -> return last one
-		[R.T, (v) => list[v]] // we are on existing list position -> return current at #idx
+	R.cond<number[], V>([
+		[(v) => v === list.length, () => list[0]], // #idx after the last element in list -> return the first one
+		[(v) => v < 0, () => list[list.length - 1]], // #idx before first element in the list -> return the last one
+		[R.T, (v) => list[v]] // #idx on the existing list position -> return the current at #idx
 	])(idx)
 
 const U = {

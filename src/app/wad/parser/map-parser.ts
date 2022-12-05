@@ -36,6 +36,7 @@ import U from '../../common/util'
 import {Log} from "../../common/log"
 import {functions as fb} from "./flat-builder"
 
+const CMP = 'M-P'
 
 const findLastNotConnected = (linedefs: VectorV[]): Either<number> => {
 	const next = U.nextRoll(linedefs)
@@ -101,7 +102,7 @@ const parseMaps = (bytes: number[], dirs: Directory[], textures: DoomTexture[], 
 }
 
 const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>, flatLoader: (name: string) => Either<Bitmap>) => (mapDirs: Directory[]): DoomMap => {
-	Log.debug('Parse Map:', mapDirs[0].name)
+	Log.info(CMP,'Parse Map:', mapDirs[0].name)
 	const sectors = parseSectors(bytes)(mapDirs, flatLoader)
 	const linedefs = parseLinedefs(bytes, mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes, textureLoader)(mapDirs, sectors), sectors)
 	return {

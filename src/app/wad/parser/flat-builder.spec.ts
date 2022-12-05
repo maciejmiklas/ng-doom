@@ -40,7 +40,7 @@ const expectClosedPath = (path: VectorId[]) => {
 describe('flat-builder#buildPaths', () => {
 
 	it('Path crossing mixed', () => {
-		const paths = tf.buildPaths(pathCrossingMixed).get()
+		const paths = tf.buildPaths(11, pathCrossingMixed).get()
 		expect(paths.length).toEqual(3)
 		paths.forEach(p => {
 			expect(p.length).toEqual(4)
@@ -49,7 +49,7 @@ describe('flat-builder#buildPaths', () => {
 	})
 
 	it('Path crossing ordered', () => {
-		const paths = tf.buildPaths(pathCrossingClosedOrdered).get()
+		const paths = tf.buildPaths(11, pathCrossingClosedOrdered).get()
 		expect(paths.length).toEqual(3)
 		paths.forEach(p => {
 			expect(p.length).toEqual(4)
@@ -58,28 +58,28 @@ describe('flat-builder#buildPaths', () => {
 	})
 
 	it('Path closed reversed mix', () => {
-		const path = tf.buildPaths(pathClosedReversedMix).get()
+		const path = tf.buildPaths(11, pathClosedReversedMix).get()
 		expect(path.length).toEqual(1)
 		expect(path[0].length).toEqual(8)
 		expectClosedPath(path[0])
 	})
 
 	it('Path closed mixed', () => {
-		const path = tf.buildPaths(pathClosedMixed).get()
+		const path = tf.buildPaths(11, pathClosedMixed).get()
 		expect(path.length).toEqual(1)
 		expect(path[0].length).toEqual(9)
 		expectClosedPath(path[0])
 	})
 
 	it('Path closed mixed 2', () => {
-		const path = tf.buildPaths(pathClosedMixed2).get()
+		const path = tf.buildPaths(11, pathClosedMixed2).get()
 		expect(path.length).toEqual(1)
 		expect(path[0].length).toEqual(5)
 		expectClosedPath(path[0])
 	})
 
 	it('Path closed with extra point', () => {
-		const paths = tf.buildPaths([...pathClosedMixed,
+		const paths = tf.buildPaths(11, [...pathClosedMixed,
 			{"id": 99, "start": {"x": 999, "y": 999}, "end": {"x": 777, "y": 777}}]).get()
 		expect(paths.length).toEqual(1)
 		expect(paths[0].length).toEqual(9)
@@ -87,14 +87,14 @@ describe('flat-builder#buildPaths', () => {
 	})
 
 	it('Path closed mixed and sorted', () => {
-		const paths = tf.buildPaths(pathClosedSorted).get()
+		const paths = tf.buildPaths(11, pathClosedSorted).get()
 		expect(paths.length).toEqual(1)
 		expect(paths[0].length).toEqual(9)
 		expectClosedPath(paths[0])
 	})
 
 	it('Two Paths', () => {
-		const paths = tf.buildPaths([...pathClosedMixed, ...pathClosedMixed2]).get()
+		const paths = tf.buildPaths(11, [...pathClosedMixed, ...pathClosedMixed2]).get()
 		expect(paths.length).toEqual(2)
 		expect(paths[0].length).toEqual(9)
 		expect(paths[1].length).toEqual(5)
@@ -103,7 +103,7 @@ describe('flat-builder#buildPaths', () => {
 	})
 
 	it('Path closed vectors reversed', () => {
-		const paths = tf.buildPaths(pathClosedReversedOne).get()
+		const paths = tf.buildPaths(11, pathClosedReversedOne).get()
 		expect(paths.length).toEqual(1)
 		expect(paths[0].length).toEqual(5)
 		expectClosedPath(paths[0])
@@ -280,30 +280,30 @@ describe('flat-builder#appendToPath', () => {
 	})
 })
 
-describe('flat-builder#expandPath', () => {
+describe('flat-builder#insertIntoPaths', () => {
 
 	it('Never start new path', () => {
-		expect(tf.expandPath(pathCrossing300Full, getCCOById(102)).isLeft()).toBeTrue()
-		expect(tf.expandPath(pathCrossing300Full, getCCOById(202)).isLeft()).toBeTrue()
-		expect(tf.expandPath(pathCrossing300Full100Started, getCCOById(202)).isLeft()).toBeTrue()
+		expect(tf.insertIntoPaths(pathCrossing300Full, getCCOById(102)).isLeft()).toBeTrue()
+		expect(tf.insertIntoPaths(pathCrossing300Full, getCCOById(202)).isLeft()).toBeTrue()
+		expect(tf.insertIntoPaths(pathCrossing300Full100Started, getCCOById(202)).isLeft()).toBeTrue()
 	})
 
 	it('Do not break closed path', () => {
-		expect(tf.expandPath(pathCrossing300Full, getCCOById(301)).isLeft()).toBeTrue()
-		expect(tf.expandPath(pathCrossing300Full, getCCOById(302)).isLeft()).toBeTrue()
+		expect(tf.insertIntoPaths(pathCrossing300Full, getCCOById(301)).isLeft()).toBeTrue()
+		expect(tf.insertIntoPaths(pathCrossing300Full, getCCOById(302)).isLeft()).toBeTrue()
 	})
 
 	it('Ignore already existing', () => {
-		expect(tf.expandPath(pathCrossing300Full100Started, getCCOById(102)).isLeft()).toBeTrue()
+		expect(tf.insertIntoPaths(pathCrossing300Full100Started, getCCOById(102)).isLeft()).toBeTrue()
 	})
 
 	it('Expand 102', () => {
-		let path = tf.expandPath(pathCrossing300Full100Started, getCCOById(103)).get()
+		let path = tf.insertIntoPaths(pathCrossing300Full100Started, getCCOById(103)).get()
 		expect(path[0].length).toEqual(2)
 		expect(path[0][0].id).toEqual(102)
 		expect(path[0][1].id).toEqual(103)
 
-		path = tf.expandPath(path, getCCOById(101)).get()
+		path = tf.insertIntoPaths(path, getCCOById(101)).get()
 		expect(path[0].length).toEqual(3)
 		expect(path[0][0].id).toEqual(101)
 		expect(path[0][1].id).toEqual(102)
@@ -313,7 +313,7 @@ describe('flat-builder#expandPath', () => {
 	it('Start new path', () => {
 		let path = [...pathCrossing300Full100Started]
 		path.push([getCCOById(202)])
-		path = tf.expandPath(path, getCCOById(203)).get()
+		path = tf.insertIntoPaths(path, getCCOById(203)).get()
 		expect(path[2].length).toEqual(2)
 		expect(path[2][0].id).toEqual(202)
 		expect(path[2][1].id).toEqual(203)
@@ -419,7 +419,7 @@ describe('flat-builder#expandPaths', () => {
 
 describe('flat-builder#sortByHoles', () => {
 	it('Multiple paths', () => {
-		const paths = tf.buildPaths([...pathClosedMixed, ...pathClosedMixed2]).get()
+		const paths = tf.buildPaths(11, [...pathClosedMixed, ...pathClosedMixed2]).get()
 		const sorted = tf.sortByHoles(paths)
 		expect(sorted[0].length).toEqual(9)
 		expect(sorted[1].length).toEqual(5)

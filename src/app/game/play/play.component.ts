@@ -112,7 +112,7 @@ const setupCamera = (camera: THREE.PerspectiveCamera, map: DoomMap) => {
 }
 
 const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => void) => (lbs: LinedefBySector) => {
-	//if (lbs.sector.id !== 37) {
+	//if (lbs.sector.id !== 39) {
 	//	return
 	//}
 

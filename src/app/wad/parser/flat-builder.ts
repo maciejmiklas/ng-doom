@@ -46,39 +46,32 @@ const CMP = 'FL-BI'
  * 3)If there are still some unconnected vectors in the crossing collection, add them to existing paths whenever
  *   they would fit.
  */
-const buildPaths = <V extends VectorV>(vectors: V[]): Either<V[][]> => {
+const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V[][]> => {
 	if (vectors.length == 0) {
-		return Either.ofLeft(() => 'Cannot build Path - empty V[]')
+		return Either.ofWarn(() => 'No Vectors in Sector: ' + sectorId)
 	}
 
-	const grouped = mf.groupCrossingVectors(vectors)
+	const result = mf.groupCrossingVectors(vectors).map(cv => {
+		// create paths from remaining vectors without crossings
+		let expand = expandPaths(cv.remaining, [])
 
-	let paths
-	if (grouped.isRight()) {
-		const cv = grouped.get();
+		// add crossing vectors to already existing paths
+		expand = expandPaths(cv.crossing.concat(expand.skipped).flat(), expand.paths)
 
-		// 1) create paths from remaining vectors without crossings
-		const p1res = expandPaths(cv.remaining, [])
-
-		// 2)Add crossing vectors to already existing paths
-		const p2res = expandPaths(cv.crossing.concat(p1res.skipped).flat(), p1res.paths)
-
-		paths = p2res.paths;
-		if (p2res.skipped.length > 0) {
-			const p3res = expandPaths(p2res.skipped, p2res.paths, true)
-			paths = p3res.paths
-			if (p3res.skipped.length > 0) {
-				// @ts-ignore
-				Log.warn(CMP, 'Unexpected elements in skipped on buildPaths', mf.stringifyVector(p3res.skipped))
+		let paths = expand.paths;
+		if (expand.skipped.length > 0) {
+			expand = expandPaths(expand.skipped, expand.paths, true)
+			paths = expand.paths
+			if (expand.skipped.length > 0) {
+				Log.warn(CMP, 'Skipped path elements for sector: ', sectorId, ' -> ', mf.stringifyVectors(expand.skipped))
 			}
 		}
-	} else {
-		paths = expandPaths(vectors, []).paths
-	}
+		return paths
+	}).orElse(() => expandPaths(vectors, []).paths)
 
-	return Either.ofCondition(() => paths.length > 0 && mf.pathContinuos(paths[0]),
-		() => 'Could not build path for Sector: ' + R.path([0, 'sector', 'id'], paths),
-		() => paths)
+	return Either.ofConditionWarn(() => result.length > 0 /*&& mf.pathContinuos(result[0])*/,
+		() => 'Could not build path for sector: ' + sectorId,
+		() => result)
 }
 
 type ExpandResult<V extends VectorV> = {
@@ -114,7 +107,7 @@ const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][], c
 		appended = false
 
 		for (let remIdx = 0; !appended && remIdx < remaining.length; remIdx++) {
-			expandPath(paths, remaining[remIdx], connectCrossing).exec(np => {
+			insertIntoPaths(paths, remaining[remIdx], connectCrossing).exec(np => {
 				paths = np;
 				// remove vector from #remaining as we have appended it to current path
 				remaining.splice(remIdx, 1)
@@ -130,19 +123,19 @@ const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][], c
 }
 
 /** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
-const expandPath = <V extends VectorV>(paths: V[][], candidate: V, connectCrossing = false): Either<V[][]> => {
-	let found = Either.ofLeft<V[][]>(() => 'Candidate not appended');
+const insertIntoPaths = <V extends VectorV>(paths: V[][], candidate: V, connectCrossing = false): Either<V[][]> => {
+	let inserted = Either.ofLeft<V[][]>(() => 'Candidate not appended');
 
 	// go over paths and try finding one where we can append candidate
 	R.addIndex<V[]>(R.find)((path, pathIdx) => {
 		// inserting #candidate into the path will return a new path
-		found = insertIntoPath(path)(candidate, connectCrossing)
+		inserted = insertIntoPath(path)(candidate, connectCrossing)
 
 			// insert into #paths the new extended path
 			.map(foundPath => R.update(pathIdx, foundPath, paths))
-		return found.isRight()
+		return inserted.isRight()
 	})(paths)
-	return found;
+	return inserted;
 }
 
 /**
@@ -238,7 +231,7 @@ const sortByHoles = <V extends VectorV>(paths: V[][]): V[][] => {
 }
 
 const createFlat = (sector: Sector) => (lindedefs: Linedef[]): Either<Flat> =>
-	buildPaths(lindedefs).map(paths => buildFlat(sector, paths))
+	buildPaths(sector.id, lindedefs).map(paths => buildFlat(sector, paths))
 
 /**
  * Two scenarios are supported where there are multiple shapes within one sector:
@@ -251,7 +244,7 @@ const buildFlat = (sector: Sector, paths: Linedef[][]): Flat => {
 		[(p) => p.length == 1, (p) => ({sector, walls: p[0], type: FlatType.AREA}) as FlatArea],
 
 		// multiple crossings shapes in #paths
-		[(p) => p[0].findIndex(v => mf.isCrossing(v)) > 0, (p) => ({
+		[(p) => hasCrossing(p), (p) => ({
 			sector,
 			walls: p,
 			type: FlatType.SHAPES
@@ -265,51 +258,15 @@ const buildFlat = (sector: Sector, paths: Linedef[][]): Flat => {
 	])(paths)
 }
 
-/** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
-const expandPaths_ = <V extends VectorV>(vectors: V[], existingPaths: V[][]): V[][] => {
+const hasCrossingVector = (vectors: VectorV[]) => vectors.findIndex(v => mf.isCrossing(v)) >= 0
+const hasCrossing = (paths: VectorV[][]) => hasCrossingVector(paths[0]) || hasCrossingVector(paths.flat())
 
-	// we will remove elements one by one from this list and add them to #paths
-	const remaining = [...vectors]
-	const paths = [...existingPaths]
-	let appended = paths.length > 0
-
-	// go until all elements in #remaining has been moved to #paths
-	while (remaining.length > 0) {
-
-		// none of #remaining could be connected to already existing paths, so start a new path
-		if (!appended) {
-			paths.push([remaining.pop()])
-		}
-
-		appended = false
-		// go over each path in #paths and try to append to this path vector from #remaining
-		for (let pathIdx = 0; pathIdx < paths.length; pathIdx++) {
-			const path = paths[pathIdx];
-			if (mf.pathContinuos(path)) {
-				continue;
-			}
-			const pathBuilder = insertIntoPath(path)
-
-			// go over all #remaining (not used) vectors and test whether we can append it to current path
-			for (let remIdx = 0; !appended && remIdx < remaining.length; remIdx++) {
-				pathBuilder(remaining[remIdx]).exec(alteredPath => {
-					appended = true
-					paths[pathIdx] = alteredPath
-
-					// remove vector from #remaining as we have appended it to current path
-					remaining.splice(remIdx, 1)
-				})
-			}
-		}
-	}
-	return paths
-}
 // ############################ EXPORTS ############################
 export const testFunctions = {
 	insertIntoPath,
 	prependToPath,
 	appendToPath,
-	expandPath,
+	insertIntoPaths,
 	expandPaths,
 	sortByHoles,
 	groupByOuterPath,

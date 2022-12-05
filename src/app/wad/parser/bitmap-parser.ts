@@ -88,7 +88,7 @@ const parseBitmap = (wadBytes: number[], palette: Palette) => (dir: Directory): 
 	const columns: Either<Column>[] = header.columnofs.map(colOfs => columnParser(colOfs))
 	const nonEmptyCols = columns.filter(c => c.filter())
 	const rgba = patchDataToRGBA(columns, header.width, header.height, palette)
-	return Either.ofCondition(
+	return Either.ofConditionWarn(
 		() => columns.length === header.width && nonEmptyCols.length > 0 && header.width > 0 && header.height > 0,
 		() => 'Faulty Bitmap on: Dir' + JSON.stringify(dir) + ', Header: ' + JSON.stringify(header) + ', Cols:' + nonEmptyCols.length,
 		() => ({

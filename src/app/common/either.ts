@@ -52,25 +52,29 @@ export abstract class Either<T> {
 	}
 
 	static ofNullable<T>(val: T | undefined, msg: () => string): Either<T> {
-		return R.isNil(val) ? new Left<T>(msg) : new Right<T>(val)
+		return R.isNil(val) ? Either.ofLeft(msg) : Either.ofRight(val)
 	}
 
 	static ofConditionFlat<T>(cnd: () => boolean, left: () => string, right: () =>  Either<T>): Either<T> {
-		return cnd() ? right() : new Left<T>(left)
+		return cnd() ? right() : Either.ofLeft(left)
 	}
 
 	static ofCondition<T>(cnd: () => boolean, left: () => string, right: () => T): Either<T> {
-		return cnd() ? new Right<T>(right()) : new Left<T>(left)
+		return cnd() ? Either.ofRight(right()) : Either.ofLeft(left)
+	}
+
+	static ofConditionWarn<T>(cnd: () => boolean, left: () => string, right: () => T): Either<T> {
+		return cnd() ? Either.ofRight(right()) : Either.ofWarn(left)
 	}
 
 	static ofTruth<T>(truth: Either<any>[], right: () => T): Either<T> {
 		const left = truth.filter(e => e.isLeft())
-		return left.length === 0 ? new Right<T>(right()) : new Left(() => left.map(l => l.message()).join(','))
+		return left.length === 0 ? Either.ofRight(right()) : Either.ofLeft(() => left.map(l => l.message()).join(','))
 	}
 
 	static ofTruthFlat<T>(truth: Either<any>[], func: () => Either<T>): Either<T> {
 		const truthLeft = truth.filter(e => e.isLeft())
-		return truthLeft.length === 0 ? func() : new Left(() => truthLeft.map(l => l.message()).join(','))
+		return truthLeft.length === 0 ? func() : Either.ofLeft(() => truthLeft.map(l => l.message()).join(','))
 	}
 
 	static ofBoolean(val: boolean): Either<boolean> {

@@ -15,10 +15,10 @@
  */
 
 const game = {
-	startLevel: 0
+	startLevel: 2
 }
 const player = {
-	height: 50
+	height: 30
 }
 
 const move = {

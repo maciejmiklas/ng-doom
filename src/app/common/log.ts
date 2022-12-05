@@ -19,7 +19,7 @@ export enum LogLevel {
 }
 
 export class Log {
-	static LOG_LEVEL = LogLevel.WARN
+	static LOG_LEVEL = LogLevel.INFO
 
 	static error(cmp: string, ...args: any[]): void {
 		if (Log.isError()) {
