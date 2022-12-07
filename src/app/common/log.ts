@@ -23,31 +23,31 @@ export class Log {
 
 	static error(cmp: string, ...args: any[]): void {
 		if (Log.isError()) {
-			console.log('ERROR(' + cmp + '): ', JSON.stringify(args))
+			console.log('ERROR(' + cmp + '): ', msg(args))
 		}
 	}
 
 	static warn(cmp: string, ...args: any[]): void {
 		if (Log.isWarn()) {
-			console.log('WARN(' + cmp + '): ', JSON.stringify(args))
+			console.log('WARN(' + cmp + '): ', msg(args))
 		}
 	}
 
 	static info(cmp: string, ...args: any[]): void {
 		if (Log.isInfo()) {
-			console.log('INFO(' + cmp + '): ', JSON.stringify(args))
+			console.log('INFO(' + cmp + '): ', msg(args))
 		}
 	}
 
 	static debug(cmp: string, ...args: any[]): void {
 		if (Log.isDebug()) {
-			console.log('DEBUG(' + cmp + '): ', JSON.stringify(args))
+			console.log('DEBUG(' + cmp + '): ', msg(args))
 		}
 	}
 
 	static trace(cmp: string, ...args: any[]): void {
 		if (Log.isTrace()) {
-			console.log('TRACE(' + cmp + '): ', JSON.stringify(args))
+			console.log('TRACE(' + cmp + '): ', msg(args))
 		}
 	}
 
@@ -58,4 +58,12 @@ export class Log {
 	static isError = (): boolean => Log.LOG_LEVEL >= LogLevel.ERROR;
 }
 
+const msg = (args: any[]): string =>
+	args.reduce((prev, cur) => {
+		let js = JSON.stringify(cur).replaceAll('\\"', '"')
+		if (js.startsWith('"')) {
+			js = js.substring(1, js.length - 1)
+		}
+		return prev + js
+	}, '')
 

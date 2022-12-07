@@ -28,7 +28,7 @@ import {
 	pathCrossingClosedOrdered,
 	pathCrossingMixed,
 	pathCrossingsMissing200,
-	pathCrossingsPartial,
+	pathCrossingsPartial, pathSector39,
 	VectorId
 } from "./testdata/data"
 
@@ -413,6 +413,13 @@ describe('flat-builder#expandPaths', () => {
 		// 201 cannot be connected because both ends of the 200-path already have a crossing vector( 202 and 204)
 		expect(res.skipped.length).toEqual(1)
 		expect(res.skipped[0].id).toEqual(201)
+	})
+
+	it('Sector 39', () => {
+		const res = tf.expandPaths(pathSector39,[])
+		expect(res.paths.length).toEqual(1)
+		expect(res.paths[0].length).toEqual(pathSector39.length)
+		expect(mf.pathContinuos(res.paths[0])).toBeTrue()
 	})
 
 })

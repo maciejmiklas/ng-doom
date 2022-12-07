@@ -31,7 +31,7 @@ import {
 } from './wad-model'
 import {Log} from "../../common/log";
 
-const CMP = 'FL-BI'
+const CMP = 'FLB'
 
 /**
  * Shapes can have common ages. To close such forms properly, they require special treatment. We will separate all
@@ -46,33 +46,38 @@ const CMP = 'FL-BI'
  * 3)If there are still some unconnected vectors in the crossing collection, add them to existing paths whenever
  *   they would fit.
  */
-const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V[][]> => {
-	if (vectors.length == 0) {
-		return Either.ofWarn(() => 'No Vectors in Sector: ' + sectorId)
-	}
-
+const buildPaths = (sectorId: number, vectors: Linedef[]): Either<Linedef[][]> => {
 	const result = mf.groupCrossingVectors(vectors).map(cv => {
+
 		// create paths from remaining vectors without crossings
-		let expand = expandPaths(cv.remaining, [])
+		let expand = expandPaths(cv.remaining, [], false)
 
 		// add crossing vectors to already existing paths
-		expand = expandPaths(cv.crossing.concat(expand.skipped).flat(), expand.paths)
+		expand = expandPaths(cv.crossing.concat(expand.skipped).flat(), expand.paths, false)
 
 		let paths = expand.paths;
 		if (expand.skipped.length > 0) {
 			expand = expandPaths(expand.skipped, expand.paths, true)
 			paths = expand.paths
-			if (expand.skipped.length > 0) {
-				Log.warn(CMP, 'Skipped path elements for sector: ', sectorId, ' -> ', mf.stringifyVectors(expand.skipped))
+			if (expand.skipped.length > 0 && !onlyActionLinedefs(expand.skipped)) {
+				Log.warn(CMP, 'Skipped path elements in sector: ', sectorId, ' -> ', mf.stringifyVectors(expand.skipped))
 			}
 		}
 		return paths
 	}).orElse(() => expandPaths(vectors, []).paths)
 
+	result.forEach(path => {
+		if (!mf.pathContinuos(path)) {
+			Log.warn(CMP, 'Open path on sector: ', sectorId, ', In: ', mf.stringifyVectors(vectors), 'Out:', mf.stringifyVectors(path))
+		}
+	})
+
 	return Either.ofConditionWarn(() => result.length > 0 /*&& mf.pathContinuos(result[0])*/,
-		() => 'Could not build path for sector: ' + sectorId,
+		() => 'Could not build path for sector: ' + sectorId + ' -> ' + mf.stringifyVectors(vectors),
 		() => result)
 }
+
+const onlyActionLinedefs = (lds: Linedef[]): boolean => lds.findIndex(ld => ld.specialType > 0) >= 0
 
 type ExpandResult<V extends VectorV> = {
 	paths: V[][],
@@ -80,7 +85,7 @@ type ExpandResult<V extends VectorV> = {
 }
 
 /** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
-const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][], connectCrossing = false): ExpandResult<V> => {
+const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][], connectCrossing = true): ExpandResult<V> => {
 	// we will remove elements one by one from this list and add them to #paths
 	const remaining = [...candidates]
 	let paths = [...existingPaths]

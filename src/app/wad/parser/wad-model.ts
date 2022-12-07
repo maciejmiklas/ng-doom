@@ -179,6 +179,7 @@ export enum VectorConnection {
 }
 
 export type VectorV = {
+	id?: number,
 	start: Vertex,
 	end: Vertex
 }
@@ -343,7 +344,7 @@ export type LinedefBySector = {
 	/** All Linedefs in this sector in random order. */
 	linedefs: Linedef[]
 
-	/** Linedefs not bein part of a wall, but defining an action given by #specialType */
+	/** Linedefs defining an action given by #specialType */
 	actions: Linedef[]
 	flat: Flat
 }
@@ -621,7 +622,7 @@ const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingV
 	const crossingVertex = uniqueVertex(vectors).filter(v => countVertex(vectors)(v) > 3)
 
 	return Either.ofCondition(
-		() => crossingVertex.length > 0,
+		() => vectors.length > 0 && crossingVertex.length > 0,
 		() => 'No crossings',
 		() => {
 			let remaining = vectors;
@@ -673,9 +674,9 @@ const pathContinuos = (path: VectorV[]): boolean => {
 }
 
 const toSimpleVectors = <V extends VectorV>(vectors: V[]): VectorV[] => vectors.map(v => toSimpleVector(v))
-const toSimpleVector = <V extends VectorV>(v: V): VectorV => ({start: v.start, end: v.end})
+const toSimpleVector = <V extends VectorV>(v: V): VectorV => ({id: v.id, start: v.start, end: v.end})
 
-const stringifyVectors = (vectors: VectorV[]): string => JSON.stringify(toSimpleVectors(vectors))
+const stringifyVectors = (vectors: VectorV[]): string => JSON.stringify(toSimpleVectors(vectors)).replace(/\\"/g, '"')
 const stringifyVector = (v: VectorV): string => JSON.stringify(toSimpleVector(v))
 const stringifyVertex = (v: Vertex): string => JSON.stringify(v)
 

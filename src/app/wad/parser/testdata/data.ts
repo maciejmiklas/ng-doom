@@ -374,6 +374,19 @@ export const pathClosedMixed: VectorId[] = [
 	{"id": 5, "start": {"x": 1472, "y": -1088}, "end": {"x": 1472, "y": -960}}
 ]
 
+export const pathClosed = [
+	{"start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}},
+	{"start": {"x": 1184, "y": -3104}, "end": {"x": 1216, "y": -3104}},
+	{"start": {"x": 1216, "y": -3104}, "end": {"x": 1216, "y": -3072}},
+	{"start": {"x": 1216, "y": -3072}, "end": {"x": 1344, "y": -3104}},
+	{"start": {"x": 1344, "y": -3104}, "end": {"x": 1344, "y": -3200}},
+	{"start": {"x": 1344, "y": -3200}, "end": {"x": 1344, "y": -3264}},
+	{"start": {"x": 1344, "y": -3264}, "end": {"x": 1344, "y": -3360}},
+	{"start": {"x": 1344, "y": -3360}, "end": {"x": 1216, "y": -3392}},
+	{"start": {"x": 1216, "y": -3392}, "end": {"x": 1216, "y": -3360}},
+	{"start": {"x": 1216, "y": -3360}, "end": {"x": 1184, "y": -3360}},
+	{"start": {"x": 1184, "y": -3360}, "end": {"x": 928, "y": -3360}}]
+
 export const pathClosedSorted: VectorId[] = [
 	{"id": 0, "start": {"x": 1856, "y": -704}, "end": {"x": 2048, "y": -704}},
 	{"id": 1, "start": {"x": 2048, "y": -704}, "end": {"x": 2048, "y": -1024}},
@@ -466,6 +479,20 @@ export const pathCrossingMixed: VectorId[] = [
 	{"id": 303, "start": {"x": 1184, "y": -3392}, "end": {"x": 928, "y": -3392}},
 	// @formatter:on
 ]
+
+export const pathSector39 = [
+	{"id": 14, "start": {"x": 1216, "y": -3392}, "end": {"x": 1216, "y": -3360}},
+	{"id": 15, "start": {"x": 1216, "y": -3360}, "end": {"x": 1184, "y": -3360}},
+	{"id": 23, "start": {"x": 1184, "y": -3104}, "end": {"x": 1216, "y": -3104}},
+	{"id": 24, "start": {"x": 1216, "y": -3104}, "end": {"x": 1216, "y": -3072}},
+	{"id": 26, "start": {"x": 1344, "y": -3264}, "end": {"x": 1344, "y": -3360}},
+	{"id": 27, "start": {"x": 1344, "y": -3200}, "end": {"x": 1344, "y": -3264}},
+	{"id": 29, "start": {"x": 1344, "y": -3104}, "end": {"x": 1344, "y": -3200}},
+	{"id": 40, "start": {"x": 1344, "y": -3360}, "end": {"x": 1216, "y": -3392}},
+	{"id": 41, "start": {"x": 1216, "y": -3072}, "end": {"x": 1344, "y": -3104}},
+	{"id": 50, "start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}},
+	{"id": 51, "start": {"x": 1184, "y": -3360}, "end": {"x": 928, "y": -3360}},
+	{"id": 52, "start": {"x": 928, "y": -3360}, "end": {"x": 928, "y": -3104}}]
 
 const getById = (vectors: VectorId[]) => (id: number) => vectors.find(v => v.id === id)
 export const getCCOById = getById(pathCrossingClosedOrdered)
