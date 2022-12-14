@@ -46,7 +46,10 @@ const CMP = 'FLB'
  * 3)If there are still some unconnected vectors in the crossing collection, add them to existing paths whenever
  *   they would fit.
  */
-const buildPaths = (sectorId: number, vectors: Linedef[]): Either<Linedef[][]> => {
+const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[], skippCheck: (v: V[]) => boolean = () => true): Either<V[][]> => {
+	if (sectorId === 0) {
+		console.log('')
+	}
 	const result = mf.groupCrossingVectors(vectors).map(cv => {
 
 		// create paths from remaining vectors without crossings
@@ -59,7 +62,7 @@ const buildPaths = (sectorId: number, vectors: Linedef[]): Either<Linedef[][]> =
 		if (expand.skipped.length > 0) {
 			expand = expandPaths(expand.skipped, expand.paths, true)
 			paths = expand.paths
-			if (expand.skipped.length > 0 && !onlyActionLinedefs(expand.skipped)) {
+			if (skippCheck(expand.skipped)) {
 				Log.warn(CMP, 'Skipped path elements in sector: ', sectorId, ' -> ', mf.stringifyVectors(expand.skipped))
 			}
 		}

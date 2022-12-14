@@ -44,7 +44,6 @@ import {
 	getTextures,
 	getWadBytes,
 	pathClosedMixed,
-	pathClosedMixed2,
 	pathClosedSorted,
 	validateDir,
 	VERTEX_0,
@@ -56,7 +55,6 @@ import {
 	VERTEX_466
 } from "./testdata/data"
 import * as R from 'ramda'
-import {functions as fb} from './flat-builder'
 
 describe('map-parser#parseHeader', () => {
 	it('IWAD', () => {
@@ -472,6 +470,14 @@ describe('map-parser#parseLinedefs', () => {
 			expect(ld.flags.has(LinedefFlag.TWO_SIDED)).toBeTrue()
 		})
 	})
+
+	it('E1M1 has:152,158,157', () => {
+		const ld = getE1M1Linedefs()
+		expect(ld.findIndex(ld => ld.id === 152) >= 0).toBeTrue()
+		expect(ld.findIndex(ld => ld.id === 158) >= 0).toBeTrue()
+		expect(ld.findIndex(ld => ld.id === 157) >= 0).toBeTrue()
+	})
+
 })
 
 describe('map-parser -> Parse Map Directory', () => {
@@ -1045,3 +1051,4 @@ describe('map-parser#findMaxSectorId', () => {
 		expect(tf.findMaxSectorId(getMaps()[3].linedefs)).toEqual(138)
 	})
 })
+

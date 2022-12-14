@@ -102,7 +102,7 @@ const parseMaps = (bytes: number[], dirs: Directory[], textures: DoomTexture[], 
 }
 
 const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>, flatLoader: (name: string) => Either<Bitmap>) => (mapDirs: Directory[]): DoomMap => {
-	Log.info(CMP,'Parse Map: ', mapDirs[0].name)
+	Log.info(CMP, 'Parse Map: ', mapDirs[0].name)
 	const sectors = parseSectors(bytes)(mapDirs, flatLoader)
 	const linedefs = parseLinedefs(bytes, mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes, textureLoader)(mapDirs, sectors), sectors)
 	return {
@@ -134,7 +134,6 @@ const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) 
 	const linedefs: Linedef[] = mapLinedefs.filter(ld => ld.sector.id === sector.id)
 		// for two sectors sharing common border vectors are defined only in one of those sectors as a backside
 		.concat(findBacksidesBySector(backLinedefs)(sector.id).orElse(() => []))
-
 	if (linedefs.length === 0) {
 		return Either.ofLeft(() => 'No Linedefs for sector: ' + sector.id)
 	}
@@ -143,11 +142,11 @@ const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) 
 	const linedefsByAction = groupByWallAndAction(linedefs)
 	const flatFactory = fb.createFlat(sector)
 	return flatFactory(linedefs).map(flat => ({
-			sector,
-			linedefs,
-			actions: linedefsByAction[1],
-			flat
-		}))
+		sector,
+		linedefs,
+		actions: linedefsByAction[1],
+		flat
+	}))
 }
 
 const groupLinedefsBySectors = (mapLinedefs: Linedef[], sectors: Sector[]): LinedefBySector[] => {
@@ -222,9 +221,9 @@ const parseSector = (bytes: number[], dir: Directory, flatLoader: (name: string)
 }
 
 const parseSectors = (bytes: number[]) => (mapDirs: Directory[], flatLoader: (name: string) => Either<Bitmap>): Sector[] => {
-	const thingDir = mapDirs[MapLumpType.SECTORS]
-	const parser = parseSector(bytes, thingDir, flatLoader)
-	return unfoldByDirectorySize(thingDir, 26).map((ofs, thingIdx) => parser(thingIdx))
+	const sectorsDir = mapDirs[MapLumpType.SECTORS]
+	const parser = parseSector(bytes, sectorsDir, flatLoader)
+	return unfoldByDirectorySize(sectorsDir, 26).map((ofs, thingIdx) => parser(thingIdx))
 }
 
 const parseSidedef = (bytes: number[], dir: Directory, textureLoader: (name: string) => Either<DoomTexture>, sectors: Sector[]) => (thingIdx: number): Either<Sidedef> => {
@@ -233,7 +232,7 @@ const parseSidedef = (bytes: number[], dir: Directory, textureLoader: (name: str
 	const strOpParser = U.parseTextureName(bytes)
 	const sectorId = shortParser(offset + 0x1C)
 	return Either.ofCondition(
-		() => sectorId < sectors.length && sectorId > 0,
+		() => sectorId < sectors.length && sectorId >= 0,
 		() => 'Sector ' + sectorId + ' has no Sidedef on ' + thingIdx,
 		() => ({
 			dir,
@@ -271,8 +270,8 @@ const parseFlags = (val: number): Set<LinedefFlag> =>
 			.filter(k => (1 << (k - 1) & val) != 0)// remove not set bits
 	)
 
-const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sidedefs: Either<Sidedef>[], sectors: Sector[]) => (thingIdx: number): Either<Linedef> => {
-	const offset = dir.filepos + 14 * thingIdx
+const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sidedefs: Either<Sidedef>[], sectors: Sector[]) => (linedeefId: number): Either<Linedef> => {
+	const offset = dir.filepos + 14 * linedeefId
 	const shortParser = U.parseInt16(bytes)
 	const intParser = U.parseInt32(bytes)
 	const shortOpParser = U.parseInt16Op(bytes)
@@ -283,18 +282,19 @@ const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sided
 	const startVertex = vertexParser(offset).map(idx => vertexes[idx])
 	const endVertex = vertexParser(offset + 2).map(idx => vertexes[idx])
 
+	//TODO v === -1 is OK, but  v>=sidedefs.length is WARN
 	const parseSide = shortOpParser(v => v < sidedefs.length && v >= 0,
-		v => 'Sidedef out of bound: ' + v + ' of ' + sidedefs.length + ' on ' + offset)
+		v => 'Sidedef out of bound: ' + v + ' < ' + sidedefs.length + ' on ' + offset)
 
 	const frontSide = parseSide(offset + 10).map(idx => sidedefs[idx])
 	const backSide = parseSide(offset + 12).map(idx => sidedefs[idx])
 
-	const sector = frontSide.map(fs => Either.ofCondition(() => fs.sector.id > 0 && fs.sector.id < sectors.length,
-		() => 'No Sector for Linedef: ' + thingIdx, () => sectors[fs.sector.id]))
+	const sector = frontSide.map(fs => Either.ofConditionWarn(() => fs.sector.id >= 0 && fs.sector.id < sectors.length,
+		() => 'No Sector for Linedef: ' + linedeefId, () => sectors[fs.sector.id]))
 
 	return Either.ofTruth([startVertex, endVertex, frontSide, sector], () =>
 		({
-			id: thingIdx,
+			id: linedeefId,
 			dir,
 			lumpType: MapLumpType.LINEDEFS,
 			start: startVertex.get(),
