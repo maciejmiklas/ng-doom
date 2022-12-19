@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import * as R from 'ramda'
-import {Either} from '../../common/either'
+import {Either, LeftType} from '../../common/either'
 import {
 	Flat,
 	FlatArea,
@@ -46,10 +46,7 @@ const CMP = 'FLB'
  * 3)If there are still some unconnected vectors in the crossing collection, add them to existing paths whenever
  *   they would fit.
  */
-const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[], skippCheck: (v: V[]) => boolean = () => true): Either<V[][]> => {
-	if (sectorId === 0) {
-		console.log('')
-	}
+const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V[][]> => {
 	const result = mf.groupCrossingVectors(vectors).map(cv => {
 
 		// create paths from remaining vectors without crossings
@@ -62,7 +59,7 @@ const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[], skippChec
 		if (expand.skipped.length > 0) {
 			expand = expandPaths(expand.skipped, expand.paths, true)
 			paths = expand.paths
-			if (skippCheck(expand.skipped)) {
+			if (expand.skipped.length > 0) {
 				Log.warn(CMP, 'Skipped path elements in sector: ', sectorId, ' -> ', mf.stringifyVectors(expand.skipped))
 			}
 		}
@@ -71,13 +68,13 @@ const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[], skippChec
 
 	result.forEach(path => {
 		if (!mf.pathContinuos(path)) {
-			Log.warn(CMP, 'Open path on sector: ', sectorId, ', In: ', mf.stringifyVectors(vectors), 'Out:', mf.stringifyVectors(path))
+			Log.warn(CMP, 'Open path on sector: ', sectorId, ' -> ', mf.stringifyVectors(path))
 		}
 	})
 
-	return Either.ofConditionWarn(() => result.length > 0 /*&& mf.pathContinuos(result[0])*/,
+	return Either.ofCondition(() => result.length > 0 /*&& mf.pathContinuos(result[0])*/,
 		() => 'Could not build path for sector: ' + sectorId + ' -> ' + mf.stringifyVectors(vectors),
-		() => result)
+		() => result, LeftType.WARN)
 }
 
 const onlyActionLinedefs = (lds: Linedef[]): boolean => lds.findIndex(ld => ld.specialType > 0) >= 0
@@ -174,7 +171,7 @@ const prependToPath = <V extends VectorV>(path: V[]) => (candidate: V, connectCr
 			() => Either.ofLeft<V[]>(() => 'Vector should be appended.')],
 		[(con) => con === VectorConnection.V1END_TO_V2START, () => Either.ofRight([candidate].concat(path))],
 		[(con) => con === VectorConnection.V1START_TO_V2START, () => Either.ofRight([mf.reverseVector(candidate)].concat(path))],
-		[R.T, () => Either.ofWarn<V[]>(() => 'Unsupported connection: [' + connection + '] to prepend: ' + mf.stringifyVector(candidate) + ' to ' + mf.stringifyVectors(path))]
+		[R.T, () => Either.ofLeft<V[]>(() => 'Unsupported connection: [' + connection + '] to prepend: ' + mf.stringifyVector(candidate) + ' to ' + mf.stringifyVectors(path), LeftType.WARN)]
 	])(connection)
 }
 
@@ -194,7 +191,7 @@ const appendToPath = <V extends VectorV>(path: V[]) => (candidate: V, connectCro
 			() => Either.ofLeft<V[]>(() => 'Vector should be prepended.')],
 		[(con) => con === VectorConnection.V1END_TO_V2START, () => Either.ofRight(path.concat(candidate))],
 		[(con) => con === VectorConnection.V1END_TO_V2END, () => Either.ofRight(path.concat(mf.reverseVector(candidate)))],
-		[R.T, () => Either.ofWarn<V[]>(() => 'Unsupported connection: [' + connection + '] to append: ' + mf.stringifyVector(candidate) + ' to ' + mf.stringifyVectors(path))]
+		[R.T, () => Either.ofLeft<V[]>(() => 'Unsupported connection: [' + connection + '] to append: ' + mf.stringifyVector(candidate) + ' to ' + mf.stringifyVectors(path), LeftType.WARN)]
 	])(connection)
 }
 

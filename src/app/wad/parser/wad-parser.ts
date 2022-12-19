@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {Directories, Directory, Palette, TitlePic, Wad} from './wad-model'
-import {Either} from '../../common/either'
+import {Either, LeftType} from '../../common/either'
 import {functions as dp} from './directory-parser'
 import {functions as mp} from './map-parser'
 import {functions as tp} from './texture-parser'
@@ -30,13 +30,13 @@ const parseTitlePic = (bytes: number[], dirs: Directory[], palette: Palette): Ei
 		.map(d => bp.parseBitmap(bytes, palette)(d)), find('HELP2')
 		.map(d => bp.parseBitmap(bytes, palette)(d)))
 
-	return Either.ofConditionWarn(() => title.isRight() && credit.isRight() && credit.isRight(),
+	return Either.ofCondition(() => title.isRight() && credit.isRight() && credit.isRight(),
 		() => 'Image Folders not found', () => ({
 			help,
 			title: title.get(),
 			credit: credit.get(),
 			mDoom: md.get()
-		}))
+		}), LeftType.WARN)
 }
 
 const parseWad = (bytes: number[]): Either<Wad> =>
@@ -46,7 +46,7 @@ const parseWad = (bytes: number[]): Either<Wad> =>
 		.append(w => tp.parsePnames(bytes, w.dirs), (w, v) => w.pnames = v) // pnames
 		.append(w => pp.parsePlaypal(bytes, w.dirs), (w, v) => w.playpal = v) // playpal
 		.append(w => parseTitlePic(bytes, w.dirs, w.playpal.palettes[0]), (w, v) => w.title = v)// title
-		.append(w => tp.parsePatches(bytes, w.dirs, w.playpal.palettes[0],w.pnames), (w, v) => w.patches = v)// patches
+		.append(w => tp.parsePatches(bytes, w.dirs, w.playpal.palettes[0], w.pnames), (w, v) => w.patches = v)// patches
 		.append(w => tp.parseTextures(bytes, w.dirs, w.pnames, w.patches), (w, v) => w.textures = v) // textures
 		.append(w => tp.parseFlats(bytes, w.dirs, w.playpal.palettes[0]), (w, v) => w.flatBitmaps = v) // flatBitmaps
 		.append(w => mp.parseMaps(bytes, w.dirs, w.textures, w.flatBitmaps), (w, v) => w.maps = v); // maps

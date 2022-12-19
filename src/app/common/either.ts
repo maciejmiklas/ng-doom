@@ -1,6 +1,10 @@
 import * as R from 'ramda'
 import {Log} from './log'
 
+export enum LeftType {
+	OK, WARN, ERROR
+}
+
 export abstract class Either<T> {
 
 	protected readonly val: T
@@ -39,46 +43,34 @@ export abstract class Either<T> {
 		return new Right<T>(val)
 	}
 
-	// TODO: string -> ()=>string
-	static ofLeft<T>(msg: () => string): Either<T> {
-		return new Left(msg)
+	static ofLeft<T>(msg: () => string, type = LeftType.OK): Either<T> {
+		return new Left(msg, type)
 	}
 
-	static ofWarn<T>(msg: () => string): Either<T> {
-		if (Log.isWarn()) {
-			Log.warn(Left.CMP, msg())
-		}
-		return new Left(msg)
+	static ofNullable<T>(val: T | undefined, msg: () => string, type = LeftType.OK): Either<T> {
+		return R.isNil(val) ? Either.ofLeft(msg, type) : Either.ofRight(val)
 	}
 
-	static ofNullable<T>(val: T | undefined, msg: () => string): Either<T> {
-		return R.isNil(val) ? Either.ofLeft(msg) : Either.ofRight(val)
+	static ofConditionFlat<T>(cnd: () => boolean, left: () => string, right: () => Either<T>, type = LeftType.OK): Either<T> {
+		return cnd() ? right() : Either.ofLeft(left, type)
 	}
 
-	static ofConditionFlat<T>(cnd: () => boolean, left: () => string, right: () =>  Either<T>): Either<T> {
-		return cnd() ? right() : Either.ofLeft(left)
+	static ofCondition<T>(cnd: () => boolean, left: () => string, right: () => T, type = LeftType.OK): Either<T> {
+		return cnd() ? Either.ofRight(right()) : Either.ofLeft(left, type)
 	}
 
-	static ofCondition<T>(cnd: () => boolean, left: () => string, right: () => T): Either<T> {
-		return cnd() ? Either.ofRight(right()) : Either.ofLeft(left)
-	}
-
-	static ofConditionWarn<T>(cnd: () => boolean, left: () => string, right: () => T): Either<T> {
-		return cnd() ? Either.ofRight(right()) : Either.ofWarn(left)
-	}
-
-	static ofTruth<T>(truth: Either<any>[], right: () => T): Either<T> {
+	static ofTruth<T>(truth: Either<any>[], right: () => T, type = LeftType.OK): Either<T> {
 		const left = truth.filter(e => e.isLeft())
-		return left.length === 0 ? Either.ofRight(right()) : Either.ofLeft(() => left.map(l => l.message()).join(','))
+		return left.length === 0 ? Either.ofRight(right()) : Either.ofLeft(() => left.map(l => l.message()).join(','), type)
 	}
 
-	static ofTruthFlat<T>(truth: Either<any>[], func: () => Either<T>): Either<T> {
+	static ofTruthFlat<T>(truth: Either<any>[], func: () => Either<T>, type = LeftType.OK): Either<T> {
 		const truthLeft = truth.filter(e => e.isLeft())
-		return truthLeft.length === 0 ? func() : Either.ofLeft(() => truthLeft.map(l => l.message()).join(','))
+		return truthLeft.length === 0 ? func() : Either.ofLeft(() => truthLeft.map(l => l.message()).join(','), type)
 	}
 
-	static ofBoolean(val: boolean): Either<boolean> {
-		return val ? Either.ofRight(val) : Either.ofLeft(() => 'FALSE')
+	static ofBoolean(val: boolean, type = LeftType.OK): Either<boolean> {
+		return val ? Either.ofRight(val) : Either.ofLeft(() => 'FALSE', type)
 	}
 
 	get(): T {
@@ -115,9 +107,15 @@ export abstract class Either<T> {
 export class Left<T> extends Either<T> {
 	static CMP = 'LEFT'
 
-	constructor(msg: () => string) {
+	constructor(msg: () => string, type = LeftType.OK) {
 		super(null as any, msg)
-		if (Log.isTrace()) {
+		if (type === LeftType.WARN && Log.isWarn()) {
+			Log.warn(Left.CMP, msg())
+
+		} else if (type === LeftType.ERROR && Log.isError()) {
+			Log.error(Left.CMP, msg())
+
+		} else if (Log.isTrace()) {
 			Log.trace(Left.CMP, 'Left created: ', msg())
 		}
 	}

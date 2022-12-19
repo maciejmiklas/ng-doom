@@ -15,7 +15,7 @@
  */
 
 const game = {
-	startLevel: 0
+	startLevel: 3
 }
 const player = {
 	height: 40

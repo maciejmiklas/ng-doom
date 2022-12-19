@@ -865,7 +865,7 @@ describe('map-parser#groupBySectorArray', () => {
 	})
 
 	it('Sectors size', () => {
-		expect(gr.length).toEqual(77)
+		expect(gr.length).toEqual(78)
 	})
 
 	it('No empty sectors', () => {
@@ -897,7 +897,7 @@ describe('map-parser#groupBySectorArray', () => {
 		gr.forEach(ld => {
 			cnt += ld.length
 		})
-		expect(cnt).toBe(472)
+		expect(cnt).toBe(475)
 	})
 
 })
@@ -913,7 +913,7 @@ describe('map-parser#groupLinedefsBySectors', () => {
 		for (const ldId in gr) {
 			found++
 		}
-		expect(found).toEqual(81)
+		expect(found).toEqual(85)
 	})
 
 	it('Sectors in one group has the same number', () => {
@@ -934,7 +934,7 @@ describe('map-parser#groupLinedefsBySectors', () => {
 		gr.forEach(lbs => {
 			foundLinedefs.add(lbs.sector.id)
 		})
-		expect(foundLinedefs.size).toEqual(81)
+		expect(foundLinedefs.size).toEqual(85)
 	})
 
 })

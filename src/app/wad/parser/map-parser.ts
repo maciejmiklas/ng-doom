@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import * as R from 'ramda'
-import {Either} from '../../common/either'
+import {Either, LeftType} from '../../common/either'
 import {
 	Bitmap,
 	Directory,
@@ -289,8 +289,8 @@ const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sided
 	const frontSide = parseSide(offset + 10).map(idx => sidedefs[idx])
 	const backSide = parseSide(offset + 12).map(idx => sidedefs[idx])
 
-	const sector = frontSide.map(fs => Either.ofConditionWarn(() => fs.sector.id >= 0 && fs.sector.id < sectors.length,
-		() => 'No Sector for Linedef: ' + linedeefId, () => sectors[fs.sector.id]))
+	const sector = frontSide.map(fs => Either.ofCondition(() => fs.sector.id >= 0 && fs.sector.id < sectors.length,
+		() => 'No Sector for Linedef: ' + linedeefId, () => sectors[fs.sector.id], LeftType.WARN))
 
 	return Either.ofTruth([startVertex, endVertex, frontSide, sector], () =>
 		({

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Either} from '../../common/either'
+import {Either, LeftType} from '../../common/either'
 import {Bitmap, BitmapHeader, Column, Directory, Palette, Post, RGBA, RgbaBitmap} from './wad-model'
 import U from '../../common/util'
 import * as R from 'ramda'
@@ -88,7 +88,7 @@ const parseBitmap = (wadBytes: number[], palette: Palette) => (dir: Directory): 
 	const columns: Either<Column>[] = header.columnofs.map(colOfs => columnParser(colOfs))
 	const nonEmptyCols = columns.filter(c => c.filter())
 	const rgba = patchDataToRGBA(columns, header.width, header.height, palette)
-	return Either.ofConditionWarn(
+	return Either.ofCondition(
 		() => columns.length === header.width && nonEmptyCols.length > 0 && header.width > 0 && header.height > 0,
 		() => 'Faulty Bitmap on: Dir' + JSON.stringify(dir) + ', Header: ' + JSON.stringify(header) + ', Cols:' + nonEmptyCols.length,
 		() => ({
@@ -98,7 +98,7 @@ const parseBitmap = (wadBytes: number[], palette: Palette) => (dir: Directory): 
 			width: header.width,
 			height: header.height,
 			name: header.dir.name
-		}))
+		}), LeftType.WARN)
 }
 
 const unfoldFlatColFilePos = (filepos: number): number[] =>
