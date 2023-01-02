@@ -38,9 +38,6 @@ export class PaperComponent implements OnInit {
 	private mouseDown = false
 	private scope: paper.PaperScope
 
-	constructor() {
-	}
-
 	private get canvas(): HTMLCanvasElement {
 		return this.canvasRef.nativeElement
 	}

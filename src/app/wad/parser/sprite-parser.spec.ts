@@ -185,7 +185,7 @@ describe('sprite_parser#toFramesByAngle', () => {
 	it('Sprite POSS - Names of the Child Dir', () => {
 		const fd: FrameDir[] = tf.toFrameDirs(getWadBytes(), getPalette())(poss)
 		const byAngle: Record<string, FrameDir[]> = tf.toFramesByAngle(fd)
-		for (let angle in byAngle) {
+		for (const angle in byAngle) {
 			byAngle[angle].forEach(f => expect(f.dir.name).toContain('POSS'))
 		}
 	})
@@ -193,7 +193,7 @@ describe('sprite_parser#toFramesByAngle', () => {
 	it('Sprite POSS - Names of the Child', () => {
 		const fd: FrameDir[] = tf.toFrameDirs(getWadBytes(), getPalette())(poss)
 		const byAngle: Record<string, FrameDir[]> = tf.toFramesByAngle(fd)
-		for (let angle in byAngle) {
+		for (const angle in byAngle) {
 			byAngle[angle].forEach(f => expect(f.spriteName).toEqual('POSS'))
 		}
 	})

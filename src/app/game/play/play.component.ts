@@ -34,6 +34,7 @@ import {functions as tm} from '../three-mapper'
 import {Either} from '../../common/either'
 import {Side} from 'three/src/constants'
 import {config as gc} from '../game-config'
+import {PlaneGeometry} from "three/src/geometries/PlaneGeometry";
 
 @Component({
 	selector: 'app-play',
@@ -251,7 +252,7 @@ const wall = (precondition: () => Either<any>[],
 		const ve = ld.end
 		const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y)
 		const material = tm.createWallMaterial(textureFunc(ld), sideFunc(ld), color)
-		const mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(wallWidth, wallHeight), material)
+		const mesh = new THREE.Mesh(new THREE.PlaneGeometry(wallWidth, wallHeight), material)
 		mesh.position.set((vs.x + ve.x) / 2, wallOffsetFunc(ld, wallHeight), (vs.y + ve.y) / -2)
 		mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x))
 		return mesh

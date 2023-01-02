@@ -16,6 +16,7 @@
 import {testFunctions as tf} from './flat-builder'
 import {functions as mf} from './wad-model'
 import {
+	e1M3Sector7VectorsFromWad,
 	getCCOById,
 	pathClosedMixed,
 	pathClosedMixed2,
@@ -28,7 +29,8 @@ import {
 	pathCrossingClosedOrdered,
 	pathCrossingMixed,
 	pathCrossingsMissing200,
-	pathCrossingsPartial, pathSector39,
+	pathCrossingsPartial,
+	pathSector39,
 	VectorId
 } from "./testdata/data"
 
@@ -38,6 +40,20 @@ const expectClosedPath = (path: VectorId[]) => {
 }
 
 describe('flat-builder#buildPaths', () => {
+
+	it('E1M2 - sector 7', () => {
+		const paths = tf.buildPaths(7, e1M3Sector7VectorsFromWad).get()
+		expect(paths.length).toEqual(4)
+
+		// the main path on sector 7 is open due to vertex misplacement by 8 points - vectors do not connect
+		expect(mf.pathClosed(paths[0])).toBeFalse()
+		expect(mf.pathContinuos(paths[0])).toBeFalse()
+
+		for (let i = 1; i < paths.length; i++) {
+			expect(mf.pathClosed(paths[i])).toBeTrue()
+			expect(mf.pathContinuos(paths[i])).toBeTrue()
+		}
+	})
 
 	it('Path crossing mixed', () => {
 		const paths = tf.buildPaths(11, pathCrossingMixed).get()
@@ -416,7 +432,7 @@ describe('flat-builder#expandPaths', () => {
 	})
 
 	it('Sector 39', () => {
-		const res = tf.expandPaths(pathSector39,[])
+		const res = tf.expandPaths(pathSector39, [])
 		expect(res.paths.length).toEqual(1)
 		expect(res.paths[0].length).toEqual(pathSector39.length)
 		expect(mf.pathContinuos(res.paths[0])).toBeTrue()

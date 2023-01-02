@@ -13,9 +13,6 @@ export class WadMapNavbarComponent implements NavbarPlugin<MapControl> {
 	control: MapControl
 	maps: string[]
 
-	constructor() {
-	}
-
 	set zoom(zoom: number) {
 		this._zoom = zoom
 		this.control.onZoomChange(zoom)

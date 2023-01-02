@@ -1,8 +1,8 @@
 @import "variables";
 @import "bootstrap";
 @import "crt";
-@import "~bootstrap-icons/font/bootstrap-icons.css";
-@import "~bootstrap-slider/dist/css/bootstrap-slider.css";
+@import "node_modules/bootstrap-icons/font/bootstrap-icons.css";
+@import "node_modules/bootstrap-slider/dist/css/bootstrap-slider.css";
 
 @mixin app-content-color {
 	background-color: $app-content-bg-color;
