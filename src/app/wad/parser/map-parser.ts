@@ -90,10 +90,10 @@ const parseMapsDirs = (allDirs: Directory[], startMapDirs: Directory[]): Directo
 		[acc, parseMapDirs(allDirs)(dir).orElse(() => null)], [], startMapDirs)[1].filter(v => !R.isNil(v))
 
 const createTextureLoader = (textures: DoomTexture[]) => (name: string): Either<DoomTexture> =>
-	Either.ofNullable(textures.find(t => t.name === name), () => 'DoomTexture not found: ' + name)
+	Either.ofNullable(textures.find(t => U.cs(t.name, name)), () => 'Texture not found: ' + name, LeftType.WARN)
 
 const createFlatLoader = (flats: Bitmap[]) => (name: string): Either<Bitmap> =>
-	Either.ofNullable(flats.find(t => t.name === name), () => 'Flat not found: ' + name)
+	Either.ofNullable(flats.find(t => U.cs(t.name, name)), () => 'Flat not found: ' + name, LeftType.WARN)
 
 const parseMaps = (bytes: number[], dirs: Directory[], textures: DoomTexture[], flats: Bitmap[]): Either<DoomMap[]> => {
 	const textureLoader = createTextureLoader(textures)

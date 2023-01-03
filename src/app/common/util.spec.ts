@@ -458,6 +458,26 @@ describe('util#nextRoll', () => {
 	})
 })
 
+describe('util#cs', () => {
+
+	it('Equal, lower case', () => {
+		expect(U.cs('the same', 'the same')).toBeTrue()
+	})
+
+	it('Equal, upper case', () => {
+		expect(U.cs('THE SAME', 'THE SAME')).toBeTrue()
+	})
+
+	it('Equal, mixed case', () => {
+		expect(U.cs('THE SAME', 'THE same')).toBeTrue()
+	})
+
+	it('Equal, trimm', () => {
+		expect(U.cs(' the same', 'the same ')).toBeTrue()
+	})
+
+})
+
 
 
 

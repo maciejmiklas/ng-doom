@@ -34,7 +34,6 @@ import {functions as tm} from '../three-mapper'
 import {Either} from '../../common/either'
 import {Side} from 'three/src/constants'
 import {config as gc} from '../game-config'
-import {PlaneGeometry} from "three/src/geometries/PlaneGeometry";
 
 @Component({
 	selector: 'app-play',
@@ -66,7 +65,7 @@ export class PlayComponent implements OnInit {
 		this.camera = createCamera(this.canvas)
 		this.scene = createScene()
 		this.webGLRenderer = createWebGlRenderer(this.canvas)
-		this.map = this.wad.maps[gc.game.startLevel]
+		this.map = this.wad.maps[gc.game.startMap]
 		this.createWorld(this.scene, this.map)
 		setupCamera(this.camera, this.map)
 		this.camera.lookAt(this.scene.position)
@@ -94,6 +93,7 @@ export class PlayComponent implements OnInit {
 		this.raycaster.ray.origin.y += 400
 		const inters = this.raycaster.intersectObjects(this.floors)
 		if (inters.length > 0) {
+			//console.log('>SECTOR>', inters[0].object.name)
 			cp.y = inters[0].point.y + gc.player.height
 		}
 	}
@@ -107,16 +107,11 @@ export class PlayComponent implements OnInit {
 }
 
 const setupCamera = (camera: THREE.PerspectiveCamera, map: DoomMap) => {
-	//camera.position.set(1032, 500, 2170)
 	const player = map.things.filter(th => th.thingType == ThingType.PLAYER)[0]
 	camera.position.set(player.position.x, gc.player.height, -player.position.y)
 }
 
 const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => void) => (lbs: LinedefBySector) => {
-	//if (lbs.sector.id !== 39) {
-	//	return
-	//}
-
 	renderWalls(lbs).forEach(m => scene.add(m))
 
 	// floor
@@ -142,12 +137,13 @@ const renderFlat = (flat: Flat, texture: Either<Bitmap>, height: number, renderH
 	const mesh = new THREE.Mesh(geometry, material)
 	mesh.rotation.set(Math.PI / 2, Math.PI, Math.PI)
 	mesh.position.y = height
+	mesh.name = 'Sector:' + flat.sector.id;
 	return [mesh]
 }
 
 
 /** front side -> upper wall */
-const renderUpperWall = (sector: Sector, ld: Linedef): THREE.Mesh[] => {
+const renderUpperWall = (sector: Sector) => (ld: Linedef): Either<THREE.Mesh[]> => {
 	const mesh: THREE.Mesh[] = []
 
 	const wallHeight = (ld) => Math.abs(ld.sector.cellingHeight - ld.backSide.get().sector.cellingHeight)
@@ -174,7 +170,8 @@ const renderUpperWall = (sector: Sector, ld: Linedef): THREE.Mesh[] => {
 		texture,
 		(ld, wallHeight) => Math.min(ld.sector.cellingHeight, ld.backSide.get().sector.cellingHeight) + wallHeight / 2,
 		wallHeight)(ld).exec(m => mesh.push(m))
-	return mesh
+
+	return Either.ofCondition(() => mesh.length > 0, () => 'No upper wall for: ' + ld.id, () => mesh)
 }
 
 /**
@@ -182,7 +179,7 @@ const renderUpperWall = (sector: Sector, ld: Linedef): THREE.Mesh[] => {
  *
  * The top of the texture is at the ceiling, the texture continues downward to the floor.
  */
-const renderMiddleWall = (ld: Linedef): THREE.Mesh[] => {
+const renderMiddleWall = (ld: Linedef): Either<THREE.Mesh[]> => {
 	const mesh: THREE.Mesh[] = []
 
 	wall(() => [ld.frontSide.middleTexture],
@@ -191,11 +188,11 @@ const renderMiddleWall = (ld: Linedef): THREE.Mesh[] => {
 		(ld, wallHeight) => ld.sector.floorHeight + wallHeight / 2,
 		(ld) => ld.sector.cellingHeight - ld.sector.floorHeight)(ld).exec(m => mesh.push(m))
 
-	return mesh
+	return Either.ofCondition(() => mesh.length > 0, () => 'No middle wall for: ' + ld.id, () => mesh)
 }
 
 /** front side -> lower wall part */
-const renderLowerWall = (sector: Sector, ld: Linedef): THREE.Mesh[] => {
+const renderLowerWall = (sector: Sector) => (ld: Linedef): Either<THREE.Mesh[]> => {
 	const mesh: THREE.Mesh[] = []
 
 	const lowerUnpegged = ld.flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)
@@ -223,7 +220,7 @@ const renderLowerWall = (sector: Sector, ld: Linedef): THREE.Mesh[] => {
 		(ld, wallHeight) => Math.min(ld.sector.floorHeight, ld.backSide.get().sector.floorHeight) + wallHeight / 2,
 		height)(ld).exec(m => mesh.push(m))
 
-	return mesh
+	return Either.ofCondition(() => mesh.length > 0, () => 'No lower wall for: ' + ld.id, () => mesh)
 }
 
 // https://doomwiki.org/wiki/Texture_alignment
@@ -231,13 +228,14 @@ const renderLowerWall = (sector: Sector, ld: Linedef): THREE.Mesh[] => {
 const renderWalls = (lbs: LinedefBySector): THREE.Mesh[] => {
 	let mesh: THREE.Mesh[] = []
 
+	const upperWallRenderer = renderUpperWall(lbs.sector);
+	const lowerWallRenderer = renderLowerWall(lbs.sector);
 	// TODO render middleTexture: Middle floating textures can be used to achieve a variety of faux 3D effects such as 3D bridge
 	lbs.linedefs.forEach(ld => {
-		mesh = mesh.concat(renderMiddleWall(ld))
-		mesh = mesh.concat(renderUpperWall(lbs.sector, ld))
-		mesh = mesh.concat(renderLowerWall(lbs.sector, ld))
+		mesh = renderMiddleWall(ld).map(m => mesh.concat(m)).orElse(() => mesh)
+		mesh = upperWallRenderer(ld).map(m => mesh.concat(m)).orElse(() => mesh)
+		mesh = lowerWallRenderer(ld).map(m => mesh.concat(m)).orElse(() => mesh)
 	})
-
 	return mesh
 }
 

@@ -44,7 +44,7 @@ const parseUint32 = (bytes: number[]) => (pos: number, max = 4294967295): number
 const parseInt32 = (bytes: number[]) => (pos: number, min = -2147483647, max = 2147483647): number => ensureRange(pos, parseNumber(bytes)(pos), min, max)
 
 const parseStr = (bytes: number[]) => (pos: number, length: number): string =>
-	String.fromCharCode.apply(null, bytes.slice(pos, trim0Padding(bytes, pos + length - 1)))
+	String.fromCharCode.apply(null, bytes.slice(pos, trim0Padding(bytes, pos + length - 1))).trim()
 
 const parseStrOp = (bytes: number[]) => (cnd: (val: string) => boolean, eMsg: (val: string) => string) => (pos: number, length: number): Either<string> => {
 	const str = parseStr(bytes)(pos, length)
@@ -121,6 +121,10 @@ const nextRoll = <V>(list: V[]) => (idx: number): V =>
 		[R.T, (v) => list[v]] // #idx on the existing list position -> return the current at #idx
 	])(idx)
 
+//	s1.trim().localeCompare(s2.trim(), undefined, {sensitivity: 'base'}) === 0; - this one is VERY SLOW!
+const cs = (s1: string, s2: string): boolean =>
+	s1.toUpperCase().trim() === s2.toUpperCase().trim()
+
 const U = {
 	base64ToUint8NumberArray,
 	trim0Padding,
@@ -137,7 +141,8 @@ const U = {
 	findFrom,
 	parseTextureName,
 	nullSafeArray,
-	nextRoll
+	nextRoll,
+	cs
 }
 
 export default U
