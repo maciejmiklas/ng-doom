@@ -16,6 +16,7 @@
 
 import * as R from 'ramda'
 import {
+	Bitmap,
 	DoomTexture,
 	Flat,
 	FlatArea,
@@ -31,8 +32,9 @@ import * as THREE from "three"
 import {Side} from "three/src/constants"
 import {Vector2} from "three/src/math/Vector2"
 import {ColorRepresentation} from "three/src/utils"
+import {Either} from "../common/either";
 
-const createWallDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
+const createDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
 	const texture = new THREE.DataTexture(bitmap.rgba, bitmap.width, bitmap.height)
 	texture.needsUpdate = true
 	texture.format = THREE.RGBAFormat
@@ -46,15 +48,21 @@ const createWallDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
 }
 
 const createFloorDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
-	const texture = createWallDataTexture(bitmap)
+	const texture = createDataTexture(bitmap)
 	texture.repeat.set(0.02, 0.02)
 	return texture
 }
 
+const createFlatMaterial = (texture: Either<Bitmap>, side: Side): THREE.Material =>
+	texture.map(tx => createFloorDataTexture(tx)).map(tx => new THREE.MeshPhongMaterial({
+		side,
+		map: tx
+	})).orElse(() => createFallbackMaterial())
+
 const createWallMaterial = (dt: DoomTexture, side: Side, color = null): THREE.Material => new THREE.MeshBasicMaterial({
-	map: createWallDataTexture(dt),
-	transparent: true,
-	alphaTest: 0.5,
+	map: createDataTexture(dt),
+	transparent: true, //TODO only some textures has to be transparent
+	alphaTest: 0,
 	side,
 	color
 })
@@ -111,5 +119,6 @@ export const functions = {
 	createShapesFromFlatWithHoles,
 	point,
 	createFallbackMaterial,
-	createShapesFromFlat
+	createShapesFromFlat,
+	createFlatMaterial
 }

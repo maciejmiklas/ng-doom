@@ -7,7 +7,7 @@ export enum LeftType {
 
 export abstract class Either<T> {
 
-	protected readonly val: T
+	readonly val: T
 	protected readonly msg: () => string
 
 	protected constructor(value: T, msg: () => string) {
@@ -59,6 +59,7 @@ export abstract class Either<T> {
 		return cnd() ? Either.ofRight(right()) : Either.ofLeft(left, type)
 	}
 
+	// TODO truth should be a function
 	static ofTruth<T>(truth: Either<any>[], right: () => T, type = LeftType.OK): Either<T> {
 		const left = truth.filter(e => e.isLeft())
 		return left.length === 0 ? Either.ofRight(right()) : Either.ofLeft(() => left.map(l => l.message()).join(','), type)

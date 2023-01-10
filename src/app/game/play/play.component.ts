@@ -93,7 +93,7 @@ export class PlayComponent implements OnInit {
 		this.raycaster.ray.origin.y += 400
 		const inters = this.raycaster.intersectObjects(this.floors)
 		if (inters.length > 0) {
-			//console.log('>SECTOR>', inters[0].object.name)
+			console.log('>SECTOR>', inters[0].object.name)
 			cp.y = inters[0].point.y + gc.player.height
 		}
 	}
@@ -112,6 +112,9 @@ const setupCamera = (camera: THREE.PerspectiveCamera, map: DoomMap) => {
 }
 
 const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => void) => (lbs: LinedefBySector) => {
+	if (lbs.sector.id !== 28) {
+		return;
+	}
 	renderWalls(lbs).forEach(m => scene.add(m))
 
 	// floor
@@ -127,51 +130,49 @@ const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => v
 }
 
 const renderFlat = (flat: Flat, texture: Either<Bitmap>, height: number, renderHoles: boolean): THREE.Mesh[] => {
-	const shapes = tm.createShapesFromFlat(flat, renderHoles)
-	const geometry = new THREE.ShapeGeometry(shapes)
-	const material = texture.map(tx => tm.createFloorDataTexture(tx)).map(tx => new THREE.MeshPhongMaterial({
-		side: THREE.DoubleSide,
-		map: tx
-	})).orElse(() => tm.createFallbackMaterial())
+	if (texture.isRight() && texture.val.name.includes("SKY")) {
+		console.log('>SKY>', texture.val.name)
+		return [];
+	}
 
-	const mesh = new THREE.Mesh(geometry, material)
+	const mesh = new THREE.Mesh(new THREE.ShapeGeometry(tm.createShapesFromFlat(flat, renderHoles)),
+		tm.createFlatMaterial(texture, THREE.DoubleSide))
 	mesh.rotation.set(Math.PI / 2, Math.PI, Math.PI)
 	mesh.position.y = height
 	mesh.name = 'Sector:' + flat.sector.id;
 	return [mesh]
 }
 
-
 /** front side -> upper wall */
 const renderUpperWall = (sector: Sector) => (ld: Linedef): Either<THREE.Mesh[]> => {
-	const mesh: THREE.Mesh[] = []
-
-	const wallHeight = (ld) => Math.abs(ld.sector.cellingHeight - ld.backSide.get().sector.cellingHeight)
+	if (ld.backSide.isLeft()) {
+		return Either.ofLeft(() => 'No upper wall for one sided Linedef: ' + ld.id)
+	}
 
 	// when current Linedef belongs to current Sector take front-side texture, otherwise try backside as we are looking at
 	// the back wall of another Sector
-	const texture = (ld) => sector.id !== ld.sector.id && ld.backSide.isRight() && ld.backSide.get().upperTexture.isRight() ?
-		ld.backSide.get().upperTexture.get() : ld.frontSide.upperTexture.get()
+	const texture = Either.ofCondition(
+		() => sector.id !== ld.sector.id,
+		() => 'Backside has no upper texture on: ' + ld.id,
+		() => ld.backSide.val.upperTexture).orElse(() => ld.frontSide.upperTexture)
 
-	const side = () => THREE.DoubleSide
-	const condition = [ld.frontSide.upperTexture, ld.backSide]
+	if (texture.isLeft()) {
+		return Either.ofLeft(() => 'No texture for upper wall: ' + ld.id)
+	}
 
-	// the upper texture will begin at the higher ceiling and be drawn downwards.
-	const unpegged = ld.flags.has(LinedefFlag.UPPER_TEXTURE_UNPEGGED)
-	wall(() => [...condition, Either.ofBoolean(unpegged)],
-		side,
-		texture,
-		(ld, wallHeight) => Math.max(ld.sector.cellingHeight, ld.backSide.get().sector.cellingHeight) + wallHeight / 2,
-		(ld) => wallHeight(ld) * -1)(ld).exec(m => mesh.push(m))
+	const wallHeight = (lde) => Math.abs(lde.sector.cellingHeight - lde.backSide.val.sector.cellingHeight)
+	const mesh = ld.flags.has(LinedefFlag.UPPER_TEXTURE_UNPEGGED) ?
+		// the upper texture will begin at the higher ceiling and be drawn downwards.
+		wall(() => THREE.DoubleSide, texture.val,
+			(ld, wallHeight) => Math.max(ld.sector.cellingHeight, ld.backSide.val.sector.cellingHeight) + wallHeight / 2,
+			(ld) => wallHeight(ld) * -1)(ld)
+		:
+		// the upper texture is pegged to the lowest ceiling
+		wall(() => THREE.DoubleSide, texture.val,
+			(ld, wallHeight) => Math.min(ld.sector.cellingHeight, ld.backSide.val.sector.cellingHeight) + wallHeight / 2,
+			wallHeight)(ld)
 
-	// the upper texture is pegged to the lowest ceiling
-	wall(() => [...condition, Either.ofBoolean(!unpegged)],
-		side,
-		texture,
-		(ld, wallHeight) => Math.min(ld.sector.cellingHeight, ld.backSide.get().sector.cellingHeight) + wallHeight / 2,
-		wallHeight)(ld).exec(m => mesh.push(m))
-
-	return Either.ofCondition(() => mesh.length > 0, () => 'No upper wall for: ' + ld.id, () => mesh)
+	return Either.ofRight([mesh])
 }
 
 /**
@@ -180,47 +181,42 @@ const renderUpperWall = (sector: Sector) => (ld: Linedef): Either<THREE.Mesh[]> 
  * The top of the texture is at the ceiling, the texture continues downward to the floor.
  */
 const renderMiddleWall = (ld: Linedef): Either<THREE.Mesh[]> => {
-	const mesh: THREE.Mesh[] = []
-
-	wall(() => [ld.frontSide.middleTexture],
-		() => THREE.DoubleSide,
-		(ld) => ld.frontSide.middleTexture.get(),
-		(ld, wallHeight) => ld.sector.floorHeight + wallHeight / 2,
-		(ld) => ld.sector.cellingHeight - ld.sector.floorHeight)(ld).exec(m => mesh.push(m))
-
-	return Either.ofCondition(() => mesh.length > 0, () => 'No middle wall for: ' + ld.id, () => mesh)
+	return Either.ofTruth([ld.frontSide.middleTexture],
+		() => [wall(() => THREE.DoubleSide, ld.frontSide.middleTexture.val,
+			(ld, wallHeight) => ld.sector.floorHeight + wallHeight / 2,
+			(ld) => ld.sector.cellingHeight - ld.sector.floorHeight)(ld)])
 }
 
 /** front side -> lower wall part */
 const renderLowerWall = (sector: Sector) => (ld: Linedef): Either<THREE.Mesh[]> => {
-	const mesh: THREE.Mesh[] = []
-
-	const lowerUnpegged = ld.flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)
-	const side = () => THREE.DoubleSide
+	if (ld.backSide.isLeft()) {
+		return Either.ofLeft(() => 'No lower wall for single sided Linedef: ' + ld.id)
+	}
 
 	// when current Linedef belongs to current Sector take front-side texture, otherwise try backside as we are looking at
 	// the back wall of another Sector
-	const texture = (ld) => sector.id !== ld.sector.id && ld.backSide.isRight() && ld.backSide.get().lowerTexture.isRight() ?
-		ld.backSide.get().lowerTexture.get() : ld.frontSide.lowerTexture.get()
+	const texture = Either.ofCondition(
+		() => sector.id !== ld.sector.id,
+		() => 'Backside has no lower texture on: ' + ld.id,
+		() => ld.backSide.val.lowerTexture).orElse(() => ld.frontSide.lowerTexture)
 
-	const condition = [ld.frontSide.lowerTexture, ld.backSide]
-	const height = (ld) => Math.abs(ld.sector.floorHeight - ld.backSide.get().sector.floorHeight)
+	if (texture.isLeft()) {
+		return Either.ofLeft(() => 'No texture for lower wall: ' + ld.id)
+	}
 
-	// the upper texture is pegged to the highest flor
-	wall(() => [...condition, Either.ofBoolean(lowerUnpegged)],
-		side,
-		texture,
-		(ld, wallHeight) => Math.max(ld.sector.floorHeight, ld.backSide.get().sector.floorHeight) + wallHeight / 2,
-		(ld) => height(ld) * -1)(ld).exec(m => mesh.push(m))
+	const height = (lde) => Math.abs(lde.sector.floorHeight - lde.backSide.val.sector.floorHeight)
+	const mesh = ld.flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED) ?
+		// the upper texture is pegged to the highest flor
+		wall(() => THREE.DoubleSide, texture.val,
+			(ld, wallHeight) => Math.max(ld.sector.floorHeight, ld.backSide.val.sector.floorHeight) + wallHeight / 2,
+			(ld) => height(ld) * -1)(ld)
+		:
+		// the upper texture is pegged to the lowest flor
+		wall(() => THREE.DoubleSide, texture.val,
+			(ld, wallHeight) => Math.min(ld.sector.floorHeight, ld.backSide.get().sector.floorHeight) + wallHeight / 2,
+			height)(ld)
 
-	// the upper texture is pegged to the lowest flor
-	wall(() => [...condition, Either.ofBoolean(!lowerUnpegged)],
-		side,
-		texture,
-		(ld, wallHeight) => Math.min(ld.sector.floorHeight, ld.backSide.get().sector.floorHeight) + wallHeight / 2,
-		height)(ld).exec(m => mesh.push(m))
-
-	return Either.ofCondition(() => mesh.length > 0, () => 'No lower wall for: ' + ld.id, () => mesh)
+	return Either.ofRight([mesh])
 }
 
 // https://doomwiki.org/wiki/Texture_alignment
@@ -239,22 +235,19 @@ const renderWalls = (lbs: LinedefBySector): THREE.Mesh[] => {
 	return mesh
 }
 
-const wall = (precondition: () => Either<any>[],
-							sideFunc: (ld: Linedef) => Side,
-							textureFunc: (ld: Linedef) => DoomTexture,
+const wall = (sideF: (ld: Linedef) => Side,
+							texture: DoomTexture,
 							wallOffsetFunc: (ld: Linedef, wallHeight: number) => number,
-							wallHeightFunc: (ld: Linedef) => number) => (ld: Linedef, color = null): Either<THREE.Mesh> => {
-	return Either.ofTruth(precondition(), () => {
-		const wallHeight = wallHeightFunc(ld)
-		const vs = ld.start
-		const ve = ld.end
-		const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y)
-		const material = tm.createWallMaterial(textureFunc(ld), sideFunc(ld), color)
-		const mesh = new THREE.Mesh(new THREE.PlaneGeometry(wallWidth, wallHeight), material)
-		mesh.position.set((vs.x + ve.x) / 2, wallOffsetFunc(ld, wallHeight), (vs.y + ve.y) / -2)
-		mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x))
-		return mesh
-	})
+							wallHeightFunc: (ld: Linedef) => number) => (ld: Linedef, color = null): THREE.Mesh => {
+	const wallHeight = wallHeightFunc(ld)
+	const vs = ld.start
+	const ve = ld.end
+	const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y)
+	const material = tm.createWallMaterial(texture, sideF(ld), color)
+	const mesh = new THREE.Mesh(new THREE.PlaneGeometry(wallWidth, wallHeight), material)
+	mesh.position.set((vs.x + ve.x) / 2, wallOffsetFunc(ld, wallHeight), (vs.y + ve.y) / -2)
+	mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x))
+	return mesh
 }
 
 const createScene = (): THREE.Scene => {

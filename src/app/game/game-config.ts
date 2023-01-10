@@ -15,7 +15,7 @@
  */
 
 const game = {
-	startMap: 3
+	startMap: 0
 }
 const player = {
 	height: 40
@@ -29,7 +29,7 @@ const camera = {
 
 	perspective: {
 		/** Camera frustum vertical field of view */
-		fov: 70,
+		fov: 80,
 
 		/** Camera frustum near plane */
 		near: 1,

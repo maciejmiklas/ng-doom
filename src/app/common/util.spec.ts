@@ -472,7 +472,7 @@ describe('util#cs', () => {
 		expect(U.cs('THE SAME', 'THE same')).toBeTrue()
 	})
 
-	it('Equal, trimm', () => {
+	it('Equal, trim', () => {
 		expect(U.cs(' the same', 'the same ')).toBeTrue()
 	})
 
