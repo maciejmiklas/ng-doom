@@ -93,7 +93,7 @@ export class PlayComponent implements OnInit {
 		this.raycaster.ray.origin.y += 400
 		const inters = this.raycaster.intersectObjects(this.floors)
 		if (inters.length > 0) {
-			console.log('>SECTOR>', inters[0].object.name)
+			//console.log('>SECTOR>', inters[0].object.name)
 			cp.y = inters[0].point.y + gc.player.height
 		}
 	}
@@ -112,9 +112,9 @@ const setupCamera = (camera: THREE.PerspectiveCamera, map: DoomMap) => {
 }
 
 const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => void) => (lbs: LinedefBySector) => {
-	if (lbs.sector.id !== 28) {
-		return;
-	}
+	//if (lbs.sector.id !== 28) {
+	//	return;
+//	}
 	renderWalls(lbs).forEach(m => scene.add(m))
 
 	// floor
@@ -243,7 +243,7 @@ const wall = (sideF: (ld: Linedef) => Side,
 	const vs = ld.start
 	const ve = ld.end
 	const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y)
-	const material = tm.createWallMaterial(texture, sideF(ld), color)
+	const material = tm.createWallMaterial(texture, wallWidth, sideF(ld), color)
 	const mesh = new THREE.Mesh(new THREE.PlaneGeometry(wallWidth, wallHeight), material)
 	mesh.position.set((vs.x + ve.x) / 2, wallOffsetFunc(ld, wallHeight), (vs.y + ve.y) / -2)
 	mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x))

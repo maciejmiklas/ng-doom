@@ -33,6 +33,7 @@ import {Side} from "three/src/constants"
 import {Vector2} from "three/src/math/Vector2"
 import {ColorRepresentation} from "three/src/utils"
 import {Either} from "../common/either";
+import {config as gc} from './game-config'
 
 const createDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
 	const texture = new THREE.DataTexture(bitmap.rgba, bitmap.width, bitmap.height)
@@ -49,7 +50,7 @@ const createDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
 
 const createFloorDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
 	const texture = createDataTexture(bitmap)
-	texture.repeat.set(0.02, 0.02)
+	texture.repeat.set(gc.floor.texture.repeat.x, gc.floor.texture.repeat.y)
 	return texture
 }
 
@@ -59,13 +60,17 @@ const createFlatMaterial = (texture: Either<Bitmap>, side: Side): THREE.Material
 		map: tx
 	})).orElse(() => createFallbackMaterial())
 
-const createWallMaterial = (dt: DoomTexture, side: Side, color = null): THREE.Material => new THREE.MeshBasicMaterial({
-	map: createDataTexture(dt),
-	transparent: true, //TODO only some textures has to be transparent
-	alphaTest: 0,
-	side,
-	color
-})
+const createWallMaterial = (dt: DoomTexture, wallWidth: number, side: Side, color = null): THREE.Material => {
+	const map = createDataTexture(dt);
+	map.repeat.x = wallWidth / dt.width
+	return new THREE.MeshBasicMaterial({
+		map,
+		transparent: true, //TODO only some textures has to be transparent
+		alphaTest: 0,
+		side,
+		color
+	});
+}
 
 const toVector2 = (ve: Vertex): Vector2 => new Vector2(ve.x, ve.y)
 

@@ -90,6 +90,11 @@ const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pna
 		.map(e => e.get()); // (Either<Patch>) => Patch
 	const width = shortParser(offset + 0x0C)
 	const height = shortParser(offset + 0x0E)
+	console.log('>>>', strParser(offset, 8))
+	if (strParser(offset, 8) === 'STARTAN1') {//BROWN144
+		console.log('AA')
+	}
+
 	return Either.ofCondition(() => patchCountWad === patches.length,
 		() => 'Incorrect Patches amount for Texture from ' + dir + ', found: ' + patches.length,
 		() => ({
@@ -209,15 +214,15 @@ const applyPatch = (width: number, height: number, to: Uint8ClampedArray) => (fr
 	const toXInit = Math.max(from.originX, 0)
 	const toYInit = Math.max(from.originY, 0)
 
-	const fromXMax = Math.min(width - toXInit, from.bitmap.header.width)
-	const fromYMax = Math.min(height - toYInit, from.bitmap.header.height)
+	const fromXMax = from.bitmap.header.width
+	const fromYMax = from.bitmap.header.height
 
 	const rgbaPixelOffsetFrom = rgbaPixelOffset(from.bitmap.width)
 	const rgbaPixelOffsetTo = rgbaPixelOffset(width)
 
 	// TODO not functional
-	for (let fromY = fromYInit, toY = toYInit; fromY < fromYMax; fromY++, toY++) {
-		for (let fromX = fromXInit, toX = toXInit; fromX < fromXMax; fromX++, toX++) {
+	for (let fromY = fromYInit, toY = toYInit; fromY < fromYMax && toY < height; fromY++, toY++) {
+		for (let fromX = fromXInit, toX = toXInit; fromX < fromXMax && toX < width; fromX++, toX++) {
 			copyRgbaPixel(from.bitmap.rgba, rgbaPixelOffsetFrom(fromX, fromY))(to, rgbaPixelOffsetTo(toX, toY))
 		}
 	}

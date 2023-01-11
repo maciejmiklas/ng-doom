@@ -306,6 +306,17 @@ describe('texture-parser#parseTextures', () => {
 		expect(txx.patches[1].originY).toEqual(-6)
 	})
 
+	it('Texture BROWN144', () => {
+		const txx = tx[15]
+		expect(txx.name).toEqual('BROWN144')
+		expect(txx.width).toEqual(128)
+		expect(txx.height).toEqual(128)
+
+		expect(txx.patches[5].patchName).toEqual('WALL00_6')
+		expect(txx.patches[5].originX).toEqual(112)
+		expect(txx.patches[5].originY).toEqual(-16)
+	})
+
 	it('Texture SW2STON1', () => {
 		const txx = tx[116]
 		expect(txx.name).toEqual('SW2STON1')

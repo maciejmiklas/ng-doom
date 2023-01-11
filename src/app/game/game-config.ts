@@ -15,7 +15,7 @@
  */
 
 const game = {
-	startMap: 0
+	startMap: 5
 }
 const player = {
 	height: 40
@@ -23,6 +23,15 @@ const player = {
 
 const move = {
 	slow: 3
+}
+
+const floor = {
+	texture: {
+		repeat: {
+			x: 0.02,
+			y: 0.02
+		}
+	}
 }
 
 const camera = {
@@ -49,4 +58,4 @@ const camera = {
 
 
 // ############################ EXPORTS ############################
-export const config = {player, move, camera, game}
+export const config = {player, move, camera, game, floor}
