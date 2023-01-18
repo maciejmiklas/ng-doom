@@ -18,7 +18,7 @@ import {NgModule} from '@angular/core'
 import {BrowserModule} from '@angular/platform-browser'
 
 import {AppRoutingModule} from './app-routing.module'
-import {MainComponent} from './main/web/main.component'
+import {MainComponent} from './main/main.component'
 import {FormsModule, ReactiveFormsModule} from '@angular/forms'
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap'
 import {WadDirsComponent} from './wad/wad-dirs/wad-dirs.component'
@@ -37,7 +37,7 @@ import {CarouselComponent} from './common/carousel/carousel.component'
 import {NavbarCarouselPluginComponent} from './common/carousel/navbar-plugin/navbar-plugin.component'
 import {WadSpritesComponent} from './wad/wad-sprites/wad-sprites.component'
 import {PbmpAnimationComponent} from './wad/pbmp-animation/pbmp-animation.component'
-import {MainOverflowDirective} from './main/web/main-overflow.directive'
+import {MainOverflowDirective} from './main/main-overflow.directive'
 import {WadDirComponent} from './wad/wad-dir/wad-dir.component'
 import {WadDirElementComponent} from './wad/wad-dir-element/wad-dir-element.component'
 import {WadDirsNavbarComponent} from './wad/wad-dirs/wad-dirs-navbar/wad-dirs-navbar.component'
@@ -51,8 +51,8 @@ import {WadPatchesNavbarComponent} from './wad/wad-patches/wad-patches-navbar/wa
 import {WadTexturesComponent} from './wad/wad-textures/wad-textures.component'
 import {WadTexturesNavbarComponent} from './wad/wad-textures/wad-textures-navbar/wad-textures-navbar.component'
 import {WadTextureComponent} from './wad/wad-texture/wad-texture.component'
-import { WadFlatsComponent } from './wad/wad-flats/wad-flats.component'
-import { WadFlatsNavbarComponent } from './wad/wad-flats/wad-flats-navbar/wad-flats-navbar.component'
+import {WadFlatsComponent} from './wad/wad-flats/wad-flats.component'
+import {WadFlatsNavbarComponent} from './wad/wad-flats/wad-flats-navbar/wad-flats-navbar.component'
 
 @NgModule({
 	declarations: [

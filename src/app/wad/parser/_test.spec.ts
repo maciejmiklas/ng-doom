@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {functions as mp} from "./map-parser"
-import {getAllDirs, getFlats, getTextures, getWadBytes} from "./testdata/data"
 
 describe('test', () => {
 	it('ABC', () => {

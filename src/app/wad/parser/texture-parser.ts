@@ -77,6 +77,17 @@ const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patch
 	}))
 }
 
+const highlightPatch = (texture: DoomTexture, highlighter: (path: Patch) => Either<Palette>): Uint8ClampedArray => {
+	const patches = texture.patches.map(patch => highlighter(patch) // go on, if Palette should be changed for this patch
+		.map(palette => bp.changePalette(palette)(patch.bitmap)) // generate new bitmap with given palette for this patch
+		.map(bitmap => ({ // clone this patch and apply new bitmap with changed palette
+			...patch,
+			bitmap
+		})).orElse(() => patch) // return the original patch if the palette was not changed
+	)
+	return createTextureRgba(texture.width, texture.height, patches)
+}
+
 const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pnames: Pnames, allPatches: Bitmap[]) => (offset: number): Either<DoomTexture> => {
 	const strParser = U.parseStr(wadBytes)
 	const shortParser = U.parseInt16(wadBytes)
@@ -90,10 +101,6 @@ const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pna
 		.map(e => e.get()); // (Either<Patch>) => Patch
 	const width = shortParser(offset + 0x0C)
 	const height = shortParser(offset + 0x0E)
-	console.log('>>>', strParser(offset, 8))
-	if (strParser(offset, 8) === 'STARTAN1') {//BROWN144
-		console.log('AA')
-	}
 
 	return Either.ofCondition(() => patchCountWad === patches.length,
 		() => 'Incorrect Patches amount for Texture from ' + dir + ', found: ' + patches.length,
@@ -110,13 +117,13 @@ const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pna
 
 const parseTextures = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: Bitmap[]): Either<DoomTexture[]> => {
 	const textures: DoomTexture[] = []
-	const parser = parseTexturesByDir(wadBytes, dirs, pnames, patches)
+	const parser = parseTextureByDir(wadBytes, dirs, pnames, patches)
 	parser(Directories.TEXTURE1).exec(tx => textures.push(...tx))
 	parser(Directories.TEXTURE2).exec(tx => textures.push(...tx))
 	return Either.ofCondition(() => textures.length > 0, () => 'No textures at all!', () => textures, LeftType.WARN)
 }
 
-const parseTexturesByDir = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: Bitmap[]) => (td: Directories): Either<DoomTexture[]> =>
+const parseTextureByDir = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: Bitmap[]) => (td: Directories): Either<DoomTexture[]> =>
 	dp.findDirectoryByName(dirs)(td).map(dir => {
 		const intParser = U.parseInt32(wadBytes)
 		const textureParser = parseTexture(wadBytes, dirs, dir, pnames, patches)
@@ -143,27 +150,6 @@ const parseFlats = (wadBytes: number[], dirs: Directory[], palette: Palette): Ei
 
 const toImageData = (bitmap: RgbaBitmap): ImageData => {
 	return new ImageData(bitmap.rgba, bitmap.width, bitmap.height)
-}
-
-const paintOnCanvasForZoom = (bitmap: RgbaBitmap, canvas: HTMLCanvasElement) => (scale: number, maxSize = 300): HTMLImageElement => {
-	const ctx = canvas.getContext('2d')
-	const maxOrgSize = Math.max(bitmap.width, bitmap.height)
-	const curSize = scale * maxOrgSize
-	if (curSize > maxSize) {
-		scale = maxSize / maxOrgSize
-	}
-
-	canvas.width = bitmap.width * scale
-	canvas.height = bitmap.height * scale
-	ctx.putImageData(toImageData(bitmap), 0, 0)
-
-	const imageObject = new Image()
-	imageObject.onload = () => {
-		ctx.scale(scale, scale)
-		ctx.drawImage(imageObject, 0, 0)
-	}
-	imageObject.src = canvas.toDataURL()
-	return imageObject
 }
 
 const maxSpriteSize = (sprite: BitmapSprite): number => Math.max(
@@ -234,7 +220,7 @@ export const testFunctions = {
 	toBitmapSprite,
 	toImageData,
 	maxSpriteSize,
-	parseTexturesByDir,
+	parseTextureByDir,
 	findFlatDirs
 }
 
@@ -243,8 +229,9 @@ export const functions = {
 	parsePatches,
 	parsePnames,
 	toImageBitmap,
-	paintOnCanvasForZoom,
 	calcScale,
+	toImageData,
 	parseFlats,
-	toBitmapSprites
+	toBitmapSprites,
+	highlightPatch
 }

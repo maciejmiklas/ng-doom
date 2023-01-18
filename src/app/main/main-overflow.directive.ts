@@ -15,7 +15,7 @@
  */
 import {Directive, ElementRef} from '@angular/core'
 import {NgRxEventBusService} from 'ngrx-event-bus'
-import {MainEvent} from '../service/main-event'
+import {MainEvent} from './main-event'
 
 @Directive({
 	selector: '[appMainOverflow]'

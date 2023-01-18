@@ -17,10 +17,10 @@ import {Component, OnInit} from '@angular/core'
 import {WadStorageService} from '../wad-storage.service'
 import {functions as sp} from '../parser/sprite-parser'
 import {functions as tp} from '../parser/texture-parser'
-import {BitmapSprite, Palette} from '../parser/wad-model'
+import {BitmapSprite} from '../parser/wad-model'
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus'
-import {MainEvent} from '../../main/service/main-event'
-import {NavbarPluginFactory} from '../../main/service/navbar_plugin'
+import {MainEvent} from '../../main/main-event'
+import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {WadSpritesNavbarComponent} from './wad-sprites-navbar/wad-sprites-navbar.component'
 
 @Component({
@@ -38,7 +38,6 @@ export class WadSpritesComponent implements OnInit, SpritesListControl {
 	}
 
 	ngOnInit(): void {
-		const wad = this.wadStorage.getCurrent().get().wad
 		this.sprites = this.readSprites(() => true)
 		this.scale = this.sprites.map(s => s[0]).map(tp.calcScale(this.ZOOM_MAX_SIZE))
 		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadSpritesNavbarComponent, this)))

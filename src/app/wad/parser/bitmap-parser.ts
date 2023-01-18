@@ -92,6 +92,7 @@ const parseBitmap = (wadBytes: number[], palette: Palette) => (dir: Directory): 
 		() => columns.length === header.width && nonEmptyCols.length > 0 && header.width > 0 && header.height > 0,
 		() => 'Faulty Bitmap on: Dir' + JSON.stringify(dir) + ', Header: ' + JSON.stringify(header) + ', Cols:' + nonEmptyCols.length,
 		() => ({
+			palette,
 			header,
 			columns,
 			rgba,
@@ -182,8 +183,11 @@ const postPixelAt = (columns: Either<Column>[]) => (x: number, y: number): numbe
 		.orElse(() => TRANSPARENT_RGBA_PIXEL)
 }
 
-const patchToRGBA = (bitmap: Bitmap) => (palette: Palette): Uint8ClampedArray =>
-	patchDataToRGBA(bitmap.columns, bitmap.header.width, bitmap.header.height, palette)
+const changePalette = (palette: Palette) => (bitmap: Bitmap): Bitmap =>
+	({
+		...bitmap,
+		rgba: patchDataToRGBA(bitmap.columns, bitmap.header.width, bitmap.header.height, palette)
+	})
 
 const pixelToImgBuf = (img: Uint8ClampedArray, palette: Palette) => (idx: number, pixel: number): number => {
 	const rgb = pixel === -1 ? TRANSPARENT_RGBA : palette.colors[pixel]
@@ -201,11 +205,11 @@ export const testFunctions = {
 	unfoldColumnofs,
 	parsePatchHeader,
 	postPixelAt,
-	patchToRGBA,
 	patchDataToRGBA,
 	postAt
 }
 export const functions = {
 	parseBitmap,
-	parseFlat
+	parseFlat,
+	changePalette
 }

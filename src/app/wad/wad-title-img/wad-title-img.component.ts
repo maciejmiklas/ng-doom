@@ -18,7 +18,7 @@ import {Wad} from '../parser/wad-model'
 import {WadStorageService} from '../wad-storage.service'
 import {Slide} from '../../common/carousel/carousel-model'
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus'
-import {MainEvent} from '../../main/service/main-event'
+import {MainEvent} from '../../main/main-event'
 
 @Component({
 	selector: 'app-wad-title-img',

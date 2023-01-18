@@ -15,7 +15,7 @@
  */
 
 const game = {
-	startMap: 5
+	startMap: 0
 }
 const player = {
 	height: 40

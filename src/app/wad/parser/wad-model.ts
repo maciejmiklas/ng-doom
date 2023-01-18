@@ -477,7 +477,10 @@ export type RgbaBitmap = {
 	name: string,
 	width: number,
 	height: number,
-	rgba: Uint8ClampedArray
+	rgba: Uint8ClampedArray,
+
+	/** The palette that has been used to render this image. */
+	palette?: Palette
 }
 
 /**
@@ -489,7 +492,7 @@ export type RgbaBitmap = {
 export type DoomTexture = Lump & RgbaBitmap & {
 	patchCount: number
 	patches: Patch[]
-}
+};
 
 /**
  * Patch defines how the patch should be drawn inside the texture.
@@ -506,7 +509,7 @@ export type Patch = {
 	/** The patch number (as listed in PNAMES) to draw.  */
 	patchIdx: number
 
-	/** Patch name from PNAMES. */
+	/** The patch name from PNAMES. */
 	patchName: string
 
 	bitmap: Bitmap
@@ -539,6 +542,9 @@ export type Wad = {
 	playpal: Playpal,
 	textures: DoomTexture[],
 	flatBitmaps: RgbaBitmap[]
+
+	/** The palette that has been used to render bitmaps within this WAS. */
+	palette: Palette
 }
 
 export type WadEntry = {

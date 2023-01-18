@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {Component, DoCheck, ElementRef, Input, KeyValueDiffer, KeyValueDiffers, OnInit, ViewChild} from '@angular/core'
-import {Bitmap, RgbaBitmap} from '../parser/wad-model'
+import {RgbaBitmap} from '../parser/wad-model'
 import {WadStorageService} from '../wad-storage.service'
 import {functions as tp} from '../parser/texture-parser'
 
@@ -28,61 +28,86 @@ export class PbmpComponent implements OnInit, DoCheck {
 	@Input()
 	bitmap: RgbaBitmap
 
-	@Input()
-	palette = 0
-
 	@ViewChild('canvas', {static: true})
 	canvasRef: ElementRef<HTMLCanvasElement>
 
 	@Input()
 	reloadBitmap = false
 
-	@Input()
-	maxSize = 1000
-
+	_maxSize = 1000
 	_scale = 1
-	private ctx
-	private imageObject
+	private image
 	private canvas: HTMLCanvasElement
+	private ctx: CanvasRenderingContext2D
 	private bitmapDiffer: KeyValueDiffer<RgbaBitmap, any>
+	private lastRescale = 1
+	private initialized = false;
 
 	constructor(private wadStorage: WadStorageService, private differ: KeyValueDiffers) {
+
 	}
 
 	ngOnInit(): void {
+		this.canvas = this.canvasRef.nativeElement
 		if (!this.reloadBitmap) {
 			this.paint()
 		}
-		this.bitmapDiffer = this.differ.find(this.bitmap).create()
+		this.initialized = true
+	}
+
+	@Input()
+	set maxSize(maxSize: number) {
+		this._maxSize = maxSize
+		this.adjustScale();
 	}
 
 	@Input()
 	set scale(scale: number) {
-		if (this._scale !== scale) {
-			this._scale = scale
+		this._scale = scale;
+		this.adjustScale();
+
+		if (this.initialized) {
 			this.rescale()
 		}
 	}
 
+	private adjustScale(): void {
+		const maxBitmapSize = Math.max(this.bitmap.width, this.bitmap.height)
+		if (this._scale * maxBitmapSize > this._maxSize) {
+			this._scale = Math.floor(this._maxSize / maxBitmapSize)
+		}
+	}
+
 	private rescale(): void {
-		if (this.canvas === undefined) {
+		if (this.canvas === undefined || this.lastRescale === this._scale) {
 			return
 		}
-		const canvas = this.canvasRef.nativeElement
-		canvas.width = this.bitmap.width * this._scale
-		canvas.height = this.bitmap.height * this._scale
+		this.lastRescale = this._scale
+		this.canvas.width = this.bitmap.width * this._scale
+		this.canvas.height = this.bitmap.height * this._scale
 		this.ctx.scale(this._scale, this._scale)
-		this.ctx.drawImage(this.imageObject, 0, 0)
+		this.ctx.drawImage(this.image, 0, 0)
 	}
 
 	private paint(): void {
-		this.canvas = this.canvasRef.nativeElement
-		this.ctx = this.canvas.getContext('2d')
-		this.imageObject = tp.paintOnCanvasForZoom(this.bitmap, this.canvas)(this._scale, this.maxSize)
+		this.canvas.width = this.bitmap.width
+		this.canvas.height = this.bitmap.height
+		this.ctx = this.canvas.getContext('2d');
+
+		this.ctx.putImageData(tp.toImageData(this.bitmap), 0, 0)
+		this.image = new Image()
+		this.image.onload = () => {
+			this.rescale();
+		}
+		this.image.src = this.canvas.toDataURL()
 	}
 
 	ngDoCheck(): void {
-		if (this.reloadBitmap && this.bitmapDiffer.diff(this.bitmap)) {
+		if (this.reloadBitmap && !this.bitmapDiffer) {
+			this.bitmapDiffer = this.differ.find(this.bitmap).create()
+			this.paint()
+
+		} else if (this.reloadBitmap && this.bitmapDiffer.diff(this.bitmap)) {
 			this.paint()
 		}
 	}

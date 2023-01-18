@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {Component} from '@angular/core'
-import {NavbarPlugin} from '../../../main/service/navbar_plugin'
+import {NavbarPlugin} from '../../../main/navbar_plugin'
 import {SpritesListControl} from '../wad-sprites.component'
 
 @Component({

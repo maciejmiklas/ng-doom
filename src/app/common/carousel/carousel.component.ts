@@ -13,11 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {AfterViewInit, Component, ContentChild, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild} from '@angular/core'
+import {
+	AfterViewInit,
+	Component,
+	ContentChild,
+	EventEmitter,
+	Input,
+	OnInit,
+	Output,
+	TemplateRef,
+	ViewChild
+} from '@angular/core'
 import {NgbCarousel, NgbSlideEvent} from '@ng-bootstrap/ng-bootstrap'
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus'
-import {MainEvent} from '../../main/service/main-event'
-import {NavbarPluginFactory} from '../../main/service/navbar_plugin'
+import {MainEvent} from '../../main/main-event'
+import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {NavbarCarouselPluginComponent} from './navbar-plugin/navbar-plugin.component'
 import {Slide} from './carousel-model'
 

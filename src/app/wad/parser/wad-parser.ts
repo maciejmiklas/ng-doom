@@ -45,10 +45,11 @@ const parseWad = (bytes: number[]): Either<Wad> =>
 		.append(w => dp.parseAllDirectories(w.header, bytes), (w, v) => w.dirs = v) // dirs
 		.append(w => tp.parsePnames(bytes, w.dirs), (w, v) => w.pnames = v) // pnames
 		.append(w => pp.parsePlaypal(bytes, w.dirs), (w, v) => w.playpal = v) // playpal
-		.append(w => parseTitlePic(bytes, w.dirs, w.playpal.palettes[0]), (w, v) => w.title = v)// title
-		.append(w => tp.parsePatches(bytes, w.dirs, w.playpal.palettes[0], w.pnames), (w, v) => w.patches = v)// patches
+		.append(w => Either.ofRight(w.playpal.palettes[0]), (w, v) => w.palette = v) // palette
+		.append(w => parseTitlePic(bytes, w.dirs, w.palette), (w, v) => w.title = v)// title
+		.append(w => tp.parsePatches(bytes, w.dirs, w.palette, w.pnames), (w, v) => w.patches = v)// patches
 		.append(w => tp.parseTextures(bytes, w.dirs, w.pnames, w.patches), (w, v) => w.textures = v) // textures
-		.append(w => tp.parseFlats(bytes, w.dirs, w.playpal.palettes[0]), (w, v) => w.flatBitmaps = v) // flatBitmaps
+		.append(w => tp.parseFlats(bytes, w.dirs, w.palette), (w, v) => w.flatBitmaps = v) // flatBitmaps
 		.append(w => mp.parseMaps(bytes, w.dirs, w.textures, w.flatBitmaps), (w, v) => w.maps = v); // maps
 
 // ############################ EXPORTS ############################

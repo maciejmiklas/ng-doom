@@ -1,7 +1,7 @@
 <div class="container app-texture-container">
 	<div class="row">
-		<app-pbmp class="app-texture-bmp col-6" [bitmap]="texture" [scale]="textureZoom"
-							[maxSize]="textureMaxSize"></app-pbmp>
+		<app-pbmp class="app-texture-bmp col-6" [bitmap]="texture"
+							[maxSize]="textureMaxSize" [reloadBitmap]="reloadTexture"></app-pbmp>
 		<div class="col-md"></div>
 		<div class="col-md-5">
 			<div class="row">
@@ -15,10 +15,10 @@
 
 	<div class="app-patches">
 		<ng-container *ngFor="let patch of texture.patches;let i=index">
-			<app-pbmp class="app-patch" [bitmap]="patch.bitmap" [maxSize]="patchMaxSize" [scale]="patchZoom"
+			<app-pbmp class="app-patch" [bitmap]="patch.bitmap" [maxSize]="patchMaxSize"
 								ngbPopover=
 		"{{i}}:{{patch.patchName}}, Size: {{patch.bitmap.width}}x{{patch.bitmap.height}}, Offset: {{patch.originX}}x{{patch.originY}}"
-								triggers="mouseenter:mouseleave"></app-pbmp>
+								triggers="mouseenter:mouseleave" (mouseover)="onPatchMoseOver(patch)" ></app-pbmp>
 		</ng-container>
 	</div>
 </div>

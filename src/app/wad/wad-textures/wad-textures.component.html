@@ -1,6 +1,6 @@
 <div class="app-textures">
 	<ng-container *ngFor="let tx of textures;let i=index">
-		<app-pbmp class="app-texture" [bitmap]="tx" [scale]="zoom" [maxSize]="maxSize"
+		<app-pbmp class="app-texture" [bitmap]="tx" [maxSize]="maxSize" [scale]="zoom"
 							ngbPopover="{{i}}: {{tx.name}} -> {{tx.width}}x{{tx.height}}, Patches: {{tx.patches.length}}"
 							triggers="mouseenter:mouseleave" (click)="onTextureClick(tx.name)"></app-pbmp>
 	</ng-container>

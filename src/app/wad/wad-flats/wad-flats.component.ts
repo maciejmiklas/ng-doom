@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component, OnInit} from '@angular/core'
+import {Component, Input, OnInit} from '@angular/core'
 import {WadStorageService} from "../wad-storage.service"
 import {EmitEvent, NgRxEventBusService} from "ngrx-event-bus"
-import {Bitmap, RgbaBitmap} from "../parser/wad-model"
-import {MainEvent} from "../../main/service/main-event"
-import {NavbarPluginFactory} from "../../main/service/navbar_plugin"
+import {RgbaBitmap} from "../parser/wad-model"
+import {MainEvent} from "../../main/main-event"
+import {NavbarPluginFactory} from "../../main/navbar_plugin"
 import {WadPatchesNavbarComponent} from "../wad-patches/wad-patches-navbar/wad-patches-navbar.component"
 
 @Component({
@@ -28,8 +28,12 @@ import {WadPatchesNavbarComponent} from "../wad-patches/wad-patches-navbar/wad-p
 })
 export class WadFlatsComponent implements OnInit, FlatsListControl {
 
+	@Input()
 	zoom = 4
+
+	@Input()
 	maxSize = 300
+
 	flats: RgbaBitmap[]
 
 	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService) {

@@ -17,8 +17,8 @@ import {Component, Input, OnInit} from '@angular/core'
 import {DoomTexture} from '../parser/wad-model'
 import {WadStorageService} from '../wad-storage.service'
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus'
-import {MainEvent} from '../../main/service/main-event'
-import {NavbarPluginFactory} from '../../main/service/navbar_plugin'
+import {MainEvent} from '../../main/main-event'
+import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {WadPatchesNavbarComponent} from '../wad-patches/wad-patches-navbar/wad-patches-navbar.component'
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap'
 import {WadTextureComponent} from '../wad-texture/wad-texture.component'
@@ -31,10 +31,10 @@ import {WadTextureComponent} from '../wad-texture/wad-texture.component'
 export class WadTexturesComponent implements OnInit, TexturesListControl {
 
 	@Input()
-	zoom = 2
+	maxSize = 300
 
 	@Input()
-	maxSize = 300
+	zoom = 2
 
 	textures: DoomTexture[]
 

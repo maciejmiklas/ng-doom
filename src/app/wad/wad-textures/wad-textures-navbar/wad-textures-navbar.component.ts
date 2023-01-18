@@ -15,7 +15,7 @@
  */
 import {Component} from '@angular/core'
 import {TexturesListControl} from '../wad-textures.component'
-import {NavbarPlugin} from '../../../main/service/navbar_plugin'
+import {NavbarPlugin} from '../../../main/navbar_plugin'
 
 @Component({
 	selector: 'app-wad-textures-navbar',

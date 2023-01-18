@@ -18,8 +18,8 @@ import {WadStorageService} from '../wad-storage.service'
 import {Directory} from '../parser/wad-model'
 import * as R from 'ramda'
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus'
-import {MainEvent} from '../../main/service/main-event'
-import {NavbarPluginFactory} from '../../main/service/navbar_plugin'
+import {MainEvent} from '../../main/main-event'
+import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {WadDirsNavbarComponent} from './wad-dirs-navbar/wad-dirs-navbar.component'
 
 @Component({
