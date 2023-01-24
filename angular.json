@@ -6,8 +6,9 @@
     "ng-doom": {
       "projectType": "application",
       "schematics": {
-        "@schematics/angular:application": {
-          "strict": true
+        "@schematics/angular:component": {
+          "strict": true,
+					"style": "scss"
         }
       },
       "root": "",
@@ -27,6 +28,7 @@
               "src/assets"
             ],
             "styles": [
+							"node_modules/bootstrap/scss/bootstrap.scss",
               "src/scss/ng-doom.scss"
             ],
             "scripts": [

@@ -34,7 +34,7 @@ export class PbmpComponent implements OnInit, DoCheck {
 	@Input()
 	reloadBitmap = false
 
-	_maxSize = 1000
+	_maxSize = 100000
 	_scale = 1
 	private image
 	private canvas: HTMLCanvasElement

@@ -22,7 +22,7 @@ import {
 	OnInit,
 	Output,
 	TemplateRef,
-	ViewChild
+	ViewChild, ViewEncapsulation
 } from '@angular/core'
 import {NgbCarousel, NgbSlideEvent} from '@ng-bootstrap/ng-bootstrap'
 import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus'
@@ -34,7 +34,7 @@ import {Slide} from './carousel-model'
 @Component({
 	selector: 'app-carousel[slides]',
 	templateUrl: './carousel.component.html',
-	styleUrls: ['./carousel.component.scss']
+	styleUrls: ['./carousel.component.scss'],
 })
 export class CarouselComponent implements OnInit, AfterViewInit, CarouselControl {
 

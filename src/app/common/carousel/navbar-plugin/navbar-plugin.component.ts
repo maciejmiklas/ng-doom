@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component} from '@angular/core'
+import {Component, ViewEncapsulation} from '@angular/core'
 import {NavbarPlugin} from '../../../main/navbar_plugin'
 import {CarouselControl} from '../carousel.component'
 
