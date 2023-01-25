@@ -22,7 +22,7 @@ import {
 	ViewContainerRef,
 	ViewEncapsulation
 } from '@angular/core'
-import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus'
+import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {MenuEvent} from '../menu/menu-event'
 import {MainEvent} from './main-event'
 import {NavbarPlugin, NavbarPluginFactory} from './navbar_plugin'

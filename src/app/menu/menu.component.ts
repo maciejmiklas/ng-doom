@@ -16,7 +16,7 @@
 import {Component, EventEmitter, OnInit, Output, ViewEncapsulation} from '@angular/core'
 import {MenuService} from './menu.service'
 import {MenuRoot, MenuState} from './menu-model'
-import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus'
+import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {Router} from '@angular/router'
 import {WadEvent} from '../wad/wad-event'
 import {MenuEvent} from './menu-event'

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {Directive, ElementRef} from '@angular/core'
-import {NgRxEventBusService} from 'ngrx-event-bus'
+import {NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {MainEvent} from './main-event'
 
 @Directive({

@@ -15,7 +15,7 @@
  */
 import {Component, Input, OnInit} from '@angular/core'
 import {WadStorageService} from "../wad-storage.service"
-import {EmitEvent, NgRxEventBusService} from "ngrx-event-bus"
+import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {RgbaBitmap} from "../parser/wad-model"
 import {MainEvent} from "../../main/main-event"
 import {NavbarPluginFactory} from "../../main/navbar_plugin"

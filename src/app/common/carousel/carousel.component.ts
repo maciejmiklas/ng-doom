@@ -22,10 +22,10 @@ import {
 	OnInit,
 	Output,
 	TemplateRef,
-	ViewChild, ViewEncapsulation
+	ViewChild
 } from '@angular/core'
 import {NgbCarousel, NgbSlideEvent} from '@ng-bootstrap/ng-bootstrap'
-import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus'
+import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {MainEvent} from '../../main/main-event'
 import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {NavbarCarouselPluginComponent} from './navbar-plugin/navbar-plugin.component'

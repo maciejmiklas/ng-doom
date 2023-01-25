@@ -20,7 +20,7 @@ import {Wad, WadEntry} from './parser/wad-model'
 import * as R from 'ramda'
 import {Either} from '../common/either'
 import {functions as wp} from './parser/wad-parser'
-import {EmitEvent, NgRxEventBusService} from 'ngrx-event-bus'
+import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {Log} from '../common/log'
 import {WadEvent} from './wad-event'
 

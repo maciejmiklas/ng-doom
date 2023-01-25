@@ -16,7 +16,7 @@
 import {TestBed} from '@angular/core/testing'
 
 import {WadStorageService} from './wad-storage.service'
-import {NgRxEventBusService} from 'ngrx-event-bus'
+import {NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {UploadStatus} from './wad-upload/wad-upload-model'
 import {getWadBytes} from './parser/testdata/data'
 

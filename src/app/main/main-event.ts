@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {IEvent} from 'ngrx-event-bus'
+import {IEvent} from '@maciejmiklas/ngrx-event-bus'
 
 export class MainEvent implements IEvent {
 	/** Event Data: NavbarPluginFactory */

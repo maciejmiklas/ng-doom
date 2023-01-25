@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {IEvent} from 'ngrx-event-bus'
+import {IEvent} from '@maciejmiklas/ngrx-event-bus'
 
 export class WadEvent implements IEvent {
 
