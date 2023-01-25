@@ -1,7 +1,5 @@
 [![Test Main](https://github.com/maciejmiklas/ng-doom/workflows/Test%20Main%20Branch/badge.svg)](https://github.com/maciejmiklas/ng-doom/actions)
 
-before installing set: `npm config set legacy-peer-deps true`
-
 # CREDITS
 * `floppy_disc.png` by <a href="https://pixabay.com/users/clker-free-vector-images-3736/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=23343">Clker-Free-VectorV-Images</a> from <a href="https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=23343">Pixabay</a>
 * `doom_logo.png` https://doomwiki.org/wiki/File:Doom_title_wide.png
