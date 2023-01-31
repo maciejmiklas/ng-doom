@@ -24,7 +24,6 @@ import {MenuEvent} from './menu-event'
 @Component({
 	selector: 'app-menu',
 	templateUrl: './menu.component.html',
-	styleUrls: ['./menu.component.scss'],
 	encapsulation: ViewEncapsulation.None // TODO '<ngb-panel cardClass=....' does not support encapsulation?
 })
 export class MenuComponent implements OnInit {

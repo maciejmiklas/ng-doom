@@ -19,8 +19,7 @@ import {Palette, RGBA} from '../parser/wad-model'
 
 @Component({
 	selector: 'app-wad-palette',
-	templateUrl: './wad-palette.component.html',
-	styleUrls: ['./wad-palette.component.scss']
+	templateUrl: './wad-palette.component.html'
 })
 export class WadPaletteComponent implements OnInit {
 

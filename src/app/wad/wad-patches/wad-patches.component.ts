@@ -23,8 +23,7 @@ import {WadPatchesNavbarComponent} from './wad-patches-navbar/wad-patches-navbar
 
 @Component({
 	selector: 'app-wad-patches',
-	templateUrl: './wad-patches.component.html',
-	styleUrls: ['./wad-patches.component.scss']
+	templateUrl: './wad-patches.component.html'
 })
 export class WadPatchesComponent implements OnInit, PatchesListControl {
 	patches: Bitmap[]

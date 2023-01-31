@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component, ViewEncapsulation} from '@angular/core'
+import {Component} from '@angular/core'
 import {NavbarPlugin} from '../../../main/navbar_plugin'
 import {CarouselControl} from '../carousel.component'
 
 @Component({
 	selector: 'app-wad-map-navbar',
-	templateUrl: './navbar-plugin.component.html',
-	styleUrls: ['./navbar-plugin.component.scss'],
+	templateUrl: './navbar-plugin.component.html'
 })
 export class NavbarCarouselPluginComponent implements NavbarPlugin<CarouselControl> {
 
@@ -28,10 +27,6 @@ export class NavbarCarouselPluginComponent implements NavbarPlugin<CarouselContr
 
 	zoomFormatter = (value) => {
 		return 'x ' + value
-	}
-
-	pauseClass(): string {
-		return this.control.zoomVisible() ? 'col-1' : 'col-4'
 	}
 
 	setData(carouselControl: CarouselControl): void {

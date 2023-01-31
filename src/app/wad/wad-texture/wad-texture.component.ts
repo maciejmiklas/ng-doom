@@ -6,8 +6,7 @@ import {functions as tp} from "../parser/texture-parser";
 
 @Component({
 	selector: 'app-wad-texture',
-	templateUrl: './wad-texture.component.html',
-	styleUrls: ['./wad-texture.component.scss']
+	templateUrl: './wad-texture.component.html'
 })
 export class WadTextureComponent implements OnInit {
 

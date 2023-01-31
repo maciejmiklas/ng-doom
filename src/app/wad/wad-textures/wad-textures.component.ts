@@ -25,8 +25,7 @@ import {WadTextureComponent} from '../wad-texture/wad-texture.component'
 
 @Component({
 	selector: 'app-wad-textures',
-	templateUrl: './wad-textures.component.html',
-	styleUrls: ['./wad-textures.component.scss']
+	templateUrl: './wad-textures.component.html'
 })
 export class WadTexturesComponent implements OnInit, TexturesListControl {
 

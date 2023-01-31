@@ -33,8 +33,7 @@ import {Slide} from './carousel-model'
 
 @Component({
 	selector: 'app-carousel[slides]',
-	templateUrl: './carousel.component.html',
-	styleUrls: ['./carousel.component.scss'],
+	templateUrl: './carousel.component.html'
 })
 export class CarouselComponent implements OnInit, AfterViewInit, CarouselControl {
 

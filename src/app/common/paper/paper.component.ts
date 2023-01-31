@@ -18,8 +18,7 @@ import {PaperScope, Point} from 'paper'
 
 @Component({
 	selector: 'app-paper',
-	templateUrl: './paper.component.html',
-	styleUrls: ['./paper.component.css']
+	templateUrl: './paper.component.html'
 })
 export class PaperComponent implements OnInit {
 

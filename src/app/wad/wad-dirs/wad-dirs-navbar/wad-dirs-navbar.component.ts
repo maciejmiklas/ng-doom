@@ -19,8 +19,7 @@ import {NavbarPlugin} from '../../../main/navbar_plugin'
 
 @Component({
 	selector: 'app-wad-dirs-wad-map-navbar',
-	templateUrl: './wad-dirs-navbar.component.html',
-	styleUrls: ['./wad-dirs-navbar.component.scss']
+	templateUrl: './wad-dirs-navbar.component.html'
 })
 export class WadDirsNavbarComponent implements NavbarPlugin<DirsListControl> {
 	maxSize = 10

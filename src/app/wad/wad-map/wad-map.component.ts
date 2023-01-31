@@ -26,8 +26,7 @@ import {functions as mp} from '../parser/map-parser'
 
 @Component({
 	selector: 'app-wad-map',
-	templateUrl: './wad-map.component.html',
-	styleUrls: ['./wad-map.component.css']
+	templateUrl: './wad-map.component.html'
 })
 export class WadMapComponent implements OnInit, MapControl {
 	private zoom = 1

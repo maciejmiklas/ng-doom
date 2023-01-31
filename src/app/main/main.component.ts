@@ -19,8 +19,7 @@ import {
 	ComponentFactoryResolver,
 	HostListener,
 	ViewChild,
-	ViewContainerRef,
-	ViewEncapsulation
+	ViewContainerRef
 } from '@angular/core'
 import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {MenuEvent} from '../menu/menu-event'
@@ -35,8 +34,6 @@ import {WadStorageService} from '../wad/wad-storage.service'
 @Component({
 	selector: 'app-root',
 	templateUrl: './main.component.html',
-	styleUrls: ['./main.component.scss'],
-	encapsulation: ViewEncapsulation.None,
 	animations: [
 		trigger('sidebarAnimation', [
 			state('collapsed', style({transform: 'translateX(-100%)'})),

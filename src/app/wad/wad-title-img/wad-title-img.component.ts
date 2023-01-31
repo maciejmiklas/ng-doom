@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component, OnInit, ViewEncapsulation} from '@angular/core'
+import {Component, OnInit} from '@angular/core'
 import {Wad} from '../parser/wad-model'
 import {WadStorageService} from '../wad-storage.service'
 import {Slide} from '../../common/carousel/carousel-model'
@@ -22,9 +22,7 @@ import {MainEvent} from '../../main/main-event'
 
 @Component({
 	selector: 'app-wad-title-img',
-	templateUrl: './wad-title-img.component.html',
-	styleUrls: ['./wad-title-img.component.scss'],
-	encapsulation: ViewEncapsulation.None
+	templateUrl: './wad-title-img.component.html'
 })
 export class WadTitleImgComponent implements OnInit {
 	private wad: Wad

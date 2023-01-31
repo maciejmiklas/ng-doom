@@ -19,8 +19,7 @@ import {FlatsListControl} from "../wad-flats.component"
 
 @Component({
 	selector: 'app-wad-flats-navbar',
-	templateUrl: './wad-flats-navbar.component.html',
-	styleUrls: ['./wad-flats-navbar.component.scss']
+	templateUrl: './wad-flats-navbar.component.html'
 })
 export class WadFlatsNavbarComponent implements NavbarPlugin<FlatsListControl> {
 	private data: FlatsListControl

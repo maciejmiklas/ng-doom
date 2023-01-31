@@ -1,14 +1,8 @@
-<div class="container container-fluid h-100">
+<div class="container-fluid h-100">
 	<div class="row h-100">
-		<div class="col-3 h-100">
-			<div class="container d-flex h-100 justify-content-center">
-				<div class="align-self-center">
-					{{control.getTitle()}}
-				</div>
-			</div>
-		</div>
-		<div [ngClass]="pauseClass()">
-			<div class="container d-flex h-100 justify-content-center">
+
+		<div class="col h-100" *ngIf="control.zoomVisible()">
+			<div class="container-fluid d-flex h-100 justify-content-center">
 				<div class="align-self-center">
 					<button type="button" (click)="togglePaused()" class="btn btn-outline-dark btn-sm">
 						{{control.isPaused() ? 'Cycle' : 'Pause' }}
@@ -16,14 +10,23 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-3" *ngIf="control.zoomVisible()">
+
+		<div class="col h-100">
+			<div class="d-flex h-100 justify-content-center">
+				<div class="align-self-center">
+					{{control.getTitle()}}
+				</div>
+			</div>
+		</div>
+
+		<div class="col h-100" *ngIf="control.zoomVisible()">
 			<div class="container d-flex h-100 justify-content-center">
 				<div class="align-self-center">
 					<mv-slider *ngIf="zoom > 0" [(value)]="zoom" [min]="1" [max]="8" [step]="1" [formatter]="zoomFormatter"
-										 tooltip="always"
 										 tooltipPosition="bottom"></mv-slider>
 				</div>
 			</div>
 		</div>
+
 	</div>
 </div>

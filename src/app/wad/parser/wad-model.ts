@@ -105,6 +105,8 @@ export type Lump = {
 }
 
 /**
+ * Set of color palettes used to render images and archive special effects
+ *
  * @see https://doomwiki.org/wiki/PLAYPAL
  */
 export type Playpal = Lump & {
@@ -335,6 +337,9 @@ export type DoomMap = {
 	linedefBySector: LinedefBySector[]
 	sectors: Sector[]
 	linedefs: Linedef[]
+
+	/** https://doomwiki.org/wiki/Sky */
+	sky: Either<Bitmap>
 }
 
 /** Linedefs for a given sector.  */

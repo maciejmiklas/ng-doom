@@ -25,8 +25,7 @@ import {WadSpritesNavbarComponent} from './wad-sprites-navbar/wad-sprites-navbar
 
 @Component({
 	selector: 'app-wad-sprite',
-	templateUrl: './wad-sprites.component.html',
-	styleUrls: ['./wad-sprites.component.scss']
+	templateUrl: './wad-sprites.component.html'
 })
 export class WadSpritesComponent implements OnInit, SpritesListControl {
 

@@ -24,8 +24,7 @@ import {WadDirsNavbarComponent} from './wad-dirs-navbar/wad-dirs-navbar.componen
 
 @Component({
 	selector: 'app-wad-dirs',
-	templateUrl: './wad-dirs.component.html',
-	styleUrls: ['./wad-dirs.component.scss']
+	templateUrl: './wad-dirs.component.html'
 })
 export class WadDirsComponent implements OnInit, DirsListControl {
 	initDirs: Directory[]

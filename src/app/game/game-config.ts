@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+import {LinearMipMapNearestFilter} from "three/src/constants";
+
 const game = {
 	startMap: 0
 }
+
 const player = {
 	height: 40
 }
@@ -32,6 +35,10 @@ const floor = {
 			y: 0.02
 		}
 	}
+}
+
+const sky = {
+	color: '#131313'
 }
 
 const camera = {
@@ -56,6 +63,20 @@ const camera = {
 	}
 }
 
+const renderer = {
+	physicallyCorrectLights: true,
+	antialias: true
+}
+
+const texture = {
+	anisotropy: 16,
+	minFilter: LinearMipMapNearestFilter,
+	magFilter: LinearMipMapNearestFilter
+}
+
+const debug = {
+	axesHelper: false
+}
 
 // ############################ EXPORTS ############################
-export const config = {player, move, camera, game, floor}
+export const config = {player, move, camera, game, floor, renderer, texture, sky, debug}

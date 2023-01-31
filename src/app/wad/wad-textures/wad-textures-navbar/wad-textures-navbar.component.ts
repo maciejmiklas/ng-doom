@@ -19,8 +19,7 @@ import {NavbarPlugin} from '../../../main/navbar_plugin'
 
 @Component({
 	selector: 'app-wad-textures-navbar',
-	templateUrl: './wad-textures-navbar.component.html',
-	styleUrls: ['./wad-textures-navbar.component.scss']
+	templateUrl: './wad-textures-navbar.component.html'
 })
 export class WadTexturesNavbarComponent implements NavbarPlugin<TexturesListControl> {
 

@@ -18,8 +18,7 @@ import {Directory} from '../parser/wad-model'
 
 @Component({
 	selector: 'app-wad-dir',
-	templateUrl: './wad-dir.component.html',
-	styleUrls: ['./wad-dir.component.scss']
+	templateUrl: './wad-dir.component.html'
 })
 export class WadDirComponent {
 

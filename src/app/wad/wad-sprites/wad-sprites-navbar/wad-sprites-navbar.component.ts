@@ -20,7 +20,6 @@ import {SpritesListControl} from '../wad-sprites.component'
 @Component({
 	selector: 'app-wad-sprites-navbar',
 	templateUrl: './wad-sprites-navbar.component.html',
-	styleUrls: ['./wad-sprites-navbar.component.css']
 })
 export class WadSpritesNavbarComponent implements NavbarPlugin<SpritesListControl> {
 

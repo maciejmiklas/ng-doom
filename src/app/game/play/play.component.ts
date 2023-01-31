@@ -131,7 +131,7 @@ const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => v
 
 const renderFlat = (flat: Flat, texture: Either<Bitmap>, height: number, renderHoles: boolean): THREE.Mesh[] => {
 	if (texture.isRight() && texture.val.name.includes("SKY")) {
-		console.log('>SKY>', texture.val.name)
+		// SKY flat should be transparent so that the player can see the sky.
 		return [];
 	}
 
@@ -252,9 +252,12 @@ const wall = (sideF: (ld: Linedef) => Side,
 
 const createScene = (): THREE.Scene => {
 	const scene = new THREE.Scene()
-	scene.background = new THREE.Color('skyblue')
-	//scene.add(new THREE.AxesHelper(500).setColors(new THREE.Color('red'), new THREE.Color('black'), new THREE.Color('green')))
-	const light = new THREE.HemisphereLight(0XFFFFCC, 0X19BBDC, 1.5)
+	scene.background = new THREE.Color(gc.sky.color)
+	if (gc.debug.axesHelper) {
+		scene.add(new THREE.AxesHelper(500).setColors(new THREE.Color('red'), new THREE.Color('black'), new THREE.Color('green')))
+	}
+
+	const light = new THREE.HemisphereLight(0XFFFFCC, 0X19BBDC, 1.0)
 	light.position.set(0, 0, 0)
 	light.visible = true
 	scene.add(light)
@@ -269,8 +272,8 @@ const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera =>
 		gc.camera.perspective.far)
 
 const createWebGlRenderer = (canvas: HTMLCanvasElement): THREE.WebGLRenderer => {
-	const renderer = new THREE.WebGLRenderer({antialias: true, canvas})
-	renderer.physicallyCorrectLights = true
+	const renderer = new THREE.WebGLRenderer({antialias: gc.renderer.antialias, canvas})
+	renderer.physicallyCorrectLights = gc.renderer.physicallyCorrectLights
 	renderer.setSize(canvas.clientWidth, canvas.clientHeight)
 	renderer.setPixelRatio(window.devicePixelRatio)
 	return renderer

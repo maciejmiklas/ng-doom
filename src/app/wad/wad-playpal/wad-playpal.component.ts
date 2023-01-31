@@ -19,8 +19,7 @@ import {Slide} from '../../common/carousel/carousel-model'
 
 @Component({
 	selector: 'app-wad-playpal',
-	templateUrl: './wad-playpal.component.html',
-	styleUrls: ['./wad-playpal.component.scss']
+	templateUrl: './wad-playpal.component.html'
 })
 export class WadPlaypalComponent implements OnInit {
 	static CMP = 'app-wad-playpal'

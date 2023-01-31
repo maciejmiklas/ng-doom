@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component, ViewEncapsulation} from '@angular/core'
+import {Component} from '@angular/core'
 import {FileSystemFileEntry, NgxFileDropEntry} from 'ngx-file-drop'
 import {WadStorageService} from '../wad-storage.service'
 import {UploadResult, UploadStatus} from './wad-upload-model'
 
 @Component({
 	selector: 'app-wad-upload',
-	templateUrl: './wad-upload.component.html',
-	styleUrls: ['./wad-upload.component.scss'],
-	encapsulation: ViewEncapsulation.None
+	templateUrl: './wad-upload.component.html'
 })
 export class WadUploadComponent {
 

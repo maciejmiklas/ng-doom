@@ -45,6 +45,9 @@ const createDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
 	texture.mapping = THREE.UVMapping
 	texture.wrapS = THREE.RepeatWrapping
 	texture.wrapT = THREE.RepeatWrapping
+	texture.anisotropy = gc.texture.anisotropy
+	texture.minFilter = gc.texture.minFilter
+	texture.magFilter = gc.texture.magFilter
 	return texture
 }
 

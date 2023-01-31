@@ -1,9 +1,0 @@
-@import "/src/scss/ng-doom";
-
-.app-nav-dirs {
-	@extend .d-flex;
-	@include align-center;
-	flex-flow: row wrap;
-	padding: 0;
-	margin: 0;
-}

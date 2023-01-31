@@ -4,8 +4,7 @@ import {MapControl} from '../wad-map.component'
 
 @Component({
 	selector: 'app-wad-map-navbar',
-	templateUrl: './wad-map-navbar.component.html',
-	styleUrls: ['./wad-map-navbar.component.css']
+	templateUrl: './wad-map-navbar.component.html'
 })
 export class WadMapNavbarComponent implements NavbarPlugin<MapControl> {
 

@@ -2,6 +2,7 @@
 @import "bootstrap";
 @import "crt";
 
+// ######### COMMON #########
 @mixin app-content-color {
 	background-color: $app-content-bg-color;
 	color: $app-font-color;
@@ -41,7 +42,6 @@ canvas[resize] {
 	height: 100%;
 }
 
-// ######### WAD PATCHES #########
 @mixin app-image-box($bmpSize:$wad-patch-box-size, $bmpMargin:$wad-patch-box-margin) {
 	@extend .d-flex;
 	@include align-center;
@@ -64,4 +64,256 @@ canvas[resize] {
 		justify-content: space-around;
 		align-items: center;
 	}
+}
+
+// ######### app-nav-pl #########
+.app-nav-pl-container {
+	margin: 0;
+	position: absolute;
+	top: 50%;
+	-ms-transform: translateY(-50%);
+	transform: translateY(-50%);
+}
+
+.app-nav-pl-text-container {
+	height: 100%;
+	@extend .d-flex;
+	@include align-center;
+}
+
+.app-nav-pl-text-body {
+	text-align: center;
+	vertical-align: middle;
+}
+
+// ######### APP-CAROUSEL #########
+.app-carousel-container {
+	@extend .d-flex;
+	@extend .w-100;
+	@include align-center;
+	overflow: auto;
+	margin-bottom: 3em;
+}
+
+// ######### bd-example #########
+.bd-example-row .row > .col, .bd-example-row .row > [class^="col-"] {
+	padding-top: 0.75rem;
+	padding-bottom: 0.75rem;
+	border: 1px solid white;
+}
+
+// ######### MAIN #########
+.app-container {
+	@extend .d-flex;
+	@extend .w-100;
+}
+
+.app-main {
+	@extend .w-100;
+	@extend .mw-100;
+	padding-top: 10px;
+	padding-right: 10px;
+}
+
+.app-content {
+	@include app-content-color;
+	height:100%;
+}
+
+// ########### NAVBAR ##################
+.app-navbar {
+	@include app-content-color;
+	@extend .container-fluid;
+	@extend .sticky-top;
+	padding: 10px;
+	margin-bottom: 10px;
+	box-shadow: $app-component-shadow;
+}
+
+.app-button {
+	@extend .btn;
+	z-index: 999;
+	border-color: $app-button-border-color;
+	background-color: $app-button-background-color;
+}
+
+// ########### SIDEBAR ##################
+.app-sidebar {
+	min-width: $sidebar-width;
+	max-width: $sidebar-width;
+	margin-right: $sidebar-margin-right;
+}
+
+.app-sidebar-menu-collapsed {
+	@include app-content-color;
+	background-color: $app-content-bg-dark-color;
+}
+
+.app-sidebar-menu {
+	@extend .sticky-top;
+}
+
+.app-sidebar-header {
+	@extend .d-flex;
+	@include align-center;
+	padding: $sidebar-header-padding;
+	min-height: $sidebar-header-height;
+	max-height: $sidebar-header-height;
+	text-align: center;
+}
+
+.app-sidebar ul li a {
+	padding: 10px;
+	font-size: 1.1em;
+	display: block;
+}
+
+.app-sidebar ul li a i {
+	margin-right: 10px;
+}
+
+// ########### SIDE-MENU ##################
+.app-side-menu {
+	@include app-content-color;
+}
+
+.app-side-menu .app-card {
+	@include app-content-color;
+	border: 1px solid $app-separator-line-color;
+}
+
+.app-side-menu .app-card .app-menu-l2 {
+	@extend .list-group-item;
+	@extend .list-group-item-action;
+}
+
+// ########### WAD-DIR ##################
+.app-wad-dir {
+	background-color: $app-input-text-bg;
+	color: $app-font-color;
+	border-color: $app-border-color;
+}
+
+// ########### NAV-DIRS ##################
+.app-nav-dirs {
+	@extend .d-flex;
+	@include align-center;
+	flex-flow: row wrap;
+	padding: 0;
+	margin: 0;
+}
+
+// ########### DIR-ROW ##################
+.app-dir-row {
+
+}
+
+.app-dir-row:nth-child(odd) {
+	background-color: $app-content-bg-light-color;
+}
+
+.app-dir-row:nth-child(even) {
+	background-color: $app-content-bg-dark-color;
+}
+
+// ########### FLATS ##################
+.app-flats {
+	@include app-image-box()
+}
+
+// ########### WP-ROW ##################
+.app-wp-row {
+	@extend .d-flex;
+	@extend .flex-wrap;
+}
+
+.app-wp-row > div {
+	width: 50px;
+	line-height: 50px;
+	margin: 3px;
+	text-align: center;
+	font-weight: bold;
+}
+
+// ######### PATCHES #########
+.app-patches {
+	@include app-image-box()
+}
+
+// ######### PLAYPAL #########
+.app-playpal-container {
+	@extend .d-flex;
+	@extend .w-100;
+	@include align-center;
+	align-items: center;
+	overflow: auto;
+	margin-bottom: 3em;
+}
+
+// ######### SPRITES #########
+.app-sprites {
+	@extend .d-flex;
+	@include align-center;
+	flex-flow: row wrap;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+.app-sprite {
+	background: $app-content-bg-light-color;
+	width: $wad-sprite-box-size;
+	height: $wad-sprite-box-size;
+	margin: $wad-sprite-box-margin;
+	line-height: $wad-sprite-box-size;
+	font-weight: bold;
+	text-align: center;
+
+	// .app-sprites is flex container for .app-sprite and .app-sprite is again flex container for ist child
+	@extend .d-flex;
+	justify-content: space-around;
+	align-items: center;
+}
+
+// ######### TEXTURE #########
+.app-texture-container {
+	background: $app-content-bg-light-color;
+	color: $app-font-color;
+	padding-top: 15px;
+	padding-bottom: 10px;
+}
+
+.app-texture-bmp {
+	width: $wad-texture-box-size;
+	height: $wad-texture-box-size;
+	margin: $wad-texture-box-margin;
+	line-height: $wad-texture-box-size;
+}
+
+.app-texture-patches {
+	@include app-image-box($wad-tx-patch-box-size, $wad-tx-patch-box-margin)
+}
+
+// ######### TEXTURES #########
+.app-textures {
+	@include app-image-box($wad-texture-box-size, $wad-texture-box-margin)
+}
+
+// ######### UPLOAD #########
+.app-upload-container {
+	@extend .d-flex;
+	justify-content: center;
+}
+
+.app-upload-content {
+	width: 640px;
+	height: 607px;
+	background: url("../assets/img/floppy_disc.png") no-repeat center;
+}
+
+.app-upload-click {
+	@extend .w-100;
+	@extend .h-100;
+	text-align: center;
+	vertical-align: middle;
 }

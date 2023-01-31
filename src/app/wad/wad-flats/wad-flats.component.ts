@@ -23,8 +23,7 @@ import {WadPatchesNavbarComponent} from "../wad-patches/wad-patches-navbar/wad-p
 
 @Component({
 	selector: 'app-wad-flats',
-	templateUrl: './wad-flats.component.html',
-	styleUrls: ['./wad-flats.component.scss']
+	templateUrl: './wad-flats.component.html'
 })
 export class WadFlatsComponent implements OnInit, FlatsListControl {
 
