@@ -448,6 +448,15 @@ describe('map-parser#parseLinedef', () => {
 
 })
 
+describe('map-parser#findSky', () => {
+	it('Sky on E1M1', () => {
+		const sky = tf.findSky(getE1M1Linedefs());
+		expect(sky.isRight()).toBeTrue()
+		expect(sky.val.name).toEqual('F_SKY1')
+	})
+
+})
+
 describe('map-parser#parseLinedefs', () => {
 	it('Validate Lindedefs dir', () => {
 		validateLindedefsDir(getAllDirs()[getFirstMap().idx + MapLumpType.LINEDEFS])

@@ -110,9 +110,18 @@ const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomT
 		things: parseThings(bytes)(mapDirs),
 		linedefs,
 		sectors,
-		linedefBySector: groupLinedefsBySectors(linedefs, sectors)
+		linedefBySector: groupLinedefsBySectors(linedefs, sectors),
+		sky: findSky(linedefs)
 	}
 }
+
+/** In order to appear out-of-doors, a sector is given the special ceiling flat name of F_SKY1 (but see below) */
+const findSky = (lds: Linedef[]): Either<Bitmap> =>
+	Either.ofNullable(lds
+		// F_SKY1 can be found only on the celling
+		.filter(ld => ld.sector.cellingTexture.isRight()).map(ld => ld.sector.cellingTexture.val)
+		.find(ct => ct.name.toUpperCase() === 'F_SKY1'), () => 'SKY not found')
+
 
 /** group Linedef by Sector */
 const groupBySectorArray = (linedefs: Linedef[]): Linedef[][] => {
@@ -389,6 +398,7 @@ export const testFunctions = {
 	findLastNotConnected,
 	findBackLinedefs,
 	findMaxSectorId,
+	findSky
 }
 
 export const functions = {parseMaps, normalizeLinedefs}
