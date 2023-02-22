@@ -15,7 +15,7 @@
  */
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls'
 import * as THREE from 'three'
-import {config as gc} from './game-config'
+import {config as gc} from '../game-config'
 
 export class Controls {
 
@@ -46,6 +46,7 @@ export class Controls {
 
 		if (this.moveX === MoveX.LEFT) {
 			this.controls.moveRight(-mf)
+
 		} else if (this.moveX === MoveX.RIGHT) {
 			this.controls.moveRight(mf)
 		}

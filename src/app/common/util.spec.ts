@@ -478,6 +478,35 @@ describe('util#cs', () => {
 
 })
 
+describe('util#lineWidth', () => {
+
+	it('both positive', () => {
+		expect(U.lineWidth(5, 8)).toEqual(3)
+	})
+
+	it('both positive, start after end', () => {
+		expect(U.lineWidth(8, 5)).toEqual(3)
+	})
+
+	it('both negative positive', () => {
+		expect(U.lineWidth(-5, -8)).toEqual(3)
+	})
+
+	it('both negative, start after end', () => {
+		expect(U.lineWidth(-8, -5)).toEqual(3)
+	})
+
+	it('mixed', () => {
+		expect(U.lineWidth(-5, 8)).toEqual(13)
+	})
+
+	it('mixed, start after end', () => {
+		expect(U.lineWidth(8, -5)).toEqual(13)
+	})
+})
+
+
+
 
 
 

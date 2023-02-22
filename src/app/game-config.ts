@@ -17,7 +17,7 @@
 import {LinearMipMapNearestFilter} from "three/src/constants";
 
 const game = {
-	startMap: 0
+	startMap: 5
 }
 
 const player = {
@@ -38,7 +38,8 @@ const floor = {
 }
 
 const sky = {
-	color: '#131313'
+	//color: '#131313'
+	color: 'gray'
 }
 
 const camera = {
@@ -54,11 +55,20 @@ const camera = {
 		far: 200000
 	},
 
+	position: {
+		adjust: {
+			y: 2000
+		}
+	},
+
 	florRay: {
 		direction: {
 			x: 0,
 			y: -1,
 			z: 0
+		},
+		adjust: {
+			y: 400
 		}
 	}
 }
@@ -75,7 +85,14 @@ const texture = {
 }
 
 const debug = {
-	axesHelper: false
+	axesHelper: {
+		visible: true,
+		colors: {
+			x: 'red',
+			y: 'black',
+			z: 'green'
+		}
+	}
 }
 
 // ############################ EXPORTS ############################

@@ -655,6 +655,10 @@ describe('map-parser#findAllMapStartDirs', () => {
 describe('map-parser#parseMap', () => {
 	const map: DoomMap = tf.parseMap(getWadBytes(), tf.createTextureLoader(getTextures()), tf.createFlatLoader(getFlats()))(getE1M1Dirs())
 
+	it('Map name', () => {
+		expect(map.mapName).toEqual('E1M1')
+	})
+
 	it('Map Dirs', () => {
 		validateE1M1Dirs(map.mapDirs)
 	})
@@ -739,29 +743,6 @@ describe('map-parser#parseMaps', () => {
 	})
 })
 
-describe('map-parser#findMinX', () => {
-	const defs: Linedef[] = getMaps()[0].linedefs
-	it('findMinX', () => {
-		expect(tf.findMinX(defs)).toEqual(-768)
-	})
-})
-
-describe('map-parser#findMinY', () => {
-	const defs: Linedef[] = getMaps()[0].linedefs
-
-	it('findMinY', () => {
-		expect(tf.findMinY(defs)).toEqual(-4864)
-	})
-})
-
-
-describe('map-parser#normalizeMap', () => {
-	const defs: Linedef[] = getMaps()[0].linedefs
-
-	it('findMax', () => {
-		expect(tf.findMax(defs)).toEqual(3808)
-	})
-})
 
 describe('map-parser#scalePos', () => {
 	const scale = tf.scalePos(4)(3)

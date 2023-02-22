@@ -102,10 +102,12 @@ const parseMaps = (bytes: number[], dirs: Directory[], textures: DoomTexture[], 
 }
 
 const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>, flatLoader: (name: string) => Either<Bitmap>) => (mapDirs: Directory[]): DoomMap => {
-	Log.info(CMP, 'Parse Map: ', mapDirs[0].name)
+	const mapName = mapDirs[0].name
+	Log.info(CMP, 'Parse Map: ', mapName)
 	const sectors = parseSectors(bytes)(mapDirs, flatLoader)
 	const linedefs = parseLinedefs(bytes, mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes, textureLoader)(mapDirs, sectors), sectors)
 	return {
+		mapName,
 		mapDirs,
 		things: parseThings(bytes)(mapDirs),
 		linedefs,
@@ -332,23 +334,13 @@ const parseVertexes = (bytes: number[]) => (mapDirs: Directory[]): Vertex[] => {
 	return unfoldByDirectorySize(vertexDir, 4).map((ofs, thingIdx) => parser(thingIdx))
 }
 
-const findMinX = (linedefs: Linedef[]): number =>
-	R.reduce((min: number, ld: Linedef) => Math.min(min, ld.start.x, ld.end.x), Number.MAX_SAFE_INTEGER, linedefs)
-
-const findMinY = (linedefs: Linedef[]): number =>
-	R.reduce((min: number, ld: Linedef) => Math.min(min, ld.start.y, ld.end.y), Number.MAX_SAFE_INTEGER, linedefs)
-
-const findMax = (linedefs: Linedef[]): number =>
-	R.reduce((max: number, ld: Linedef) => Math.max(max, ld.start.x, ld.start.y, ld.end.x, ld.end.y),
-		Number.MIN_SAFE_INTEGER, linedefs)
-
 const scalePos = (scale: number) => (min: number) => (pos: number): number => {
 	return Math.round((pos + min) / scale)
 }
 
 const normalizeLinedefs = (scale: number) => (linedefs: Linedef[]): Linedef[] => {
-	const minX = Math.abs(findMinX(linedefs))
-	const minY = Math.abs(findMinY(linedefs))
+	const minX = Math.abs(mf.findMinX(linedefs))
+	const minY = Math.abs(mf.findMinY(linedefs))
 	const scaleFunc = scalePos(scale)
 	const scaleX = scaleFunc(minX)
 	const scaleY = scaleFunc(minY)
@@ -383,9 +375,6 @@ export const testFunctions = {
 	parseMap,
 	findAllMapStartDirs,
 	parseMapsDirs,
-	findMinX,
-	findMinY,
-	findMax,
 	scalePos,
 	parseSector,
 	parseSectors,

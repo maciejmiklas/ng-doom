@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {functions as mf, VectorConnection, VectorV} from './wad-model'
+import {functions as mf, Linedef, VectorConnection, VectorV} from './wad-model'
 import {
+	e1M3Sector7VectorsFromWad,
+	getMaps,
 	pathClosedMixed,
 	pathClosedMixed2,
 	pathClosedReversedMix,
@@ -318,6 +320,52 @@ describe('wad-model#pathContinuos', () => {
 
 	it('Continuous open', () => {
 		expect(mf.pathContinuos(pathContinuousOpen)).toBeFalse()
+	})
+})
+
+describe('map-parser#findMinX', () => {
+	it('positive', () => {
+		expect(mf.findMinX(pathCrossingMixed)).toEqual(896)
+	})
+
+	it('negative', () => {
+		expect(mf.findMinX(e1M3Sector7VectorsFromWad)).toEqual(-640)
+	})
+})
+
+describe('map-parser#findMaxX', () => {
+	it('positive 1', () => {
+		expect(mf.findMaxX(pathCrossingMixed)).toEqual(1184)
+	})
+
+	it('positive 2', () => {
+		expect(mf.findMaxX(e1M3Sector7VectorsFromWad)).toEqual(288)
+	})
+})
+
+describe('map-parser#findMinY', () => {
+	it('negative', () => {
+		expect(mf.findMinY(pathCrossingMixed)).toEqual(-3392)
+	})
+
+	it('positive', () => {
+		expect(mf.findMinY(pathClosedReversedOne)).toEqual(20)
+	})
+})
+
+describe('map-parser#findMaxY', () => {
+	it('negative', () => {
+		expect(mf.findMaxY(pathCrossingMixed)).toEqual(-3072)
+	})
+
+	it('positive', () => {
+		expect(mf.findMaxY(pathClosedReversedOne)).toEqual(800)
+	})
+})
+
+describe('map-parser#findMax', () => {
+	it('positive', () => {
+		expect(mf.findMax(pathCrossingMixed)).toEqual(1184)
 	})
 })
 

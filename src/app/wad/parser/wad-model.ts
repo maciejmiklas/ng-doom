@@ -331,6 +331,7 @@ export type Sector = MapLump & {
  * Each Map contains those directories in exact this order.
  */
 export type DoomMap = {
+	mapName: string
 	mapDirs: Directory[]
 	things: Thing[]
 
@@ -691,8 +692,28 @@ const stringifyVectors = (vectors: VectorV[]): string => JSON.stringify(toSimple
 const stringifyVector = (v: VectorV): string => JSON.stringify(toSimpleVector(v))
 const stringifyVertex = (v: Vertex): string => JSON.stringify(v)
 
+const findMinX = (vs: VectorV[]): number =>
+	R.reduce((min: number, ld: VectorV) => Math.min(min, ld.start.x, ld.end.x), Number.MAX_SAFE_INTEGER, vs)
+
+const findMaxX = (vs: VectorV[]): number =>
+	R.reduce((min: number, ld: VectorV) => Math.max(min, ld.start.x, ld.end.x), Number.MIN_SAFE_INTEGER, vs)
+
+const findMinY = (vs: VectorV[]): number =>
+	R.reduce((min: number, ld: VectorV) => Math.min(min, ld.start.y, ld.end.y), Number.MAX_SAFE_INTEGER, vs)
+
+const findMaxY = (vs: VectorV[]): number =>
+	R.reduce((min: number, ld: VectorV) => Math.max(min, ld.start.y, ld.end.y), Number.MIN_SAFE_INTEGER, vs)
+
+const findMax = (vs: VectorV[]): number =>
+	R.reduce((max: number, ld: VectorV) => Math.max(max, ld.start.x, ld.start.y, ld.end.x, ld.end.y),
+		Number.MIN_SAFE_INTEGER, vs)
 
 export const functions = {
+	findMinX,
+	findMaxX,
+	findMinY,
+	findMaxY,
+	findMax,
 	pathContinuos,
 	vertexEqual,
 	reverseVector,

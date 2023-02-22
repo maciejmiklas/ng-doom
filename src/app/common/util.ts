@@ -60,7 +60,6 @@ const base64ToUint8Array = (base64: string): Uint8Array => {
 	return (new Uint8Array(binary.length)).map((v, idx) => binary.charCodeAt(idx))
 }
 
-
 const base64ToUint8NumberArray = (base64: string): number[] => {
 	return [].slice.call(base64ToUint8Array(base64))
 }
@@ -125,6 +124,8 @@ const nextRoll = <V>(list: V[]) => (idx: number): V =>
 const cs = (s1: string, s2: string): boolean =>
 	s1.toUpperCase().trim() === s2.toUpperCase().trim()
 
+const lineWidth = (start: number, end: number) => Math.abs(end - start)
+
 const U = {
 	base64ToUint8NumberArray,
 	trim0Padding,
@@ -142,7 +143,8 @@ const U = {
 	parseTextureName,
 	nullSafeArray,
 	nextRoll,
-	cs
+	cs,
+	lineWidth
 }
 
 export default U
