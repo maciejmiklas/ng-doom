@@ -17,7 +17,7 @@
 import {LinearMipMapNearestFilter} from "three/src/constants";
 
 const game = {
-	startMap: 5
+	startMap: 0
 }
 
 const player = {
@@ -37,9 +37,26 @@ const floor = {
 	}
 }
 
+export enum BoxType {
+	BITMAP,
+	ORIGINAL
+}
+
 const sky = {
-	//color: '#131313'
-	color: 'gray'
+	color: '#131313',
+	adjust: {
+		width: 3000,
+		height: 2000,
+		depth: 3000,
+		y: 0
+	},
+	box: {
+		type: BoxType.BITMAP,
+		bitmap: {
+			name: 'redeclipse',
+			ext: 'png'
+		}
+	}
 }
 
 const camera = {
@@ -57,7 +74,7 @@ const camera = {
 
 	position: {
 		adjust: {
-			y: 2000
+			y: 0
 		}
 	},
 

@@ -1,17 +1,26 @@
 ====================================
-Gloomy Skybox
--------------
-Last updated August 18, 2012
+Cloudy skyboxes
+---------------
+Last updated August 10, 2012
 ====================================
 
-A gloomy looking sky.
-Bottom half is left open, so you can throw whatever you wish in there.
+4 color variations of a cloudy afternoon skybox with mixed types of clouds.
+
+I originally just made the blue version, but I figured having some premade variations might be useful.
+
+Blue: high key and somewhat cooled down.
+Gray: more contrast and whitebalanced, more sombre.
+Brown: somewhat of a sickly brown tinted version, a bit reminiscent of aged romantic paintings.
+Yellow: funky bright orange/yellow tinted.
 
 ====================================
 Technical Tidbits
 ====================================
 
-Files are 24bit PNG, sides are 512*512px.
+Max quality baseline JPG compression.
+
+For HDR enabled engines, overbrightening the high-end with a threshold of 0.7 and multiplier of 1.5 seems to look natural.
+There are pure white highlights present inside some of the textures.
 
 The sides are named and oriented in the Quake tradition, you might need to re-orient them for engines that use a different cubemap/skybox layout.
 

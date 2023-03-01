@@ -38,7 +38,7 @@ import {Side} from "three/src/constants"
 import {Vector2} from "three/src/math/Vector2"
 import {ColorRepresentation} from "three/src/utils"
 import {Either} from "../common/either";
-import {config as gc} from '../game-config'
+import {BoxType, config as gc} from '../game-config'
 import U from "../common/util";
 
 const createDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
@@ -123,23 +123,38 @@ const createFallbackMaterial = () => new THREE.MeshStandardMaterial({
 	side: THREE.DoubleSide
 })
 
+const boxPaths = (name, ext): string[] =>
+	["ft", "bk", "up", "dn", "rt", "lf"].map(side =>
+		'./assets/sky/' + name + '/' + side + '.' + ext)
 
 const createSky = (map: DoomMap): THREE.Mesh => {
 	const minX = mf.findMinX(map.linedefs)
 	const maxX = mf.findMaxX(map.linedefs)
 	const minY = mf.findMinY(map.linedefs)
 	const maxY = mf.findMaxY(map.linedefs)
-	const width = Math.abs(minY) + Math.abs(maxY)
-	const depth = Math.abs(minX) + Math.abs(maxX)
-	const skyBox = new THREE.BoxGeometry(50, 500, 50);
-	const material = new THREE.MeshBasicMaterial({color: 'red'});
+	const skyBox = new THREE.BoxGeometry(
+		U.lineWidth(minX, maxX) + gc.sky.adjust.width,
+		gc.sky.adjust.height,
+		U.lineWidth(minY, maxY) + gc.sky.adjust.depth);
+
+	const material = gc.sky.box.type == BoxType.ORIGINAL && map.sky.isRight() ? skyBoxOriginalMaterial(map.sky.val) : skyBoxBitmapMaterial()
 	const mesh = new THREE.Mesh(skyBox, material);
 
 	// set position to the middle of the map.
-	mesh.position.set(maxX - U.lineWidth(minX, maxX) / 2, 0, -maxY + U.lineWidth(minY, maxY) / 2)
+	mesh.position.set(maxX - U.lineWidth(minX, maxX) / 2, gc.sky.adjust.y, -maxY + U.lineWidth(minY, maxY) / 2)
 	// TODO  new THREE.Fog( 0xcccccc, 5000, 7000 );
 	return mesh;
 }
+
+const skyBoxOriginalMaterial = (sky: Bitmap) => {
+	const texture = createDataTexture(sky)
+	return null;
+}
+
+const skyBoxBitmapMaterial = () => boxPaths(gc.sky.box.bitmap.name, gc.sky.box.bitmap.ext).map(image => {
+	const map = new THREE.TextureLoader().load(image);
+	return new THREE.MeshBasicMaterial({map, side: THREE.BackSide});
+});
 
 const createWorld = (scene: THREE.Scene, map: DoomMap): THREE.Mesh[] => {
 	const startTime = performance.now()
@@ -323,6 +338,10 @@ const createWebGlRenderer = (canvas: HTMLCanvasElement): THREE.WebGLRenderer => 
 }
 
 // ############################ EXPORTS ############################
+export const testFunctions = {
+	boxPaths
+}
+
 export const functions = {
 	createSky,
 	createCamera,
