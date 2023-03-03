@@ -34,6 +34,7 @@ import {
 	Vertex
 } from "../wad/parser/wad-model"
 import * as THREE from "three"
+import {Object3D} from "three"
 import {Side} from "three/src/constants"
 import {Vector2} from "three/src/math/Vector2"
 import {ColorRepresentation} from "three/src/utils"
@@ -54,7 +55,13 @@ const createDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
 	texture.anisotropy = gc.texture.anisotropy
 	texture.minFilter = gc.texture.minFilter
 	texture.magFilter = gc.texture.magFilter
+	texture.flipY = true
 	return texture
+}
+
+export type Sector3d = {
+	flats: THREE.Mesh[],
+	floors: THREE.Mesh[]
 }
 
 const createFloorDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
@@ -123,68 +130,82 @@ const createFallbackMaterial = () => new THREE.MeshStandardMaterial({
 	side: THREE.DoubleSide
 })
 
-const boxPaths = (name, ext): string[] =>
-	["ft", "bk", "up", "dn", "rt", "lf"].map(side =>
-		'./assets/sky/' + name + '/' + side + '.' + ext)
-
 const createSky = (map: DoomMap): THREE.Mesh => {
 	const minX = mf.findMinX(map.linedefs)
 	const maxX = mf.findMaxX(map.linedefs)
 	const minY = mf.findMinY(map.linedefs)
 	const maxY = mf.findMaxY(map.linedefs)
+	const type = gc.sky.box.type == BoxType.ORIGINAL && map.sky.isRight() ? BoxType.ORIGINAL : BoxType.BITMAP
+	const adjust = gc.sky.adjust.filter(a => a.type === type)[0]
 	const skyBox = new THREE.BoxGeometry(
-		U.lineWidth(minX, maxX) + gc.sky.adjust.width,
-		gc.sky.adjust.height,
-		U.lineWidth(minY, maxY) + gc.sky.adjust.depth);
+		U.lineWidth(minX, maxX) + adjust.width,
+		adjust.height,
+		U.lineWidth(minY, maxY) + adjust.depth);
 
-	const material = gc.sky.box.type == BoxType.ORIGINAL && map.sky.isRight() ? skyBoxOriginalMaterial(map.sky.val) : skyBoxBitmapMaterial()
+	const material = type == BoxType.ORIGINAL ? skyBoxOriginalMaterial(map.sky.val.patches[0].bitmap) : skyBoxBitmapMaterial()
 	const mesh = new THREE.Mesh(skyBox, material);
 
 	// set position to the middle of the map.
-	mesh.position.set(maxX - U.lineWidth(minX, maxX) / 2, gc.sky.adjust.y, -maxY + U.lineWidth(minY, maxY) / 2)
+	mesh.position.set(maxX - U.lineWidth(minX, maxX) / 2, adjust.y, -maxY + U.lineWidth(minY, maxY) / 2)
 	// TODO  new THREE.Fog( 0xcccccc, 5000, 7000 );
 	return mesh;
 }
 
-const skyBoxOriginalMaterial = (sky: Bitmap) => {
+const orgBoxFactory = (map: THREE.DataTexture) => () => new THREE.MeshBasicMaterial({map, side: THREE.BackSide})
+
+const emptyMaterial = () => new THREE.MeshBasicMaterial()
+
+const skyBoxOriginalMaterial = (sky: Bitmap): THREE.MeshBasicMaterial[] => {
 	const texture = createDataTexture(sky)
-	return null;
+	const fact = orgBoxFactory(texture)
+	return [fact(), fact(), emptyMaterial(), emptyMaterial(), fact(), fact()] // ft, bk, -, -, rt, lf
 }
 
-const skyBoxBitmapMaterial = () => boxPaths(gc.sky.box.bitmap.name, gc.sky.box.bitmap.ext).map(image => {
-	const map = new THREE.TextureLoader().load(image);
-	return new THREE.MeshBasicMaterial({map, side: THREE.BackSide});
-});
+const boxPaths = (name, ext): string[] =>
+	["ft", "bk", "up", "dn", "rt", "lf"].map(side =>
+		'./assets/sky/' + name + '/' + side + '.' + ext)
 
-const createWorld = (scene: THREE.Scene, map: DoomMap): THREE.Mesh[] => {
+const skyBoxBitmapMaterial = (): THREE.MeshBasicMaterial[] => boxPaths(gc.sky.box.bitmap.name, gc.sky.box.bitmap.ext).map(image =>
+	new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load(image), side: THREE.BackSide})
+);
+
+const createWorld = (map: DoomMap): Sector3d => {
 	const startTime = performance.now()
-	const floors: THREE.Mesh[] = [];
-	map.linedefBySector.forEach(renderSector(scene, fl => floors.push(fl)))
+
+	const sectors: Sector3d[] = map.linedefBySector.map(renderSector)
+
+	// Sector3d[] => ['V':Sector3d]
+	const res = R.reduceBy((acc: Sector3d, el: Sector3d) => {
+		acc.flats = [...acc.flats, ...el.flats]
+		acc.floors = [...acc.floors, ...el.floors]
+		return acc
+	}, {flats: [], floors: []}, () => 'V', sectors)
+
 	console.log('>TIME createWorld>', map.mapDirs[0].name, performance.now() - startTime)
-	return floors
+	return res['V']
 }
 
-const setupCamera = (camera: THREE.PerspectiveCamera, map: DoomMap) => {
+const setupCamera = (camera: THREE.PerspectiveCamera, map: DoomMap): void => {
 	const player = map.things.filter(th => th.thingType == ThingType.PLAYER)[0]
 	camera.position.set(player.position.x, gc.player.height, -player.position.y)
 }
 
-const renderSector = (scene: THREE.Scene, florCallback: (floor: THREE.Mesh) => void) => (lbs: LinedefBySector) => {
+const renderSector = (lbs: LinedefBySector): Sector3d => {
 	//if (lbs.sector.id !== 28) {
 	//	return;
 //	}
-	renderWalls(lbs).forEach(m => scene.add(m))
+	// wall
+	let flats = renderWalls(lbs)
 
 	// floor
-	renderFlat(lbs.flat, lbs.sector.floorTexture, lbs.sector.floorHeight, true).forEach(m => {
-		florCallback(m)
-		scene.add(m)
-	})
+	const floors = renderFlat(lbs.flat, lbs.sector.floorTexture, lbs.sector.floorHeight, true)
+	flats = [...flats, ...floors]
 
 	// celling
-	renderFlat(lbs.flat, lbs.sector.cellingTexture, lbs.sector.cellingHeight, false).forEach(m => {
-		scene.add(m)
-	})
+	const celling = renderFlat(lbs.flat, lbs.sector.cellingTexture, lbs.sector.cellingHeight, false);
+	flats = [...flats, ...celling]
+
+	return {flats, floors};
 }
 
 const renderFlat = (flat: Flat, texture: Either<Bitmap>, height: number, renderHoles: boolean): THREE.Mesh[] => {

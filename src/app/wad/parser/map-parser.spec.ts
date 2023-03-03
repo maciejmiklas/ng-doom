@@ -445,16 +445,6 @@ describe('map-parser#parseLinedef', () => {
 	it('27th Linedef', () => {
 		validateLindedef26(parser(26).get())
 	})
-
-})
-
-describe('map-parser#findSky', () => {
-	it('Sky on E1M1', () => {
-		const sky = tf.findSky(getE1M1Linedefs());
-		expect(sky.isRight()).toBeTrue()
-		expect(sky.val.name).toEqual('F_SKY1')
-	})
-
 })
 
 describe('map-parser#parseLinedefs', () => {

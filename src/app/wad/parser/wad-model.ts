@@ -340,7 +340,7 @@ export type DoomMap = {
 	linedefs: Linedef[]
 
 	/** https://doomwiki.org/wiki/Sky */
-	sky: Either<Bitmap>
+	sky: Either<DoomTexture>
 }
 
 /** Linedefs for a given sector.  */
@@ -360,26 +360,6 @@ export enum WadType {
 	PWAD
 }
 
-/**
- * Header of Doom Picture (Patch)
- * @see https://doomwiki.org/wiki/Picture_format
- */
-export type BitmapHeader = {
-	dir: Directory
-	width: number
-	height: number
-	xOffset: number
-	yOffset: number
-
-	/**
-	 * Columns offsets relative to start of WAD file.
-	 * Size of this array is given by width, because it represents horizontal lines on bitmap.
-	 * Each value in this array points to byes array in WAD file, the size of this array is determined by height.
-	 *
-	 * For picture 320x200 we have #columnofs with 320 entries, each one pointing to array in WAD that is 200 bytes long
-	 */
-	columnofs: number[]
-}
 
 /**
  * Bitmap column (known as post) of Doom's bitmap. Offset to each column is given by BitmapHeader#columnofs
@@ -409,21 +389,6 @@ export type Post = {
  */
 export type Column = {
 	posts: Post[]
-}
-
-/**
- * Picture/bitmap in Doom's Patch format
- *
- * @see https://doomwiki.org/wiki/Picture_format
- * @see https://www.cyotek.com/blog/decoding-doom-picture-files
- */
-export type Bitmap = RgbaBitmap & {
-	header: BitmapHeader
-
-	/** Picture in Doom format consists of columns (x-axis) going downward on the screen (y-axis). */
-	columns: Either<Column>[]
-
-	rgba: Uint8ClampedArray
 }
 
 /**
@@ -487,6 +452,42 @@ export type RgbaBitmap = {
 
 	/** The palette that has been used to render this image. */
 	palette?: Palette
+}
+
+/**
+ * Header of Doom Picture (Patch)
+ * @see https://doomwiki.org/wiki/Picture_format
+ */
+export type BitmapHeader = {
+	dir: Directory
+	width: number
+	height: number
+	xOffset: number
+	yOffset: number
+
+	/**
+	 * Columns offsets relative to start of WAD file.
+	 * Size of this array is given by width, because it represents horizontal lines on bitmap.
+	 * Each value in this array points to byes array in WAD file, the size of this array is determined by height.
+	 *
+	 * For picture 320x200 we have #columnofs with 320 entries, each one pointing to array in WAD that is 200 bytes long
+	 */
+	columnofs: number[]
+}
+
+/**
+ * Picture/bitmap in Doom's Patch format
+ *
+ * @see https://doomwiki.org/wiki/Picture_format
+ * @see https://www.cyotek.com/blog/decoding-doom-picture-files
+ */
+export type Bitmap = RgbaBitmap & {
+	header: BitmapHeader
+
+	/** Picture in Doom format consists of columns (x-axis) going downward on the screen (y-axis). */
+	columns: Either<Column>[]
+
+	rgba: Uint8ClampedArray
 }
 
 /**

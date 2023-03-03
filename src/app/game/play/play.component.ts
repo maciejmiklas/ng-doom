@@ -37,7 +37,7 @@ export class PlayComponent implements OnInit {
 	private controls: Controls
 	private wad: Wad
 	private map: DoomMap
-	private floors: THREE.Mesh[] = []
+	private floors: THREE.Mesh[]
 	private raycaster: THREE.Raycaster
 
 	constructor(private wadStorage: WadStorageService) {
@@ -54,7 +54,12 @@ export class PlayComponent implements OnInit {
 		this.map = this.wad.maps[gc.game.startMap]
 		this.scene = tf.createScene()
 		this.scene.add(tf.createSky(this.map))
-		this.floors = tf.createWorld(this.scene, this.map)// TODO do not pass scene, function should return Object3D[]
+
+		const sectors = tf.createWorld(this.map)
+		this.floors = sectors.floors
+		sectors.flats.forEach(fl => this.scene.add(fl))
+
+		//this.floors = tf.createWorld(this.scene, this.map)// TODO do not pass scene, function should return Object3D[]
 		tf.setupCamera(this.camera, this.map)
 		this.camera.lookAt(this.scene.position)
 		this.controls = new Controls(this.camera, this.canvas)

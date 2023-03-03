@@ -44,18 +44,43 @@ export enum BoxType {
 
 const sky = {
 	color: '#131313',
-	adjust: {
-		width: 3000,
-		height: 2000,
-		depth: 3000,
+	adjust: [{
+		type: BoxType.BITMAP,
+		width: 30000,
+		height: 30000,
+		depth: 30000,
 		y: 0
-	},
+	}, {
+		type: BoxType.ORIGINAL,
+		width: 30000,
+		height: 30000,
+		depth: 30000,
+		y: 12000
+	}],
+	textureName: 'SKY1',
 	box: {
 		type: BoxType.BITMAP,
 		bitmap: {
 			name: 'redeclipse',
 			ext: 'png'
+		},
+		bitmaps: [{
+			name: 'corona',
+			ext: 'png'
+		}, {
+			name: 'graycloud',
+			ext: 'jpg'
+		}, {
+			name: 'indigo',
+			ext: 'jpg'
+		}, {
+			name: 'redclipse',
+			ext: 'png'
+		}, {
+			name: 'yellowcloud',
+			ext: 'jpg'
 		}
+		]
 	}
 }
 
@@ -103,7 +128,7 @@ const texture = {
 
 const debug = {
 	axesHelper: {
-		visible: true,
+		visible: false,
 		colors: {
 			x: 'red',
 			y: 'black',
