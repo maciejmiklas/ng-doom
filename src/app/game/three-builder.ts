@@ -186,7 +186,7 @@ const createWorld = (map: DoomMap): Sector3d => {
 
 const setupCamera = (camera: THREE.PerspectiveCamera, map: DoomMap): void => {
 	const player = map.things.filter(th => th.thingType == ThingType.PLAYER)[0]
-	camera.position.set(player.position.x, gc.player.height, -player.position.y)
+	camera.position.set(player.position.x * gc.scene.scale, gc.player.height * gc.scene.scale, -player.position.y * gc.scene.scale)
 }
 
 const renderSector = (lbs: LinedefBySector): Sector3d => {
@@ -345,7 +345,7 @@ const axesHelper = (): Either<THREE.AxesHelper> => {
 }
 
 const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera => {
-const cam = 	new THREE.PerspectiveCamera(
+	const cam = new THREE.PerspectiveCamera(
 		gc.camera.perspective.fov,
 		canvas.clientWidth / canvas.clientHeight,
 		gc.camera.perspective.near,

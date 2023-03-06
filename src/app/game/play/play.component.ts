@@ -58,8 +58,8 @@ export class PlayComponent implements OnInit {
 		const sectors = tf.createWorld(this.map)
 		this.floors = sectors.floors
 		sectors.flats.forEach(fl => this.scene.add(fl))
-		this.scene.scale.set(4,4,4)
-		//this.floors = tf.createWorld(this.scene, this.map)// TODO do not pass scene, function should return Object3D[]
+		this.scene.scale.set(gc.scene.scale, gc.scene.scale, gc.scene.scale)
+
 		tf.setupCamera(this.camera, this.map)
 		this.camera.lookAt(this.scene.position)
 		this.controls = new Controls(this.camera, this.canvas)

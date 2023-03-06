@@ -17,15 +17,19 @@
 import {LinearMipMapNearestFilter} from "three/src/constants";
 
 const game = {
-	startMap: 0
+	startMap: 0,
 }
 
 const player = {
-	height: 80
+	height: 50
 }
 
 const move = {
-	slow: 1
+	slow: 1.7
+}
+
+const scene = {
+	scale: 2
 }
 
 const floor = {
@@ -88,13 +92,13 @@ const camera = {
 
 	perspective: {
 		/** Camera frustum vertical field of view */
-		fov: 60,
+		fov: 70,
 
 		/** Camera frustum near plane */
 		near: 0.1,
 
 		/** Camera frustum far plane */
-		far: 20000
+		far: 20000000
 	},
 
 	position: {
@@ -138,4 +142,4 @@ const debug = {
 }
 
 // ############################ EXPORTS ############################
-export const config = {player, move, camera, game, floor, renderer, texture, sky, debug}
+export const config = {player, move, camera, game, floor, renderer, texture, sky, debug, scene}
