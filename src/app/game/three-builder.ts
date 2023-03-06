@@ -34,7 +34,6 @@ import {
 	Vertex
 } from "../wad/parser/wad-model"
 import * as THREE from "three"
-import {Object3D} from "three"
 import {Side} from "three/src/constants"
 import {Vector2} from "three/src/math/Vector2"
 import {ColorRepresentation} from "three/src/utils"
@@ -331,11 +330,7 @@ const wall = (sideF: (ld: Linedef) => Side,
 const createScene = (): THREE.Scene => {
 	const scene = new THREE.Scene()
 	scene.background = new THREE.Color(gc.sky.color);
-	const ah = gc.debug.axesHelper;
-	if (ah.visible) {
-		scene.add(new THREE.AxesHelper(500).setColors(new THREE.Color(ah.colors.x), new THREE.Color(ah.colors.y), new THREE.Color(ah.colors.z)))
-	}
-
+	axesHelper().exec(ah => scene.add(ah))
 	const light = new THREE.HemisphereLight(0XFFFFCC, 0X19BBDC, 1.0)
 	light.position.set(0, 0, 0)
 	light.visible = true
@@ -343,12 +338,20 @@ const createScene = (): THREE.Scene => {
 	return scene
 }
 
-const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera =>
-	new THREE.PerspectiveCamera(
+const axesHelper = (): Either<THREE.AxesHelper> => {
+	const ah = gc.debug.axesHelper;
+	return Either.ofCondition(() => ah.visible, () => 'Axes helper disabled',
+		() => new THREE.AxesHelper(500).setColors(new THREE.Color(ah.colors.x), new THREE.Color(ah.colors.y), new THREE.Color(ah.colors.z)))
+}
+
+const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera => {
+const cam = 	new THREE.PerspectiveCamera(
 		gc.camera.perspective.fov,
 		canvas.clientWidth / canvas.clientHeight,
 		gc.camera.perspective.near,
 		gc.camera.perspective.far)
+	return cam;
+}
 
 const createWebGlRenderer = (canvas: HTMLCanvasElement): THREE.WebGLRenderer => {
 	const renderer = new THREE.WebGLRenderer({antialias: gc.renderer.antialias, canvas})

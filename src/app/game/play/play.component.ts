@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core'
+import {Component, ElementRef, HostListener, OnInit, ViewChild} from '@angular/core'
 import * as THREE from 'three'
 import {Controls} from '../controls'
 import {WadStorageService} from '../../wad/wad-storage.service'
@@ -58,7 +58,7 @@ export class PlayComponent implements OnInit {
 		const sectors = tf.createWorld(this.map)
 		this.floors = sectors.floors
 		sectors.flats.forEach(fl => this.scene.add(fl))
-
+		this.scene.scale.set(4,4,4)
 		//this.floors = tf.createWorld(this.scene, this.map)// TODO do not pass scene, function should return Object3D[]
 		tf.setupCamera(this.camera, this.map)
 		this.camera.lookAt(this.scene.position)
@@ -66,6 +66,12 @@ export class PlayComponent implements OnInit {
 		this.raycaster = new THREE.Raycaster()
 
 		this.startRenderingLoop()
+	}
+
+	@HostListener('window:resize')
+	onResize() {
+		this.camera.aspect = this.canvas.clientWidth / this.canvas.clientHeight;
+		this.camera.updateProjectionMatrix()
 	}
 
 	private startRenderingLoop(): void {

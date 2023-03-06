@@ -21,11 +21,11 @@ const game = {
 }
 
 const player = {
-	height: 40
+	height: 80
 }
 
 const move = {
-	slow: 3
+	slow: 1
 }
 
 const floor = {
@@ -88,13 +88,13 @@ const camera = {
 
 	perspective: {
 		/** Camera frustum vertical field of view */
-		fov: 80,
+		fov: 60,
 
 		/** Camera frustum near plane */
-		near: 1,
+		near: 0.1,
 
 		/** Camera frustum far plane */
-		far: 200000
+		far: 20000
 	},
 
 	position: {

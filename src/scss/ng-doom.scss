@@ -317,3 +317,10 @@ canvas[resize] {
 	text-align: center;
 	vertical-align: middle;
 }
+
+// ######### PLAY #########
+.app-play-canvas {
+	@extend .w-100;
+	@extend .h-100;
+	margin: 0;
+}
