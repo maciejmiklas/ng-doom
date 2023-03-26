@@ -334,7 +334,7 @@ export type DoomMap = {
 	mapName: string
 	mapDirs: Directory[]
 	things: Thing[]
-
+	player: Either<Thing>
 	linedefBySector: LinedefBySector[]
 	sectors: Sector[]
 	linedefs: Linedef[]

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LinearMipMapNearestFilter} from "three/src/constants";
+import {LinearFilter} from "three/src/constants";
 
 const game = {
 	startMap: 0,
@@ -25,11 +25,15 @@ const player = {
 }
 
 const move = {
-	slow: 1.7
+	slow: 4
 }
 
 const scene = {
-	scale: 2
+	scale: 1,
+	ambientLight: {
+		color: 0XFFFFCC,
+		intensity: 0.05
+	}
 }
 
 const floor = {
@@ -113,21 +117,27 @@ const camera = {
 			y: -1,
 			z: 0
 		},
-		adjust: {
-			y: 400
+		origin: {
+			adjust: {
+				y: 500
+			}
 		}
 	}
 }
 
 const renderer = {
 	physicallyCorrectLights: true,
-	antialias: true
+	antialias: true,
+	resolution: {
+		width: -1,
+		height: -1
+	}
 }
 
 const texture = {
 	anisotropy: 16,
-	minFilter: LinearMipMapNearestFilter,
-	magFilter: LinearMipMapNearestFilter
+	minFilter: LinearFilter,
+	magFilter: LinearFilter
 }
 
 const debug = {

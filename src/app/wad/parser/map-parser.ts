@@ -28,6 +28,7 @@ import {
 	Sector,
 	Sidedef,
 	Thing,
+	ThingType,
 	VectorConnection,
 	VectorV,
 	Vertex
@@ -107,10 +108,13 @@ const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomT
 	Log.info(CMP, 'Parse Map: ', mapName)
 	const sectors = parseSectors(bytes)(mapDirs, flatLoader)
 	const linedefs = parseLinedefs(bytes, mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes, textureLoader)(mapDirs, sectors), sectors)
+	const things = parseThings(bytes)(mapDirs)
+	const playerArr = things.filter(th => th.thingType == ThingType.PLAYER);
 	return {
 		mapName,
 		mapDirs,
-		things: parseThings(bytes)(mapDirs),
+		things,
+		player: Either.ofCondition(() => playerArr.length > 0, () => 'Map without player!', () => playerArr[0], LeftType.WARN),
 		linedefs,
 		sectors,
 		linedefBySector: groupLinedefsBySectors(linedefs, sectors),

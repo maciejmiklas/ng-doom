@@ -30,7 +30,6 @@ import {
 	LinedefFlag,
 	RgbaBitmap,
 	Sector,
-	ThingType,
 	Vertex
 } from "../wad/parser/wad-model"
 import * as THREE from "three"
@@ -78,7 +77,7 @@ const createFlatMaterial = (texture: Either<Bitmap>, side: Side): THREE.Material
 const createWallMaterial = (dt: DoomTexture, wallWidth: number, side: Side, color = null): THREE.Material => {
 	const map = createDataTexture(dt);
 	map.repeat.x = wallWidth / dt.width
-	return new THREE.MeshBasicMaterial({
+	return new THREE.MeshPhongMaterial({
 		map,
 		transparent: true, //TODO only some textures has to be transparent
 		alphaTest: 0,
@@ -146,7 +145,6 @@ const createSky = (map: DoomMap): THREE.Mesh => {
 
 	// set position to the middle of the map.
 	mesh.position.set(maxX - U.lineWidth(minX, maxX) / 2, adjust.y, -maxY + U.lineWidth(minY, maxY) / 2)
-	// TODO  new THREE.Fog( 0xcccccc, 5000, 7000 );
 	return mesh;
 }
 
@@ -180,13 +178,8 @@ const createWorld = (map: DoomMap): Sector3d => {
 		return acc
 	}, {flats: [], floors: []}, () => 'V', sectors)
 
-	console.log('>TIME createWorld>', map.mapDirs[0].name, performance.now() - startTime)
+	console.log('>TIME createWorld>', map.mapDirs[0].name, '=', performance.now() - startTime, 'ms')
 	return res['V']
-}
-
-const setupCamera = (camera: THREE.PerspectiveCamera, map: DoomMap): void => {
-	const player = map.things.filter(th => th.thingType == ThingType.PLAYER)[0]
-	camera.position.set(player.position.x * gc.scene.scale, gc.player.height * gc.scene.scale, -player.position.y * gc.scene.scale)
 }
 
 const renderSector = (lbs: LinedefBySector): Sector3d => {
@@ -197,17 +190,17 @@ const renderSector = (lbs: LinedefBySector): Sector3d => {
 	let flats = renderWalls(lbs)
 
 	// floor
-	const floors = renderFlat(lbs.flat, lbs.sector.floorTexture, lbs.sector.floorHeight, true)
+	const floors = renderFlat(lbs.flat, lbs.sector.floorTexture, lbs.sector.floorHeight, true, 'Floor')
 	flats = [...flats, ...floors]
 
 	// celling
-	const celling = renderFlat(lbs.flat, lbs.sector.cellingTexture, lbs.sector.cellingHeight, false);
+	const celling = renderFlat(lbs.flat, lbs.sector.cellingTexture, lbs.sector.cellingHeight, false, 'Celling');
 	flats = [...flats, ...celling]
 
 	return {flats, floors};
 }
 
-const renderFlat = (flat: Flat, texture: Either<Bitmap>, height: number, renderHoles: boolean): THREE.Mesh[] => {
+const renderFlat = (flat: Flat, texture: Either<Bitmap>, height: number, renderHoles: boolean, type: string): THREE.Mesh[] => {
 	if (texture.isRight() && texture.val.name.includes("SKY")) {
 		return []; // SKY should be transparent so that the player can see the sky.
 	}
@@ -216,7 +209,7 @@ const renderFlat = (flat: Flat, texture: Either<Bitmap>, height: number, renderH
 		createFlatMaterial(texture, THREE.DoubleSide))
 	mesh.rotation.set(Math.PI / 2, Math.PI, Math.PI)
 	mesh.position.y = height
-	mesh.name = 'Sector:' + flat.sector.id;
+	mesh.name = type + ':' + flat.sector.id;
 	return [mesh]
 }
 
@@ -327,14 +320,35 @@ const wall = (sideF: (ld: Linedef) => Side,
 	return mesh
 }
 
+const boxAt = (x: number, y: number, z: number, dim = 5, color = 0x00ff00): THREE.Object3D => {
+	const geometry = new THREE.BoxGeometry(dim, dim, dim);
+	const segments = new THREE.LineSegments(new THREE.EdgesGeometry(geometry), new THREE.LineBasicMaterial({color}));
+	segments.position.set(x, y, z)
+	return segments;
+}
+
+const torusAt = (x: number, y: number, z: number, color = 0x00ff00, radius = 20, tube = 5): THREE.Object3D => {
+	const mesh = new THREE.Mesh(
+		new THREE.TorusGeometry(radius, tube, 32, 32),
+		new THREE.MeshPhongMaterial({wireframe: false, color})
+	);
+	mesh.position.set(x, y, z)
+	return mesh;
+}
+
+const createAmbientLight = () =>
+	new THREE.AmbientLight(gc.scene.ambientLight.color, gc.scene.ambientLight.intensity);
+
 const createScene = (): THREE.Scene => {
 	const scene = new THREE.Scene()
+
+	if (gc.scene.scale > 1) { // TODO - not working after: this.scene.add(this.camera)
+		scene.scale.set(gc.scene.scale, gc.scene.scale, gc.scene.scale)
+	}
+
 	scene.background = new THREE.Color(gc.sky.color);
 	axesHelper().exec(ah => scene.add(ah))
-	const light = new THREE.HemisphereLight(0XFFFFCC, 0X19BBDC, 1.0)
-	light.position.set(0, 0, 0)
-	light.visible = true
-	scene.add(light)
+	scene.add(createAmbientLight())
 	return scene
 }
 
@@ -353,11 +367,18 @@ const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera => {
 	return cam;
 }
 
+const positionCamera = (camera: THREE.Camera, map: DoomMap) =>
+	map.player.exec(player => camera.position.set(player.position.x, gc.player.height, -player.position.y))
+
 const createWebGlRenderer = (canvas: HTMLCanvasElement): THREE.WebGLRenderer => {
 	const renderer = new THREE.WebGLRenderer({antialias: gc.renderer.antialias, canvas})
 	renderer.physicallyCorrectLights = gc.renderer.physicallyCorrectLights
-	renderer.setSize(canvas.clientWidth, canvas.clientHeight)
-	renderer.setPixelRatio(window.devicePixelRatio)
+	if (gc.renderer.resolution.width > 0) {
+		renderer.setSize(gc.renderer.resolution.width, gc.renderer.resolution.height)
+	} else {
+		renderer.setSize(canvas.clientWidth, canvas.clientHeight)
+		renderer.setPixelRatio(window.devicePixelRatio)
+	}
 	return renderer
 }
 
@@ -372,5 +393,7 @@ export const functions = {
 	createWebGlRenderer,
 	createScene,
 	createWorld,
-	setupCamera
+	boxAt,
+	torusAt,
+	positionCamera
 }

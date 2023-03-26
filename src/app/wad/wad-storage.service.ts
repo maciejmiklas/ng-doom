@@ -87,7 +87,7 @@ export class WadStorageService {
 		const bytes = Either.ofRight(Array.from(new Uint8Array(wadBuf))).get()
 		const startTime = performance.now()
 		const wad = wp.parseWad(bytes)
-		console.log('>TIME parseWad>', performance.now() - startTime)
+		console.log('>Parse WAD>', performance.now() - startTime, 'ms')
 		return wad
 	}
 }

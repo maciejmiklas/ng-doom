@@ -19,8 +19,9 @@ import {Controls} from '../controls'
 import {WadStorageService} from '../../wad/wad-storage.service'
 import {DoomMap, Wad} from '../../wad/parser/wad-model'
 
-import {functions as tf} from '../three-builder'
+import {functions as tb} from '../three-builder'
 import {config as gc} from '../../game-config'
+import { GUI } from 'dat.gui'
 
 @Component({
 	selector: 'app-play',
@@ -49,21 +50,122 @@ export class PlayComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.wad = this.wadStorage.getCurrent().get().wad
-		this.camera = tf.createCamera(this.canvas)
-		this.webGLRenderer = tf.createWebGlRenderer(this.canvas)
+		this.webGLRenderer = tb.createWebGlRenderer(this.canvas)
 		this.map = this.wad.maps[gc.game.startMap]
-		this.scene = tf.createScene()
-		this.scene.add(tf.createSky(this.map))
+		this.scene = tb.createScene()
 
-		const sectors = tf.createWorld(this.map)
+		// Camera
+		this.camera = tb.createCamera(this.canvas)
+		this.scene.add(this.camera)
+		tb.positionCamera(this.camera, this.map)
+		this.camera.lookAt(this.scene.position)
+
+		this.scene.add(new THREE.CameraHelper(this.camera))
+
+		// Sky
+		this.scene.add(tb.createSky(this.map))
+
+		// World
+		const sectors = tb.createWorld(this.map)
 		this.floors = sectors.floors
 		sectors.flats.forEach(fl => this.scene.add(fl))
-		this.scene.scale.set(gc.scene.scale, gc.scene.scale, gc.scene.scale)
 
-		tf.setupCamera(this.camera, this.map)
-		this.camera.lookAt(this.scene.position)
+		// controls
 		this.controls = new Controls(this.camera, this.canvas)
 		this.raycaster = new THREE.Raycaster()
+
+		{
+			const light = new THREE.PointLight(0xFFFF00, 200.0, 4000, 1.1)
+			//light.castShadow = true
+			light.add(new THREE.Mesh(new THREE.SphereGeometry(2, 32, 32),
+				new THREE.MeshBasicMaterial({color: 0xFFFF00})));
+			light.position.set(950, 40, 3390);
+			//	this.scene.add(light)
+
+			this.scene.add(tb.torusAt(950, 40, 3410, 0x520D0D))
+
+			//	this.camera.add(tb.torusAt(0, 0, -200, 0x520D0D,5,2))
+		}
+
+		{
+			const distance = 10000
+			const angle = 20
+			const intensity = 5000
+
+			const flashLight = new THREE.Group()
+			flashLight.rotateX(Math.PI / 2)
+
+			// light diffusion trough room
+			{
+				const ring = new THREE.SpotLight(0xa4a6b0, intensity, distance)
+				ring.angle = Math.PI
+				ring.decay = 1.4
+				ring.penumbra = 0.1
+				ring.castShadow = true
+				flashLight.add(ring)
+				flashLight.add(ring.target)
+			}
+
+			// light diffusion around main beam
+			{
+				const ring = new THREE.SpotLight(0x232c54, intensity, distance)
+				ring.angle = Math.PI / 8
+				ring.decay = 1.4
+				ring.penumbra = 0.1
+				ring.castShadow = true
+				flashLight.add(ring)
+				flashLight.add(ring.target)
+			}
+
+			// rings going from outside into center
+			{
+				const ring = new THREE.SpotLight(0x917d34, intensity, distance)
+				ring.angle = Math.PI / angle
+				ring.decay = 1.5
+				ring.penumbra = 0.1
+				ring.castShadow = true
+				flashLight.add(ring)
+				flashLight.add(ring.target)
+
+			//	this.scene.add(new THREE.SpotLightHelper(ring));
+			}
+
+			{
+				const ring = new THREE.SpotLight(0x4d4a43, intensity, distance)
+				ring.angle = Math.PI / (angle + 2)
+				ring.decay = 1.5
+				ring.penumbra = 0.1
+				ring.castShadow = true
+				flashLight.add(ring)
+				flashLight.add(ring.target)
+
+				//this.scene.add(new THREE.SpotLightHelper(ring));
+			}
+
+			{
+				const ring = new THREE.SpotLight(0x32364a, intensity, distance)
+				ring.angle = Math.PI / (angle + 4)
+				ring.decay = 1.5
+				ring.penumbra = 0.1
+				ring.castShadow = true
+				flashLight.add(ring)
+				flashLight.add(ring.target)
+			}
+
+
+			this.camera.add(flashLight)
+		}
+
+		https://sbcode.net/threejs/dat-gui/
+		{
+			const gui = new GUI( { width: 200 } );
+			gui.add( { debug: false }, 'debug' )
+				.onChange( function ( value ) {
+
+				//	helper.visible = value;
+
+				} );
+		}
 
 		this.startRenderingLoop()
 	}
@@ -88,10 +190,10 @@ export class PlayComponent implements OnInit {
 		const cp = this.camera.position
 		this.raycaster.setFromCamera(cp, this.camera)
 		this.raycaster.ray.direction.set(gc.camera.florRay.direction.x, gc.camera.florRay.direction.y, gc.camera.florRay.direction.z)
-		this.raycaster.ray.origin.y += gc.camera.florRay.adjust.y
+		this.raycaster.ray.origin.y += gc.camera.florRay.origin.adjust.y
 		const inters = this.raycaster.intersectObjects(this.floors)
 		if (inters.length > 0) {
-			cp.y = inters[0].point.y + gc.player.height + gc.camera.position.adjust.y
+			cp.y = (inters[0].point.y / gc.scene.scale) + gc.player.height + gc.camera.position.adjust.y
 		}
 	}
 

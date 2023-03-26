@@ -51,7 +51,7 @@ export class Controls {
 			this.controls.moveRight(mf)
 		}
 		this.prevTime = time
-		//console.log('>', this.camera.position)
+		//console.log('>CAM>', this.camera.position)
 	}
 
 	private onClick() {
