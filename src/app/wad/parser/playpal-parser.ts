@@ -21,6 +21,7 @@ import {Either} from "../../common/either"
 const RBG_BYTES = 3
 const PLAYPAL_COLORS = 256
 const PLAYPAL_BYTES = RBG_BYTES * 256
+const RBG_A = 255
 
 /*
  * @see https://doomwiki.org/wiki/COLORMAP
@@ -31,7 +32,7 @@ const parseRBG = (bytes: number[]) => (idx: number): RGBA => {
 		r: bytes[idx],
 		g: bytes[idx + 1],
 		b: bytes[idx + 2],
-		a: 255
+		a: RBG_A
 	}
 }
 

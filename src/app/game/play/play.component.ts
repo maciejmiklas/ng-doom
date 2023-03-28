@@ -21,7 +21,6 @@ import {DoomMap, Wad} from '../../wad/parser/wad-model'
 
 import {functions as tb} from '../three-builder'
 import {config as gc} from '../../game-config'
-import { GUI } from 'dat.gui'
 
 @Component({
 	selector: 'app-play',
@@ -60,7 +59,9 @@ export class PlayComponent implements OnInit {
 		tb.positionCamera(this.camera, this.map)
 		this.camera.lookAt(this.scene.position)
 
-		this.scene.add(new THREE.CameraHelper(this.camera))
+		if (gc.camera.debug.crossHelper) {
+			this.scene.add(new THREE.CameraHelper(this.camera))
+		}
 
 		// Sky
 		this.scene.add(tb.createSky(this.map))
@@ -87,85 +88,7 @@ export class PlayComponent implements OnInit {
 			//	this.camera.add(tb.torusAt(0, 0, -200, 0x520D0D,5,2))
 		}
 
-		{
-			const distance = 10000
-			const angle = 20
-			const intensity = 5000
-
-			const flashLight = new THREE.Group()
-			flashLight.rotateX(Math.PI / 2)
-
-			// light diffusion trough room
-			{
-				const ring = new THREE.SpotLight(0xa4a6b0, intensity, distance)
-				ring.angle = Math.PI
-				ring.decay = 1.4
-				ring.penumbra = 0.1
-				ring.castShadow = true
-				flashLight.add(ring)
-				flashLight.add(ring.target)
-			}
-
-			// light diffusion around main beam
-			{
-				const ring = new THREE.SpotLight(0x232c54, intensity, distance)
-				ring.angle = Math.PI / 8
-				ring.decay = 1.4
-				ring.penumbra = 0.1
-				ring.castShadow = true
-				flashLight.add(ring)
-				flashLight.add(ring.target)
-			}
-
-			// rings going from outside into center
-			{
-				const ring = new THREE.SpotLight(0x917d34, intensity, distance)
-				ring.angle = Math.PI / angle
-				ring.decay = 1.5
-				ring.penumbra = 0.1
-				ring.castShadow = true
-				flashLight.add(ring)
-				flashLight.add(ring.target)
-
-			//	this.scene.add(new THREE.SpotLightHelper(ring));
-			}
-
-			{
-				const ring = new THREE.SpotLight(0x4d4a43, intensity, distance)
-				ring.angle = Math.PI / (angle + 2)
-				ring.decay = 1.5
-				ring.penumbra = 0.1
-				ring.castShadow = true
-				flashLight.add(ring)
-				flashLight.add(ring.target)
-
-				//this.scene.add(new THREE.SpotLightHelper(ring));
-			}
-
-			{
-				const ring = new THREE.SpotLight(0x32364a, intensity, distance)
-				ring.angle = Math.PI / (angle + 4)
-				ring.decay = 1.5
-				ring.penumbra = 0.1
-				ring.castShadow = true
-				flashLight.add(ring)
-				flashLight.add(ring.target)
-			}
-
-
-			this.camera.add(flashLight)
-		}
-
-		https://sbcode.net/threejs/dat-gui/
-		{
-			const gui = new GUI( { width: 200 } );
-			gui.add( { debug: false }, 'debug' )
-				.onChange( function ( value ) {
-
-				//	helper.visible = value;
-
-				} );
-		}
+		this.camera.add(tb.createFlashLight(this.scene));
 
 		this.startRenderingLoop()
 	}

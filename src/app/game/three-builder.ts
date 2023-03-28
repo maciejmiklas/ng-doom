@@ -39,6 +39,7 @@ import {ColorRepresentation} from "three/src/utils"
 import {Either} from "../common/either";
 import {BoxType, config as gc} from '../game-config'
 import U from "../common/util";
+import {GUI} from "dat.gui";
 
 const createDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
 	const texture = new THREE.DataTexture(bitmap.rgba, bitmap.width, bitmap.height)
@@ -353,7 +354,7 @@ const createScene = (): THREE.Scene => {
 }
 
 const axesHelper = (): Either<THREE.AxesHelper> => {
-	const ah = gc.debug.axesHelper;
+	const ah = gc.scene.debug.axesHelper;
 	return Either.ofCondition(() => ah.visible, () => 'Axes helper disabled',
 		() => new THREE.AxesHelper(500).setColors(new THREE.Color(ah.colors.x), new THREE.Color(ah.colors.y), new THREE.Color(ah.colors.z)))
 }
@@ -382,6 +383,90 @@ const createWebGlRenderer = (canvas: HTMLCanvasElement): THREE.WebGLRenderer => 
 	return renderer
 }
 
+const createSpotLightFolder = (gui: GUI, scene: THREE.Scene) => (name: string, sl): GUI => {
+	const gf = gui.addFolder(name)
+
+	gf.add(sl, 'angle', Math.PI / 2, Math.PI).step(0.1)
+	gf.add(sl, 'decay', 0.5, 3).step(0.1)
+	gf.add(sl, 'penumbra', 0, 1).step(0.1)
+	gf.add(sl, 'intensity', 0, 10000)
+	gf.add(sl, 'distance', 0, 10000)
+	gf.add(sl, 'castShadow')
+
+	gf.add({
+		cross: () => {
+			scene.add(new THREE.SpotLightHelper(sl))
+		}
+	}, 'cross').name('SpotLightHelper');
+	gf.open()
+	return gf;
+}
+
+const emptyFunction = () => null
+
+const createRing = (flashLight: THREE.Group) => (color: ColorRepresentation, name: string, props?: keyof THREE.SpotLight): THREE.SpotLight => {
+	const ring = new THREE.SpotLight(color, gc.flashLight.intensity, 0)
+	ring.penumbra = gc.flashLight.penumbra
+	ring.castShadow = gc.flashLight.castShadow
+	ring.castShadow = false
+
+	flashLight.add(ring)
+	flashLight.add(ring.target)
+	return ring;
+}
+
+const createFlashLight = (scene: THREE.Scene): THREE.Object3D => {
+	const flashLight = new THREE.Group()
+	const createRingF = createRing(flashLight)
+	flashLight.rotateX(Math.PI / 2)
+
+	const spotLightFolder = gc.flashLight.debug.gui ? createSpotLightFolder(new GUI(), scene) : emptyFunction
+
+	// light diffusion trough room
+	{
+		const ring = createRingF(0xebd68f, 'Light Diffusion','intensity')
+		ring.angle = Math.PI
+		ring.decay = 1.4
+		ring.castShadow = gc.flashLight.castShadow
+		spotLightFolder('Light Diffusion', ring)
+	}
+
+	// light diffusion around main beam
+	{
+		const ring = createRingF(0xe8b609, 'Ring 1')
+		ring.angle = 0.39
+		ring.decay = 1.4
+		spotLightFolder('Ring 1', ring)
+	}
+
+	// rings going from outside into center
+	{
+		const ring = createRingF(0xd9c47c, 'Ring 2')
+		ring.angle = 0.16
+		ring.decay = 1.5
+
+		spotLightFolder('Ring 2', ring)
+	}
+
+	{
+		const ring = createRingF(0xb09a4c, 'Ring 3')
+		ring.angle = 0.14
+		ring.decay = 1.5
+
+		spotLightFolder('Ring 3', ring)
+	}
+
+	{
+		const ring = createRingF(0x75652b, 'Ring 4')
+		ring.angle = 0.13
+		ring.decay = 1.5
+
+		spotLightFolder('Ring 4', ring)
+	}
+
+	return flashLight;
+}
+
 // ############################ EXPORTS ############################
 export const testFunctions = {
 	boxPaths
@@ -395,5 +480,6 @@ export const functions = {
 	createWorld,
 	boxAt,
 	torusAt,
+	createFlashLight,
 	positionCamera
 }

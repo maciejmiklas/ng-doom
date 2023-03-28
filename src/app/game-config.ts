@@ -32,7 +32,17 @@ const scene = {
 	scale: 1,
 	ambientLight: {
 		color: 0XFFFFCC,
-		intensity: 0.05
+		intensity: 0.7
+	},
+	debug: {
+		axesHelper: {
+			visible: false,
+			colors: {
+				x: 'red',
+				y: 'black',
+				z: 'green'
+			}
+		}
 	}
 }
 
@@ -122,6 +132,9 @@ const camera = {
 				y: 500
 			}
 		}
+	},
+	debug: {
+		crossHelper: false
 	}
 }
 
@@ -140,16 +153,15 @@ const texture = {
 	magFilter: LinearFilter
 }
 
-const debug = {
-	axesHelper: {
-		visible: false,
-		colors: {
-			x: 'red',
-			y: 'black',
-			z: 'green'
-		}
-	}
+const flashLight = {
+	debug: {
+		gui: true
+	},
+	intensity: 4000,
+	penumbra: 0.1,
+	castShadow: true
 }
 
+
 // ############################ EXPORTS ############################
-export const config = {player, move, camera, game, floor, renderer, texture, sky, debug, scene}
+export const config = {player, move, camera, game, floor, renderer, texture, sky, scene, flashLight}
