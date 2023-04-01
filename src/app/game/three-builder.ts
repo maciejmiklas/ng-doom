@@ -33,7 +33,7 @@ import {
 	Vertex
 } from "../wad/parser/wad-model"
 import * as THREE from "three"
-import {Side} from "three/src/constants"
+import {CineonToneMapping, LinearEncoding, LinearToneMapping, ReinhardToneMapping, Side} from "three/src/constants"
 import {Vector2} from "three/src/math/Vector2"
 import {ColorRepresentation} from "three/src/utils"
 import {Either} from "../common/either";
@@ -78,13 +78,13 @@ const createFlatMaterial = (texture: Either<Bitmap>, side: Side): THREE.Material
 const createWallMaterial = (dt: DoomTexture, wallWidth: number, side: Side, color = null): THREE.Material => {
 	const map = createDataTexture(dt);
 	map.repeat.x = wallWidth / dt.width
-	return new THREE.MeshPhongMaterial({
+	const mesh =  new THREE.MeshPhysicalMaterial({
 		map,
-		transparent: true, //TODO only some textures has to be transparent
-		alphaTest: 0,
+		transparent: false, //TODO only some textures has to be transparent
 		side,
-		color
+		color,
 	});
+	return mesh
 }
 
 const toVector2 = (ve: Vertex): Vector2 => new Vector2(ve.x, ve.y)
@@ -235,8 +235,8 @@ const renderUpperWall = (sector: Sector) => (ld: Linedef): Either<THREE.Mesh[]> 
 	const mesh = ld.flags.has(LinedefFlag.UPPER_TEXTURE_UNPEGGED) ?
 		// the upper texture will begin at the higher ceiling and be drawn downwards.
 		wall(() => THREE.DoubleSide, texture.val,
-			(ld, wallHeight) => Math.max(ld.sector.cellingHeight, ld.backSide.val.sector.cellingHeight) + wallHeight / 2,
-			(ld) => wallHeight(ld) * -1)(ld)
+			(ld, wallHeight) => Math.max(ld.sector.cellingHeight, ld.backSide.val.sector.cellingHeight) - wallHeight / 2,
+			wallHeight)(ld)
 		:
 		// the upper texture is pegged to the lowest ceiling
 		wall(() => THREE.DoubleSide, texture.val,
@@ -279,8 +279,8 @@ const renderLowerWall = (sector: Sector) => (ld: Linedef): Either<THREE.Mesh[]> 
 	const mesh = ld.flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED) ?
 		// the upper texture is pegged to the highest flor
 		wall(() => THREE.DoubleSide, texture.val,
-			(ld, wallHeight) => Math.max(ld.sector.floorHeight, ld.backSide.val.sector.floorHeight) + wallHeight / 2,
-			(ld) => height(ld) * -1)(ld)
+			(ld, wallHeight) => Math.max(ld.sector.floorHeight, ld.backSide.val.sector.floorHeight) - wallHeight / 2,
+			height)(ld)
 		:
 		// the upper texture is pegged to the lowest flor
 		wall(() => THREE.DoubleSide, texture.val,
@@ -315,9 +315,11 @@ const wall = (sideF: (ld: Linedef) => Side,
 	const ve = ld.end
 	const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y)
 	const material = createWallMaterial(texture, wallWidth, sideF(ld), color)
+
 	const mesh = new THREE.Mesh(new THREE.PlaneGeometry(wallWidth, wallHeight), material)
 	mesh.position.set((vs.x + ve.x) / 2, wallOffsetFunc(ld, wallHeight), -(vs.y + ve.y) / 2)
 	mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x))
+	mesh.receiveShadow = true
 	return mesh
 }
 
@@ -374,6 +376,13 @@ const positionCamera = (camera: THREE.Camera, map: DoomMap) =>
 const createWebGlRenderer = (canvas: HTMLCanvasElement): THREE.WebGLRenderer => {
 	const renderer = new THREE.WebGLRenderer({antialias: gc.renderer.antialias, canvas})
 	renderer.physicallyCorrectLights = gc.renderer.physicallyCorrectLights
+
+	// a beam from the flashlight does not dazzle when getting close to the wall
+	renderer.toneMapping = THREE.CineonToneMapping
+
+	renderer.shadowMap.enabled = true;
+	renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+
 	if (gc.renderer.resolution.width > 0) {
 		renderer.setSize(gc.renderer.resolution.width, gc.renderer.resolution.height)
 	} else {
@@ -404,12 +413,12 @@ const createSpotLightFolder = (gui: GUI, scene: THREE.Scene) => (name: string, s
 
 const emptyFunction = () => null
 
-const createRing = (flashLight: THREE.Group) => (color: ColorRepresentation, name: string, props?: keyof THREE.SpotLight): THREE.SpotLight => {
+const createRing = (flashLight: THREE.Group, folderFunction: (f, d) => any) => (color: ColorRepresentation, name: string, props?: keyof THREE.SpotLight): THREE.SpotLight => {
 	const ring = new THREE.SpotLight(color, gc.flashLight.intensity, 0)
 	ring.penumbra = gc.flashLight.penumbra
 	ring.castShadow = gc.flashLight.castShadow
-	ring.castShadow = false
 
+	folderFunction(name, ring)
 	flashLight.add(ring)
 	flashLight.add(ring.target)
 	return ring;
@@ -417,18 +426,15 @@ const createRing = (flashLight: THREE.Group) => (color: ColorRepresentation, nam
 
 const createFlashLight = (scene: THREE.Scene): THREE.Object3D => {
 	const flashLight = new THREE.Group()
-	const createRingF = createRing(flashLight)
+	const createRingF = createRing(flashLight, gc.flashLight.debug.gui ? createSpotLightFolder(new GUI(), scene) : emptyFunction)
 	flashLight.rotateX(Math.PI / 2)
-
-	const spotLightFolder = gc.flashLight.debug.gui ? createSpotLightFolder(new GUI(), scene) : emptyFunction
 
 	// light diffusion trough room
 	{
-		const ring = createRingF(0xebd68f, 'Light Diffusion','intensity')
+		const ring = createRingF(0xebd68f, 'Light Diffusion', 'intensity')
 		ring.angle = Math.PI
 		ring.decay = 1.4
 		ring.castShadow = gc.flashLight.castShadow
-		spotLightFolder('Light Diffusion', ring)
 	}
 
 	// light diffusion around main beam
@@ -436,7 +442,6 @@ const createFlashLight = (scene: THREE.Scene): THREE.Object3D => {
 		const ring = createRingF(0xe8b609, 'Ring 1')
 		ring.angle = 0.39
 		ring.decay = 1.4
-		spotLightFolder('Ring 1', ring)
 	}
 
 	// rings going from outside into center
@@ -444,24 +449,18 @@ const createFlashLight = (scene: THREE.Scene): THREE.Object3D => {
 		const ring = createRingF(0xd9c47c, 'Ring 2')
 		ring.angle = 0.16
 		ring.decay = 1.5
-
-		spotLightFolder('Ring 2', ring)
 	}
 
 	{
 		const ring = createRingF(0xb09a4c, 'Ring 3')
 		ring.angle = 0.14
 		ring.decay = 1.5
-
-		spotLightFolder('Ring 3', ring)
 	}
 
 	{
 		const ring = createRingF(0x75652b, 'Ring 4')
 		ring.angle = 0.13
 		ring.decay = 1.5
-
-		spotLightFolder('Ring 4', ring)
 	}
 
 	return flashLight;

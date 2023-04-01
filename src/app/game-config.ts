@@ -32,7 +32,7 @@ const scene = {
 	scale: 1,
 	ambientLight: {
 		color: 0XFFFFCC,
-		intensity: 0.7
+		intensity: 0.5
 	},
 	debug: {
 		axesHelper: {
@@ -155,7 +155,7 @@ const texture = {
 
 const flashLight = {
 	debug: {
-		gui: true
+		gui: false
 	},
 	intensity: 4000,
 	penumbra: 0.1,
