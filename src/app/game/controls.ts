@@ -19,7 +19,6 @@ import {config as gc} from '../game-config'
 
 export class Controls {
 
-	private prevTime = performance.now()
 	private moveX = MoveX.NO
 	private moveY = MoveY.NO
 	private readonly controls: PointerLockControls
@@ -33,10 +32,8 @@ export class Controls {
 		this.controls = new PointerLockControls(camera, canvas)
 	}
 
-	render(): void {
-		const time = performance.now()
-		const mf = (time - this.prevTime) / gc.move.slow
-
+	render(frameTimeSec: number): void {
+		const mf = frameTimeSec * gc.move.distancePerSec
 		if (this.moveY === MoveY.FORWARD) {
 			this.controls.moveForward(mf)
 
@@ -50,7 +47,6 @@ export class Controls {
 		} else if (this.moveX === MoveX.RIGHT) {
 			this.controls.moveRight(mf)
 		}
-		this.prevTime = time
 		//console.log('>CAM>', this.camera.position)
 	}
 

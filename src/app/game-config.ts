@@ -15,6 +15,7 @@
  */
 
 import {LinearFilter} from "three/src/constants";
+import * as THREE from "three";
 
 const game = {
 	startMap: 0,
@@ -25,14 +26,14 @@ const player = {
 }
 
 const move = {
-	slow: 4
+	distancePerSec: 300
 }
 
 const scene = {
 	scale: 1,
 	ambientLight: {
 		color: 0XFFFFCC,
-		intensity: 0.5
+		intensity: 0.8
 	},
 	debug: {
 		axesHelper: {
@@ -46,13 +47,18 @@ const scene = {
 	}
 }
 
-const floor = {
+const flat = {
 	texture: {
 		repeat: {
 			x: 0.02,
 			y: 0.02
 		}
-	}
+	},
+	receiveShadow: true
+}
+
+const wall = {
+	receiveShadow: true
 }
 
 export enum BoxType {
@@ -141,9 +147,17 @@ const camera = {
 const renderer = {
 	physicallyCorrectLights: true,
 	antialias: true,
+	outputEncoding: THREE.sRGBEncoding,
 	resolution: {
 		width: -1,
 		height: -1
+	},
+	shadowMap: {
+		enabled: true,
+		type: THREE.PCFSoftShadowMap
+	},
+	debug: {
+		showFps: true
 	}
 }
 
@@ -157,11 +171,48 @@ const flashLight = {
 	debug: {
 		gui: false
 	},
-	intensity: 4000,
-	penumbra: 0.1,
-	castShadow: true
+	ambient: {
+		penumbra: 0.1,
+		castShadow: true,
+		decay: 1.4,
+		angle: 3.14,
+		intensity: 1800,
+		color: 0XEBD68F
+	},
+	img: {
+		penumbra: 1,
+		castShadow: true,
+		decay: 1.5,
+		angle: 2,
+		intensity: 8000,
+		color: 0xFFFFFF,
+		img: './assets/img/fissured-glass.png'
+	},
+	ring1: {
+		penumbra: 0.1,
+		castShadow: true,
+		decay: 1.4,
+		angle: 0.39,
+		intensity: 1100,
+		color: 0xE8B609
+	},
+	ring2: {
+		penumbra: 0.1,
+		castShadow: true,
+		decay: 1.5,
+		angle: 0.16,
+		intensity: 1400,
+		color: 0xD9C47C
+	},
+	ring3: {
+		penumbra: 0.1,
+		castShadow: true,
+		decay: 1.5,
+		angle: 0.13,
+		intensity: 4400,
+		color: 0x75652B
+	}
 }
 
-
 // ############################ EXPORTS ############################
-export const config = {player, move, camera, game, floor, renderer, texture, sky, scene, flashLight}
+export const config = {player, move, camera, game, flat, renderer, texture, sky, scene, flashLight, wall}

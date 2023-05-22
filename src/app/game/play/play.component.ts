@@ -15,6 +15,7 @@
  */
 import {Component, ElementRef, HostListener, OnInit, ViewChild} from '@angular/core'
 import * as THREE from 'three'
+import * as Stats from 'stats.js'
 import {Controls} from '../controls'
 import {WadStorageService} from '../../wad/wad-storage.service'
 import {DoomMap, Wad} from '../../wad/parser/wad-model'
@@ -22,6 +23,42 @@ import {DoomMap, Wad} from '../../wad/parser/wad-model'
 import {functions as tb} from '../three-builder'
 import {config as gc} from '../../game-config'
 
+
+
+/* TODO:
+// Funktion als param!!!
+type XRFrameRequestCallback = (time: DOMHighResTimeStamp, frame: XRFrame) => void;
+  setAnimationLoop(callback: XRFrameRequestCallback | null): void;
+
+##################################################################################################################
+
+dumping, that is does not stop immedately
+
+https://discoverthreejs.com/book/first-steps/camera-controls/#smoothly-transition-to-a-new-camera-position
+
+
+OrbitControls.js:
+if ( scope.enableDamping ) {
+
+		spherical.theta += sphericalDelta.theta * scope.dampingFactor;
+		spherical.phi += sphericalDelta.phi * scope.dampingFactor;
+
+	} else {
+
+		spherical.theta += sphericalDelta.theta;
+		spherical.phi += sphericalDelta.phi;
+
+	}
+
+https://discoverthreejs.com/book/first-steps/camera-controls/
+  controls.enableDamping = true;
+
+##################################################################################################################
+ light from the DirectionalLight shines from light.position to light.target.position
+
+ ##################################################################################################################
+
+ */
 @Component({
 	selector: 'app-play',
 	templateUrl: './play.component.html',
@@ -33,12 +70,14 @@ export class PlayComponent implements OnInit {
 	private canvasRef: ElementRef<HTMLCanvasElement>
 	private camera: THREE.PerspectiveCamera
 	private scene: THREE.Scene
-	private webGLRenderer: THREE.WebGLRenderer
+	private renderer: THREE.WebGLRenderer
 	private controls: Controls
 	private wad: Wad
 	private map: DoomMap
 	private floors: THREE.Mesh[]
 	private raycaster: THREE.Raycaster
+	private flashLight: THREE.Object3D
+	private stats;
 
 	constructor(private wadStorage: WadStorageService) {
 	}
@@ -49,7 +88,7 @@ export class PlayComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.wad = this.wadStorage.getCurrent().get().wad
-		this.webGLRenderer = tb.createWebGlRenderer(this.canvas)
+		this.renderer = tb.createRenderer(this.canvas)
 		this.map = this.wad.maps[gc.game.startMap]
 		this.scene = tb.createScene()
 
@@ -75,38 +114,23 @@ export class PlayComponent implements OnInit {
 		this.controls = new Controls(this.camera, this.canvas)
 		this.raycaster = new THREE.Raycaster()
 
-		{
-			const light = new THREE.PointLight(0xFFFF00, 200.0, 4000, 1.1)
-			//light.castShadow = true
-			light.add(new THREE.Mesh(new THREE.SphereGeometry(2, 32, 32),
-				new THREE.MeshBasicMaterial({color: 0xFFFF00})));
-			light.position.set(950, 40, 3390);
-			//	this.scene.add(light)
+		//this.scene.add(tb.torusAt('torus', 950, 40, 3410, 0x520D0D))
+		this.scene.add(tb.torusKnotAt('torusKnot', 850, 40, 3410, 0X049EF4))
 
-			this.scene.add(tb.torusAt(950, 40, 3410, 0x520D0D))
+		this.flashLight = tb.createFlashLight(this.scene, this.camera)
 
-			//	this.camera.add(tb.torusAt(0, 0, -200, 0x520D0D,5,2))
+		this.renderer.setAnimationLoop(animation(this))
+
+		if (gc.renderer.debug.showFps) {
+			this.stats = new Stats()
+			document.body.appendChild(this.stats.domElement)
 		}
-
-		this.camera.add(tb.createFlashLight(this.scene));
-
-		this.startRenderingLoop()
 	}
 
 	@HostListener('window:resize')
 	onResize() {
 		this.camera.aspect = this.canvas.clientWidth / this.canvas.clientHeight;
 		this.camera.updateProjectionMatrix()
-	}
-
-	private startRenderingLoop(): void {
-		const comp = this;
-		(function render() {
-			requestAnimationFrame(render)
-			comp.controls.render()
-			comp.updatePlayerPosition()
-			comp.webGLRenderer.render(comp.scene, comp.camera)
-		})()
 	}
 
 	private updatePlayerPosition(): void {
@@ -119,6 +143,26 @@ export class PlayComponent implements OnInit {
 			cp.y = (inters[0].point.y / gc.scene.scale) + gc.player.height + gc.camera.position.adjust.y
 		}
 	}
+}
+
+const clock = new THREE.Clock();
+
+const animation = (comp) => (time: number) => {
+	const delta = clock.getDelta();
+	if (gc.renderer.debug.showFps) {
+		comp.stats.update()
+	}
+	comp.controls.render(delta)
+	comp.updatePlayerPosition()
+	comp.renderer.render(comp.scene, comp.camera)
+
+	const torusKnot = comp.scene.getObjectByName('torusKnot');
+	torusKnot.rotation.y = time / 1000;
+	torusKnot.rotation.x = time / 1000;
+
+	//const torus = comp.scene.getObjectByName('torus');
+	//torus.rotation.y = time / 1000;
+//	torus.rotation.x = time / 1000;
 
 }
 
