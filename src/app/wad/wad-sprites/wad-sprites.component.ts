@@ -22,10 +22,15 @@ import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {MainEvent} from '../../main/main-event'
 import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {WadSpritesNavbarComponent} from './wad-sprites-navbar/wad-sprites-navbar.component'
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { PbmpAnimationComponent } from '../pbmp-animation/pbmp-animation.component';
+import { NgFor } from '@angular/common';
 
 @Component({
-	selector: 'app-wad-sprite',
-	templateUrl: './wad-sprites.component.html'
+    selector: 'app-wad-sprite',
+    templateUrl: './wad-sprites.component.html',
+    standalone: true,
+    imports: [NgFor, PbmpAnimationComponent, NgbPopover]
 })
 export class WadSpritesComponent implements OnInit, SpritesListControl {
 

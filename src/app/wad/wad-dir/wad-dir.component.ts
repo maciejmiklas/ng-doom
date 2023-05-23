@@ -15,10 +15,13 @@
  */
 import {Component, Input} from '@angular/core'
 import {Directory} from '../parser/wad-model'
+import { WadDirElementComponent } from '../wad-dir-element/wad-dir-element.component';
 
 @Component({
-	selector: 'app-wad-dir',
-	templateUrl: './wad-dir.component.html'
+    selector: 'app-wad-dir',
+    templateUrl: './wad-dir.component.html',
+    standalone: true,
+    imports: [WadDirElementComponent]
 })
 export class WadDirComponent {
 

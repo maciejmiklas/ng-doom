@@ -60,9 +60,10 @@ https://discoverthreejs.com/book/first-steps/camera-controls/
 
  */
 @Component({
-	selector: 'app-play',
-	templateUrl: './play.component.html',
-	styleUrls: ['./play.component.css']
+    selector: 'app-play',
+    templateUrl: './play.component.html',
+    styleUrls: ['./play.component.css'],
+    standalone: true
 })
 export class PlayComponent implements OnInit {
 

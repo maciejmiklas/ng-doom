@@ -17,14 +17,19 @@ import {Component, EventEmitter, OnInit, Output, ViewEncapsulation} from '@angul
 import {MenuService} from './menu.service'
 import {MenuRoot, MenuState} from './menu-model'
 import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
-import {Router} from '@angular/router'
+import { Router, RouterLink } from '@angular/router'
 import {WadEvent} from '../wad/wad-event'
 import {MenuEvent} from './menu-event'
+import { NgFor, NgClass } from '@angular/common';
+import { NgbAccordion, NgbPanel, NgbPanelHeader, NgbPanelToggle, NgbPanelContent } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-	selector: 'app-menu',
-	templateUrl: './menu.component.html',
-	encapsulation: ViewEncapsulation.None // TODO '<ngb-panel cardClass=....' does not support encapsulation?
+    selector: 'app-menu',
+    templateUrl: './menu.component.html',
+    encapsulation: ViewEncapsulation.None // TODO '<ngb-panel cardClass=....' does not support encapsulation?
+    ,
+    standalone: true,
+    imports: [NgbAccordion, NgFor, NgbPanel, NgbPanelHeader, NgbPanelToggle, NgbPanelContent, RouterLink, NgClass]
 })
 export class MenuComponent implements OnInit {
 

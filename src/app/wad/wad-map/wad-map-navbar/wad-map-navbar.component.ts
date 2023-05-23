@@ -1,10 +1,16 @@
 import {Component} from '@angular/core'
 import {NavbarPlugin} from '../../../main/navbar_plugin'
 import {MapControl} from '../wad-map.component'
+import { NgxBootstrapSliderModule } from '@maciejmiklas/ngx-bootstrap-slider';
+import { ReactiveFormsModule } from '@angular/forms';
+import { NgFor } from '@angular/common';
+import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-	selector: 'app-wad-map-navbar',
-	templateUrl: './wad-map-navbar.component.html'
+    selector: 'app-wad-map-navbar',
+    templateUrl: './wad-map-navbar.component.html',
+    standalone: true,
+    imports: [NgbDropdown, NgFor, ReactiveFormsModule, NgxBootstrapSliderModule]
 })
 export class WadMapNavbarComponent implements NavbarPlugin<MapControl> {
 

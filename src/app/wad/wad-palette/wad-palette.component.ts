@@ -16,10 +16,14 @@
 import {Component, Input, OnInit} from '@angular/core'
 import * as R from 'ramda'
 import {Palette, RGBA} from '../parser/wad-model'
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgFor, NgStyle } from '@angular/common';
 
 @Component({
-	selector: 'app-wad-palette',
-	templateUrl: './wad-palette.component.html'
+    selector: 'app-wad-palette',
+    templateUrl: './wad-palette.component.html',
+    standalone: true,
+    imports: [NgFor, NgStyle, NgbPopover]
 })
 export class WadPaletteComponent implements OnInit {
 

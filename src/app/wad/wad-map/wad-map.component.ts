@@ -23,10 +23,13 @@ import {MainEvent} from '../../main/main-event'
 import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {WadMapNavbarComponent} from './wad-map-navbar/wad-map-navbar.component'
 import {functions as mp} from '../parser/map-parser'
+import { PaperComponent } from '../../common/paper/paper.component';
 
 @Component({
-	selector: 'app-wad-map',
-	templateUrl: './wad-map.component.html'
+    selector: 'app-wad-map',
+    templateUrl: './wad-map.component.html',
+    standalone: true,
+    imports: [PaperComponent]
 })
 export class WadMapComponent implements OnInit, MapControl {
 	private zoom = 1

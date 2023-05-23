@@ -16,10 +16,13 @@
 import {Component} from '@angular/core'
 import {TexturesListControl} from '../wad-textures.component'
 import {NavbarPlugin} from '../../../main/navbar_plugin'
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 @Component({
-	selector: 'app-wad-textures-navbar',
-	templateUrl: './wad-textures-navbar.component.html'
+    selector: 'app-wad-textures-navbar',
+    templateUrl: './wad-textures-navbar.component.html',
+    standalone: true,
+    imports: [ReactiveFormsModule, FormsModule]
 })
 export class WadTexturesNavbarComponent implements NavbarPlugin<TexturesListControl> {
 

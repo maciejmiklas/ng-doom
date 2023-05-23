@@ -21,10 +21,14 @@ import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {MainEvent} from '../../main/main-event'
 import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {WadDirsNavbarComponent} from './wad-dirs-navbar/wad-dirs-navbar.component'
+import { WadDirComponent } from '../wad-dir/wad-dir.component';
+import { NgFor } from '@angular/common';
 
 @Component({
-	selector: 'app-wad-dirs',
-	templateUrl: './wad-dirs.component.html'
+    selector: 'app-wad-dirs',
+    templateUrl: './wad-dirs.component.html',
+    standalone: true,
+    imports: [NgFor, WadDirComponent]
 })
 export class WadDirsComponent implements OnInit, DirsListControl {
 	initDirs: Directory[]

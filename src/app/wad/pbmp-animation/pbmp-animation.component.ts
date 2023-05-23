@@ -19,8 +19,9 @@ import {functions as tp} from '../parser/texture-parser'
 import {Log} from "../../common/log"
 
 @Component({
-	selector: 'app-pbmp-animation',
-	templateUrl: './pbmp-animation.component.html'
+    selector: 'app-pbmp-animation',
+    templateUrl: './pbmp-animation.component.html',
+    standalone: true
 })
 export class PbmpAnimationComponent implements OnInit {
 

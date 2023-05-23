@@ -19,8 +19,9 @@ import {WadStorageService} from '../wad-storage.service'
 import {functions as tp} from '../parser/texture-parser'
 
 @Component({
-	selector: 'app-pbmp',
-	templateUrl: './pbmp.component.html'
+    selector: 'app-pbmp',
+    templateUrl: './pbmp.component.html',
+    standalone: true
 })
 export class PbmpComponent implements OnInit, DoCheck {
 	static CMP = 'app-pbmp'

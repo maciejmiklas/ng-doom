@@ -16,10 +16,14 @@
 import {Component} from '@angular/core'
 import {NavbarPlugin} from '../../../main/navbar_plugin'
 import {CarouselControl} from '../carousel.component'
+import { NgxBootstrapSliderModule } from '@maciejmiklas/ngx-bootstrap-slider';
+import { NgIf } from '@angular/common';
 
 @Component({
-	selector: 'app-wad-map-navbar',
-	templateUrl: './navbar-plugin.component.html'
+    selector: 'app-wad-map-navbar',
+    templateUrl: './navbar-plugin.component.html',
+    standalone: true,
+    imports: [NgIf, NgxBootstrapSliderModule]
 })
 export class NavbarCarouselPluginComponent implements NavbarPlugin<CarouselControl> {
 

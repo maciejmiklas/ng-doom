@@ -17,8 +17,9 @@ import {Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@a
 import {PaperScope, Point} from 'paper'
 
 @Component({
-	selector: 'app-paper',
-	templateUrl: './paper.component.html'
+    selector: 'app-paper',
+    templateUrl: './paper.component.html',
+    standalone: true
 })
 export class PaperComponent implements OnInit {
 

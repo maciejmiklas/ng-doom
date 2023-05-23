@@ -20,10 +20,15 @@ import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {MainEvent} from '../../main/main-event'
 import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {WadPatchesNavbarComponent} from './wad-patches-navbar/wad-patches-navbar.component'
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { PbmpComponent } from '../pbmp/pbmp.component';
+import { NgFor } from '@angular/common';
 
 @Component({
-	selector: 'app-wad-patches',
-	templateUrl: './wad-patches.component.html'
+    selector: 'app-wad-patches',
+    templateUrl: './wad-patches.component.html',
+    standalone: true,
+    imports: [NgFor, PbmpComponent, NgbPopover]
 })
 export class WadPatchesComponent implements OnInit, PatchesListControl {
 	patches: Bitmap[]

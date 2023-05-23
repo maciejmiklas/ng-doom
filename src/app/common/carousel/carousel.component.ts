@@ -24,16 +24,19 @@ import {
 	TemplateRef,
 	ViewChild
 } from '@angular/core'
-import {NgbCarousel, NgbSlideEvent} from '@ng-bootstrap/ng-bootstrap'
+import { NgbCarousel, NgbSlideEvent, NgbSlide } from '@ng-bootstrap/ng-bootstrap'
 import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {MainEvent} from '../../main/main-event'
 import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {NavbarCarouselPluginComponent} from './navbar-plugin/navbar-plugin.component'
 import {Slide} from './carousel-model'
+import { NgFor, NgTemplateOutlet } from '@angular/common';
 
 @Component({
-	selector: 'app-carousel[slides]',
-	templateUrl: './carousel.component.html'
+    selector: 'app-carousel[slides]',
+    templateUrl: './carousel.component.html',
+    standalone: true,
+    imports: [NgbCarousel, NgFor, NgbSlide, NgTemplateOutlet]
 })
 export class CarouselComponent implements OnInit, AfterViewInit, CarouselControl {
 

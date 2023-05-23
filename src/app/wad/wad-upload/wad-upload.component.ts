@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 import {Component} from '@angular/core'
-import {FileSystemFileEntry, NgxFileDropEntry} from 'ngx-file-drop'
+import { FileSystemFileEntry, NgxFileDropEntry, NgxFileDropModule } from 'ngx-file-drop'
 import {WadStorageService} from '../wad-storage.service'
 import {UploadResult, UploadStatus} from './wad-upload-model'
+import { NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
 
 @Component({
-	selector: 'app-wad-upload',
-	templateUrl: './wad-upload.component.html'
+    selector: 'app-wad-upload',
+    templateUrl: './wad-upload.component.html',
+    standalone: true,
+    imports: [NgxFileDropModule, NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault]
 })
 export class WadUploadComponent {
 

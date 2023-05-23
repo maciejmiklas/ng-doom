@@ -16,8 +16,9 @@
 import {Component, Input} from '@angular/core'
 
 @Component({
-	selector: 'app-wad-dir-element',
-	templateUrl: './wad-dir-element.component.html'
+    selector: 'app-wad-dir-element',
+    templateUrl: './wad-dir-element.component.html',
+    standalone: true
 })
 export class WadDirElementComponent {
 

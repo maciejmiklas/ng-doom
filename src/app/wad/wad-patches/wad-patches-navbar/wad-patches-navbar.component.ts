@@ -16,10 +16,13 @@
 import {Component} from '@angular/core'
 import {NavbarPlugin} from '../../../main/navbar_plugin'
 import {PatchesListControl} from '../wad-patches.component'
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 @Component({
-	selector: 'app-wad-patches-navbar',
-	templateUrl: './wad-patches-navbar.component.html'
+    selector: 'app-wad-patches-navbar',
+    templateUrl: './wad-patches-navbar.component.html',
+    standalone: true,
+    imports: [ReactiveFormsModule, FormsModule]
 })
 export class WadPatchesNavbarComponent implements NavbarPlugin<PatchesListControl> {
 

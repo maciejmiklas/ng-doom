@@ -16,10 +16,13 @@
 import {Component} from '@angular/core'
 import {NavbarPlugin} from '../../../main/navbar_plugin'
 import {SpritesListControl} from '../wad-sprites.component'
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 @Component({
-	selector: 'app-wad-sprites-navbar',
-	templateUrl: './wad-sprites-navbar.component.html',
+    selector: 'app-wad-sprites-navbar',
+    templateUrl: './wad-sprites-navbar.component.html',
+    standalone: true,
+    imports: [ReactiveFormsModule, FormsModule]
 })
 export class WadSpritesNavbarComponent implements NavbarPlugin<SpritesListControl> {
 

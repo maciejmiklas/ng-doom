@@ -18,7 +18,8 @@ import {NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {MainEvent} from './main-event'
 
 @Directive({
-	selector: '[appMainOverflow]'
+    selector: '[appMainOverflow]',
+    standalone: true
 })
 export class MainOverflowDirective {
 

@@ -16,10 +16,14 @@
 import {Component} from '@angular/core'
 import {DirsListControl} from '../wad-dirs.component'
 import {NavbarPlugin} from '../../../main/navbar_plugin'
+import { NgbPagination } from '@ng-bootstrap/ng-bootstrap';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 @Component({
-	selector: 'app-wad-dirs-wad-map-navbar',
-	templateUrl: './wad-dirs-navbar.component.html'
+    selector: 'app-wad-dirs-wad-map-navbar',
+    templateUrl: './wad-dirs-navbar.component.html',
+    standalone: true,
+    imports: [ReactiveFormsModule, FormsModule, NgbPagination]
 })
 export class WadDirsNavbarComponent implements NavbarPlugin<DirsListControl> {
 	maxSize = 10

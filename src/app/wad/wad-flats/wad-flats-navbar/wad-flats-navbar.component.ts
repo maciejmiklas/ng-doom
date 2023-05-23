@@ -16,10 +16,13 @@
 import {Component} from '@angular/core'
 import {NavbarPlugin} from "../../../main/navbar_plugin"
 import {FlatsListControl} from "../wad-flats.component"
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 @Component({
-	selector: 'app-wad-flats-navbar',
-	templateUrl: './wad-flats-navbar.component.html'
+    selector: 'app-wad-flats-navbar',
+    templateUrl: './wad-flats-navbar.component.html',
+    standalone: true,
+    imports: [ReactiveFormsModule, FormsModule]
 })
 export class WadFlatsNavbarComponent implements NavbarPlugin<FlatsListControl> {
 	private data: FlatsListControl

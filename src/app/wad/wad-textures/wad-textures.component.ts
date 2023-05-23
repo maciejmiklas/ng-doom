@@ -20,12 +20,16 @@ import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {MainEvent} from '../../main/main-event'
 import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {WadPatchesNavbarComponent} from '../wad-patches/wad-patches-navbar/wad-patches-navbar.component'
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap'
+import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap'
 import {WadTextureComponent} from '../wad-texture/wad-texture.component'
+import { PbmpComponent } from '../pbmp/pbmp.component';
+import { NgFor } from '@angular/common';
 
 @Component({
-	selector: 'app-wad-textures',
-	templateUrl: './wad-textures.component.html'
+    selector: 'app-wad-textures',
+    templateUrl: './wad-textures.component.html',
+    standalone: true,
+    imports: [NgFor, PbmpComponent, NgbPopover]
 })
 export class WadTexturesComponent implements OnInit, TexturesListControl {
 
