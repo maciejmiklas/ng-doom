@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls'
-import * as THREE from 'three'
+import * as T from 'three'
 import {config as gc} from '../game-config'
 
 export class Controls {
@@ -22,9 +22,9 @@ export class Controls {
 	private moveX = MoveX.NO
 	private moveY = MoveY.NO
 	private readonly controls: PointerLockControls
-	private camera: THREE.PerspectiveCamera
+	private camera: T.PerspectiveCamera
 
-	constructor(camera: THREE.PerspectiveCamera, canvas: HTMLCanvasElement) {
+	constructor(camera: T.PerspectiveCamera, canvas: HTMLCanvasElement) {
 		window.addEventListener('keydown', this.onKeyDown.bind(this))
 		window.addEventListener('keyup', this.onKeyUp.bind(this))
 		canvas.addEventListener('click', this.onClick.bind(this))

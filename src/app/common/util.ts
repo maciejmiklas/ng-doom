@@ -126,7 +126,7 @@ const cs = (s1: string, s2: string): boolean =>
 
 const lineWidth = (start: number, end: number) => Math.abs(end - start)
 
-const U = {
+export default {
 	base64ToUint8NumberArray,
 	trim0Padding,
 	parseStr,
@@ -146,6 +146,4 @@ const U = {
 	cs,
 	lineWidth
 }
-
-export default U
 

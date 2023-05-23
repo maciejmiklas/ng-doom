@@ -32,78 +32,75 @@ import {
 	Sector,
 	Vertex
 } from "../wad/parser/wad-model"
-import * as THREE from "three"
-import {Side} from "three/src/constants"
-import {Vector2} from "three/src/math/Vector2"
-import {ColorRepresentation} from "three/src/utils"
+import * as T from "three"
 import {Either} from "../common/either";
-import {BoxType, config as gc} from '../game-config'
+import {config as gc} from '../game-config'
 import U from "../common/util";
 import {GUI} from "dat.gui";
 
-const createDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
-	const texture = new THREE.DataTexture(bitmap.rgba, bitmap.width, bitmap.height)
+const createDataTexture = (bitmap: RgbaBitmap): T.DataTexture => {
+	const texture = new T.DataTexture(bitmap.rgba, bitmap.width, bitmap.height)
 	texture.needsUpdate = true
-	texture.format = THREE.RGBAFormat
-	texture.type = THREE.UnsignedByteType
-	texture.magFilter = THREE.NearestFilter
-	texture.minFilter = THREE.NearestFilter
-	texture.mapping = THREE.UVMapping
-	texture.wrapS = THREE.RepeatWrapping
-	texture.wrapT = THREE.RepeatWrapping
+	texture.format = T.RGBAFormat
+	texture.type = T.UnsignedByteType
+	texture.magFilter = T.NearestFilter
+	texture.minFilter = T.NearestFilter
+	texture.mapping = T.UVMapping
+	texture.wrapS = T.RepeatWrapping
+	texture.wrapT = T.RepeatWrapping
 	texture.anisotropy = gc.texture.anisotropy
 	texture.minFilter = gc.texture.minFilter
 	texture.magFilter = gc.texture.magFilter
-	texture.encoding = THREE.sRGBEncoding;
+	texture.encoding = T.sRGBEncoding;
 	texture.flipY = true
 	return texture
 }
 
 export type Sector3d = {
-	flats: THREE.Mesh[],
-	floors: THREE.Mesh[]
+	flats: T.Mesh[],
+	floors: T.Mesh[]
 }
 
-const createFlatDataTexture = (bitmap: RgbaBitmap): THREE.DataTexture => {
+const createFlatDataTexture = (bitmap: RgbaBitmap): T.DataTexture => {
 	const texture = createDataTexture(bitmap)
 	texture.repeat.set(gc.flat.texture.repeat.x, gc.flat.texture.repeat.y)
 	return texture
 }
 
-const createFlatMaterial = (texture: Either<Bitmap>, side: Side): THREE.Material =>
-	texture.map(tx => createFlatDataTexture(tx)).map(tx => new THREE.MeshStandardMaterial({
+const createFlatMaterial = (texture: Either<Bitmap>, side: T.Side): T.Material =>
+	texture.map(tx => createFlatDataTexture(tx)).map(tx => new T.MeshStandardMaterial({
 		side,
 		map: tx
 	})).orElse(() => createFallbackMaterial())
 
-const createWallMaterial = (dt: DoomTexture, wallWidth: number, side: Side, color = null): THREE.Material => {
+const createWallMaterial = (dt: DoomTexture, wallWidth: number, side: T.Side, color = null): T.Material => {
 	const map = createDataTexture(dt);
 	map.repeat.x = wallWidth / dt.width
-	const material = new THREE.MeshStandardMaterial({
+	const material = new T.MeshStandardMaterial({
 		map,
 		//transparent: false, //TODO only some textures has to be transparent
 		side,
 		color,
 	});
-	//material.shadowSide = THREE.DoubleSide
+	//material.shadowSide = T.DoubleSide
 	return material
 }
 
-const toVector2 = (ve: Vertex): Vector2 => new Vector2(ve.x, ve.y)
+const toVector2 = (ve: Vertex): T.Vector2 => new T.Vector2(ve.x, ve.y)
 
-const createShapeFromPath = (path: Linedef[]): THREE.Shape => {
-	return new THREE.Shape(mf.pathToPoints(path).map(p => toVector2(p)));
+const createShapeFromPath = (path: Linedef[]): T.Shape => {
+	return new T.Shape(mf.pathToPoints(path).map(p => toVector2(p)));
 }
 
-const createShapesFromFlatArea = (flat: FlatArea): THREE.Shape[] => {
+const createShapesFromFlatArea = (flat: FlatArea): T.Shape[] => {
 	return [createShapeFromPath(flat.walls)];
 }
 
-const createShapesFromFlatWithShapes = (flat: FlatWithShapes): THREE.Shape[] => {
+const createShapesFromFlatWithShapes = (flat: FlatWithShapes): T.Shape[] => {
 	return flat.walls.map(wall => createShapeFromPath(wall));
 }
 
-const createShapesFromFlatWithHoles = (flat: FlatWithHoles, renderHoles: boolean): THREE.Shape[] => {
+const createShapesFromFlatWithHoles = (flat: FlatWithHoles, renderHoles: boolean): T.Shape[] => {
 	const shape = createShapeFromPath(flat.walls)
 	if (renderHoles) {
 		flat.holes.map(hole => createShapeFromPath(hole)).forEach(hole => shape.holes.push(hole))
@@ -111,51 +108,51 @@ const createShapesFromFlatWithHoles = (flat: FlatWithHoles, renderHoles: boolean
 	return [shape];
 }
 
-const createShapesFromFlat = (flat: Flat, renderHoles: boolean): THREE.Shape[] =>
-	R.cond<Flat[], THREE.Shape[]>([
+const createShapesFromFlat = (flat: Flat, renderHoles: boolean): T.Shape[] =>
+	R.cond<Flat[], T.Shape[]>([
 		[(f) => f.type === FlatType.AREA, (f) => createShapesFromFlatArea(f as FlatArea)],
 		[(f) => f.type === FlatType.SHAPES, (f) => createShapesFromFlatWithShapes(f as FlatWithShapes)],
 		[R.T, (f) => createShapesFromFlatWithHoles(f as FlatWithHoles, renderHoles)]
 	])(flat)
 
-const point = (x: number, y: number, z: number, color: ColorRepresentation = 0xff0000): THREE.Object3D => {
-	const dotGeometry = new THREE.BufferGeometry()
-	dotGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([x, y, z]), 3))
-	const dotMaterial = new THREE.PointsMaterial({size: 5, color})
-	return new THREE.Points(dotGeometry, dotMaterial)
+const point = (x: number, y: number, z: number, color: T.ColorRepresentation = 0xff0000): T.Object3D => {
+	const dotGeometry = new T.BufferGeometry()
+	dotGeometry.setAttribute('position', new T.BufferAttribute(new Float32Array([x, y, z]), 3))
+	const dotMaterial = new T.PointsMaterial({size: 5, color})
+	return new T.Points(dotGeometry, dotMaterial)
 }
 
-const createFallbackMaterial = () => new THREE.MeshStandardMaterial({
+const createFallbackMaterial = () => new T.MeshStandardMaterial({
 	transparent: true,
 	color: 'green',
-	side: THREE.DoubleSide
+	side: T.DoubleSide
 })
 
-const createSky = (map: DoomMap): THREE.Mesh => {
+const createSky = (map: DoomMap): T.Mesh => {
 	const minX = mf.findMinX(map.linedefs)
 	const maxX = mf.findMaxX(map.linedefs)
 	const minY = mf.findMinY(map.linedefs)
 	const maxY = mf.findMaxY(map.linedefs)
-	const type = gc.sky.box.type == BoxType.ORIGINAL && map.sky.isRight() ? BoxType.ORIGINAL : BoxType.BITMAP
+	const type = gc.sky.box.type == gc.BoxType.ORIGINAL && map.sky.isRight() ? gc.BoxType.ORIGINAL : gc.BoxType.BITMAP
 	const adjust = gc.sky.adjust.filter(a => a.type === type)[0]
-	const skyBox = new THREE.BoxGeometry(
+	const skyBox = new T.BoxGeometry(
 		U.lineWidth(minX, maxX) + adjust.width,
 		adjust.height,
 		U.lineWidth(minY, maxY) + adjust.depth);
 
-	const material = type == BoxType.ORIGINAL ? skyBoxOriginalMaterial(map.sky.val.patches[0].bitmap) : skyBoxBitmapMaterial()
-	const mesh = new THREE.Mesh(skyBox, material);
+	const material = type == gc.BoxType.ORIGINAL ? skyBoxOriginalMaterial(map.sky.val.patches[0].bitmap) : skyBoxBitmapMaterial()
+	const mesh = new T.Mesh(skyBox, material);
 
 	// set position to the middle of the map.
 	mesh.position.set(maxX - U.lineWidth(minX, maxX) / 2, adjust.y, -maxY + U.lineWidth(minY, maxY) / 2)
 	return mesh;
 }
 
-const orgBoxFactory = (map: THREE.DataTexture) => () => new THREE.MeshStandardMaterial({map, side: THREE.BackSide})
+const orgBoxFactory = (map: T.DataTexture) => () => new T.MeshStandardMaterial({map, side: T.BackSide})
 
-const emptyMaterial = () => new THREE.MeshStandardMaterial()
+const emptyMaterial = () => new T.MeshStandardMaterial()
 
-const skyBoxOriginalMaterial = (sky: Bitmap): THREE.MeshStandardMaterial[] => {
+const skyBoxOriginalMaterial = (sky: Bitmap): T.MeshStandardMaterial[] => {
 	const texture = createDataTexture(sky)
 	const fact = orgBoxFactory(texture)
 	return [fact(), fact(), emptyMaterial(), emptyMaterial(), fact(), fact()] // ft, bk, -, -, rt, lf
@@ -165,8 +162,8 @@ const boxPaths = (name, ext): string[] =>
 	["ft", "bk", "up", "dn", "rt", "lf"].map(side =>
 		'./assets/sky/' + name + '/' + side + '.' + ext)
 
-const skyBoxBitmapMaterial = (): THREE.MeshStandardMaterial[] => boxPaths(gc.sky.box.bitmap.name, gc.sky.box.bitmap.ext).map(image =>
-	new THREE.MeshStandardMaterial({map: new THREE.TextureLoader().load(image), side: THREE.BackSide})
+const skyBoxBitmapMaterial = (): T.MeshStandardMaterial[] => boxPaths(gc.sky.box.bitmap.name, gc.sky.box.bitmap.ext).map(image =>
+	new T.MeshStandardMaterial({map: new T.TextureLoader().load(image), side: T.BackSide})
 );
 
 const createWorld = (map: DoomMap): Sector3d => {
@@ -200,13 +197,13 @@ const renderSector = (lbs: LinedefBySector): Sector3d => {
 	return {flats, floors};
 }
 
-const renderFlat = (flat: Flat, texture: Either<Bitmap>, height: number, renderHoles: boolean, type: string): THREE.Mesh[] => {
+const renderFlat = (flat: Flat, texture: Either<Bitmap>, height: number, renderHoles: boolean, type: string): T.Mesh[] => {
 	if (texture.isRight() && texture.val.name.includes("SKY")) {
 		return []; // SKY should be transparent so that the player can see the sky.
 	}
 
-	const mesh = new THREE.Mesh(new THREE.ShapeGeometry(createShapesFromFlat(flat, renderHoles)),
-		createFlatMaterial(texture, THREE.DoubleSide))
+	const mesh = new T.Mesh(new T.ShapeGeometry(createShapesFromFlat(flat, renderHoles)),
+		createFlatMaterial(texture, T.DoubleSide))
 	mesh.rotation.set(Math.PI / 2, Math.PI, Math.PI)
 	mesh.position.y = height
 	mesh.name = type + ':' + flat.sector.id;
@@ -215,7 +212,7 @@ const renderFlat = (flat: Flat, texture: Either<Bitmap>, height: number, renderH
 }
 
 /** front side -> upper wall */
-const renderUpperWall = (sector: Sector) => (ld: Linedef): Either<THREE.Mesh[]> => {
+const renderUpperWall = (sector: Sector) => (ld: Linedef): Either<T.Mesh[]> => {
 	if (ld.backSide.isLeft()) {
 		return Either.ofLeft(() => 'No upper wall for one sided Linedef: ' + ld.id)
 	}
@@ -234,12 +231,12 @@ const renderUpperWall = (sector: Sector) => (ld: Linedef): Either<THREE.Mesh[]> 
 	const wallHeight = (lde) => Math.abs(lde.sector.cellingHeight - lde.backSide.val.sector.cellingHeight)
 	const mesh = ld.flags.has(LinedefFlag.UPPER_TEXTURE_UNPEGGED) ?
 		// the upper texture will begin at the higher ceiling and be drawn downwards.
-		wall(() => THREE.DoubleSide, texture.val,
+		wall(() => T.DoubleSide, texture.val,
 			(ld, wallHeight) => Math.max(ld.sector.cellingHeight, ld.backSide.val.sector.cellingHeight) - wallHeight / 2,
 			wallHeight)(ld)
 		:
 		// the upper texture is pegged to the lowest ceiling
-		wall(() => THREE.DoubleSide, texture.val,
+		wall(() => T.DoubleSide, texture.val,
 			(ld, wallHeight) => Math.min(ld.sector.cellingHeight, ld.backSide.val.sector.cellingHeight) + wallHeight / 2,
 			wallHeight)(ld)
 
@@ -251,15 +248,15 @@ const renderUpperWall = (sector: Sector) => (ld: Linedef): Either<THREE.Mesh[]> 
  *
  * The top of the texture is at the ceiling, the texture continues downward to the floor.
  */
-const renderMiddleWall = (ld: Linedef): Either<THREE.Mesh[]> => {
+const renderMiddleWall = (ld: Linedef): Either<T.Mesh[]> => {
 	return Either.ofTruth([ld.frontSide.middleTexture],
-		() => [wall(() => THREE.DoubleSide, ld.frontSide.middleTexture.val,
+		() => [wall(() => T.DoubleSide, ld.frontSide.middleTexture.val,
 			(ld, wallHeight) => ld.sector.floorHeight + wallHeight / 2,
 			(ld) => ld.sector.cellingHeight - ld.sector.floorHeight)(ld)])
 }
 
 /** front side -> lower wall part */
-const renderLowerWall = (sector: Sector) => (ld: Linedef): Either<THREE.Mesh[]> => {
+const renderLowerWall = (sector: Sector) => (ld: Linedef): Either<T.Mesh[]> => {
 	if (ld.backSide.isLeft()) {
 		return Either.ofLeft(() => 'No lower wall for single sided Linedef: ' + ld.id)
 	}
@@ -278,12 +275,12 @@ const renderLowerWall = (sector: Sector) => (ld: Linedef): Either<THREE.Mesh[]> 
 	const height = (lde) => Math.abs(lde.sector.floorHeight - lde.backSide.val.sector.floorHeight)
 	const mesh = ld.flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED) ?
 		// the upper texture is pegged to the highest flor
-		wall(() => THREE.DoubleSide, texture.val,
+		wall(() => T.DoubleSide, texture.val,
 			(ld, wallHeight) => Math.max(ld.sector.floorHeight, ld.backSide.val.sector.floorHeight) - wallHeight / 2,
 			height)(ld)
 		:
 		// the upper texture is pegged to the lowest flor
-		wall(() => THREE.DoubleSide, texture.val,
+		wall(() => T.DoubleSide, texture.val,
 			(ld, wallHeight) => Math.min(ld.sector.floorHeight, ld.backSide.get().sector.floorHeight) + wallHeight / 2,
 			height)(ld)
 
@@ -292,8 +289,8 @@ const renderLowerWall = (sector: Sector) => (ld: Linedef): Either<THREE.Mesh[]> 
 
 // https://doomwiki.org/wiki/Texture_alignment
 // https://doomwiki.org/wiki/Sidedef
-const renderWalls = (lbs: LinedefBySector): THREE.Mesh[] => {
-	let mesh: THREE.Mesh[] = []
+const renderWalls = (lbs: LinedefBySector): T.Mesh[] => {
+	let mesh: T.Mesh[] = []
 
 	const upperWallRenderer = renderUpperWall(lbs.sector);
 	const lowerWallRenderer = renderLowerWall(lbs.sector);
@@ -306,34 +303,34 @@ const renderWalls = (lbs: LinedefBySector): THREE.Mesh[] => {
 	return mesh
 }
 
-const wall = (sideF: (ld: Linedef) => Side,
+const wall = (sideF: (ld: Linedef) => T.Side,
 							texture: DoomTexture,
 							wallOffsetFunc: (ld: Linedef, wallHeight: number) => number,
-							wallHeightFunc: (ld: Linedef) => number) => (ld: Linedef, color = null): THREE.Mesh => {
+							wallHeightFunc: (ld: Linedef) => number) => (ld: Linedef, color = null): T.Mesh => {
 	const wallHeight = wallHeightFunc(ld)
 	const vs = ld.start
 	const ve = ld.end
 	const wallWidth = Math.hypot(ve.x - vs.x, ve.y - vs.y)
 	const material = createWallMaterial(texture, wallWidth, sideF(ld), color)
 
-	const mesh = new THREE.Mesh(new THREE.PlaneGeometry(wallWidth, wallHeight), material)
+	const mesh = new T.Mesh(new T.PlaneGeometry(wallWidth, wallHeight), material)
 	mesh.position.set((vs.x + ve.x) / 2, wallOffsetFunc(ld, wallHeight), -(vs.y + ve.y) / 2)
 	mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x))
 	mesh.receiveShadow = gc.wall.receiveShadow
 	return mesh
 }
 
-const boxAt = (x: number, y: number, z: number, dim = 5, color = 0x00ff00): THREE.Object3D => {
-	const geometry = new THREE.BoxGeometry(dim, dim, dim);
-	const segments = new THREE.LineSegments(new THREE.EdgesGeometry(geometry), new THREE.LineBasicMaterial({color}));
+const boxAt = (x: number, y: number, z: number, dim = 5, color = 0x00ff00): T.Object3D => {
+	const geometry = new T.BoxGeometry(dim, dim, dim);
+	const segments = new T.LineSegments(new T.EdgesGeometry(geometry), new T.LineBasicMaterial({color}));
 	segments.position.set(x, y, z)
 	return segments;
 }
 
-const torusAt = (name: string, x: number, y: number, z: number, color = 0x00ff00, radius = 20, tube = 5): THREE.Object3D => {
-	const mesh = new THREE.Mesh(
-		new THREE.TorusGeometry(radius, tube, 32, 32),
-		new THREE.MeshPhongMaterial({wireframe: false, color})
+const torusAt = (name: string, x: number, y: number, z: number, color = 0x00ff00, radius = 20, tube = 5): T.Object3D => {
+	const mesh = new T.Mesh(
+		new T.TorusGeometry(radius, tube, 32, 32),
+		new T.MeshPhongMaterial({wireframe: false, color})
 	);
 	mesh.position.set(x, y, z)
 	mesh.name = name
@@ -341,10 +338,10 @@ const torusAt = (name: string, x: number, y: number, z: number, color = 0x00ff00
 	return mesh;
 }
 
-const torusKnotAt = (name: string, x: number, y: number, z: number, color = 0x049ef4, radius = 20, tube = 5): THREE.Object3D => {
-	const mesh = new THREE.Mesh(
-		new THREE.TorusKnotGeometry(radius, tube, 200, 32),
-		new THREE.MeshStandardMaterial({color, roughness: 0, metalness: 0.5})
+const torusKnotAt = (name: string, x: number, y: number, z: number, color = 0x049ef4, radius = 20, tube = 5): T.Object3D => {
+	const mesh = new T.Mesh(
+		new T.TorusKnotGeometry(radius, tube, 200, 32),
+		new T.MeshStandardMaterial({color, roughness: 0, metalness: 0.5})
 	);
 	mesh.position.set(x, y, z)
 	mesh.name = name
@@ -353,29 +350,29 @@ const torusKnotAt = (name: string, x: number, y: number, z: number, color = 0x04
 }
 
 const createAmbientLight = () =>
-	new THREE.AmbientLight(gc.scene.ambientLight.color, gc.scene.ambientLight.intensity);
+	new T.AmbientLight(gc.scene.ambientLight.color, gc.scene.ambientLight.intensity);
 
-const createScene = (): THREE.Scene => {
-	const scene = new THREE.Scene()
+const createScene = (): T.Scene => {
+	const scene = new T.Scene()
 
 	if (gc.scene.scale > 1) { // TODO - not working after: this.scene.add(this.camera)
 		scene.scale.set(gc.scene.scale, gc.scene.scale, gc.scene.scale)
 	}
 
-	scene.background = new THREE.Color(gc.sky.color);
+	scene.background = new T.Color(gc.sky.color);
 	axesHelper().exec(ah => scene.add(ah))
 	scene.add(createAmbientLight())
 	return scene
 }
 
-const axesHelper = (): Either<THREE.AxesHelper> => {
+const axesHelper = (): Either<T.AxesHelper> => {
 	const ah = gc.scene.debug.axesHelper;
 	return Either.ofCondition(() => ah.visible, () => 'Axes helper disabled',
-		() => new THREE.AxesHelper(500).setColors(new THREE.Color(ah.colors.x), new THREE.Color(ah.colors.y), new THREE.Color(ah.colors.z)))
+		() => new T.AxesHelper(500).setColors(new T.Color(ah.colors.x), new T.Color(ah.colors.y), new T.Color(ah.colors.z)))
 }
 
-const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera => {
-	const cam = new THREE.PerspectiveCamera(
+const createCamera = (canvas: HTMLCanvasElement): T.PerspectiveCamera => {
+	const cam = new T.PerspectiveCamera(
 		gc.camera.perspective.fov,
 		canvas.clientWidth / canvas.clientHeight,
 		gc.camera.perspective.near,
@@ -383,18 +380,18 @@ const createCamera = (canvas: HTMLCanvasElement): THREE.PerspectiveCamera => {
 	return cam;
 }
 
-const positionCamera = (camera: THREE.Camera, map: DoomMap) =>
+const positionCamera = (camera: T.Camera, map: DoomMap) =>
 	map.player.exec(player => camera.position.set(player.position.x, gc.player.height, -player.position.y))
 
-const createRenderer = (canvas: HTMLCanvasElement): THREE.WebGLRenderer => {
+const createRenderer = (canvas: HTMLCanvasElement): T.WebGLRenderer => {
 	const conf = gc.renderer
 
-	const renderer = new THREE.WebGLRenderer({antialias: conf.antialias, canvas})
+	const renderer = new T.WebGLRenderer({antialias: conf.antialias, canvas})
 	renderer.physicallyCorrectLights = conf.physicallyCorrectLights
 
 	// a beam from the flashlight does not dazzle when getting close to the wall
-	//renderer.toneMapping = THREE.CineonToneMapping
-	//renderer.toneMapping = THREE.ACESFilmicToneMapping;
+	//renderer.toneMapping = T.CineonToneMapping
+	//renderer.toneMapping = T.ACESFilmicToneMapping;
 
 	renderer.shadowMap.enabled = conf.shadowMap.enabled
 	renderer.shadowMap.type = conf.shadowMap.type
@@ -410,7 +407,7 @@ const createRenderer = (canvas: HTMLCanvasElement): THREE.WebGLRenderer => {
 	return renderer
 }
 
-const createSportLightDebug = (gui: GUI, scene: THREE.Scene) => (name: string, sl): GUI => {
+const createSportLightDebug = (gui: GUI, scene: T.Scene) => (name: string, sl): GUI => {
 	const gf = gui.addFolder(name)
 
 	gf.add(sl, 'angle', 0, 3).step(0.1)
@@ -425,7 +422,7 @@ const createSportLightDebug = (gui: GUI, scene: THREE.Scene) => (name: string, s
 
 	gf.add({
 		cross: () => {
-			scene.add(new THREE.SpotLightHelper(sl))
+			scene.add(new T.SpotLightHelper(sl))
 		}
 	}, 'cross').name('SpotLightHelper');
 
@@ -443,9 +440,9 @@ const createSportLightDebug = (gui: GUI, scene: THREE.Scene) => (name: string, s
 
 const emptyFunction = () => null
 
-const createRing = (callback: (f, d) => any) => (name: string): THREE.SpotLight => {
+const createRing = (callback: (f, d) => any) => (name: string): T.SpotLight => {
 	const conf = gc.flashLight[name];
-	const spotLight = new THREE.SpotLight(conf.color, conf.intensity)
+	const spotLight = new T.SpotLight(conf.color, conf.intensity)
 
 	//spotLight.rotateZ(Math.PI / 2)
 
@@ -455,10 +452,10 @@ const createRing = (callback: (f, d) => any) => (name: string): THREE.SpotLight 
 	spotLight.decay = conf.decay
 
 	if (conf.img) {
-		const texture = new THREE.TextureLoader().load(conf.img)
-		//texture.minFilter = THREE.LinearFilter
-		//	texture.magFilter = THREE.LinearFilter
-		//	texture.encoding = THREE.sRGBEncoding
+		const texture = new T.TextureLoader().load(conf.img)
+		//texture.minFilter = T.LinearFilter
+		//	texture.magFilter = T.LinearFilter
+		//	texture.encoding = T.sRGBEncoding
 		spotLight.position.set(-20, -40, 180)
 		spotLight.map = texture
 		//	spotLight.shadow.mapSize.width = 1024;
@@ -472,11 +469,11 @@ const createRing = (callback: (f, d) => any) => (name: string): THREE.SpotLight 
 	return spotLight;
 }
 
-const createFlashLight = (scene: THREE.Scene, camera: THREE.Camera): THREE.Object3D => {
+const createFlashLight = (scene: T.Scene, camera: T.Camera): T.Object3D => {
 
 
 		{
-			const spotLight = new THREE.SpotLight(0xff8888);
+			const spotLight = new T.SpotLight(0xff8888);
 			spotLight.angle = Math.PI / 5;
 			spotLight.penumbra = 0.3;
 			spotLight.decay = 1.2;
@@ -485,14 +482,14 @@ const createFlashLight = (scene: THREE.Scene, camera: THREE.Camera): THREE.Objec
 			spotLight.target.position.set(852, 40, 3465);
 			spotLight.castShadow = true;
 			scene.add(spotLight);
-			scene.add(new THREE.SpotLightHelper(spotLight))
+			scene.add(new T.SpotLightHelper(spotLight))
 
 			const gui = new GUI()
 			createSportLightDebug(gui, scene)('SL', spotLight)
 		}
 
 
-	const group = new THREE.Group()
+	const group = new T.Group()
 	group.rotateX(Math.PI / 2)
 
 	const createRingF = createRing(gc.flashLight.debug.gui ? createSportLightDebug(new GUI(), scene) : emptyFunction)
@@ -522,7 +519,7 @@ const createFlashLight = (scene: THREE.Scene, camera: THREE.Camera): THREE.Objec
 
 //	rg1.position.set(850, 40, 3470);
 //	rg1.target.position.set(852, 40, 3465);
-	//scene.add(new THREE.SpotLightHelper(rg1))
+	//scene.add(new T.SpotLightHelper(rg1))
 	//scene.add(rg1)
 	//group.add(rg1)
 	//camera.add(rg1.target);

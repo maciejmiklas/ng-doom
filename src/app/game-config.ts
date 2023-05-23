@@ -15,7 +15,7 @@
  */
 
 import {LinearFilter} from "three/src/constants";
-import * as THREE from "three";
+import * as T from "three";
 
 const game = {
 	startMap: 0,
@@ -61,7 +61,7 @@ const wall = {
 	receiveShadow: true
 }
 
-export enum BoxType {
+enum BoxType {
 	BITMAP,
 	ORIGINAL
 }
@@ -147,14 +147,14 @@ const camera = {
 const renderer = {
 	physicallyCorrectLights: true,
 	antialias: true,
-	outputEncoding: THREE.sRGBEncoding,
+	outputEncoding: T.sRGBEncoding,
 	resolution: {
 		width: -1,
 		height: -1
 	},
 	shadowMap: {
 		enabled: true,
-		type: THREE.PCFSoftShadowMap
+		type: T.PCFSoftShadowMap
 	},
 	debug: {
 		showFps: true
@@ -215,4 +215,4 @@ const flashLight = {
 }
 
 // ############################ EXPORTS ############################
-export const config = {player, move, camera, game, flat, renderer, texture, sky, scene, flashLight, wall}
+export const config = {BoxType, player, move, camera, game, flat, renderer, texture, sky, scene, flashLight, wall}
