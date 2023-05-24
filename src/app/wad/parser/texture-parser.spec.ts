@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {functions as tp, testFunctions as tf} from './texture-parser'
+import {functions as TP, testFunctions as TF} from './texture-parser'
 
 import {getAllDirs, getPalette, getPatches, getPnames, getWadBytes} from './testdata/data'
 import {Bitmap, BitmapSprite, Directories, Directory, DoomTexture, Pnames, Sprite} from './wad-model'
-import {functions as dp} from './directory-parser'
-import {functions as sp} from './sprite-parser'
-import {functions as bp} from './bitmap-parser'
+import {functions as DP} from './directory-parser'
+import {functions as SP} from './sprite-parser'
+import {functions as BP} from './bitmap-parser'
 
 describe('texture-parser#findPatchDir', () => {
-	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs()).get()
-	const finder = tf.findPatchDir(getAllDirs())
+	const pn: Pnames = TP.parsePnames(getWadBytes(), getAllDirs()).get()
+	const finder = TF.findPatchDir(getAllDirs())
 
 	it('Find dirs for pnames', () => {
 		pn.names
@@ -37,7 +37,7 @@ describe('texture-parser#findPatchDir', () => {
 })
 
 describe('texture-parser#findFlatDirs', () => {
-	const flats = tf.findFlatDirs(getAllDirs())
+	const flats = TF.findFlatDirs(getAllDirs())
 
 	it('size', () => {
 		expect(flats.get().length).toEqual(54)
@@ -61,7 +61,7 @@ describe('texture-parser#findFlatDirs', () => {
 })
 
 describe('texture-parser#parsePnames', () => {
-	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs()).get()
+	const pn: Pnames = TP.parsePnames(getWadBytes(), getAllDirs()).get()
 
 	it('Directory', () => {
 		expect(pn.dir.name).toEqual('PNAMES')
@@ -87,7 +87,7 @@ describe('texture-parser#parsePnames', () => {
 })
 
 describe('texture-parser#parsePnames', () => {
-	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs()).get()
+	const pn: Pnames = TP.parsePnames(getWadBytes(), getAllDirs()).get()
 
 	it('Correct amount', () => {
 		expect(pn.nummappatches).toEqual(350)
@@ -111,7 +111,7 @@ describe('texture-parser#parsePnames', () => {
 })
 
 describe('texture-parser#parsePatches', () => {
-	const pb: Bitmap[] = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette(), getPnames()).get()
+	const pb: Bitmap[] = TP.parsePatches(getWadBytes(), getAllDirs(), getPalette(), getPnames()).get()
 
 	it('Bitmap size', () => {
 		expect(pb.length).toEqual(163)
@@ -133,10 +133,10 @@ describe('texture-parser#parsePatches', () => {
 })
 
 describe('texture-parser#toImageData', () => {
-	const findDir = dp.findDirectoryByName(getAllDirs())
+	const findDir = DP.findDirectoryByName(getAllDirs())
 	const titleDir = findDir(Directories.TITLEPIC).get()
-	const titleBitmap = bp.parseBitmap(getWadBytes(), getPalette())(titleDir).get()
-	const imageData = tf.toImageData(titleBitmap)
+	const titleBitmap = BP.parseBitmap(getWadBytes(), getPalette())(titleDir).get()
+	const imageData = TF.toImageData(titleBitmap)
 
 	it('TITLEPIC - image data size', () => {
 		expect(imageData.data.length).toEqual(320 * 200 * 4)
@@ -169,10 +169,10 @@ describe('texture-parser#toImageData', () => {
 })
 
 describe('texture-parser#toBitmapSprite', () => {
-	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs())
+	const sprites: Sprite[] = SP.parseSpritesAsArray(getWadBytes(), getAllDirs())
 
 	it('AMMO', () => {
-		const bs: BitmapSprite = tf.toBitmapSprite(sprites[0].animations[0]).get()
+		const bs: BitmapSprite = TF.toBitmapSprite(sprites[0].animations[0]).get()
 		expect(bs.name).toEqual('AMMO')
 		expect(bs.angle).toEqual('0')
 		bs.frames.forEach(f => {
@@ -181,7 +181,7 @@ describe('texture-parser#toBitmapSprite', () => {
 	})
 
 	it('BKEY', () => {
-		const bs: BitmapSprite = tf.toBitmapSprite(sprites[10].animations[0]).get()
+		const bs: BitmapSprite = TF.toBitmapSprite(sprites[10].animations[0]).get()
 		expect(bs.name).toEqual('BKEY')
 		expect(bs.angle).toEqual('0')
 		bs.frames.forEach(f => {
@@ -191,12 +191,12 @@ describe('texture-parser#toBitmapSprite', () => {
 })
 
 describe('texture-parser#maxSpriteSize', () => {
-	const sprites: Sprite[] = sp.parseSpritesAsArray(getWadBytes(), getAllDirs())
+	const sprites: Sprite[] = SP.parseSpritesAsArray(getWadBytes(), getAllDirs())
 
 	it('AMMO', () => {
-		const bs: BitmapSprite = tf.toBitmapSprite(sprites[0].animations[0]).get()
+		const bs: BitmapSprite = TF.toBitmapSprite(sprites[0].animations[0]).get()
 		expect(bs.name).toEqual('AMMO')
-		expect(tf.maxSpriteSize(bs)).toEqual(28)
+		expect(TF.maxSpriteSize(bs)).toEqual(28)
 
 		bs.frames.forEach(f => {
 			expect(f.header.width).toBeLessThanOrEqual(28)
@@ -205,9 +205,9 @@ describe('texture-parser#maxSpriteSize', () => {
 	})
 
 	it('BKEY', () => {
-		const bs: BitmapSprite = tf.toBitmapSprite(sprites[10].animations[0]).get()
+		const bs: BitmapSprite = TF.toBitmapSprite(sprites[10].animations[0]).get()
 		expect(bs.name).toEqual('BKEY')
-		expect(tf.maxSpriteSize(bs)).toEqual(16)
+		expect(TF.maxSpriteSize(bs)).toEqual(16)
 		bs.frames.forEach(f => {
 			expect(f.header.width).toBeLessThanOrEqual(16)
 			expect(f.header.height).toBeLessThanOrEqual(16)
@@ -217,8 +217,8 @@ describe('texture-parser#maxSpriteSize', () => {
 
 
 describe('texture-parser#parseTextures', () => {
-	const pn: Pnames = tp.parsePnames(getWadBytes(), getAllDirs()).get()
-	const tx: DoomTexture[] = tp.parseTextures(getWadBytes(), getAllDirs(), getPnames(), getPatches()).get()
+	const pn: Pnames = TP.parsePnames(getWadBytes(), getAllDirs()).get()
+	const tx: DoomTexture[] = TP.parseTextures(getWadBytes(), getAllDirs(), getPnames(), getPatches()).get()
 
 	it('Textures amount', () => {
 		expect(tx.length).toEqual(125)
@@ -373,7 +373,7 @@ describe('texture-parser#parseTextures', () => {
 })
 
 describe('texture-parser#parseFlats', () => {
-	const flats = tp.parseFlats(getWadBytes(), getAllDirs(), getPalette()).get()
+	const flats = TP.parseFlats(getWadBytes(), getAllDirs(), getPalette()).get()
 	it('amount', () => {
 		expect(flats.length).toEqual(54)
 	})

@@ -20,7 +20,7 @@ import {Controls} from '../controls'
 import {WadStorageService} from '../../wad/wad-storage.service'
 import {DoomMap, Wad} from '../../wad/parser/wad-model'
 
-import {functions as tb} from '../three-builder'
+import {functions as tb} from '../../renderer/three-builder'
 import {config as gc} from '../../game-config'
 
 

@@ -35,8 +35,8 @@ import {
 } from './wad-model'
 import U from '../../common/util'
 import {Log} from "../../common/log"
-import {functions as fb} from "./flat-builder"
-import {config as wc} from "../wad-config"
+import {functions as FB} from "./flat-builder"
+import {config as WC} from "../wad-config"
 
 const CMP = 'MPA'
 
@@ -118,7 +118,7 @@ const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomT
 		linedefs,
 		sectors,
 		linedefBySector: groupLinedefsBySectors(linedefs, sectors),
-		sky: textureLoader(wc.sky.textureName)
+		sky: textureLoader(WC.sky.textureName)
 	}
 }
 
@@ -148,7 +148,7 @@ const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) 
 
 	// split Linedefs into those building walls and actions, as the actions are selten a part of the wall
 	const linedefsByAction = groupByWallAndAction(linedefs)
-	const flatFactory = fb.createFlat(sector)
+	const flatFactory = FB.createFlat(sector)
 	return flatFactory(linedefs).map(flat => ({
 		sector,
 		linedefs,

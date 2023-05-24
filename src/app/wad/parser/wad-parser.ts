@@ -15,20 +15,20 @@
  */
 import {Directories, Directory, Palette, TitlePic, Wad} from './wad-model'
 import {Either, LeftType} from '../../common/either'
-import {functions as dp} from './directory-parser'
-import {functions as mp} from './map-parser'
-import {functions as tp} from './texture-parser'
-import {functions as bp} from './bitmap-parser'
-import {functions as pp} from './playpal-parser'
+import {functions as DP} from './directory-parser'
+import {functions as MP} from './map-parser'
+import {functions as TP} from './texture-parser'
+import {functions as BP} from './bitmap-parser'
+import {functions as PP} from './playpal-parser'
 
 const parseTitlePic = (bytes: number[], dirs: Directory[], palette: Palette): Either<TitlePic> => {
-	const find = dp.findDirectoryByName(dirs)
-	const title = find(Directories.TITLEPIC).map(d => bp.parseBitmap(bytes, palette)(d))
-	const credit = find(Directories.CREDIT).map(d => bp.parseBitmap(bytes, palette)(d))
-	const md = find(Directories.M_DOOM).map(d => bp.parseBitmap(bytes, palette)(d))
+	const find = DP.findDirectoryByName(dirs)
+	const title = find(Directories.TITLEPIC).map(d => BP.parseBitmap(bytes, palette)(d))
+	const credit = find(Directories.CREDIT).map(d => BP.parseBitmap(bytes, palette)(d))
+	const md = find(Directories.M_DOOM).map(d => BP.parseBitmap(bytes, palette)(d))
 	const help = Either.ofEitherArray(find('HELP1')
-		.map(d => bp.parseBitmap(bytes, palette)(d)), find('HELP2')
-		.map(d => bp.parseBitmap(bytes, palette)(d)))
+		.map(d => BP.parseBitmap(bytes, palette)(d)), find('HELP2')
+		.map(d => BP.parseBitmap(bytes, palette)(d)))
 
 	return Either.ofCondition(() => title.isRight() && credit.isRight() && credit.isRight(),
 		() => 'Image Folders not found', () => ({
@@ -40,17 +40,17 @@ const parseTitlePic = (bytes: number[], dirs: Directory[], palette: Palette): Ei
 }
 
 const parseWad = (bytes: number[]): Either<Wad> =>
-	dp.parseHeader(bytes)
+	DP.parseHeader(bytes)
 		.map(header => ({header, bytes}))// header + bytes
-		.append(w => dp.parseAllDirectories(w.header, bytes), (w, v) => w.dirs = v) // dirs
-		.append(w => tp.parsePnames(bytes, w.dirs), (w, v) => w.pnames = v) // pnames
-		.append(w => pp.parsePlaypal(bytes, w.dirs), (w, v) => w.playpal = v) // playpal
+		.append(w => DP.parseAllDirectories(w.header, bytes), (w, v) => w.dirs = v) // dirs
+		.append(w => TP.parsePnames(bytes, w.dirs), (w, v) => w.pnames = v) // pnames
+		.append(w => PP.parsePlaypal(bytes, w.dirs), (w, v) => w.playpal = v) // playpal
 		.append(w => Either.ofRight(w.playpal.palettes[0]), (w, v) => w.palette = v) // palette
 		.append(w => parseTitlePic(bytes, w.dirs, w.palette), (w, v) => w.title = v)// title
-		.append(w => tp.parsePatches(bytes, w.dirs, w.palette, w.pnames), (w, v) => w.patches = v)// patches
-		.append(w => tp.parseTextures(bytes, w.dirs, w.pnames, w.patches), (w, v) => w.textures = v) // textures
-		.append(w => tp.parseFlats(bytes, w.dirs, w.palette), (w, v) => w.flatBitmaps = v) // flatBitmaps
-		.append(w => mp.parseMaps(bytes, w.dirs, w.textures, w.flatBitmaps), (w, v) => w.maps = v); // maps
+		.append(w => TP.parsePatches(bytes, w.dirs, w.palette, w.pnames), (w, v) => w.patches = v)// patches
+		.append(w => TP.parseTextures(bytes, w.dirs, w.pnames, w.patches), (w, v) => w.textures = v) // textures
+		.append(w => TP.parseFlats(bytes, w.dirs, w.palette), (w, v) => w.flatBitmaps = v) // flatBitmaps
+		.append(w => MP.parseMaps(bytes, w.dirs, w.textures, w.flatBitmaps), (w, v) => w.maps = v); // maps
 
 // ############################ EXPORTS ############################
 export const testFunctions = {

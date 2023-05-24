@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {Directories, Directory, MapLumpType} from './wad-model'
-import {functions as dp} from './directory-parser'
+import {functions as DP} from './directory-parser'
 import {
 	E1M1_BLOCKMAP,
 	E1M1_LINEDEFS,
@@ -30,7 +30,7 @@ import {
 } from './testdata/data'
 
 describe('directory-parser#findDirectoryByName', () => {
-	const find = dp.findDirectoryByName(getAllDirs())
+	const find = DP.findDirectoryByName(getAllDirs())
 	const findAndCompare = (name: string) => {
 		expect(find(name).get().name).toEqual(name)
 	}
@@ -53,7 +53,7 @@ describe('directory-parser#findDirectoryByName', () => {
 })
 
 describe('directory-parser#findDirectoryByOffset', () => {
-	const find = dp.findDirectoryByOffset(getAllDirs())
+	const find = DP.findDirectoryByOffset(getAllDirs())
 	const findAndCompare = (name: string, offset: number) => {
 		expect(find(name, offset).get().name).toEqual(name)
 	}
@@ -81,7 +81,7 @@ const findDirectory = (dir: Directory, dirs: Directory[]) =>
 
 describe('directory-parser#parseAllDirectories', () => {
 	const header = getHeader().get()
-	const allDirs = dp.parseAllDirectories(header, getWadBytes()).get()
+	const allDirs = DP.parseAllDirectories(header, getWadBytes()).get()
 	const validate = (dir: Directory) => {
 		const found = findDirectory(dir, allDirs)
 		expect(found).toBeDefined('Dir:' + dir.name + ' not found')
@@ -133,7 +133,7 @@ describe('directory-parser#parseHeader', () => {
 })
 
 describe('directory-parser#findBetween', () => {
-	const finder = dp.findBetween(getAllDirs())(Directories.F_START, Directories.F_END)
+	const finder = DP.findBetween(getAllDirs())(Directories.F_START, Directories.F_END)
 
 	it('No filtering - size', () => {
 		const found = finder(() => true).get()

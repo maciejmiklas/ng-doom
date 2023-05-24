@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {functions as mp, testFunctions as tf} from './map-parser'
+import {functions as MP, testFunctions as TF} from './map-parser'
 import {
 	Directory,
 	DoomMap,
@@ -146,7 +146,7 @@ const validateLastThing = (thing: Thing) => {
 
 describe('map-parser#parseThing', () => {
 	const thingsDir = getAllDirs()[getFirstMap().idx + 1]
-	const parser = tf.parseThing(getWadBytes(), thingsDir)
+	const parser = TF.parseThing(getWadBytes(), thingsDir)
 
 	it('Validate Things dir', () => {
 		validateThingsDir(thingsDir)
@@ -167,7 +167,7 @@ describe('map-parser#parseThing', () => {
 
 describe('map-parser#parseThings', () => {
 	const thingsDir = getAllDirs()[getFirstMap().idx + MapLumpType.THINGS]
-	const things: Thing[] = tf.parseThings(getWadBytes())(getE1M1Dirs())
+	const things: Thing[] = TF.parseThings(getWadBytes())(getE1M1Dirs())
 
 	it('Things dir name', () => {
 		expect(thingsDir.name).toEqual('THINGS')
@@ -270,7 +270,7 @@ const validateSidedefDir = (dir: Directory) => {
 
 describe('map-parser#parseSidedef', () => {
 	const thingsDir = getAllDirs()[getFirstMap().idx + +MapLumpType.SIDEDEFS]
-	const parser = tf.parseSidedef(getWadBytes(), thingsDir, tf.createTextureLoader(getTextures()), getSectors())
+	const parser = TF.parseSidedef(getWadBytes(), thingsDir, TF.createTextureLoader(getTextures()), getSectors())
 
 	it('Sidedef Nr. 0', () => {
 		validateSidedef0(parser(0).get())
@@ -294,7 +294,7 @@ describe('map-parser#parseSidedef', () => {
 })
 
 describe('map-parser#parseSidedefs', () => {
-	const parsed = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
+	const parsed = TF.parseSidedefs(getWadBytes(), TF.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
 
 	it('Sidedef Nr. 0', () => {
 		validateSidedef0(parsed[0].get())
@@ -351,7 +351,7 @@ const validateLastVertex = (vertex: Vertex) => {
 describe('map-parser#parseVertex', () => {
 	const vertexesDir = getAllDirs()[getFirstMap().idx + MapLumpType.VERTEXES]
 
-	const parser = tf.parseVertex(getWadBytes(), vertexesDir)
+	const parser = TF.parseVertex(getWadBytes(), vertexesDir)
 
 	it('Validate Vertexes Dir', () => {
 		validateVertexesDir(vertexesDir)
@@ -371,7 +371,7 @@ describe('map-parser#parseVertex', () => {
 })
 
 describe('map-parser#parseVertexes', () => {
-	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs())
+	const vertexes = TF.parseVertexes(getWadBytes())(getE1M1Dirs())
 
 	it('First Vertex', () => {
 		validateFirstVertex(vertexes[0])
@@ -425,9 +425,9 @@ const validateLindedef26 = (lindedef: Linedef) => {
 
 describe('map-parser#parseLinedef', () => {
 	const linedefDir = getAllDirs()[getFirstMap().idx + MapLumpType.LINEDEFS]
-	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs())
-	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
-	const parser = tf.parseLinedef(getWadBytes(), linedefDir, vertexes, sidedefs, getSectors())
+	const vertexes = TF.parseVertexes(getWadBytes())(getE1M1Dirs())
+	const sidedefs = TF.parseSidedefs(getWadBytes(), TF.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
+	const parser = TF.parseLinedef(getWadBytes(), linedefDir, vertexes, sidedefs, getSectors())
 
 	it('Validate Lindedefs Dir', () => {
 		validateLindedefsDir(linedefDir)
@@ -496,7 +496,7 @@ describe('map-parser -> Parse Map Directory', () => {
 })
 
 describe('map-parser#findNextMapDir', () => {
-	const nextDirEi = getAllDirsOp().map(dirs => tf.findNextMapStartingDir(dirs))
+	const nextDirEi = getAllDirsOp().map(dirs => TF.findNextMapStartingDir(dirs))
 	const nextDir = nextDirEi.get()
 
 	it('Validate Next Dir ', () => {
@@ -536,30 +536,30 @@ describe('map-parser#findNextMapDir', () => {
 describe('map-parser#isMapName', () => {
 
 	it('MAPxx', () => {
-		expect(tf.isMapName('MAP01')).toBe(true)
-		expect(tf.isMapName('MAP03')).toBe(true)
-		expect(tf.isMapName('MAP23')).toBe(true)
-		expect(tf.isMapName('MAP32')).toBe(true)
+		expect(TF.isMapName('MAP01')).toBe(true)
+		expect(TF.isMapName('MAP03')).toBe(true)
+		expect(TF.isMapName('MAP23')).toBe(true)
+		expect(TF.isMapName('MAP32')).toBe(true)
 
-		expect(tf.isMapName('MA32')).toBe(false)
-		expect(tf.isMapName('_MA32')).toBe(false)
-		expect(tf.isMapName('32')).toBe(false)
+		expect(TF.isMapName('MA32')).toBe(false)
+		expect(TF.isMapName('_MA32')).toBe(false)
+		expect(TF.isMapName('32')).toBe(false)
 	})
 
 	it('ExMy', () => {
-		expect(tf.isMapName('ExMy')).toBe(true)
-		expect(tf.isMapName('E1M1')).toBe(true)
-		expect(tf.isMapName('E2M3')).toBe(true)
+		expect(TF.isMapName('ExMy')).toBe(true)
+		expect(TF.isMapName('E1M1')).toBe(true)
+		expect(TF.isMapName('E2M3')).toBe(true)
 
-		expect(tf.isMapName('E23')).toBe(false)
-		expect(tf.isMapName('E23M1')).toBe(false)
-		expect(tf.isMapName('E02M01')).toBe(false)
+		expect(TF.isMapName('E23')).toBe(false)
+		expect(TF.isMapName('E23M1')).toBe(false)
+		expect(TF.isMapName('E02M01')).toBe(false)
 	})
 
 })
 
 describe('sprite_parser#findNextMapDir', () => {
-	const finder = tf.findNextMapStartingDir(getAllDirs())
+	const finder = TF.findNextMapStartingDir(getAllDirs())
 
 	it('E1M1', () => {
 		expect(finder(0).get().name).toEqual('E1M1')
@@ -584,18 +584,18 @@ describe('sprite_parser#findNextMapDir', () => {
 })
 
 describe('map-parser#parseMapDirs', () => {
-	const finder = tf.findNextMapStartingDir(getAllDirs())
+	const finder = TF.findNextMapStartingDir(getAllDirs())
 
 	it('E1M1', () => {
 		const e1m1 = finder(0).get()
-		const dirs = tf.parseMapDirs(getAllDirs())(e1m1).get()
+		const dirs = TF.parseMapDirs(getAllDirs())(e1m1).get()
 		validateE1M1Dirs(dirs)
 	})
 
 
 	it('E1M7', () => {
 		const e1m7 = finder(70).get()
-		const dirs = tf.parseMapDirs(getAllDirs())(e1m7).get()
+		const dirs = TF.parseMapDirs(getAllDirs())(e1m7).get()
 		expect(dirs[MapLumpType.MAP_NAME].name).toEqual('E1M7')
 		expect(dirs[MapLumpType.SIDEDEFS].name).toEqual('SIDEDEFS')
 		expect(dirs[MapLumpType.BLOCKMAP].name).toEqual('BLOCKMAP')
@@ -604,7 +604,7 @@ describe('map-parser#parseMapDirs', () => {
 })
 
 describe('map-parser#findAllMapStartDirs', () => {
-	const dirs: Directory[] = tf.findAllMapStartDirs(getAllDirs())
+	const dirs: Directory[] = TF.findAllMapStartDirs(getAllDirs())
 	it('E1M1', () => {
 		expect(dirs[0].name).toEqual('E1M1')
 	})
@@ -643,7 +643,7 @@ describe('map-parser#findAllMapStartDirs', () => {
 })
 
 describe('map-parser#parseMap', () => {
-	const map: DoomMap = tf.parseMap(getWadBytes(), tf.createTextureLoader(getTextures()), tf.createFlatLoader(getFlats()))(getE1M1Dirs())
+	const map: DoomMap = TF.parseMap(getWadBytes(), TF.createTextureLoader(getTextures()), TF.createFlatLoader(getFlats()))(getE1M1Dirs())
 
 	it('Map name', () => {
 		expect(map.mapName).toEqual('E1M1')
@@ -684,8 +684,8 @@ describe('map-parser#parseMap', () => {
 })
 
 describe('map-parser#parseMapsDirs', () => {
-	const dirs: Directory[] = tf.findAllMapStartDirs(getAllDirs())
-	const all: Directory[][] = tf.parseMapsDirs(getAllDirs(), dirs)
+	const dirs: Directory[] = TF.findAllMapStartDirs(getAllDirs())
+	const all: Directory[][] = TF.parseMapsDirs(getAllDirs(), dirs)
 
 	it('Maps Found', () => {
 		expect(all.length).toEqual(9)
@@ -735,7 +735,7 @@ describe('map-parser#parseMaps', () => {
 
 
 describe('map-parser#scalePos', () => {
-	const scale = tf.scalePos(4)(3)
+	const scale = TF.scalePos(4)(3)
 
 	it('0', () => {
 		expect(scale(1)).toEqual(1); // (3 + 1)/4 = 1
@@ -753,14 +753,14 @@ describe('map-parser#scalePos', () => {
 
 describe('map-parser#normalizeLinedefs', () => {
 	const defs: Linedef[] = getMaps()[0].linedefs
-	const nt = (scale: number) => (xy: boolean) => R.reduce(R.max, Number.MIN_SAFE_INTEGER, mp.normalizeLinedefs(scale)(defs).map(d => xy ? d.start.x : d.start.y))
+	const nt = (scale: number) => (xy: boolean) => R.reduce(R.max, Number.MIN_SAFE_INTEGER, MP.normalizeLinedefs(scale)(defs).map(d => xy ? d.start.x : d.start.y))
 
 	it('Matching sectorId ID', () => {
 		defs.forEach(ld => expect(ld.sector.id).toEqual(ld.frontSide.sector.id))
 	})
 
 	it('Positive values', () => {
-		mp.normalizeLinedefs(3)(defs).forEach(ld => {
+		MP.normalizeLinedefs(3)(defs).forEach(ld => {
 			expect(ld.start.x).toBeGreaterThanOrEqual(0)
 			expect(ld.start.y).toBeGreaterThanOrEqual(0)
 			expect(ld.end.x).toBeGreaterThanOrEqual(0)
@@ -789,7 +789,7 @@ describe('map-parser#normalizeLinedefs', () => {
 })
 
 describe('map-parser#parseSector', () => {
-	const parser = tf.parseSector(getWadBytes(), getE1M1Dirs()[MapLumpType.SECTORS], tf.createFlatLoader(getFlats()))
+	const parser = TF.parseSector(getWadBytes(), getE1M1Dirs()[MapLumpType.SECTORS], TF.createFlatLoader(getFlats()))
 
 	it('E1M1 - Sector nr: 0', () => {
 		validateSectorE1M1_0(parser(0))
@@ -806,7 +806,7 @@ describe('map-parser#parseSector', () => {
 
 
 describe('map-parser#parseSectors', () => {
-	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createFlatLoader(getFlats()))
+	const sectors: Sector[] = TF.parseSectors(getWadBytes())(getE1M1Dirs(), TF.createFlatLoader(getFlats()))
 
 	it('E1M1 - Sector nr: 0', () => {
 		validateSectorE1M1_0(sectors[0])
@@ -827,11 +827,11 @@ describe('map-parser#parseSectors', () => {
 })
 
 describe('map-parser#groupBySectorArray', () => {
-	const sectors: Sector[] = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createFlatLoader(getFlats()))
-	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs())
-	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
-	const linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors())
-	const gr: Linedef[][] = tf.groupBySectorArray(linedefs)
+	const sectors: Sector[] = TF.parseSectors(getWadBytes())(getE1M1Dirs(), TF.createFlatLoader(getFlats()))
+	const vertexes = TF.parseVertexes(getWadBytes())(getE1M1Dirs())
+	const sidedefs = TF.parseSidedefs(getWadBytes(), TF.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
+	const linedefs = TF.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors())
+	const gr: Linedef[][] = TF.groupBySectorArray(linedefs)
 
 	it('No duplicates', () => {
 		const found = new Set<number>()
@@ -883,10 +883,10 @@ describe('map-parser#groupBySectorArray', () => {
 })
 
 describe('map-parser#groupLinedefsBySectors', () => {
-	const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs())
-	const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
-	const linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors())
-	const gr: LinedefBySector[] = tf.groupLinedefsBySectors(linedefs, getSectors())
+	const vertexes = TF.parseVertexes(getWadBytes())(getE1M1Dirs())
+	const sidedefs = TF.parseSidedefs(getWadBytes(), TF.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
+	const linedefs = TF.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors())
+	const gr: LinedefBySector[] = TF.groupLinedefsBySectors(linedefs, getSectors())
 
 	it('Sectors size on E1M1', () => {
 		let found = 0
@@ -921,20 +921,20 @@ describe('map-parser#groupLinedefsBySectors', () => {
 
 describe('map-parser#parseFlags', () => {
 	it('Bit 1', () => {
-		const flags = tf.parseFlags(1)
+		const flags = TF.parseFlags(1)
 		expect(flags.size).toEqual(1)
 		expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue()
 	})
 
 	it('Bit 1,2', () => {
-		const flags = tf.parseFlags(0x3)
+		const flags = TF.parseFlags(0x3)
 		expect(flags.size).toEqual(2)
 		expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue()
 		expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue()
 	})
 
 	it('Bit 1,2,5', () => {
-		const flags = tf.parseFlags(0x13)
+		const flags = TF.parseFlags(0x13)
 		expect(flags.size).toEqual(3)
 		expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue()
 		expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue()
@@ -942,7 +942,7 @@ describe('map-parser#parseFlags', () => {
 	})
 
 	it('Bit 2,5,8', () => {
-		const flags = tf.parseFlags(0x92)
+		const flags = TF.parseFlags(0x92)
 		expect(flags.size).toEqual(3)
 		expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue()
 		expect(flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)).toBeTrue()
@@ -950,7 +950,7 @@ describe('map-parser#parseFlags', () => {
 	})
 
 	it('Bit 2,5,9', () => {
-		const flags = tf.parseFlags(0x112)
+		const flags = TF.parseFlags(0x112)
 		expect(flags.size).toEqual(3)
 		expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue()
 		expect(flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED)).toBeTrue()
@@ -958,7 +958,7 @@ describe('map-parser#parseFlags', () => {
 	})
 
 	it('Bit 1,2,5,9', () => {
-		const flags = tf.parseFlags(0x93)
+		const flags = TF.parseFlags(0x93)
 		expect(flags.size).toEqual(4)
 		expect(flags.has(LinedefFlag.BLOCKS_PLAYERS_MONSTERS)).toBeTrue()
 		expect(flags.has(LinedefFlag.BLOCKS_MONSTERS)).toBeTrue()
@@ -967,19 +967,19 @@ describe('map-parser#parseFlags', () => {
 	})
 
 	it('Bit 8', () => {
-		const flags = tf.parseFlags(0x100)
+		const flags = TF.parseFlags(0x100)
 		expect(flags.size).toEqual(1)
 		expect(flags.has(LinedefFlag.ALWAYS_SHOWS_ON_AUTOMAP)).toBeTrue()
 	})
 
 	it('All bits set', () => {
-		const flags = tf.parseFlags(0x1FF)
+		const flags = TF.parseFlags(0x1FF)
 		expect(flags.size).toEqual(9)
 	})
 })
 
 describe('map-parser#findBacksidesBySector', () => {
-	const finder = tf.findBacksidesBySector(tf.findBackLinedefs(getE1M1Linedefs()))
+	const finder = TF.findBacksidesBySector(TF.findBackLinedefs(getE1M1Linedefs()))
 
 	it('E1M1 - Sector nr: 35', () => {
 		const sd = finder(35)
@@ -997,7 +997,7 @@ describe('map-parser#findBacksidesBySector', () => {
 	})
 
 	it('E1M4 - Sector nr: 50 (only backsides)', () => {
-		expect(tf.findBacksidesBySector(tf.findBackLinedefs(getMaps()[3].linedefs))(50).get().length).toEqual(25)
+		expect(TF.findBacksidesBySector(TF.findBackLinedefs(getMaps()[3].linedefs))(50).get().length).toEqual(25)
 	})
 
 })
@@ -1005,12 +1005,12 @@ describe('map-parser#findBacksidesBySector', () => {
 describe('map-parser#findLastNotConnected', () => {
 
 	it('Mixed', () => {
-		const ret = tf.findLastNotConnected(pathClosedMixed)
+		const ret = TF.findLastNotConnected(pathClosedMixed)
 		expect(ret.get()).toEqual(8)
 	})
 
 	it('Sorted', () => {
-		const ret = tf.findLastNotConnected(pathClosedSorted)
+		const ret = TF.findLastNotConnected(pathClosedSorted)
 		expect(ret.isLeft()).toBeTrue()
 	})
 
@@ -1020,15 +1020,15 @@ describe('map-parser#findLastNotConnected', () => {
 describe('map-parser#findMaxSectorId', () => {
 
 	it('E1M1 - LD', () => {
-		expect(tf.findMaxSectorId(getE1M1Linedefs())).toEqual(84)
+		expect(TF.findMaxSectorId(getE1M1Linedefs())).toEqual(84)
 	})
 
 	it('E1M1', () => {
-		expect(tf.findMaxSectorId(getMaps()[0].linedefs)).toEqual(84)
+		expect(TF.findMaxSectorId(getMaps()[0].linedefs)).toEqual(84)
 	})
 
 	it('E1M4', () => {
-		expect(tf.findMaxSectorId(getMaps()[3].linedefs)).toEqual(138)
+		expect(TF.findMaxSectorId(getMaps()[3].linedefs)).toEqual(138)
 	})
 })
 

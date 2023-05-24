@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {functions as tp, testFunctions as tf} from './playpal-parser'
+import {functions as TP, testFunctions as TF} from './playpal-parser'
 import {getAllDirs, getWadBytes} from './testdata/data'
 
 describe('playpal-parser#parseRBG', () => {
-	const parse = tf.parseRBG([1, 2, 3, 44, 55, 66])
+	const parse = TF.parseRBG([1, 2, 3, 44, 55, 66])
 	it('parse at 0', () => {
 		expect(parse(0)).toEqual({r: 1, g: 2, b: 3, a: 255})
 	})
@@ -32,7 +32,7 @@ describe('playpal-parser#parseRBG', () => {
 })
 
 describe('playpal-parser#parsePlaypal', () => {
-	const playpal = tp.parsePlaypal(getWadBytes(), getAllDirs()).get()
+	const playpal = TP.parsePlaypal(getWadBytes(), getAllDirs()).get()
 
 	it('palettes amount', () => {
 		expect(playpal.palettes.length).toEqual(13)

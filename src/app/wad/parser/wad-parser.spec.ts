@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {functions as wp, testFunctions as tf} from './wad-parser'
+import {functions as WP, testFunctions as TF} from './wad-parser'
 import {getAllDirs, getPalette, getWadBytes, validateTitleColumn, validateTitlePatchHeader} from './testdata/data'
-import {functions as dp} from './directory-parser'
+import {functions as DP} from './directory-parser'
 import {Directories, TitlePic, WadType} from './wad-model'
 import {Either} from '../../common/either'
 
 describe('wad_parser#parseTitlePic', () => {
-	const tp: Either<TitlePic> = tf.parseTitlePic(getWadBytes(), getAllDirs(), getPalette())
+	const tp: Either<TitlePic> = TF.parseTitlePic(getWadBytes(), getAllDirs(), getPalette())
 	it('Found Pictures', () => {
 		expect(tp.isRight()).toBeTruthy()
 		expect(tp.get().credit).toBeTruthy()
@@ -37,7 +37,7 @@ describe('wad_parser#parseTitlePic', () => {
 })
 
 describe('wad_parser#parseWad', () => {
-	const wad = wp.parseWad(getWadBytes()).get()
+	const wad = WP.parseWad(getWadBytes()).get()
 
 	it('wad.header', () => {
 		expect(wad.header.identification).toEqual(WadType.IWAD)
@@ -45,7 +45,7 @@ describe('wad_parser#parseWad', () => {
 
 	it('wad.dirs', () => {
 		expect(wad.dirs.length).toBeGreaterThan(50)
-		const df = dp.findDirectoryByName(wad.dirs)
+		const df = DP.findDirectoryByName(wad.dirs)
 		expect(df(Directories.TITLEPIC).isRight()).toBeTruthy()
 		expect(df('E1M1').isRight()).toBeTruthy()
 		expect(df(Directories.VERTEXES).isRight()).toBeTruthy()

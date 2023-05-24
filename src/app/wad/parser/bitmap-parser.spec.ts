@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {functions as bp, testFunctions as tf} from './bitmap-parser'
+import {functions as BP, testFunctions as TF} from './bitmap-parser'
 
 import {
 	getAllDirs,
@@ -30,7 +30,7 @@ import {
 	verifySimpleDoomImageAt2x0
 } from './testdata/data'
 import {BitmapHeader, Directories, RgbaBitmap} from './wad-model'
-import {functions as dp} from './directory-parser'
+import {functions as DP} from './directory-parser'
 import * as R from 'ramda'
 import {Either} from '../../common/either'
 
@@ -44,11 +44,11 @@ const validateStbarPatchHeader = (header: BitmapHeader) => {
 
 describe('bitmap-parser#unfoldColumnofs', () => {
 	it('Validate size', () => {
-		expect(tf.unfoldColumnofs(100, 320).length).toEqual(320)
+		expect(TF.unfoldColumnofs(100, 320).length).toEqual(320)
 	})
 
 	it('Validate offsets', () => {
-		const unfolded = tf.unfoldColumnofs(1000, 3)
+		const unfolded = TF.unfoldColumnofs(1000, 3)
 		expect(unfolded[0]).toEqual(1000)
 		expect(unfolded[1]).toEqual(1000 + 4)
 		expect(unfolded[2]).toEqual(1000 + 8)
@@ -56,8 +56,8 @@ describe('bitmap-parser#unfoldColumnofs', () => {
 })
 
 describe('bitmap-parser#parsePatchHeader', () => {
-	const findDir = dp.findDirectoryByName(getAllDirs())
-	const patchParser = tf.parsePatchHeader(getWadBytes())
+	const findDir = DP.findDirectoryByName(getAllDirs())
+	const patchParser = TF.parsePatchHeader(getWadBytes())
 	const titleDir = findDir(Directories.TITLEPIC).get()
 
 	it('TITLEPIC Header', () => {
@@ -90,11 +90,11 @@ describe('bitmap-parser#parsePatchHeader', () => {
 })
 
 describe('bitmap-parser#parseColumn', () => {
-	const findDir = dp.findDirectoryByName(getAllDirs())
+	const findDir = DP.findDirectoryByName(getAllDirs())
 	const titleDir = findDir(Directories.TITLEPIC).get()
-	const patchParser = tf.parsePatchHeader(getWadBytes())
+	const patchParser = TF.parsePatchHeader(getWadBytes())
 	const titlePatch = patchParser(titleDir)
-	const parseColumn = tf.parseColumn(getWadBytes(), titleDir)
+	const parseColumn = TF.parseColumn(getWadBytes(), titleDir)
 
 	it('TITLEPIC - column 0', () => {
 		validateTitleColumn(parseColumn(titlePatch.columnofs[0]).get())
@@ -110,10 +110,10 @@ describe('bitmap-parser#parseColumn', () => {
 })
 
 describe('bitmap-parser#parsePost', () => {
-	const findDir = dp.findDirectoryByName(getAllDirs())
+	const findDir = DP.findDirectoryByName(getAllDirs())
 	const dir = findDir(Directories.TITLEPIC)
-	const header = tf.parsePatchHeader(getWadBytes())(dir.get())
-	const parsePost = tf.parsePost(getWadBytes())
+	const header = TF.parsePatchHeader(getWadBytes())(dir.get())
+	const parsePost = TF.parsePost(getWadBytes())
 	// Sizes:
 	//  - patch header: 6
 	//  - columnofs array: 4 * header.width
@@ -145,8 +145,8 @@ const verifyFlat = (flat:RgbaBitmap) => {
 }
 
 describe('bitmap-parser#parseFlat', () => {
-	const findDir = dp.findDirectoryByName(getAllDirs())
-	const flatParser = bp.parseFlat(getWadBytes(), getPalette())
+	const findDir = DP.findDirectoryByName(getAllDirs())
+	const flatParser = BP.parseFlat(getWadBytes(), getPalette())
 
 	it('FLOOR0_1', () => {
 		const flat = flatParser(findDir('FLOOR0_1').get()).get()
@@ -166,9 +166,9 @@ describe('bitmap-parser#parseFlat', () => {
 })
 
 describe('bitmap-parser#parseBitmap', () => {
-	const findDir = dp.findDirectoryByName(getAllDirs())
+	const findDir = DP.findDirectoryByName(getAllDirs())
 	const dir = findDir(Directories.TITLEPIC)
-	const bitmap = bp.parseBitmap(getWadBytes(), getPalette())(dir.get()).get()
+	const bitmap = BP.parseBitmap(getWadBytes(), getPalette())(dir.get()).get()
 
 	it('TITLEPIC - header', () => {
 		validateTitlePatchHeader(bitmap.header)
@@ -201,7 +201,7 @@ describe('bitmap-parser#parseBitmap', () => {
 })
 
 describe('bitmap-parser#postAt', () => {
-	const pa = tf.postAt(simpleDoomImage().map(Either.ofRight))
+	const pa = TF.postAt(simpleDoomImage().map(Either.ofRight))
 
 	it('column[0] at post[0]', () => {
 		verifySimpleDoomImageAt0x0(pa(0, 0).get())
@@ -252,7 +252,7 @@ describe('bitmap-parser#postAt', () => {
 })
 
 describe('bitmap-parser#postPixelAt', () => {
-	const pix = tf.postPixelAt(simpleDoomImage().map(Either.ofRight))
+	const pix = TF.postPixelAt(simpleDoomImage().map(Either.ofRight))
 	it('column[0] at post[0]', () => {
 		expect(pix(0, 0)).toEqual(11)
 		expect(pix(0, 1)).toEqual(12)

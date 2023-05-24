@@ -28,14 +28,14 @@ import {
 	Sprite
 } from './wad-model'
 import U from '../../common/util'
-import {functions as dp} from './directory-parser'
-import {functions as bp} from './bitmap-parser'
+import {functions as DP} from './directory-parser'
+import {functions as BP} from './bitmap-parser'
 import {Either, LeftType} from '../../common/either'
 
 const RGBA_BYTES = 4
 
 const parsePnames = (wadBytes: number[], dirs: Directory[]): Either<Pnames> => {
-	return dp.findDirectoryByName(dirs)(Directories.PNAMES).map(dir => {
+	return DP.findDirectoryByName(dirs)(Directories.PNAMES).map(dir => {
 		const nummappatches = U.parseInt32(wadBytes)(dir.filepos)
 		const strParser = U.parseStr(wadBytes)
 		const names: string[] = R
@@ -46,11 +46,11 @@ const parsePnames = (wadBytes: number[], dirs: Directory[]): Either<Pnames> => {
 }
 
 const findPatchDir = (dirs: Directory[]) => (patchName: string): Either<Directory> =>
-	dp.findDirectoryByName(dirs)(patchName)
+	DP.findDirectoryByName(dirs)(patchName)
 
 const parsePatches = (wadBytes: number[], dirs: Directory[], palette: Palette, pnames: Pnames): Either<Bitmap[]> => {
 	const patchDirFinder = findPatchDir(dirs)
-	const bitmapParser = bp.parseBitmap(wadBytes, palette)
+	const bitmapParser = BP.parseBitmap(wadBytes, palette)
 	const patches = pnames.names
 		.map(pn => patchDirFinder(pn)) // (dirName)=> Either<Directory>
 		.filter(d => d.isRight()).map(d => d.get()) // (Either<Directory>)=>Directory
@@ -79,7 +79,7 @@ const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patch
 
 const highlightPatch = (texture: DoomTexture, highlighter: (path: Patch) => Either<Palette>): Uint8ClampedArray => {
 	const patches = texture.patches.map(patch => highlighter(patch) // go on, if Palette should be changed for this patch
-		.map(palette => bp.changePalette(palette)(patch.bitmap)) // generate new bitmap with given palette for this patch
+		.map(palette => BP.changePalette(palette)(patch.bitmap)) // generate new bitmap with given palette for this patch
 		.map(bitmap => ({ // clone this patch and apply new bitmap with changed palette
 			...patch,
 			bitmap
@@ -124,7 +124,7 @@ const parseTextures = (wadBytes: number[], dirs: Directory[], pnames: Pnames, pa
 }
 
 const parseTextureByDir = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patches: Bitmap[]) => (td: Directories): Either<DoomTexture[]> =>
-	dp.findDirectoryByName(dirs)(td).map(dir => {
+	DP.findDirectoryByName(dirs)(td).map(dir => {
 		const intParser = U.parseInt32(wadBytes)
 		const textureParser = parseTexture(wadBytes, dirs, dir, pnames, patches)
 		const offset = dir.filepos
@@ -138,10 +138,10 @@ const parseTextureByDir = (wadBytes: number[], dirs: Directory[], pnames: Pnames
 	})
 
 const findFlatDirs = (dirs: Directory[]): Either<Directory[]> =>
-	dp.findBetween(dirs)(Directories.F_START, Directories.F_END)((d) => !d.name.includes('_START') && !d.name.includes('_END'))
+	DP.findBetween(dirs)(Directories.F_START, Directories.F_END)((d) => !d.name.includes('_START') && !d.name.includes('_END'))
 
 const parseFlats = (wadBytes: number[], dirs: Directory[], palette: Palette): Either<RgbaBitmap[]> => {
-	const flatParser = bp.parseFlat(wadBytes, palette)
+	const flatParser = BP.parseFlat(wadBytes, palette)
 	return findFlatDirs(dirs)
 		.map(dirs => dirs.map(d => flatParser(d)))// Either<Directory> => Either[]<Either<Bitmap[]>>
 		.map(e => e.filter(d => d.filter()) // remove Left

@@ -15,14 +15,14 @@
  */
 import {Directories, Directory, FrameDir, Palette, Sprite} from './wad-model'
 import {Either} from '../../common/either'
-import {functions as dp} from './directory-parser'
-import {functions as bp} from './bitmap-parser'
+import {functions as DP} from './directory-parser'
+import {functions as BP} from './bitmap-parser'
 import * as R from 'ramda'
 import {getPalette} from './testdata/data'
 
-const findStartDir = (dirs: Directory[]): Either<Directory> => dp.findDirectoryByName(dirs)(Directories.S_START)
+const findStartDir = (dirs: Directory[]): Either<Directory> => DP.findDirectoryByName(dirs)(Directories.S_START)
 
-const findEndDir = (dirs: Directory[], offset: number): Either<Directory> => dp.findDirectoryByOffset(dirs)(Directories.S_END, offset)
+const findEndDir = (dirs: Directory[], offset: number): Either<Directory> => DP.findDirectoryByOffset(dirs)(Directories.S_END, offset)
 
 const findSpriteDirs = (dirs: Directory[]): Directory[] => {
 	const startDir: Directory = findStartDir(dirs).get()
@@ -57,7 +57,7 @@ const toFrameDir = (wadBytes: number[], palette: Palette) => (dir: Directory): F
 		dir,
 		angle: parseDirAngle(dir),
 		mirror: false,
-		bitmap: bp.parseBitmap(wadBytes, palette)(dir)
+		bitmap: BP.parseBitmap(wadBytes, palette)(dir)
 	}
 }
 
@@ -68,7 +68,7 @@ const toMirrorFrameDir = (wadBytes: number[], palette: Palette) => (dir: Directo
 		dir,
 		angle: parseDirMirrorAngle(dir),
 		mirror: true,
-		bitmap: bp.parseBitmap(wadBytes, palette)(dir)
+		bitmap: BP.parseBitmap(wadBytes, palette)(dir)
 	}
 }
 
