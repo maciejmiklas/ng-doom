@@ -20,9 +20,13 @@ import {Controls} from '../controls'
 import {WadStorageService} from '../../wad/wad-storage.service'
 import {DoomMap, Wad} from '../../wad/parser/wad-model'
 
-import {functions as tb} from '../../renderer/three-builder'
 import {config as gc} from '../../game-config'
-
+import {CameraService} from "../../renderer/camera.service";
+import {SkyService} from "../../renderer/sky.service";
+import {FlashlightService} from "../../renderer/flashlight.service";
+import {WorldService} from "../../renderer/world.service";
+import {DebugService} from "../../renderer/debug.service";
+import {RendererService} from "../../renderer/renderer.service";
 
 
 /* TODO:
@@ -60,10 +64,10 @@ https://discoverthreejs.com/book/first-steps/camera-controls/
 
  */
 @Component({
-    selector: 'app-play',
-    templateUrl: './play.component.html',
-    styleUrls: ['./play.component.css'],
-    standalone: true
+	selector: 'app-play',
+	templateUrl: './play.component.html',
+	styleUrls: ['./play.component.css'],
+	standalone: true
 })
 export class PlayComponent implements OnInit {
 
@@ -80,7 +84,13 @@ export class PlayComponent implements OnInit {
 	private flashLight: THREE.Object3D
 	private stats;
 
-	constructor(private wadStorage: WadStorageService) {
+	constructor(private wadStorage: WadStorageService,
+							private cameraService: CameraService,
+							private skyService: SkyService,
+							private flashlightService: FlashlightService,
+							private worldService: WorldService,
+							private debugService: DebugService,
+							private rendererService: RendererService) {
 	}
 
 	private get canvas(): HTMLCanvasElement {
@@ -89,14 +99,16 @@ export class PlayComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.wad = this.wadStorage.getCurrent().get().wad
-		this.renderer = tb.createRenderer(this.canvas)
+		this.renderer = this.rendererService.createRenderer(this.canvas)
 		this.map = this.wad.maps[gc.game.startMap]
-		this.scene = tb.createScene()
+		this.scene = this.worldService.createScene()
+		this.debugService.axesHelper().exec(ah => this.scene.add(ah))
 
 		// Camera
-		this.camera = tb.createCamera(this.canvas)
+		this.camera = this.cameraService.createCamera(this.canvas)
 		this.scene.add(this.camera)
-		tb.positionCamera(this.camera, this.map)
+		this.map.player.exec(p => this.cameraService.positionCamera(this.camera, p))
+
 		this.camera.lookAt(this.scene.position)
 
 		if (gc.camera.debug.crossHelper) {
@@ -104,10 +116,10 @@ export class PlayComponent implements OnInit {
 		}
 
 		// Sky
-		this.scene.add(tb.createSky(this.map))
+		this.scene.add(this.skyService.createSky(this.map))
 
 		// World
-		const sectors = tb.createWorld(this.map)
+		const sectors = this.worldService.createWorld(this.map)
 		this.floors = sectors.floors
 		sectors.flats.forEach(fl => this.scene.add(fl))
 
@@ -116,9 +128,9 @@ export class PlayComponent implements OnInit {
 		this.raycaster = new THREE.Raycaster()
 
 		//this.scene.add(tb.torusAt('torus', 950, 40, 3410, 0x520D0D))
-		this.scene.add(tb.torusKnotAt('torusKnot', 850, 40, 3410, 0X049EF4))
+		this.scene.add(this.debugService.torusKnotAt('torusKnot', 850, 40, 3410, 0X049EF4))
 
-		this.flashLight = tb.createFlashLight(this.scene, this.camera)
+		this.flashLight = this.flashlightService.createFlashLight(this.scene, this.camera)
 
 		this.renderer.setAnimationLoop(animation(this))
 

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import {RgbaBitmap} from "../wad/parser/wad-model";
 import * as T from "three";
 import {config as GC} from "../game-config";
