@@ -17,73 +17,51 @@ import {Injectable} from '@angular/core';
 import {GUI} from "dat.gui";
 import * as T from "three";
 import {config as GC} from "../game-config";
+import {RendererService} from "./renderer.service";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class FlashlightService {
 
-	createFlashLight(scene: T.Scene, camera: T.Camera): T.Object3D {
+	private rings: T.SpotLight[] = []
 
-		{
-			const spotLight = new T.SpotLight(0xff8888);
-			spotLight.angle = Math.PI / 5;
-			spotLight.penumbra = 0.3;
-			spotLight.decay = 1.2;
-			spotLight.intensity = 5000;
-			spotLight.position.set(850, 40, 3470);
-			spotLight.target.position.set(852, 40, 3465);
-			spotLight.castShadow = true;
-			scene.add(spotLight);
-			scene.add(new T.SpotLightHelper(spotLight))
+	constructor(private rendererService: RendererService) {
+	}
 
-			const gui = new GUI()
-			createSportLightDebug(gui, scene)('SL', spotLight)
+	createFlashLight(scene: T.Scene, camera: T.Camera): void {
+		if (this.rings.length > 0) {
+			return
 		}
 
-		const group = new T.Group()
-		group.rotateX(Math.PI / 2)
+		const conf = GC.flashLight
+		const createRingF = createRing(conf.debug.gui ? createSportLightDebug(new GUI(), scene) : emptyFunction)
 
-		const createRingF = createRing(GC.flashLight.debug.gui ? createSportLightDebug(new GUI(), scene) : emptyFunction)
+		const cameraGroup = new T.Group()
+		cameraGroup.rotateX(Math.PI / 2)
+		camera.add(cameraGroup)
 
-		const ambient = createRingF('ambient')
-		group.add(ambient)
-		group.add(ambient.target)
+		const sceneGroup = new T.Group()
+		scene.add(sceneGroup)
 
-		//group.add(createRingF('img'))
-		const ring1 = createRingF('ring1')
-		group.add(ring1)
-		group.add(ring1.target)
+		conf.rings.forEach(rd => {
+			const ring = createRingF(rd)
+			cameraGroup.add(ring.target)
+			sceneGroup.add(ring)
+			this.rings.push(ring)
+		})
 
-		const ring2 = createRingF('ring2')
-		group.add(ring2)
-		group.add(ring2.target)
+		this.rendererService.register(() => {
+			sceneGroup.position.x = camera.position.x + conf.adjust.position.x
+			sceneGroup.position.y = camera.position.y + conf.adjust.position.y
+			sceneGroup.position.z = camera.position.z + conf.adjust.position.z
 
-		const ring3 = createRingF('ring3')
-		group.add(ring3)
-		group.add(ring3.target)
-
-		camera.add(group);
-		//camera.add(group.target)
-
-		//const rg1 = createRingF('ring1')
-		//rg1.intensity = 5000
-
-//	rg1.position.set(850, 40, 3470);
-//	rg1.target.position.set(852, 40, 3465);
-		//scene.add(new T.SpotLightHelper(rg1))
-		//scene.add(rg1)
-		//group.add(rg1)
-		//camera.add(rg1.target);
-
-
-		//createRingF('ring2')
-		//createRingF('ring3')
-
-		//camera.add(flashLight)
-
-//	camera.add(group)
-		return group;
+			this.rings.forEach(ri => {
+				ri.target.position.x = camera.quaternion.x + conf.adjust.target.x
+				ri.target.position.y = camera.quaternion.y + conf.adjust.target.y
+				ri.target.position.z = camera.quaternion.z + conf.adjust.target.z
+			})
+		})
 	}
 }
 
@@ -114,38 +92,35 @@ const createSportLightDebug = (gui: GUI, scene: T.Scene) => (name: string, sl): 
 	gf.add(sl.shadow.camera, 'focus', 0, 2).step(0.1).name('camera.focus')
 //	}
 
-//	gf.open()
+	gf.open()
 	return gf;
 }
 
-const createRing = (callback: (f, d) => any) => (name: string): T.SpotLight => {
-	const conf = GC.flashLight[name];
-	const spotLight = new T.SpotLight(conf.color, conf.intensity)
+const createRing = (callback: (f, d) => any) =>
+	({name, color, intensity, penumbra, castShadow, angle, decay, distance}: any): T.SpotLight => {
 
-	//spotLight.rotateZ(Math.PI / 2)
-
-	spotLight.penumbra = conf.penumbra
-	spotLight.castShadow = conf.castShadow
-	spotLight.angle = conf.angle
-	spotLight.decay = conf.decay
-
-	if (conf.img) {
-		const texture = new T.TextureLoader().load(conf.img)
-		//texture.minFilter = T.LinearFilter
-		//	texture.magFilter = T.LinearFilter
-		//	texture.encoding = T.sRGBEncoding
-		spotLight.position.set(-20, -40, 180)
-		spotLight.map = texture
-		//	spotLight.shadow.mapSize.width = 1024;
-		////	spotLight.shadow.mapSize.height = 1024;
-		//	spotLight.shadow.camera.near = 200;
-		//	spotLight.shadow.camera.far = 2000;
-		//	spotLight.shadow.focus = 0.1;
+		const light = new T.SpotLight(color, intensity)
+		light.penumbra = penumbra
+		light.castShadow = castShadow
+		light.angle = angle
+		light.decay = decay
+		light.distance = distance
+		light.shadow.mapSize.width = 4096;
+		light.shadow.mapSize.height = 4096;
+		light.shadow.camera.near = 0.5; // default
+		light.shadow.camera.far = 500; // default
+		light.shadow.focus = 1; // default
+		light.shadow.bias = -0.00001;
+		/*
+			if (conf.img) {
+				const texture = new T.TextureLoader().load(conf.img)
+				spotLight.position.set(-20, -40, 180)
+				spotLight.map = texture
+			}
+		*/
+		callback(name, light)
+		return light;
 	}
-
-	callback(name, spotLight)
-	return spotLight;
-}
 
 const emptyFunction = () => null
 

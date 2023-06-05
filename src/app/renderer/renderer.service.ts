@@ -15,6 +15,7 @@
  */
 import {Injectable} from '@angular/core';
 import * as T from "three";
+import * as THREE from "three";
 import {config as GC} from "../game-config";
 
 @Injectable({
@@ -22,27 +23,47 @@ import {config as GC} from "../game-config";
 })
 export class RendererService {
 
+	private renderer: T.WebGLRenderer
+	private animationCallbacks: RenderCallback[] = []
+
 	createRenderer(canvas: HTMLCanvasElement): T.WebGLRenderer {
+		if (this.renderer != undefined) {
+			return this.renderer
+		}
 		const conf = GC.renderer
 
-		const renderer = new T.WebGLRenderer({antialias: conf.antialias, canvas})
-		renderer.physicallyCorrectLights = conf.physicallyCorrectLights
+		this.renderer = new T.WebGLRenderer({antialias: conf.antialias, canvas})
+		this.renderer.physicallyCorrectLights = conf.physicallyCorrectLights
 
 		// a beam from the flashlight does not dazzle when getting close to the wall
 		//renderer.toneMapping = T.CineonToneMapping
 		//renderer.toneMapping = T.ACESFilmicToneMapping;
 
-		renderer.shadowMap.enabled = conf.shadowMap.enabled
-		renderer.shadowMap.type = conf.shadowMap.type
-		renderer.outputEncoding = conf.outputEncoding
+		this.renderer.shadowMap.enabled = conf.shadowMap.enabled
+		this.renderer.shadowMap.type = conf.shadowMap.type
+		this.renderer.outputEncoding = conf.outputEncoding
 		//renderer.toneMappingExposure = 1;
 
 		if (conf.resolution.width > 0) {
-			renderer.setSize(conf.resolution.width, conf.resolution.height)
+			this.renderer.setSize(conf.resolution.width, conf.resolution.height)
 		} else {
-			renderer.setSize(canvas.clientWidth, canvas.clientHeight)
-			renderer.setPixelRatio(window.devicePixelRatio)
+			this.renderer.setSize(canvas.clientWidth, canvas.clientHeight)
+			this.renderer.setPixelRatio(window.devicePixelRatio)
 		}
-		return renderer
+		this.renderer.setAnimationLoop(animation(this.animationCallbacks, this.renderer))
+		return this.renderer
+	}
+
+	register(callback: RenderCallback): void {
+		this.animationCallbacks.push(callback)
 	}
 }
+
+const CLOCK = new THREE.Clock();
+
+const animation = (callbacks: RenderCallback[], renderer: T.WebGLRenderer) => (): void => {
+	const delta = CLOCK.getDelta();
+	callbacks.forEach(cb => cb(delta, renderer))
+}
+
+export type RenderCallback = (delta: number, renderer: T.WebGLRenderer) => void

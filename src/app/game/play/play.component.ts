@@ -75,13 +75,11 @@ export class PlayComponent implements OnInit {
 	private canvasRef: ElementRef<HTMLCanvasElement>
 	private camera: THREE.PerspectiveCamera
 	private scene: THREE.Scene
-	private renderer: THREE.WebGLRenderer
 	private controls: Controls
 	private wad: Wad
 	private map: DoomMap
 	private floors: THREE.Mesh[]
 	private raycaster: THREE.Raycaster
-	private flashLight: THREE.Object3D
 	private stats;
 
 	constructor(private wadStorage: WadStorageService,
@@ -99,21 +97,15 @@ export class PlayComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.wad = this.wadStorage.getCurrent().get().wad
-		this.renderer = this.rendererService.createRenderer(this.canvas)
+		this.rendererService.createRenderer(this.canvas)
 		this.map = this.wad.maps[gc.game.startMap]
 		this.scene = this.worldService.createScene()
 		this.debugService.axesHelper().exec(ah => this.scene.add(ah))
 
 		// Camera
-		this.camera = this.cameraService.createCamera(this.canvas)
-		this.scene.add(this.camera)
-		this.map.player.exec(p => this.cameraService.positionCamera(this.camera, p))
+		this.camera = this.cameraService.createPlayerCamera(this.canvas, this.scene)
 
-		this.camera.lookAt(this.scene.position)
-
-		if (gc.camera.debug.crossHelper) {
-			this.scene.add(new THREE.CameraHelper(this.camera))
-		}
+		this.map.player.exec(p => this.cameraService.positionCamera(p))
 
 		// Sky
 		this.scene.add(this.skyService.createSky(this.map))
@@ -128,16 +120,36 @@ export class PlayComponent implements OnInit {
 		this.raycaster = new THREE.Raycaster()
 
 		//this.scene.add(tb.torusAt('torus', 950, 40, 3410, 0x520D0D))
-		this.scene.add(this.debugService.torusKnotAt('torusKnot', 850, 40, 3410, 0X049EF4))
+		const torusKnot1 = this.debugService.torusKnotAt('torusKnot1', 850, 40, 3410, 0X049EF4);
+		this.scene.add(torusKnot1)
+		const torusKnot2 = this.debugService.torusKnotAt('torusKnot2', 1100, 40, 3410, 0X049EF4);
+		this.scene.add(torusKnot2)
 
-		this.flashLight = this.flashlightService.createFlashLight(this.scene, this.camera)
-
-		this.renderer.setAnimationLoop(animation(this))
+		this.flashlightService.createFlashLight(this.scene, this.camera)
 
 		if (gc.renderer.debug.showFps) {
 			this.stats = new Stats()
 			document.body.appendChild(this.stats.domElement)
+			this.rendererService.register(() => this.stats.update())
 		}
+
+		this.rendererService.register((delta, renderer) => {
+			this.controls.render(delta)
+			this.updatePlayerPosition()
+			renderer.render(this.scene, this.camera)
+		})
+
+		this.rendererService.register((delta) => {
+			{
+				torusKnot1.rotation.y += delta;
+				torusKnot1.rotation.x += delta;
+			}
+
+			{
+				torusKnot2.rotation.y += delta / 2;
+				torusKnot2.rotation.x += delta / 2;
+			}
+		})
 	}
 
 	@HostListener('window:resize')
@@ -158,24 +170,4 @@ export class PlayComponent implements OnInit {
 	}
 }
 
-const clock = new THREE.Clock();
-
-const animation = (comp) => (time: number) => {
-	const delta = clock.getDelta();
-	if (gc.renderer.debug.showFps) {
-		comp.stats.update()
-	}
-	comp.controls.render(delta)
-	comp.updatePlayerPosition()
-	comp.renderer.render(comp.scene, comp.camera)
-
-	const torusKnot = comp.scene.getObjectByName('torusKnot');
-	torusKnot.rotation.y = time / 1000;
-	torusKnot.rotation.x = time / 1000;
-
-	//const torus = comp.scene.getObjectByName('torus');
-	//torus.rotation.y = time / 1000;
-//	torus.rotation.x = time / 1000;
-
-}
 

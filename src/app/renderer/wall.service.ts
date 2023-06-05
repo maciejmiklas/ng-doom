@@ -144,6 +144,7 @@ const wall = (sideF: (ld: Linedef) => T.Side,
 	const mesh = new T.Mesh(new T.PlaneGeometry(wallWidth, wallHeight), material)
 	mesh.position.set((vs.x + ve.x) / 2, wallOffsetFunc(ld, wallHeight), -(vs.y + ve.y) / 2)
 	mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x))
-	mesh.receiveShadow = GC.wall.receiveShadow
+	mesh.receiveShadow = GC.wall.shadow.receive
+	mesh.castShadow = GC.wall.shadow.cast
 	return mesh
 }

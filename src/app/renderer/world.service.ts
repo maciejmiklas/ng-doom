@@ -43,7 +43,6 @@ export class WorldService {
 
 	createWorld({linedefBySector, mapDirs}: DoomMap): Sector3d {
 		const startTime = performance.now()
-
 		const sectors: Sector3d[] = linedefBySector.map(v => this.renderSector(v))
 
 		// Sector3d[] => ['V':Sector3d]

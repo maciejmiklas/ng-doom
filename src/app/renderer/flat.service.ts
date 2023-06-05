@@ -47,7 +47,8 @@ export class FlatService {
 		mesh.rotation.set(Math.PI / 2, Math.PI, Math.PI)
 		mesh.position.y = height
 		mesh.name = type + ':' + flat.sector.id;
-		mesh.receiveShadow = GC.flat.receiveShadow
+		mesh.receiveShadow = GC.flat.shadow.receive
+		mesh.castShadow = GC.flat.shadow.cast
 		return [mesh]
 	}
 }

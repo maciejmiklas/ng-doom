@@ -33,7 +33,7 @@ const scene = {
 	scale: 1,
 	ambientLight: {
 		color: 0XFFFFCC,
-		intensity: 0.8
+		intensity: 0.4
 	},
 	debug: {
 		axesHelper: {
@@ -54,11 +54,17 @@ const flat = {
 			y: 0.02
 		}
 	},
-	receiveShadow: true
+	shadow:{
+		receive: true,
+		cast: false
+	}
 }
 
 const wall = {
-	receiveShadow: true
+	shadow:{
+		receive: true,
+		cast: true
+	}
 }
 
 enum BoxType {
@@ -140,7 +146,7 @@ const camera = {
 		}
 	},
 	debug: {
-		crossHelper: false
+		cameraHelper: false
 	}
 }
 
@@ -169,49 +175,54 @@ const texture = {
 
 const flashLight = {
 	debug: {
-		gui: false
+		gui: true
 	},
-	ambient: {
-		penumbra: 0.1,
-		castShadow: true,
-		decay: 1.4,
-		angle: 3.14,
-		intensity: 1800,
-		color: 0XEBD68F
+	adjust: {
+		position: {x: 10, y: -10, z: -20},
+		target: {x: 0, y: -100, z: 0}
 	},
-	img: {
-		penumbra: 1,
-		castShadow: true,
-		decay: 1.5,
-		angle: 2,
-		intensity: 8000,
-		color: 0xFFFFFF,
-		img: './assets/img/fissured-glass.png'
-	},
-	ring1: {
-		penumbra: 0.1,
-		castShadow: true,
-		decay: 1.4,
-		angle: 0.39,
-		intensity: 1100,
-		color: 0xE8B609
-	},
-	ring2: {
-		penumbra: 0.1,
-		castShadow: true,
-		decay: 1.5,
-		angle: 0.16,
-		intensity: 1400,
-		color: 0xD9C47C
-	},
-	ring3: {
-		penumbra: 0.1,
-		castShadow: true,
-		decay: 1.5,
-		angle: 0.13,
-		intensity: 4400,
-		color: 0x75652B
-	}
+	rings: [
+		/*{
+			name: 'img',
+			penumbra: 1,
+			castShadow: true,
+			decay: 1.5,
+			angle: 2,
+			intensity: 8000,
+			color: 0xFFFFFF,
+			img: './assets/img/fissured-glass.png'
+		},*/
+		{
+			name: 'ring1',
+			penumbra: 0.1,
+			castShadow: true,
+			decay: 1.4,
+			angle: 0.39,
+			intensity: 1500,
+			color: 0xE8B609,
+			distance: 10000
+		},
+		{
+			name: 'ring2',
+			penumbra: 0.1,
+			castShadow: true,
+			decay: 1.5,
+			angle: 0.16,
+			intensity: 1800,
+			color: 0xD9C47C,
+			distance: 10000
+		},
+		{
+			name: 'ring3',
+			penumbra: 0.5,
+			castShadow: true,
+			decay: 1.0,
+			angle: 0.13,
+			intensity: 4800,
+			color: 0x75652B,
+			distance: 10000
+		}
+	],
 }
 
 // ############################ EXPORTS ############################

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 import {Injectable} from '@angular/core';
-import {config as GC} from '../game-config'
+import {config as gc, config as GC} from '../game-config'
 import * as T from "three"
+import * as THREE from "three"
 import {Thing} from "../wad/parser/wad-model"
 
 @Injectable({
@@ -23,17 +24,30 @@ import {Thing} from "../wad/parser/wad-model"
 })
 export class CameraService {
 
-	createCamera({clientWidth, clientHeight}: HTMLCanvasElement): T.PerspectiveCamera {
-		const cam = new T.PerspectiveCamera(
+	private playerCamera: T.PerspectiveCamera
+
+	createPlayerCamera({clientWidth, clientHeight}: HTMLCanvasElement, scene: THREE.Scene): T.PerspectiveCamera {
+		if (this.playerCamera != null) {
+			return this.playerCamera;
+		}
+		this.playerCamera = new T.PerspectiveCamera(
 			GC.camera.perspective.fov,
 			clientWidth / clientHeight,
 			GC.camera.perspective.near,
 			GC.camera.perspective.far)
-		return cam;
+
+		this.playerCamera.lookAt(scene.position)
+		scene.add(this.playerCamera)
+
+		if (gc.camera.debug.cameraHelper) {
+			scene.add(new THREE.CameraHelper(this.playerCamera))
+		}
+
+		return this.playerCamera;
 	}
 
-	positionCamera(camera: T.Camera, player: Thing): void {
-		camera.position.set(player.position.x, GC.player.height, -player.position.y)
+	positionCamera(player: Thing): void {
+		this.playerCamera.position.set(player.position.x, GC.player.height, -player.position.y)
 	}
 
 }
