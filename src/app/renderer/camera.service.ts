@@ -17,37 +17,46 @@ import {Injectable} from '@angular/core';
 import {config as gc, config as GC} from '../game-config'
 import * as T from "three"
 import * as THREE from "three"
-import {Thing} from "../wad/parser/wad-model"
+import {DoomMap, Thing, Wad} from "../wad/parser/wad-model"
+import {BuildMapCallback, WindowResizeCallback} from "./callbacks";
 
 @Injectable({
 	providedIn: 'root'
 })
-export class CameraService {
+export class CameraService implements WindowResizeCallback, BuildMapCallback {
 
-	private playerCamera: T.PerspectiveCamera
+	private camera: T.PerspectiveCamera
 
-	createPlayerCamera({clientWidth, clientHeight}: HTMLCanvasElement, scene: THREE.Scene): T.PerspectiveCamera {
-		if (this.playerCamera != null) {
-			return this.playerCamera;
+	create({clientWidth, clientHeight}: HTMLCanvasElement, scene: THREE.Scene): T.PerspectiveCamera {
+		if (this.camera != null) {
+			return this.camera;
 		}
-		this.playerCamera = new T.PerspectiveCamera(
+		this.camera = new T.PerspectiveCamera(
 			GC.camera.perspective.fov,
 			clientWidth / clientHeight,
 			GC.camera.perspective.near,
 			GC.camera.perspective.far)
 
-		this.playerCamera.lookAt(scene.position)
-		scene.add(this.playerCamera)
+		this.camera.lookAt(scene.position)
+		scene.add(this.camera)
 
 		if (gc.camera.debug.cameraHelper) {
-			scene.add(new THREE.CameraHelper(this.playerCamera))
+			scene.add(new THREE.CameraHelper(this.camera))
 		}
-
-		return this.playerCamera;
+		return this.camera;
 	}
 
-	positionCamera(player: Thing): void {
-		this.playerCamera.position.set(player.position.x, GC.player.height, -player.position.y)
+	private positionCamera(player: Thing): void {
+		this.camera.position.set(player.position.x, GC.player.height, -player.position.y)
+	}
+
+	onResize(width: number, height: number): void {
+		this.camera.aspect = width / height;
+		this.camera.updateProjectionMatrix()
+	}
+
+	buildMap(wad: Wad, map: DoomMap): void {
+		map.player.exec(p => this.positionCamera(p))
 	}
 
 }

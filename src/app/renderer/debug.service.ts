@@ -16,12 +16,47 @@
 import {Injectable} from '@angular/core';
 import {Either} from "../common/either";
 import * as T from "three";
-import {config as GC} from "../game-config";
+import {config as gc, config as GC} from "../game-config";
+import {InitCallback, RenderCallback} from "./callbacks";
+import * as Stats from 'stats.js'
 
 @Injectable({
 	providedIn: 'root'
 })
-export class DebugService {
+export class DebugService implements InitCallback, RenderCallback {
+	private torusKnot1;
+	private torusKnot2;
+	private stats: Stats;
+
+	init(canvas: HTMLCanvasElement, scene: T.Scene, camera: T.PerspectiveCamera): void {
+		this.axesHelper().exec(ah => scene.add(ah))
+
+		this.torusKnot1 = this.torusKnotAt('torusKnot1', 850, 40, 3410, 0X049EF4);
+		scene.add(this.torusKnot1)
+
+		this.torusKnot2 = this.torusKnotAt('torusKnot2', 1100, 40, 3410, 0X049EF4);
+		scene.add(this.torusKnot2)
+
+		if (gc.renderer.debug.showFps) {
+			this.stats = new Stats()
+			document.body.appendChild(this.stats.domElement)
+		}
+	}
+
+	onRender(deltaMs: number, renderer: T.WebGLRenderer): void {
+		if (this.stats) {
+			this.stats.update();
+		}
+		{
+			this.torusKnot1.rotation.y += deltaMs / 1000;
+			this.torusKnot1.rotation.x += deltaMs / 1000;
+		}
+
+		{
+			this.torusKnot2.rotation.y += deltaMs / 2000;
+			this.torusKnot2.rotation.x += deltaMs / 2000;
+		}
+	}
 
 	axesHelper(): Either<T.AxesHelper> {
 		const ah = GC.scene.debug.axesHelper;
@@ -64,5 +99,6 @@ export class DebugService {
 		mesh.castShadow = true
 		return mesh;
 	}
+
 
 }

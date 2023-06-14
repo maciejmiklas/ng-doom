@@ -15,21 +15,27 @@
  */
 import {Injectable} from '@angular/core';
 import * as T from "three";
-import * as THREE from "three";
 import {config as GC} from "../game-config";
+import {InitCallback, RenderCallback, StartRenderLoopCallback} from "./callbacks";
 
 @Injectable({
 	providedIn: 'root'
 })
-export class RendererService {
+export class RendererService implements InitCallback, StartRenderLoopCallback {
 
 	private renderer: T.WebGLRenderer
 	private animationCallbacks: RenderCallback[] = []
+	private scene: T.Scene
+	private camera: T.PerspectiveCamera
 
-	createRenderer(canvas: HTMLCanvasElement): T.WebGLRenderer {
-		if (this.renderer != undefined) {
-			return this.renderer
-		}
+	register(...callback: RenderCallback[]): void {
+		callback.forEach(e => this.animationCallbacks.push(e))
+	}
+
+	init(canvas: HTMLCanvasElement, scene: T.Scene, camera: T.PerspectiveCamera): void {
+		this.scene = scene
+		this.camera = camera
+
 		const conf = GC.renderer
 
 		this.renderer = new T.WebGLRenderer({antialias: conf.antialias, canvas})
@@ -50,20 +56,17 @@ export class RendererService {
 			this.renderer.setSize(canvas.clientWidth, canvas.clientHeight)
 			this.renderer.setPixelRatio(window.devicePixelRatio)
 		}
-		this.renderer.setAnimationLoop(animation(this.animationCallbacks, this.renderer))
-		return this.renderer
+
 	}
 
-	register(callback: RenderCallback): void {
-		this.animationCallbacks.push(callback)
+	startRenderLoop(): void {
+		this.renderer.setAnimationLoop(animation(this.animationCallbacks, this.renderer, this.scene, this.camera))
 	}
 }
 
-const CLOCK = new THREE.Clock();
-
-const animation = (callbacks: RenderCallback[], renderer: T.WebGLRenderer) => (): void => {
-	const delta = CLOCK.getDelta();
-	callbacks.forEach(cb => cb(delta, renderer))
+const clock = new T.Clock();
+const animation = (callbacks: RenderCallback[], renderer: T.WebGLRenderer, scene: T.Scene, camera: T.PerspectiveCamera) => (): void => {
+	const delta = clock.getDelta();
+	callbacks.forEach(cb => cb.onRender(Math.round(delta * 1000), renderer))
+	renderer.render(scene, camera)
 }
-
-export type RenderCallback = (delta: number, renderer: T.WebGLRenderer) => void

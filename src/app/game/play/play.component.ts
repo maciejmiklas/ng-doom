@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 import {Component, ElementRef, HostListener, OnInit, ViewChild} from '@angular/core'
-import * as THREE from 'three'
-import * as Stats from 'stats.js'
-import {Controls} from '../controls'
+import * as T from 'three'
+
 import {WadStorageService} from '../../wad/wad-storage.service'
-import {DoomMap, Wad} from '../../wad/parser/wad-model'
 
 import {config as gc} from '../../game-config'
 import {CameraService} from "../../renderer/camera.service";
 import {SkyService} from "../../renderer/sky.service";
-import {FlashlightService} from "../../renderer/flashlight.service";
 import {WorldService} from "../../renderer/world.service";
 import {DebugService} from "../../renderer/debug.service";
 import {RendererService} from "../../renderer/renderer.service";
+import {PlayerService} from "../../renderer/player.service";
+import {CallbackDispatcherService} from "../../renderer/callback-dispatcher.service";
 
 
 /* TODO:
@@ -73,22 +72,17 @@ export class PlayComponent implements OnInit {
 
 	@ViewChild('canvas', {static: true})
 	private canvasRef: ElementRef<HTMLCanvasElement>
-	private camera: THREE.PerspectiveCamera
-	private scene: THREE.Scene
-	private controls: Controls
-	private wad: Wad
-	private map: DoomMap
-	private floors: THREE.Mesh[]
-	private raycaster: THREE.Raycaster
-	private stats;
+	private camera: T.PerspectiveCamera
+	private scene: T.Scene
 
 	constructor(private wadStorage: WadStorageService,
 							private cameraService: CameraService,
 							private skyService: SkyService,
-							private flashlightService: FlashlightService,
 							private worldService: WorldService,
 							private debugService: DebugService,
-							private rendererService: RendererService) {
+							private rendererService: RendererService,
+							private playerService: PlayerService,
+							private callback: CallbackDispatcherService) {
 	}
 
 	private get canvas(): HTMLCanvasElement {
@@ -96,78 +90,25 @@ export class PlayComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.wad = this.wadStorage.getCurrent().get().wad
-		this.rendererService.createRenderer(this.canvas)
-		this.map = this.wad.maps[gc.game.startMap]
+		// create
 		this.scene = this.worldService.createScene()
-		this.debugService.axesHelper().exec(ah => this.scene.add(ah))
+		this.camera = this.cameraService.create(this.canvas, this.scene)
 
-		// Camera
-		this.camera = this.cameraService.createPlayerCamera(this.canvas, this.scene)
+		//init
+		this.callback.init(this.canvas, this.scene, this.camera)
 
-		this.map.player.exec(p => this.cameraService.positionCamera(p))
+		// build map
+		const wad = this.wadStorage.getCurrent().get().wad
+		const map = wad.maps[gc.game.startMap]
+		this.callback.buildMap(wad, map, this.scene)
 
-		// Sky
-		this.scene.add(this.skyService.createSky(this.map))
-
-		// World
-		const sectors = this.worldService.createWorld(this.map)
-		this.floors = sectors.floors
-		sectors.flats.forEach(fl => this.scene.add(fl))
-
-		// controls
-		this.controls = new Controls(this.camera, this.canvas)
-		this.raycaster = new THREE.Raycaster()
-
-		//this.scene.add(tb.torusAt('torus', 950, 40, 3410, 0x520D0D))
-		const torusKnot1 = this.debugService.torusKnotAt('torusKnot1', 850, 40, 3410, 0X049EF4);
-		this.scene.add(torusKnot1)
-		const torusKnot2 = this.debugService.torusKnotAt('torusKnot2', 1100, 40, 3410, 0X049EF4);
-		this.scene.add(torusKnot2)
-
-		this.flashlightService.createFlashLight(this.scene, this.camera)
-
-		if (gc.renderer.debug.showFps) {
-			this.stats = new Stats()
-			document.body.appendChild(this.stats.domElement)
-			this.rendererService.register(() => this.stats.update())
-		}
-
-		this.rendererService.register((delta, renderer) => {
-			this.controls.render(delta)
-			this.updatePlayerPosition()
-			renderer.render(this.scene, this.camera)
-		})
-
-		this.rendererService.register((delta) => {
-			{
-				torusKnot1.rotation.y += delta;
-				torusKnot1.rotation.x += delta;
-			}
-
-			{
-				torusKnot2.rotation.y += delta / 2;
-				torusKnot2.rotation.x += delta / 2;
-			}
-		})
+		// start rendering
+		this.callback.startRenderLoop()
 	}
 
 	@HostListener('window:resize')
-	onResize() {
-		this.camera.aspect = this.canvas.clientWidth / this.canvas.clientHeight;
-		this.camera.updateProjectionMatrix()
+	onResize(): void {
+		this.callback.onResize(this.canvas.clientWidth, this.canvas.clientHeight)
 	}
 
-	private updatePlayerPosition(): void {
-		const cp = this.camera.position
-		this.raycaster.setFromCamera(cp, this.camera)
-		this.raycaster.ray.direction.set(gc.camera.florRay.direction.x, gc.camera.florRay.direction.y, gc.camera.florRay.direction.z)
-		this.raycaster.ray.origin.y += gc.camera.florRay.origin.adjust.y
-		const inters = this.raycaster.intersectObjects(this.floors)
-		if (inters.length > 0) {
-			cp.y = (inters[0].point.y / gc.scene.scale) + gc.player.height + gc.camera.position.adjust.y
-		}
-	}
 }
-
-

@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 import {Injectable} from '@angular/core';
-import {Bitmap, DoomMap, functions as MF} from "../wad/parser/wad-model";
+import {Bitmap, DoomMap, functions as MF, Wad} from "../wad/parser/wad-model";
 import * as T from "three";
 import {config as GC} from "../game-config";
 import U from "../common/util";
 import {functions as TF} from "./texture-factory";
+import {BuildMapCallback} from "./callbacks";
 
 @Injectable({
 	providedIn: 'root'
 })
-export class SkyService {
+export class SkyService implements BuildMapCallback {
+
+	buildMap(wad: Wad, map: DoomMap, scene: T.Scene): void {
+		scene.add(this.createSky(map))
+	}
 
 	createSky({linedefs, sky}: DoomMap): T.Mesh {
 		const minX = MF.findMinX(linedefs)

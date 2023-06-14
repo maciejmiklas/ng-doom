@@ -23,5 +23,6 @@ module.exports = {
 		"@typescript-eslint/no-this-alias": "off",
 		"@typescript-eslint/no-explicit-any": "off",
 		"@typescript-eslint/ban-types": "off",
+		"@typescript-eslint/no-empty-function": "off"
 	}
 }

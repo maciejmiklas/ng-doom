@@ -16,15 +16,18 @@
 import {Injectable} from '@angular/core';
 import * as T from "three";
 import {config as GC} from "../game-config";
-import {DoomMap, LinedefBySector} from "../wad/parser/wad-model";
+import {DoomMap, LinedefBySector, Wad} from "../wad/parser/wad-model";
 import * as R from "ramda";
 import {WallService} from "./wall.service";
 import {FlatService} from "./flat.service";
+import {BuildMapCallback} from "./callbacks";
 
 @Injectable({
 	providedIn: 'root'
 })
-export class WorldService {
+export class WorldService implements BuildMapCallback {
+
+	private _sectors: Sector3d
 
 	constructor(private wallService: WallService, private flatService: FlatService) {
 	}
@@ -69,6 +72,15 @@ export class WorldService {
 		flats = [...flats, ...celling]
 
 		return {flats, floors};
+	}
+
+	buildMap(wad: Wad, map: DoomMap, scene: T.Scene): void {
+		this._sectors = this.createWorld(map)
+		this._sectors.flats.forEach(fl => scene.add(fl))
+	}
+
+	get sectors(): Sector3d {
+		return this._sectors;
 	}
 }
 

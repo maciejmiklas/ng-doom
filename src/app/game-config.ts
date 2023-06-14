@@ -26,7 +26,7 @@ const player = {
 }
 
 const move = {
-	distancePerSec: 300
+	distancePerSec: 0.3
 }
 
 const scene = {
@@ -54,14 +54,14 @@ const flat = {
 			y: 0.02
 		}
 	},
-	shadow:{
+	shadow: {
 		receive: true,
 		cast: false
 	}
 }
 
 const wall = {
-	shadow:{
+	shadow: {
 		receive: true,
 		cast: true
 	}
@@ -178,20 +178,32 @@ const flashLight = {
 		gui: true
 	},
 	adjust: {
-		position: {x: 10, y: -10, z: -20},
+		position: {x: -20, y: -10, z: 0},
 		target: {x: 0, y: -100, z: 0}
 	},
+	spotLight: {
+		shadow: {
+			mapSize: 4096,
+			bias: -0.00001
+		}
+	},
+	flicker: {
+		triggerEveryMs: {
+			min: 5000,
+			max: 10000
+		},
+		sequence: {
+			repeat: {
+				min: 1,
+				max: 20
+			},
+			durationMs: {
+				min: 2,
+				max: 50
+			}
+		}
+	},
 	rings: [
-		/*{
-			name: 'img',
-			penumbra: 1,
-			castShadow: true,
-			decay: 1.5,
-			angle: 2,
-			intensity: 8000,
-			color: 0xFFFFFF,
-			img: './assets/img/fissured-glass.png'
-		},*/
 		{
 			name: 'ring1',
 			penumbra: 0.1,
@@ -205,7 +217,7 @@ const flashLight = {
 		{
 			name: 'ring2',
 			penumbra: 0.1,
-			castShadow: true,
+			castShadow: false,
 			decay: 1.5,
 			angle: 0.16,
 			intensity: 1800,
@@ -220,7 +232,7 @@ const flashLight = {
 			angle: 0.13,
 			intensity: 4800,
 			color: 0x75652B,
-			distance: 10000
+			distance: 10000,
 		}
 	],
 }
