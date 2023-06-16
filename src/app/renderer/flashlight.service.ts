@@ -18,6 +18,7 @@ import {GUI} from "dat.gui";
 import * as T from "three";
 import {config as GC} from "../game-config";
 import {InitCallback, RenderCallback} from "./callbacks";
+import * as R from 'ramda'
 
 @Injectable({
 	providedIn: 'root'
@@ -110,18 +111,20 @@ export class FlashlightService implements InitCallback, RenderCallback {
 			sl.target.position.y = this.camera.quaternion.y + conf.adjust.target.y
 			sl.target.position.z = this.camera.quaternion.z + conf.adjust.target.z
 		})
-		this.flicker.onRender(deltaMs, renderer)
+		if (GC.flashLight.flicker.enabled) {
+			this.flicker.onRender(deltaMs, renderer)
+		}
 	}
 }
 
 class Flicker implements RenderCallback {
-	private state = FlickerState.STARTING
+	private state = FlickerState.FLICKER_START
 	private timeMs = 0
 	private nextTriggerMs = 0
-	private repeatMax = 0
-	private repeatCur = 0
-	private sequenceDurationMs = 0
 	private lightOn = true;
+	private sequences: FlickerSequence[] = []
+	private sequenceIdx = 0;
+	private sequenceDurationIdx = 0;
 
 	constructor(private rings: T.SpotLight[]) {
 	}
@@ -130,51 +133,76 @@ class Flicker implements RenderCallback {
 		const conf = GC.flashLight.flicker
 		switch (this.state) {
 
-			case FlickerState.STARTING:
+			case FlickerState.FLICKER_START:
+				this.light(true)
 				this.timeMs = 0;
-				this.lightOn = true
-				this.nextTriggerMs = random(conf.triggerEveryMs.min, conf.triggerEveryMs.max)
-				this.state = FlickerState.WAITING
+				this.switchLightOn()
+				this.nextTriggerMs = random(conf.triggerMs.min, conf.triggerMs.max)
+				this.state = FlickerState.WAIT
 				break;
 
-			case FlickerState.WAITING:
+			case FlickerState.WAIT:
 				if (this.timeMs >= this.nextTriggerMs) {
 					this.state = FlickerState.SEQUENCE_START
 				}
 				break;
 
 			case FlickerState.SEQUENCE_START:
-				this.repeatCur = 0
-				this.repeatMax = random(conf.sequence.repeat.min, conf.sequence.repeat.max)
 				this.state = FlickerState.SEQUENCE_ON
-				this.restartSequence()
+				this.sequences = this.createSequences()
+				this.sequenceIdx = 0
+				this.sequenceDurationIdx = 0
+				this.timeMs = 0;
 				this.flipLight()
 				break;
 
-			case FlickerState.SEQUENCE_ON:
-				if (this.timeMs > this.sequenceDurationMs) {
+			case FlickerState.SEQUENCE_NEXT:
+				this.sequenceIdx++
+				this.sequenceDurationIdx = 0
+				if (this.sequenceIdx >= this.sequences.length) {
+					this.state = FlickerState.FLICKER_START
+				} else {
+					this.state = FlickerState.SEQUENCE_ON
+				}
+				break;
+
+			case FlickerState.SEQUENCE_ON: {
+				const sequence = this.sequences[this.sequenceIdx];
+				if (this.timeMs > sequence.duration[this.sequenceDurationIdx]) {
+					this.timeMs = 0;
 					this.flipLight()
-					this.restartSequence()
-					this.repeatCur++
+					this.sequenceDurationIdx++;
+					if (this.sequenceDurationIdx >= sequence.duration.length) {
+						this.state = FlickerState.SEQUENCE_NEXT
+					}
 				}
-				if (this.repeatCur > this.repeatMax) {
-					this.light(true)
-					this.state = FlickerState.STARTING
-				}
+			}
 				break;
 		}
 		this.timeMs += deltaMs
 	}
 
-	private restartSequence() {
-		this.timeMs = 0
-		this.sequenceDurationMs = random(GC.flashLight.flicker.sequence.durationMs.min, GC.flashLight.flicker.sequence.durationMs.max)
+	private createSequences(): FlickerSequence[] {
+		const actions: FlickerSequence[] = []
+		GC.flashLight.flicker.sequence.forEach(ac => {
+			const repeat = random(ac.repeat.min, ac.repeat.max)
+			if (repeat > 0) {
+				actions.push({duration: R.unfold((n) => n == repeat ? false : [random(ac.durationMs.min, ac.durationMs.max), n + 1], 0)})
+			}
+		})
+		return actions;
 	}
 
-	private flipLight():void{
+	private flipLight(): void {
 		this.lightOn = !this.lightOn
 		this.light(this.lightOn)
 	}
+
+	private switchLightOn(): void {
+		this.lightOn = true
+		this.light(true)
+	}
+
 	private light(on: boolean): void {
 		this.rings.forEach(sl => {
 			sl.visible = on;
@@ -183,11 +211,17 @@ class Flicker implements RenderCallback {
 
 }
 
+type FlickerSequence = {
+	duration: number[]
+}
+
+
 enum FlickerState {
-	STARTING,
-	WAITING,
+	FLICKER_START,
+	WAIT,
 	SEQUENCE_START,
-	SEQUENCE_ON
+	SEQUENCE_ON,
+	SEQUENCE_NEXT
 }
 
 const createAdjustDebug = (gui: GUI): void => {

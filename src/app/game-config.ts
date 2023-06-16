@@ -175,7 +175,7 @@ const texture = {
 
 const flashLight = {
 	debug: {
-		gui: true
+		gui: false
 	},
 	adjust: {
 		position: {x: -20, y: -10, z: 0},
@@ -188,20 +188,43 @@ const flashLight = {
 		}
 	},
 	flicker: {
-		triggerEveryMs: {
-			min: 5000,
-			max: 10000
+		enabled:true,
+		triggerMs: {
+			min: 1000,
+			max: 30000
 		},
-		sequence: {
-			repeat: {
-				min: 1,
-				max: 20
+		sequence: [
+		{
+				repeat: {
+					min: 0,
+					max: 3
+				},
+				durationMs: {
+					min: 100,
+					max: 200
+				}
 			},
-			durationMs: {
-				min: 2,
-				max: 50
+			{
+				repeat: {
+					min: 0,
+					max: 10
+				},
+				durationMs: {
+					min: 5,
+					max: 10
+				}
+			},
+			{
+				repeat: {
+					min: 0,
+					max: 3
+				},
+				durationMs: {
+					min: 100,
+					max: 500
+				}
 			}
-		}
+		]
 	},
 	rings: [
 		{

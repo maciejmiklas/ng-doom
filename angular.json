@@ -34,6 +34,10 @@
 							"node_modules/bootstrap/dist/js/bootstrap.bundle.js",
 							"node_modules/bootstrap-slider/dist/bootstrap-slider.js"
 						],
+						"allowedCommonJsDependencies": [
+							"stats.js",
+							"paper"
+						],
 						"vendorChunk": true,
 						"extractLicenses": false,
 						"buildOptimizer": false,
