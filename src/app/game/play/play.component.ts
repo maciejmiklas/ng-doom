@@ -27,41 +27,6 @@ import {RendererService} from "../../renderer/renderer.service";
 import {PlayerService} from "../../renderer/player.service";
 import {CallbackDispatcherService} from "../../renderer/callback-dispatcher.service";
 
-
-/* TODO:
-// Funktion als param!!!
-type XRFrameRequestCallback = (time: DOMHighResTimeStamp, frame: XRFrame) => void;
-  setAnimationLoop(callback: XRFrameRequestCallback | null): void;
-
-##################################################################################################################
-
-dumping, that is does not stop immedately
-
-https://discoverthreejs.com/book/first-steps/camera-controls/#smoothly-transition-to-a-new-camera-position
-
-
-OrbitControls.js:
-if ( scope.enableDamping ) {
-
-		spherical.theta += sphericalDelta.theta * scope.dampingFactor;
-		spherical.phi += sphericalDelta.phi * scope.dampingFactor;
-
-	} else {
-
-		spherical.theta += sphericalDelta.theta;
-		spherical.phi += sphericalDelta.phi;
-
-	}
-
-https://discoverthreejs.com/book/first-steps/camera-controls/
-  controls.enableDamping = true;
-
-##################################################################################################################
- light from the DirectionalLight shines from light.position to light.target.position
-
- ##################################################################################################################
-
- */
 @Component({
 	selector: 'app-play',
 	templateUrl: './play.component.html',

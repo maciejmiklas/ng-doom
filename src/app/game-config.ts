@@ -132,8 +132,11 @@ const camera = {
 			y: 0
 		}
 	},
-
-	florRay: {
+	damping: {
+		enabled: true,
+		factor: 1
+	},
+	floorRay: {
 		direction: {
 			x: 0,
 			y: -1,
@@ -188,13 +191,13 @@ const flashLight = {
 		}
 	},
 	flicker: {
-		enabled:true,
+		enabled: true,
 		triggerMs: {
 			min: 1000,
 			max: 30000
 		},
 		sequence: [
-		{
+			{
 				repeat: {
 					min: 0,
 					max: 3
