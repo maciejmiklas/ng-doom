@@ -20,11 +20,7 @@ import {WadStorageService} from '../../wad/wad-storage.service'
 
 import {config as gc} from '../../game-config'
 import {CameraService} from "../../renderer/camera.service";
-import {SkyService} from "../../renderer/sky.service";
 import {WorldService} from "../../renderer/world.service";
-import {DebugService} from "../../renderer/debug.service";
-import {RendererService} from "../../renderer/renderer.service";
-import {PlayerService} from "../../renderer/player.service";
 import {CallbackDispatcherService} from "../../renderer/callback-dispatcher.service";
 
 @Component({
@@ -42,11 +38,7 @@ export class PlayComponent implements OnInit {
 
 	constructor(private wadStorage: WadStorageService,
 							private cameraService: CameraService,
-							private skyService: SkyService,
 							private worldService: WorldService,
-							private debugService: DebugService,
-							private rendererService: RendererService,
-							private playerService: PlayerService,
 							private callback: CallbackDispatcherService) {
 	}
 

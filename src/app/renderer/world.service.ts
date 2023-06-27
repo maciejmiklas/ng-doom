@@ -64,7 +64,7 @@ export class WorldService implements BuildMapCallback {
 		let flats = this.wallService.renderWalls(lbs)
 
 		// floor
-		const floors = this.flatService.renderFlat(lbs.flat, lbs.sector.floorTexture, lbs.sector.floorHeight, true, 'Floor')
+		const floors = this.flatService.renderFlat(lbs.flat, lbs.sector.floorTexture, lbs.sector.floorHeight, true, 'Floor(sector)')
 		flats = [...flats, ...floors]
 
 		// celling

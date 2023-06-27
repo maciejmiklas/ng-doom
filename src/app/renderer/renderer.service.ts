@@ -41,14 +41,9 @@ export class RendererService implements InitCallback, StartRenderLoopCallback {
 		this.renderer = new T.WebGLRenderer({antialias: conf.antialias, canvas})
 		this.renderer.physicallyCorrectLights = conf.physicallyCorrectLights
 
-		// a beam from the flashlight does not dazzle when getting close to the wall
-		//renderer.toneMapping = T.CineonToneMapping
-		//renderer.toneMapping = T.ACESFilmicToneMapping;
-
 		this.renderer.shadowMap.enabled = conf.shadowMap.enabled
 		this.renderer.shadowMap.type = conf.shadowMap.type
 		this.renderer.outputEncoding = conf.outputEncoding
-		//renderer.toneMappingExposure = 1;
 
 		if (conf.resolution.width > 0) {
 			this.renderer.setSize(conf.resolution.width, conf.resolution.height)

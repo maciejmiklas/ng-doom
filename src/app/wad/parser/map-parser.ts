@@ -278,8 +278,8 @@ const parseFlags = (val: number): Set<LinedefFlag> =>
 			.filter(k => (1 << (k - 1) & val) != 0)// remove not set bits
 	)
 
-const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sidedefs: Either<Sidedef>[], sectors: Sector[]) => (linedeefId: number): Either<Linedef> => {
-	const offset = dir.filepos + 14 * linedeefId
+const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sidedefs: Either<Sidedef>[], sectors: Sector[]) => (linedefId: number): Either<Linedef> => {
+	const offset = dir.filepos + 14 * linedefId
 	const shortParser = U.parseInt16(bytes)
 	const intParser = U.parseInt32(bytes)
 	const shortOpParser = U.parseInt16Op(bytes)
@@ -298,11 +298,11 @@ const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sided
 	const backSide = parseSide(offset + 12).map(idx => sidedefs[idx])
 
 	const sector = frontSide.map(fs => Either.ofCondition(() => fs.sector.id >= 0 && fs.sector.id < sectors.length,
-		() => 'No Sector for Linedef: ' + linedeefId, () => sectors[fs.sector.id], LeftType.WARN))
+		() => 'No Sector for Linedef: ' + linedefId, () => sectors[fs.sector.id], LeftType.WARN))
 
 	return Either.ofTruth([startVertex, endVertex, frontSide, sector], () =>
 		({
-			id: linedeefId,
+			id: linedefId,
 			dir,
 			lumpType: MapLumpType.LINEDEFS,
 			start: startVertex.get(),
@@ -313,7 +313,8 @@ const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sided
 			frontSide: frontSide.get(),
 			backSide,
 			sector: sector.get()
-		}))
+		})).exec(ld => mf.setActionOnLinedef(ld)
+	)
 }
 
 const parseVertex = (bytes: number[], vertexDir: Directory) => (thingIdx: number): Vertex => {

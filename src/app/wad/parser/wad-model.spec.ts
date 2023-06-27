@@ -239,8 +239,8 @@ describe('wad-model#groupCrossingVectors', () => {
 
 	it('Crossing flag', () => {
 		const crossing = MF.groupCrossingVectors(pathCrossingClosedOrdered).get();
-		crossing.remaining.forEach(v => expect(MF.isCrossing(v)).toBeFalse());
-		crossing.crossing.forEach(vv => vv.forEach(v => expect(MF.isCrossing(v)).toBeTrue()));
+		crossing.remaining.forEach(v => expect(MF.isCrossingVector(v)).toBeFalse());
+		crossing.crossing.forEach(vv => vv.forEach(v => expect(MF.isCrossingVector(v)).toBeTrue()));
 	})
 
 	it('closed crossing path and ordered', () => {
@@ -254,11 +254,11 @@ describe('wad-model#groupCrossingVectors', () => {
 	it('Crossing mixed', () => {
 		const crossing = MF.groupCrossingVectors(pathCrossingMixed).get();
 		crossing.remaining.forEach(v => {
-			expect(MF.isCrossing(v)).toBeFalse()
+			expect(MF.isCrossingVector(v)).toBeFalse()
 			expect(v.msg).toBeUndefined()
 		});
 		crossing.crossing.forEach(vv => vv.forEach(v => {
-			expect(MF.isCrossing(v)).toBeTrue()
+			expect(MF.isCrossingVector(v)).toBeTrue()
 			expect(v.msg.startsWith('Crossing')).toBeTrue()
 		}));
 	})
@@ -271,17 +271,17 @@ const execCrossingTest = (data: VectorId[]) => {
 	expect(cr0.length).toEqual(4)
 	cr0.forEach(cr => {
 		expect(cr.msg.startsWith('Crossing A')).toBeTrue()
-		expect(MF.isCrossing(cr)).toBeTrue()
+		expect(MF.isCrossingVector(cr)).toBeTrue()
 	})
 
 	const cr1 = crossing.crossing[1];
 	expect(cr1.length).toEqual(3)
 	cr1.forEach(cr => {
 		expect(cr.msg.startsWith('Crossing B')).toBeTrue()
-		expect(MF.isCrossing(cr)).toBeTrue()
+		expect(MF.isCrossingVector(cr)).toBeTrue()
 	})
 
-	crossing.remaining.forEach(v => expect(MF.isCrossing(v)).toBeFalse());
+	crossing.remaining.forEach(v => expect(MF.isCrossingVector(v)).toBeFalse());
 	crossing.remaining.forEach(v => expect(v.msg).toBeUndefined());
 }
 

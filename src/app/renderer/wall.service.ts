@@ -34,9 +34,9 @@ export class WallService {
 		const lowerWallRenderer = renderLowerWall(sector);
 		// TODO render middleTexture: Middle floating textures can be used to achieve a variety of faux 3D effects such as 3D bridge
 		linedefs.forEach(ld => {
-			mesh = renderMiddleWall(ld).map(m => mesh.concat(m)).orElse(() => mesh)
-			mesh = upperWallRenderer(ld).map(m => mesh.concat(m)).orElse(() => mesh)
-			mesh = lowerWallRenderer(ld).map(m => mesh.concat(m)).orElse(() => mesh)
+			//mesh = renderMiddleWall(ld).map(m => mesh.concat(m)).orElse(() => mesh)
+			//mesh = upperWallRenderer(ld).map(m => mesh.concat(m)).orElse(() => mesh)
+			//mesh = lowerWallRenderer(ld).map(m => mesh.concat(m)).orElse(() => mesh)
 		})
 		return mesh
 	}
@@ -47,11 +47,10 @@ const createWallMaterial = (dt: DoomTexture, wallWidth: number, side: T.Side, co
 	map.repeat.x = wallWidth / dt.width
 	const material = new T.MeshStandardMaterial({
 		map,
-		//transparent: false, //TODO only some textures has to be transparent
+		transparent: true,
 		side,
 		color,
 	});
-	//material.shadowSide = T.DoubleSide
 	return material
 }
 

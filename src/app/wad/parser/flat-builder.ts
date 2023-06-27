@@ -60,7 +60,7 @@ const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V
 			expand = expandPaths(expand.skipped, expand.paths, true)
 			paths = expand.paths
 			if (expand.skipped.length > 0) {
-				Log.warn(CMP, 'Skipped path elements in sector: ', sectorId, ' -> ', mf.stringifyVectors(expand.skipped))
+				Log.warn(CMP, 'Skipped ' + expand.skipped.length + ' of ' + vectors.length + ' path elements in sector: ', sectorId, ' -> ', mf.stringifyVectors(expand.skipped))
 			}
 		}
 		return paths
@@ -72,7 +72,7 @@ const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V
 		}
 	})
 
-	return Either.ofCondition(() => result.length > 0 /*&& mf.pathContinuos(result[0])*/,
+	return Either.ofCondition(() => result.length > 0,
 		() => 'Could not build path for sector: ' + sectorId + ' -> ' + mf.stringifyVectors(vectors),
 		() => result, LeftType.WARN)
 }
@@ -99,11 +99,11 @@ const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][], c
 		if (!appended) {
 
 			// first, try to get not crossing vector #remaining. Otherwise, take the first one
-			const firstNotCrossingIdx = remaining.findIndex(v => !mf.isCrossing(v))
+			const firstNotCrossingIdx = remaining.findIndex(v => !mf.isCrossingVector(v))
 			const next = firstNotCrossingIdx > 0 ? remaining.splice(firstNotCrossingIdx, 1)[0] : remaining.shift();
 
 			// never start a new path with a crossing vector. Always try to add crossing into existing routes
-			if (mf.isCrossing(next)) {
+			if (mf.isCrossingVector(next)) {
 				skipped.push(next)
 			} else {
 				paths.push([next])
@@ -263,7 +263,7 @@ const buildFlat = (sector: Sector, paths: Linedef[][]): Flat => {
 	])(paths)
 }
 
-const hasCrossingVector = (vectors: VectorV[]) => vectors.findIndex(v => mf.isCrossing(v)) >= 0
+const hasCrossingVector = (vectors: VectorV[]) => vectors.findIndex(v => mf.isCrossingVector(v)) >= 0
 const hasCrossing = (paths: VectorV[][]) => hasCrossingVector(paths[0]) || hasCrossingVector(paths.flat())
 
 // ############################ EXPORTS ############################

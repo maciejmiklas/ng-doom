@@ -18,11 +18,31 @@ import {LinearFilter} from "three/src/constants";
 import * as T from "three";
 
 const game = {
-	startMap: 0,
+	startMap: 2,
 }
 
 const player = {
-	height: 50
+	height: 50,
+	floorRay: {
+		direction: {
+			x: 0,
+			y: -1,
+			z: 0
+		},
+		origin: {
+			adjust: {
+				y: 500
+			}
+		}
+	},
+	damping: {
+		fallHeight: 20,
+		fallSpeed: 0.50,
+		climbSpeed: 0.1
+	},
+	debug: {
+		logSectorName: true
+	}
 }
 
 const move = {
@@ -33,7 +53,7 @@ const scene = {
 	scale: 1,
 	ambientLight: {
 		color: 0XFFFFCC,
-		intensity: 0.4
+		intensity: 0.5
 	},
 	debug: {
 		axesHelper: {
@@ -135,18 +155,6 @@ const camera = {
 	damping: {
 		enabled: true,
 		factor: 1
-	},
-	floorRay: {
-		direction: {
-			x: 0,
-			y: -1,
-			z: 0
-		},
-		origin: {
-			adjust: {
-				y: 500
-			}
-		}
 	},
 	debug: {
 		cameraHelper: false

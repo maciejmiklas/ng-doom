@@ -43,6 +43,7 @@ export class ControlsService implements InitCallback, RenderCallback {
 		}
 	}
 
+	// TODO move keys to keyboard.service
 	private onKeyDown(event): void {
 		switch (event.code) {
 			case 'ArrowUp':

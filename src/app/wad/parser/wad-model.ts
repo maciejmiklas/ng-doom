@@ -186,13 +186,21 @@ export type VectorV = {
 	end: Vertex
 }
 
+const CROSSING_FLAG = "crossing_flag";
+const ACTION_FLAG = "action_flag";
+
+const setActionOnLinedef = (ld: Linedef) => ld[ACTION_FLAG] = ld.specialType == 0 ? undefined : true
+const isActionVector = (v: VectorV) => v[ACTION_FLAG] !== undefined
+const isCrossingVector = (v: VectorV) => v[CROSSING_FLAG] !== undefined
+const areCrossing = (v1: VectorV, v2: VectorV) => isCrossingVector(v1) && isCrossingVector(v2)
+
 export type CrossingVectors<V extends VectorV> = {
 
 	/**
 	 * Crossing consists of at least three vectors sharing a common point.
 	 * In this case, we have multiple shapes sharing the same edge.
 	 *
-	 * Each vector from this list has a mark that can be checked with: #isCrossing(...)
+	 * Each vector from this list has a mark that can be checked with: #isCrossingVector(...)
 	 */
 	crossing: V[][],
 	remaining: V[]
@@ -628,8 +636,6 @@ const groupByVertex = <V extends VectorV>(vectors: V[]) => (vertex: Vertex): Eit
 		() => [found, remaining])
 }
 
-const CROSSING_FLAG = "crossing_flag";
-
 const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingVectors<V>> => {
 	// Vectors are crossing when at least 3 vectors share a common point
 	const crossingVertex = uniqueVertex(vectors).filter(v => countVertex(vectors)(v) > 3)
@@ -661,9 +667,6 @@ const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingV
 			};
 		})
 }
-
-const isCrossing = (v: VectorV) => v[CROSSING_FLAG] !== undefined
-const areCrossing = (v1: VectorV, v2: VectorV) => isCrossing(v1) && isCrossing(v2)
 
 /** Closed path where last element connect to first one, might be not continuos. */
 const pathClosed = (vectors: VectorV[]): boolean =>
@@ -733,7 +736,9 @@ export const functions = {
 	stringifyVectors,
 	stringifyVector,
 	reversed,
-	isCrossing,
+	isCrossingVector,
 	areCrossing,
-	vectorsEqual
+	vectorsEqual,
+	setActionOnLinedef,
+	isActionVector
 }
