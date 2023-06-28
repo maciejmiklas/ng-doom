@@ -22,7 +22,7 @@ import {
 	pathClosedReversedMix,
 	pathClosedReversedOne,
 	pathClosedSorted,
-	pathContinuousOpen,
+	pathContinuousOpen, pathCrossingAndDividedNoFlags,
 	pathCrossingClosedOrdered,
 	pathCrossingMixed,
 	VectorId
@@ -368,6 +368,13 @@ describe('map-parser#findMax', () => {
 		expect(MF.findMax(pathCrossingMixed)).toEqual(1184)
 	})
 })
+
+describe('map-parser#removeDividingVectors', () => {
+	it('positive', () => {
+		expect(MF.removeDividingVectors(pathCrossingAndDividedNoFlags)).toBeTrue()
+	})
+})
+
 
 
 

@@ -16,12 +16,13 @@
 import * as R from 'ramda'
 import {Either, LeftType} from '../../common/either'
 import {
+	CrossingVectors,
 	Flat,
 	FlatArea,
 	FlatType,
 	FlatWithHoles,
 	FlatWithShapes,
-	functions as mf,
+	functions as MF,
 	Linedef,
 	MIN_VECTOR_V,
 	Sector,
@@ -32,6 +33,14 @@ import {
 import {Log} from "../../common/log";
 
 const CMP = 'FLB'
+
+const expandCrossing = <V extends VectorV>(cv: CrossingVectors<V>): ExpandResult<V> => {
+	// create paths from remaining vectors without crossings
+	const expand = expandPaths(cv.remaining, [], false)
+
+	// add crossing vectors to already existing paths
+	return expandPaths(cv.crossing.concat(expand.skipped).flat(), expand.paths, false)
+}
 
 /**
  * Shapes can have common ages. To close such forms properly, they require special treatment. We will separate all
@@ -47,7 +56,10 @@ const CMP = 'FLB'
  *   they would fit.
  */
 const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V[][]> => {
-	const result = mf.groupCrossingVectors(vectors).map(cv => {
+	if(sectorId == 66){
+		console.log('XXXXXX')
+	}
+	const result = MF.groupCrossingVectors(vectors).map(cv => {
 
 		// create paths from remaining vectors without crossings
 		let expand = expandPaths(cv.remaining, [], false)
@@ -60,24 +72,22 @@ const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V
 			expand = expandPaths(expand.skipped, expand.paths, true)
 			paths = expand.paths
 			if (expand.skipped.length > 0) {
-				Log.warn(CMP, 'Skipped ' + expand.skipped.length + ' of ' + vectors.length + ' path elements in sector: ', sectorId, ' -> ', mf.stringifyVectors(expand.skipped))
+				Log.warn(CMP, 'Skipped ' + expand.skipped.length + ' of ' + vectors.length + ' path elements in sector: ', sectorId, ' -> ', MF.stringifyVectors(expand.skipped))
 			}
 		}
 		return paths
 	}).orElse(() => expandPaths(vectors, []).paths)
 
 	result.forEach(path => {
-		if (!mf.pathContinuos(path)) {
-			Log.warn(CMP, 'Open path on sector: ', sectorId, ' -> ', mf.stringifyVectors(path))
+		if (!MF.pathContinuos(path)) {
+			Log.warn(CMP, 'Open path on sector: ', sectorId, ' -> ', MF.stringifyVectors(path))
 		}
 	})
 
 	return Either.ofCondition(() => result.length > 0,
-		() => 'Could not build path for sector: ' + sectorId + ' -> ' + mf.stringifyVectors(vectors),
+		() => 'Could not build path for sector: ' + sectorId + ' -> ' + MF.stringifyVectors(vectors),
 		() => result, LeftType.WARN)
 }
-
-const onlyActionLinedefs = (lds: Linedef[]): boolean => lds.findIndex(ld => ld.specialType > 0) >= 0
 
 type ExpandResult<V extends VectorV> = {
 	paths: V[][],
@@ -99,11 +109,11 @@ const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][], c
 		if (!appended) {
 
 			// first, try to get not crossing vector #remaining. Otherwise, take the first one
-			const firstNotCrossingIdx = remaining.findIndex(v => !mf.isCrossingVector(v))
+			const firstNotCrossingIdx = remaining.findIndex(v => !MF.isCrossingVector(v))
 			const next = firstNotCrossingIdx > 0 ? remaining.splice(firstNotCrossingIdx, 1)[0] : remaining.shift();
 
 			// never start a new path with a crossing vector. Always try to add crossing into existing routes
-			if (mf.isCrossingVector(next)) {
+			if (MF.isCrossingVector(next)) {
 				skipped.push(next)
 			} else {
 				paths.push([next])
@@ -150,7 +160,7 @@ const insertIntoPaths = <V extends VectorV>(paths: V[][], candidate: V, connectC
 const insertIntoPath = <V extends VectorV>(path: V[]) => (candidate: V, connectCrossing = false): Either<V[]> =>
 	Either.ofConditionFlat(
 		// do not alter already closed path
-		() => !mf.pathContinuos(path), () => 'Path already closed.',
+		() => !MF.pathContinuos(path), () => 'Path already closed.',
 
 		// try inserting into path from left and eventually on the right
 		() => prependToPath(path)(candidate, connectCrossing).orAnother(() => appendToPath(path)(candidate, connectCrossing)))
@@ -162,16 +172,16 @@ const insertIntoPath = <V extends VectorV>(path: V[]) => (candidate: V, connectC
  */
 const prependToPath = <V extends VectorV>(path: V[]) => (candidate: V, connectCrossing = false): Either<V[]> => {
 	const pathEl = path[0]
-	const connection = mf.vectorsConnected(candidate, pathEl)
+	const connection = MF.vectorsConnected(candidate, pathEl)
 	return R.cond([
-		[() => !connectCrossing && mf.areCrossing(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Crossing vectors.')],
-		[() => mf.vectorsEqual(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Equal vectors')],
+		[() => !connectCrossing && MF.areCrossing(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Crossing vectors.')],
+		[() => MF.vectorsEqual(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Equal vectors')],
 		[(con) => con === VectorConnection.NONE, () => Either.ofLeft<V[]>(() => 'Vector does not connect with path start.')],
 		[(con) => ((con === VectorConnection.V1START_TO_V2END || con === VectorConnection.V1END_TO_V2END)),
 			() => Either.ofLeft<V[]>(() => 'Vector should be appended.')],
 		[(con) => con === VectorConnection.V1END_TO_V2START, () => Either.ofRight([candidate].concat(path))],
-		[(con) => con === VectorConnection.V1START_TO_V2START, () => Either.ofRight([mf.reverseVector(candidate)].concat(path))],
-		[R.T, () => Either.ofLeft<V[]>(() => 'Unsupported connection: [' + connection + '] to prepend: ' + mf.stringifyVector(candidate) + ' to ' + mf.stringifyVectors(path), LeftType.WARN)]
+		[(con) => con === VectorConnection.V1START_TO_V2START, () => Either.ofRight([MF.reverseVector(candidate)].concat(path))],
+		[R.T, () => Either.ofLeft<V[]>(() => 'Unsupported connection: [' + connection + '] to prepend: ' + MF.stringifyVector(candidate) + ' to ' + MF.stringifyVectors(path), LeftType.WARN)]
 	])(connection)
 }
 
@@ -182,16 +192,16 @@ const prependToPath = <V extends VectorV>(path: V[]) => (candidate: V, connectCr
  */
 const appendToPath = <V extends VectorV>(path: V[]) => (candidate: V, connectCrossing = false): Either<V[]> => {
 	const pathEl = path[path.length - 1]
-	const connection = mf.vectorsConnected(pathEl, candidate)
+	const connection = MF.vectorsConnected(pathEl, candidate)
 	return R.cond([
-		[() => !connectCrossing && mf.areCrossing(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Crossing vectors.')],
-		[() => mf.vectorsEqual(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Equal vectors')],
+		[() => !connectCrossing && MF.areCrossing(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Crossing vectors.')],
+		[() => MF.vectorsEqual(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Equal vectors')],
 		[(con) => con === VectorConnection.NONE, () => Either.ofLeft<V[]>(() => 'Vector does not connect with path end.')],
 		[(con) => ((con === VectorConnection.V1START_TO_V2END || con === VectorConnection.V1START_TO_V2START)),
 			() => Either.ofLeft<V[]>(() => 'Vector should be prepended.')],
 		[(con) => con === VectorConnection.V1END_TO_V2START, () => Either.ofRight(path.concat(candidate))],
-		[(con) => con === VectorConnection.V1END_TO_V2END, () => Either.ofRight(path.concat(mf.reverseVector(candidate)))],
-		[R.T, () => Either.ofLeft<V[]>(() => 'Unsupported connection: [' + connection + '] to append: ' + mf.stringifyVector(candidate) + ' to ' + mf.stringifyVectors(path), LeftType.WARN)]
+		[(con) => con === VectorConnection.V1END_TO_V2END, () => Either.ofRight(path.concat(MF.reverseVector(candidate)))],
+		[R.T, () => Either.ofLeft<V[]>(() => 'Unsupported connection: [' + connection + '] to append: ' + MF.stringifyVector(candidate) + ' to ' + MF.stringifyVectors(path), LeftType.WARN)]
 	])(connection)
 }
 
@@ -263,7 +273,7 @@ const buildFlat = (sector: Sector, paths: Linedef[][]): Flat => {
 	])(paths)
 }
 
-const hasCrossingVector = (vectors: VectorV[]) => vectors.findIndex(v => mf.isCrossingVector(v)) >= 0
+const hasCrossingVector = (vectors: VectorV[]) => vectors.findIndex(v => MF.isCrossingVector(v)) >= 0
 const hasCrossing = (paths: VectorV[][]) => hasCrossingVector(paths[0]) || hasCrossingVector(paths.flat())
 
 // ############################ EXPORTS ############################

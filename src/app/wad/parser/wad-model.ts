@@ -187,10 +187,6 @@ export type VectorV = {
 }
 
 const CROSSING_FLAG = "crossing_flag";
-const ACTION_FLAG = "action_flag";
-
-const setActionOnLinedef = (ld: Linedef) => ld[ACTION_FLAG] = ld.specialType == 0 ? undefined : true
-const isActionVector = (v: VectorV) => v[ACTION_FLAG] !== undefined
 const isCrossingVector = (v: VectorV) => v[CROSSING_FLAG] !== undefined
 const areCrossing = (v1: VectorV, v2: VectorV) => isCrossingVector(v1) && isCrossingVector(v2)
 
@@ -367,7 +363,6 @@ export enum WadType {
 	IWAD,
 	PWAD
 }
-
 
 /**
  * Bitmap column (known as post) of Doom's bitmap. Offset to each column is given by BitmapHeader#columnofs
@@ -738,7 +733,5 @@ export const functions = {
 	reversed,
 	isCrossingVector,
 	areCrossing,
-	vectorsEqual,
-	setActionOnLinedef,
-	isActionVector
+	vectorsEqual
 }

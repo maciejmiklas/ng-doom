@@ -20,7 +20,7 @@ import {
 	Directory,
 	DoomMap,
 	DoomTexture,
-	functions as mf,
+	functions as MF,
 	Linedef,
 	LinedefBySector,
 	LinedefFlag,
@@ -49,7 +49,7 @@ const findLastNotConnected = (linedefs: VectorV[]): Either<number> => {
 
 	// go over list from last element and compare it with previous element until you find not connected vectors
 	const foundIdx: number = findWithIndex((el, idx) =>
-		mf.vectorsConnected(el, next(linedefs.length - idx)) === VectorConnection.NONE)(linedefs)
+		MF.vectorsConnected(el, next(linedefs.length - idx)) === VectorConnection.NONE)(linedefs)
 
 	return Either.ofCondition(() => foundIdx > 0, () => 'Vectors connected', () => foundIdx)
 }
@@ -106,6 +106,9 @@ const parseMaps = (bytes: number[], dirs: Directory[], textures: DoomTexture[], 
 const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>, flatLoader: (name: string) => Either<Bitmap>) => (mapDirs: Directory[]): DoomMap => {
 	const mapName = mapDirs[0].name
 	Log.info(CMP, 'Parse Map: ', mapName)
+	if (mapName === 'E1M3') {
+		console.log('AAAAAA')
+	}
 	const sectors = parseSectors(bytes)(mapDirs, flatLoader)
 	const linedefs = parseLinedefs(bytes, mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes, textureLoader)(mapDirs, sectors), sectors)
 	const things = parseThings(bytes)(mapDirs)
@@ -157,6 +160,13 @@ const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) 
 	}))
 }
 
+/**
+ * Linedef is going through the sector, splitting it into two parts. Such Linedef can be recognized because it
+ * has both sides in one sector and defines an action.
+ */
+const crossingLinedef = (ld: Linedef): boolean =>
+	ld.backSide.isLeft() || ld.specialType == 0 || ld.backSide.get().sector.id != ld.sector.id
+
 const groupLinedefsBySectors = (mapLinedefs: Linedef[], sectors: Sector[]): LinedefBySector[] => {
 	const maxSectorId = findMaxSectorId(mapLinedefs)
 	const bySector = groupLinedefsBySector(mapLinedefs, findBackLinedefs(mapLinedefs))
@@ -176,12 +186,12 @@ const groupLinedefsBySectors = (mapLinedefs: Linedef[], sectors: Sector[]): Line
 		.map(s => s.get())
 
 		// Sector => Either<LinedefBySector>
-		.map(s => bySector(s))
+		.map(bySector)
 
 		// remove not existing LinedefBySector from array
 		.filter(ld => ld.filter())
 
-		//Either<LinedefBySector> => LinedefBySector
+		// Either<LinedefBySector> => LinedefBySector
 		.map(s => s.get())
 }
 
@@ -313,8 +323,7 @@ const parseLinedef = (bytes: number[], dir: Directory, vertexes: Vertex[], sided
 			frontSide: frontSide.get(),
 			backSide,
 			sector: sector.get()
-		})).exec(ld => mf.setActionOnLinedef(ld)
-	)
+		}))
 }
 
 const parseVertex = (bytes: number[], vertexDir: Directory) => (thingIdx: number): Vertex => {
@@ -337,8 +346,8 @@ const scalePos = (scale: number) => (min: number) => (pos: number): number => {
 }
 
 const normalizeLinedefs = (scale: number) => (linedefs: Linedef[]): Linedef[] => {
-	const minX = Math.abs(mf.findMinX(linedefs))
-	const minY = Math.abs(mf.findMinY(linedefs))
+	const minX = Math.abs(MF.findMinX(linedefs))
+	const minY = Math.abs(MF.findMinY(linedefs))
 	const scaleFunc = scalePos(scale)
 	const scaleX = scaleFunc(minX)
 	const scaleY = scaleFunc(minY)

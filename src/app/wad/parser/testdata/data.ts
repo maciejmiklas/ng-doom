@@ -480,6 +480,16 @@ export const pathCrossingMixed: VectorId[] = [
 	// @formatter:on
 ]
 
+// E1M3 - Sector 66 - sector is divided in the middle by an action
+export const pathCrossingAndDividedNoFlags: VectorId[] = [
+	{"id": 36, "start": {"x": -1552, "y": -2640}, "end": {"x": -1456, "y": -2640}},
+	{"id": 701, "start": {"x": -1600, "y": -2944}, "end": {"x": -1552, "y": -2640}},
+	{"id": 699, "start": {"x": -1600, "y": -2944}, "end": {"x": -1408, "y": -2944}},
+	{"id": 700, "start": {"x": -1408, "y": -2944}, "end": {"x": -1456, "y": -2640}},
+	{"id": 988, "start": {"x": -1552, "y": -2640}, "end": {"x": -1408, "y": -2944}},
+	{"id": 988, "start": {"x": -1552, "y": -2640}, "end": {"x": -1408, "y": -2944}},
+]
+
 export const pathSector39 = [
 	{"id": 14, "start": {"x": 1216, "y": -3392}, "end": {"x": 1216, "y": -3360}},
 	{"id": 15, "start": {"x": 1216, "y": -3360}, "end": {"x": 1184, "y": -3360}},
