@@ -142,9 +142,12 @@ const groupByWallAndAction = (linedefs: Linedef[]): Linedef[][] => {
 const findMaxSectorId = (linedefs: Linedef[]): number => R.reduce<number, number>(R.max, 0, linedefs.map(ld => ld.sector.id))
 
 const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) => (sector: Sector): Either<LinedefBySector> => {
-	const linedefs: Linedef[] = mapLinedefs.filter(ld => ld.sector.id === sector.id)
+	const linedefsAll: Linedef[] = mapLinedefs.filter(ld => ld.sector.id === sector.id)
 		// for two sectors sharing common border vectors are defined only in one of those sectors as a backside
 		.concat(findBacksidesBySector(backLinedefs)(sector.id).orElse(() => []))
+
+	// remove duplicates
+	const linedefs = MF.uniqueVector(linedefsAll)
 	if (linedefs.length === 0) {
 		return Either.ofLeft(() => 'No Linedefs for sector: ' + sector.id)
 	}
@@ -159,13 +162,6 @@ const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) 
 		flat
 	}))
 }
-
-/**
- * Linedef is going through the sector, splitting it into two parts. Such Linedef can be recognized because it
- * has both sides in one sector and defines an action.
- */
-const crossingLinedef = (ld: Linedef): boolean =>
-	ld.backSide.isLeft() || ld.specialType == 0 || ld.backSide.get().sector.id != ld.sector.id
 
 const groupLinedefsBySectors = (mapLinedefs: Linedef[], sectors: Sector[]): LinedefBySector[] => {
 	const maxSectorId = findMaxSectorId(mapLinedefs)

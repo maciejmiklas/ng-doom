@@ -16,13 +16,12 @@
 import {functions as MF, VectorConnection, VectorV} from './wad-model'
 import {
 	e1M3Sector7VectorsFromWad,
-	getMaps,
 	pathClosedMixed,
 	pathClosedMixed2,
 	pathClosedReversedMix,
 	pathClosedReversedOne,
 	pathClosedSorted,
-	pathContinuousOpen, pathCrossingAndDividedNoFlags,
+	pathContinuousOpen,
 	pathCrossingClosedOrdered,
 	pathCrossingMixed,
 	VectorId
@@ -369,11 +368,32 @@ describe('map-parser#findMax', () => {
 	})
 })
 
-describe('map-parser#removeDividingVectors', () => {
-	it('positive', () => {
-		expect(MF.removeDividingVectors(pathCrossingAndDividedNoFlags)).toBeTrue()
+describe('map-parser#hasVector', () => {
+	const vec = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+
+	it('has', () => {
+		expect(MF.hasVector([{x: 1, y: 2}, {x: 8, y: 7}, {x: 4, y: 5}, {x: 14, y: -5}])(vec)).toBeTrue()
+	})
+
+	it('has not', () => {
+		expect(MF.hasVector([{x: 10, y: 2}, {x: 80, y: 7}, {x: 40, y: 5}, {x: 14, y: -5}])(vec)).toBeFalse()
 	})
 })
+
+describe('map-parser#uniqueVector', () => {
+	const vec = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+	const vec1 = {start: {x: 11, y: 21}, end: {x: 4, y: 5}}
+
+	it('remove one', () => {
+		expect(MF.uniqueVector([vec, vec1, vec]).length).toEqual(2)
+	})
+
+	it('keep all', () => {
+		expect(MF.uniqueVector([vec, vec1]).length).toEqual(2)
+	})
+
+})
+
 
 
 

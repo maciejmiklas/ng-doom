@@ -182,6 +182,7 @@ export enum VectorConnection {
 
 export type VectorV = {
 	id?: number,
+	specialType?: number,
 	start: Vertex,
 	end: Vertex
 }
@@ -570,7 +571,7 @@ export type GameSave = {
 // ######################### FUNCTIONS #########################
 const vertexEqual = (v1: Vertex, v2: Vertex): boolean => v1.x === v2.x && v1.y === v2.y
 
-const vectorsEqual = (v1: VectorV, v2: VectorV): boolean =>
+const vectorsEqual = <V extends VectorV>(v1: V, v2: V): boolean =>
 	(vertexEqual(v1.start, v2.start) && vertexEqual(v1.end, v2.end)) ||
 	(vertexEqual(v1.start, v2.end) && vertexEqual(v1.end, v2.start))
 
@@ -616,6 +617,9 @@ const uniqueVertex = (vectors: VectorV[]): Vertex[] => {
 	return R.uniqWith(vertexEqual, vertexes)
 }
 
+const uniqueVector = <V extends VectorV>(vectors: V[]): V[] =>
+	R.uniqWith(vectorsEqual, vectors)
+
 const findFirstVectorByVertex = (vectors: VectorV[]) => (vertex: Vertex): Either<number> => {
 	const idx = vectors.findIndex(v => hasVertex(vertex)(v))
 	return Either.ofCondition(() => idx >= 0, () => 'No Vector for:' + JSON.stringify(vertex), () => idx)
@@ -631,9 +635,31 @@ const groupByVertex = <V extends VectorV>(vectors: V[]) => (vertex: Vertex): Eit
 		() => [found, remaining])
 }
 
+/**
+ * @return true, if both points of the given vector are in a given list of points.
+ */
+const hasVector = <V extends VectorV>(points: Vertex[]) => (vector: V): boolean =>
+	points.find(v => vertexEqual(v, vector.start)) !== undefined && points.find(v => vertexEqual(v, vector.end)) !== undefined
+
+const filterSectorSplitters = <V extends VectorV>(vectors: V[]): V[] => {
+	// find common points (vertex) for crossing vectors
+	const crossingVertex = uniqueVertex(vectors).filter(v => countVertex(vectors)(v) > 2)
+
+	// Now we have shared points (Vertex) for all crossing vectors. If a particular vector has both ends in this list
+	// and it's an action, it means that this vector splits the sector into two parts and should be removed.
+	const has = hasVector(crossingVertex)
+	return vectors.filter(v => {
+		const res = v.specialType === 0 || !has(v)
+		if (!res) {
+			console.log('REMOVE:', v.id, v.start, v.end, v.specialType)
+		}
+		return res
+	})
+}
+
 const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingVectors<V>> => {
-	// Vectors are crossing when at least 3 vectors share a common point
-	const crossingVertex = uniqueVertex(vectors).filter(v => countVertex(vectors)(v) > 3)
+	// Vectors are crossing when at least 3 vectors share a common point. #crossingVertex contains such points.
+	const crossingVertex = uniqueVertex(vectors).filter(v => countVertex(vectors)(v) > 2)
 
 	return Either.ofCondition(
 		() => vectors.length > 0 && crossingVertex.length > 0,
@@ -733,5 +759,8 @@ export const functions = {
 	reversed,
 	isCrossingVector,
 	areCrossing,
-	vectorsEqual
+	vectorsEqual,
+	hasVector,
+	filterSectorSplitters,
+	uniqueVector
 }

@@ -55,10 +55,13 @@ const expandCrossing = <V extends VectorV>(cv: CrossingVectors<V>): ExpandResult
  * 3)If there are still some unconnected vectors in the crossing collection, add them to existing paths whenever
  *   they would fit.
  */
-const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V[][]> => {
-	if(sectorId == 66){
+const buildPaths = <V extends VectorV>(sectorId: number, allVectors: V[]): Either<V[][]> => {
+	if (sectorId == 66) {
 		console.log('XXXXXX')
 	}
+	console.log('SECTOR: ', sectorId)
+	const vectors = MF.filterSectorSplitters(allVectors)
+	Log.trace(CMP, 'Build paths for Sector: ', sectorId)
 	const result = MF.groupCrossingVectors(vectors).map(cv => {
 
 		// create paths from remaining vectors without crossings
