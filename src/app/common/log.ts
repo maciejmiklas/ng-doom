@@ -19,7 +19,7 @@ export enum LogLevel {
 }
 
 export class Log {
-	static LOG_LEVEL = LogLevel.INFO
+	static LOG_LEVEL = LogLevel.INFO // TODO move to config!
 
 	static error(cmp: string, ...args: any[]): void {
 		if (Log.isError()) {

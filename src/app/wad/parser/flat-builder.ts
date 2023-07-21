@@ -16,7 +16,6 @@
 import * as R from 'ramda'
 import {Either, LeftType} from '../../common/either'
 import {
-	CrossingVectors,
 	Flat,
 	FlatArea,
 	FlatType,
@@ -34,15 +33,10 @@ import {Log} from "../../common/log";
 
 const CMP = 'FLB'
 
-const expandCrossing = <V extends VectorV>(cv: CrossingVectors<V>): ExpandResult<V> => {
-	// create paths from remaining vectors without crossings
-	const expand = expandPaths(cv.remaining, [], false)
-
-	// add crossing vectors to already existing paths
-	return expandPaths(cv.crossing.concat(expand.skipped).flat(), expand.paths, false)
-}
-
 /**
+ * Duplicates can be necessary to build a sector properly. For example the E1M1: 72 has a static transparent wall inside a sector -
+ * this single Linedef occurs twice because is has both sides inside one sector.
+ *
  * Shapes can have common ages. To close such forms properly, they require special treatment. We will separate all
  * vectors into two groups: crossing vectors (having a common point) and remaining. The problem is to figure out to
  * which shape the crossing vectors belong so that we do not connect shapes meant to be separated. A path building
@@ -55,13 +49,59 @@ const expandCrossing = <V extends VectorV>(cv: CrossingVectors<V>): ExpandResult
  * 3)If there are still some unconnected vectors in the crossing collection, add them to existing paths whenever
  *   they would fit.
  */
-const buildPaths = <V extends VectorV>(sectorId: number, allVectors: V[]): Either<V[][]> => {
-	if (sectorId == 66) {
-		console.log('XXXXXX')
-	}
-	console.log('SECTOR: ', sectorId)
+const buildCrossingPaths = <V extends VectorV>(vectors: V[]) => (removeDuplicates: boolean, filterSplitters: boolean, warn: boolean): Either<V[][]> =>
+
+	// MF.uniqueVector sometimes can break a sec
+	MF.groupCrossingVectors(filterSplitters ? MF.filterSectorSplitters(MF.uniqueVector(vectors)) : vectors).map(cv => {
+
+		// create paths from remaining vectors without crossings
+		let expand = expandPaths(cv.remaining, [], false)
+
+		// add crossing vectors to already existing paths
+		expand = expandPaths(cv.crossing.concat(expand.skipped).flat(), expand.paths, false)
+
+		let paths = expand.paths;
+		if (expand.skipped.length > 0) {
+			expand = expandPaths(expand.skipped, expand.paths, true)
+			paths = expand.paths
+			if (expand.skipped.length > 0) {
+				return Either.ofLeft(() => 'Skipped ' + expand.skipped.length + ' of ' + vectors.length + ' path elements  -> ' + MF.stringifyVectors(expand.skipped),
+					warn ? LeftType.WARN : LeftType.OK)
+			}
+		}
+
+		const opens = paths.filter(MF.pathContinuos)
+		if (opens.length > 0) {
+			return Either.ofLeft(() => opens.length + ' paths are open, first: ' + MF.stringifyVectors(opens[0]), warn ? LeftType.WARN : LeftType.OK)
+		}
+
+		return paths
+	})
+
+const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V[][]> => {
+	const crossingBuilder = buildCrossingPaths(vectors)
+	Log.debug(CMP, 'Build paths for Sector: ', sectorId)
+
+	// first try building path for a simple "box like" sectors
+	const simpleExpand = expandPaths(vectors, [])
+	return Either.ofCondition(() => simpleExpand.skipped.length == 0 && MF.pathsContinuos(simpleExpand.paths),
+		() => 'complex sector',
+		() => simpleExpand.paths)
+
+		// now try sector that consist of multiple boxes
+		.orAnother(() => crossingBuilder(false, false, false))
+
+		// now try sector that consist of multiple boxes and those are divided
+		.orAnother(() => crossingBuilder(true, true, true))
+}
+
+
+const buildPaths_ = <V extends VectorV>(sectorId: number, allVectors: V[]): Either<V[][]> => {
 	const vectors = MF.filterSectorSplitters(allVectors)
-	Log.trace(CMP, 'Build paths for Sector: ', sectorId)
+	Log.debug(CMP, 'Build paths for Sector: ', sectorId)
+	if (sectorId == 72) {
+		console.log("XXX 72")
+	}
 	const result = MF.groupCrossingVectors(vectors).map(cv => {
 
 		// create paths from remaining vectors without crossings
@@ -90,6 +130,34 @@ const buildPaths = <V extends VectorV>(sectorId: number, allVectors: V[]): Eithe
 	return Either.ofCondition(() => result.length > 0,
 		() => 'Could not build path for sector: ' + sectorId + ' -> ' + MF.stringifyVectors(vectors),
 		() => result, LeftType.WARN)
+}
+
+const tryBuildPaths = <V extends VectorV>(vectors: V[]): Either<V[][]> => {
+	const result = MF.groupCrossingVectors(vectors).map(cv => {
+
+		// create paths from remaining vectors without crossings
+		let expand = expandPaths(cv.remaining, [], false)
+
+		// add crossing vectors to already existing paths
+		expand = expandPaths(cv.crossing.concat(expand.skipped).flat(), expand.paths, false)
+
+		if (expand.skipped.length > 0) {
+			expand = expandPaths(expand.skipped, expand.paths, true)
+		}
+
+		return Either.ofCondition(() => expand.skipped.length > 0,
+			() => 'Skipped ' + expand.skipped.length + ' of ' + vectors.length + ' path elements -> ' + MF.stringifyVectors(expand.skipped),
+			() => expand.paths)
+	}).orElse(() => expandPaths(vectors, []).paths)
+
+	const open = result.filter(path => MF.pathContinuos(path))
+	if (open.length > 0) {
+		return Either.ofLeft(() => 'Open ' + open.length + ' path(s), First: ' + MF.stringifyVectors(open[0]))
+	}
+
+	return Either.ofCondition(() => result.length > 0,
+		() => 'Could not build path: ' + MF.stringifyVectors(vectors),
+		() => result)
 }
 
 type ExpandResult<V extends VectorV> = {

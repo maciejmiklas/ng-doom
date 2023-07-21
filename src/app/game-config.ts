@@ -36,7 +36,7 @@ const player = {
 		}
 	},
 	damping: {
-		fallHeight: 20,
+		fallHeight: 50,
 		fallSpeed: 0.50,
 		climbSpeed: 0.1
 	},

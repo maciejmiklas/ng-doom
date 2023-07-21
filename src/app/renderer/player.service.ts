@@ -38,13 +38,12 @@ export class PlayerService implements InitCallback, RenderCallback {
 	}
 
 	private logSector(el: Intersection) {
-		if (!gc.player.debug.logSectorName) {
-			return
-		}
-		const florName = el.object.name;
-		if (this.lastFloorName !== florName) {
-			Log.info(CMP, 'Entering: ', el.object.name)
-			this.lastFloorName = florName
+		if (Log.isInfo() && gc.player.debug.logSectorName) {
+			const florName = el.object.name;
+			if (this.lastFloorName !== florName) {
+				Log.info(CMP, 'Entering: ', el.object.name)
+				this.lastFloorName = florName
+			}
 		}
 	}
 
@@ -57,7 +56,7 @@ export class PlayerService implements InitCallback, RenderCallback {
 
 		const camY = Math.round(this.camera.position.y);
 		const dc = gc.player.damping
-		const mul = Math.abs(this.positionGoal - camY) > dc.fallHeight ? dc.fallHeight : dc.climbSpeed
+		const mul = Math.abs(this.positionGoal - camY) > dc.fallHeight ? dc.fallSpeed : dc.climbSpeed
 		if (this.positionGoal > camY) {
 			this.camera.position.y = Math.min(this.camera.position.y + Math.round(deltaMs * mul), this.positionGoal)
 

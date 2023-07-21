@@ -648,13 +648,7 @@ const filterSectorSplitters = <V extends VectorV>(vectors: V[]): V[] => {
 	// Now we have shared points (Vertex) for all crossing vectors. If a particular vector has both ends in this list
 	// and it's an action, it means that this vector splits the sector into two parts and should be removed.
 	const has = hasVector(crossingVertex)
-	return vectors.filter(v => {
-		const res = v.specialType === 0 || !has(v)
-		if (!res) {
-			console.log('REMOVE:', v.id, v.start, v.end, v.specialType)
-		}
-		return res
-	})
+	return vectors.filter(v => v.specialType === 0 || !has(v))
 }
 
 const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingVectors<V>> => {
@@ -692,6 +686,9 @@ const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingV
 /** Closed path where last element connect to first one, might be not continuos. */
 const pathClosed = (vectors: VectorV[]): boolean =>
 	vectors.length > 2 && vectorsConnected(vectors[0], vectors[vectors.length - 1]) !== VectorConnection.NONE
+
+const pathsContinuos = (paths: VectorV[][]): boolean =>
+	paths.filter(pathContinuos).length == paths.length
 
 /** Continuos and closed path. */
 const pathContinuos = (path: VectorV[]): boolean => {
@@ -762,5 +759,6 @@ export const functions = {
 	vectorsEqual,
 	hasVector,
 	filterSectorSplitters,
-	uniqueVector
+	uniqueVector,
+	pathsContinuos
 }

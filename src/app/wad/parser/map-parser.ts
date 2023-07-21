@@ -106,9 +106,6 @@ const parseMaps = (bytes: number[], dirs: Directory[], textures: DoomTexture[], 
 const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>, flatLoader: (name: string) => Either<Bitmap>) => (mapDirs: Directory[]): DoomMap => {
 	const mapName = mapDirs[0].name
 	Log.info(CMP, 'Parse Map: ', mapName)
-	if (mapName === 'E1M3') {
-		console.log('AAAAAA')
-	}
 	const sectors = parseSectors(bytes)(mapDirs, flatLoader)
 	const linedefs = parseLinedefs(bytes, mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes, textureLoader)(mapDirs, sectors), sectors)
 	const things = parseThings(bytes)(mapDirs)
@@ -142,12 +139,11 @@ const groupByWallAndAction = (linedefs: Linedef[]): Linedef[][] => {
 const findMaxSectorId = (linedefs: Linedef[]): number => R.reduce<number, number>(R.max, 0, linedefs.map(ld => ld.sector.id))
 
 const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) => (sector: Sector): Either<LinedefBySector> => {
-	const linedefsAll: Linedef[] = mapLinedefs.filter(ld => ld.sector.id === sector.id)
+	const linedefs: Linedef[] = mapLinedefs.filter(ld => ld.sector.id === sector.id)
 		// for two sectors sharing common border vectors are defined only in one of those sectors as a backside
 		.concat(findBacksidesBySector(backLinedefs)(sector.id).orElse(() => []))
 
 	// remove duplicates
-	const linedefs = MF.uniqueVector(linedefsAll)
 	if (linedefs.length === 0) {
 		return Either.ofLeft(() => 'No Linedefs for sector: ' + sector.id)
 	}
