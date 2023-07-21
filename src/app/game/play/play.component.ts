@@ -22,6 +22,7 @@ import {config as gc} from '../../game-config'
 import {CameraService} from "../../renderer/camera.service";
 import {WorldService} from "../../renderer/world.service";
 import {CallbackDispatcherService} from "../../renderer/callback-dispatcher.service";
+import {Log} from "../../common/log";
 
 @Component({
 	selector: 'app-play',
@@ -56,7 +57,12 @@ export class PlayComponent implements OnInit {
 
 		// build map
 		const wad = this.wadStorage.getCurrent().get().wad
-		const map = wad.maps[gc.game.startMap]
+		const foundMap = wad.maps.filter(m => m.mapName === gc.game.startMap)
+		if (foundMap.length != 1) {
+			Log.error("No such map: ", gc.game.startMap)
+			return
+		}
+		const map = foundMap[0]
 		this.callback.buildMap(wad, map, this.scene)
 
 		// start rendering
