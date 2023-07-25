@@ -28,6 +28,7 @@
 import {Either} from '../../common/either'
 import * as R from 'ramda'
 import U from "../../common/util";
+import {config as MC} from "./parser-config"
 
 export type Header = {
 	identification: WadType
@@ -189,6 +190,8 @@ export type VectorV = {
 
 const CROSSING_FLAG = "crossing_flag";
 const isCrossingVector = (v: VectorV) => v[CROSSING_FLAG] !== undefined
+const isNotCrossingVector = (v: VectorV) => !isCrossingVector
+
 const areCrossing = (v1: VectorV, v2: VectorV) => isCrossingVector(v1) && isCrossingVector(v2)
 
 export type CrossingVectors<V extends VectorV> = {
@@ -571,6 +574,8 @@ export type GameSave = {
 // ######################### FUNCTIONS #########################
 const vertexEqual = (v1: Vertex, v2: Vertex): boolean => v1.x === v2.x && v1.y === v2.y
 
+const vertexNear = (v1: Vertex, v2: Vertex): boolean => Math.abs(v1.x - v2.x) <= MC.vertex.near && Math.abs(v1.y - v2.y) <= MC.vertex.near
+
 const vectorsEqual = <V extends VectorV>(v1: V, v2: V): boolean =>
 	(vertexEqual(v1.start, v2.start) && vertexEqual(v1.end, v2.end)) ||
 	(vertexEqual(v1.start, v2.end) && vertexEqual(v1.end, v2.start))
@@ -596,10 +601,10 @@ const vectorReversed = (vectors: VectorV[]) => (ve: VectorV): boolean =>
 
 const vectorsConnected = (v1: VectorV, v2: VectorV): VectorConnection =>
 	R.cond([
-		[(v1, v2) => vertexEqual(v1.start, v2.end), () => VectorConnection.V1START_TO_V2END],
-		[(v1, v2) => vertexEqual(v1.start, v2.start), () => VectorConnection.V1START_TO_V2START],
-		[(v1, v2) => vertexEqual(v1.end, v2.start), () => VectorConnection.V1END_TO_V2START],
-		[(v1, v2) => vertexEqual(v1.end, v2.end), () => VectorConnection.V1END_TO_V2END],
+		[(v1, v2) => vertexNear(v1.start, v2.end), () => VectorConnection.V1START_TO_V2END],
+		[(v1, v2) => vertexNear(v1.start, v2.start), () => VectorConnection.V1START_TO_V2START],
+		[(v1, v2) => vertexNear(v1.end, v2.start), () => VectorConnection.V1END_TO_V2START],
+		[(v1, v2) => vertexNear(v1.end, v2.end), () => VectorConnection.V1END_TO_V2END],
 		[R.T, () => VectorConnection.NONE]
 	])(v1, v2)
 
@@ -648,8 +653,15 @@ const filterSectorSplitters = <V extends VectorV>(vectors: V[]): V[] => {
 	// Now we have shared points (Vertex) for all crossing vectors. If a particular vector has both ends in this list
 	// and it's an action, it means that this vector splits the sector into two parts and should be removed.
 	const has = hasVector(crossingVertex)
-	return vectors.filter(v => v.specialType === 0 || !has(v))
+	const ret = vectors.filter(hasNoAction).filter(v => !has(v))
+	return ret;
 }
+
+const hasNoAction = (v: VectorV): boolean => v.specialType === 0
+const hasAction = (v: VectorV): boolean => !hasNoAction
+
+const filterActions = <V extends VectorV>(vectors: V[]): V[] =>
+	vectors.filter(hasNoAction)
 
 const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingVectors<V>> => {
 	// Vectors are crossing when at least 3 vectors share a common point. #crossingVertex contains such points.
@@ -688,7 +700,7 @@ const pathClosed = (vectors: VectorV[]): boolean =>
 	vectors.length > 2 && vectorsConnected(vectors[0], vectors[vectors.length - 1]) !== VectorConnection.NONE
 
 const pathsContinuos = (paths: VectorV[][]): boolean =>
-	paths.filter(pathContinuos).length == paths.length
+	paths.filter(pathContinuos).length === paths.length
 
 /** Continuos and closed path. */
 const pathContinuos = (path: VectorV[]): boolean => {
@@ -704,7 +716,7 @@ const pathContinuos = (path: VectorV[]): boolean => {
 
 		// compare each element in list with next one to ensure that siblings are connected
 		path.every((el, idx) =>
-			vertexEqual(el.end, nextRoll(idx + 1).start))
+			vertexNear(el.end, nextRoll(idx + 1).start))
 }
 
 const toSimpleVectors = <V extends VectorV>(vectors: V[]): VectorV[] => vectors.map(v => toSimpleVector(v))
@@ -760,5 +772,10 @@ export const functions = {
 	hasVector,
 	filterSectorSplitters,
 	uniqueVector,
-	pathsContinuos
+	pathsContinuos,
+	hasNoAction,
+	hasAction,
+	filterActions,
+	vertexNear,
+	isNotCrossingVector
 }

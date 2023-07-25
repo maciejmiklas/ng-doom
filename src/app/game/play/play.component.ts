@@ -18,7 +18,7 @@ import * as T from 'three'
 
 import {WadStorageService} from '../../wad/wad-storage.service'
 
-import {config as gc} from '../../game-config'
+import {config as GC} from '../../game-config'
 import {CameraService} from "../../renderer/camera.service";
 import {WorldService} from "../../renderer/world.service";
 import {CallbackDispatcherService} from "../../renderer/callback-dispatcher.service";
@@ -57,9 +57,9 @@ export class PlayComponent implements OnInit {
 
 		// build map
 		const wad = this.wadStorage.getCurrent().get().wad
-		const foundMap = wad.maps.filter(m => m.mapName === gc.game.startMap)
+		const foundMap = wad.maps.filter(m => m.mapName === GC.game.startMap)
 		if (foundMap.length != 1) {
-			Log.error("No such map: ", gc.game.startMap)
+			Log.error("No such map: ", GC.game.startMap)
 			return
 		}
 		const map = foundMap[0]

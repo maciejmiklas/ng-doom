@@ -110,7 +110,7 @@ describe('wad-model#vectorsConnected', () => {
 	it('Connected - the same', () => {
 		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
 		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
-		expect(MF.vectorsConnected(v1, v2)).toEqual(VectorConnection.V1START_TO_V2START)
+		expect(MF.vectorsConnected(v1, v2)).toEqual(VectorConnection.V1START_TO_V2END)
 	})
 
 	it('Connected - start to start', () => {
@@ -127,7 +127,7 @@ describe('wad-model#vectorsConnected', () => {
 
 	it('Connected - end to end', () => {
 		const v1 = {start: {x: 41, y: 42}, end: {x: 4, y: 5}}
-		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 10, y: 20}, end: {x: 4, y: 5}}
 		expect(MF.vectorsConnected(v1, v2)).toEqual(VectorConnection.V1END_TO_V2END)
 	})
 
@@ -138,13 +138,13 @@ describe('wad-model#vectorsConnected', () => {
 	})
 
 	it('Connected - end to end 2', () => {
-		const v1 = {start: {x: 13, y: 24}, end: {x: 4, y: 5}}
-		const v2 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		const v1 = {start: {x: 33, y: 4}, end: {x: 4, y: 5}}
+		const v2 = {start: {x: 10, y: 20}, end: {x: 4, y: 5}}
 		expect(MF.vectorsConnected(v1, v2)).toEqual(VectorConnection.V1END_TO_V2END)
 	})
 
 	it('Not connected', () => {
-		const v1 = {start: {x: 1, y: 2}, end: {x: 4, y: 5}}
+		const v1 = {start: {x: 122, y: 222}, end: {x: 444, y: 5}}
 		const v2 = {start: {x: 11, y: 12}, end: {x: 14, y: 15}}
 		expect(MF.vectorsConnected(v1, v2)).toEqual(VectorConnection.NONE)
 	})
@@ -394,6 +394,37 @@ describe('map-parser#uniqueVector', () => {
 
 })
 
+describe('wad-model#vertexNear', () => {
+	it('Equal', () => {
+		const v1 = {x: 2, y: 3}
+		const v2 = {x: 2, y: 3}
+		expect(MF.vertexNear(v1, v2)).toBeTrue()
+	})
+
+	it('Not Equal', () => {
+		const v1 = {x: 2, y: 3}
+		const v2 = {x: 22, y: 3}
+		expect(MF.vertexNear(v1, v2)).toBeFalse()
+	})
+
+	it('Near X', () => {
+		const v1 = {x: 5, y: 3}
+		const v2 = {x: 2, y: 3}
+		expect(MF.vertexNear(v1, v2)).toBeTrue()
+	})
+
+	it('Near Y', () => {
+		const v1 = {x: 2, y: 3}
+		const v2 = {x: 2, y: 5}
+		expect(MF.vertexNear(v1, v2)).toBeTrue()
+	})
+
+	it('Near X-Y', () => {
+		const v1 = {x: 8, y: 3}
+		const v2 = {x: 5, y: 5}
+		expect(MF.vertexNear(v1, v2)).toBeTrue()
+	})
+})
 
 
 

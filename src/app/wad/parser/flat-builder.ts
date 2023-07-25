@@ -41,20 +41,21 @@ const CMP = 'FLB'
  * vectors into two groups: crossing vectors (having a common point) and remaining. The problem is to figure out to
  * which shape the crossing vectors belong so that we do not connect shapes meant to be separated. A path building
  * will be spread into three phases to solve that problem:
- * 1)create paths from remaining vectors without crossings. That will make some open paths; a few might be closed if
+ * 1) Create paths from remaining vectors without crossings. That will make some open paths; a few might be closed if
  *   they do not need a vector from crossings to build a closed shape.
- * 2)Add crossing vectors to already existing paths, BUT ensure that vectors from crossings do not connect directly.
+ * 2) Add crossing vectors to already existing paths, BUT ensure that vectors from crossings do not connect directly.
  *   It would result in a path between two shapes. To achieve that, we will add to existing paths vectors from crossing,
  *   one by one, but we will connect those to that path side, which does not contain already vector from crossing.
- * 3)If there are still some unconnected vectors in the crossing collection, add them to existing paths whenever
+ * 3) If there are still some unconnected vectors in the crossing collection, add them to existing paths whenever
  *   they would fit.
  */
-const buildCrossingPaths = <V extends VectorV>(vectors: V[]) => (removeDuplicates: boolean, filterSplitters: boolean, warn: boolean): Either<V[][]> =>
+const buildCrossingPaths = <V extends VectorV>(sectorId: number, vectors: V[]) => (warn: boolean): Either<V[][]> =>
+	MF.groupCrossingVectors(vectors).map(cv => {
 
-	// MF.uniqueVector sometimes can break a sec
-	MF.groupCrossingVectors(filterSplitters ? MF.filterSectorSplitters(MF.uniqueVector(vectors)) : vectors).map(cv => {
-
-		// create paths from remaining vectors without crossings
+		if (sectorId == 72) {
+			console.log('')
+		}
+		// create paths without crossings
 		let expand = expandPaths(cv.remaining, [], false)
 
 		// add crossing vectors to already existing paths
@@ -65,34 +66,55 @@ const buildCrossingPaths = <V extends VectorV>(vectors: V[]) => (removeDuplicate
 			expand = expandPaths(expand.skipped, expand.paths, true)
 			paths = expand.paths
 			if (expand.skipped.length > 0) {
-				return Either.ofLeft(() => 'Skipped ' + expand.skipped.length + ' of ' + vectors.length + ' path elements  -> ' + MF.stringifyVectors(expand.skipped),
+				return Either.ofLeft(() => 'Sector: ' + sectorId + ' -> Skipped ' + expand.skipped.length + ' of '
+						+ vectors.length + ' path elements  -> ' + MF.stringifyVectors(expand.skipped),
 					warn ? LeftType.WARN : LeftType.OK)
 			}
 		}
 
 		const opens = paths.filter(MF.pathContinuos)
 		if (opens.length > 0) {
-			return Either.ofLeft(() => opens.length + ' paths are open, first: ' + MF.stringifyVectors(opens[0]), warn ? LeftType.WARN : LeftType.OK)
+			return Either.ofLeft(
+				() => 'Sector: ' + sectorId + ' -> ' + opens.length + ' paths are open, first: ' + MF.stringifyVectors(opens[0]),
+				warn ? LeftType.WARN : LeftType.OK)
 		}
-
 		return paths
 	})
 
 const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V[][]> => {
-	const crossingBuilder = buildCrossingPaths(vectors)
+	const boxBuilder = buildBoxPaths(sectorId, vectors)
 	Log.debug(CMP, 'Build paths for Sector: ', sectorId)
 
-	// first try building path for a simple "box like" sectors
-	const simpleExpand = expandPaths(vectors, [])
-	return Either.ofCondition(() => simpleExpand.skipped.length == 0 && MF.pathsContinuos(simpleExpand.paths),
-		() => 'complex sector',
-		() => simpleExpand.paths)
+	// first try building simple "box like" sector
+	return boxBuilder(true, true)
 
-		// now try sector that consist of multiple boxes
-		.orAnother(() => crossingBuilder(false, false, false))
+		// try sector that consist of multiple simple boxes
+		.orAnother(() => buildCrossingPaths(sectorId, vectors)(false))
 
-		// now try sector that consist of multiple boxes and those are divided
-		.orAnother(() => crossingBuilder(true, true, true))
+		// try simple box without actions
+		.orAnother(() => boxBuilder(false, true))
+
+		// try box with all vectors
+		.orAnother(() => boxBuilder(false, false))
+
+		// try removing action vectors that split single sector into two
+		.orAnother(() => buildCrossingPaths(sectorId, MF.filterSectorSplitters(MF.uniqueVector(vectors)))(true))
+}
+
+const buildBoxPaths = <V extends VectorV>(sectorId: number, vectors: V[]) => (skippActions: boolean, unique: boolean): Either<V[][]> => {
+	let input: V[] = R.when(() => unique, MF.uniqueVector)(vectors)
+	input = R.when(() => skippActions, MF.filterActions)(vectors)
+	return Either.ofCondition(
+		() => input.length > 0,
+		() => 'Sector: ' + sectorId + ' is not simple Box: ' + skippActions + ',' + unique,
+		() => input).map(inp => {
+			const res = expandPaths(inp, [])
+			return Either.ofCondition(
+				() => res.skipped.length == 0 && MF.pathsContinuos(res.paths),
+				() => 'Sector: ' + sectorId + ' is not simple Box',
+				() => res.paths)
+		}
+	)
 }
 
 type ExpandResult<V extends VectorV> = {
@@ -102,8 +124,7 @@ type ExpandResult<V extends VectorV> = {
 
 /** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
 const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][], connectCrossing = true): ExpandResult<V> => {
-	// we will remove elements one by one from this list and add them to #paths
-	const remaining = [...candidates]
+	const remaining = [...candidates] // we will remove elements one by one from this list and add them to #paths
 	let paths = [...existingPaths]
 	let skipped = [];
 	let appended = paths.length > 0
@@ -114,11 +135,11 @@ const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][], c
 		// none of #remaining could be connected to already existing paths, so start a new path
 		if (!appended) {
 
-			// first, try to get not crossing vector #remaining. Otherwise, take the first one
+			// try to get the first not crossing vector, otherwise any
 			const firstNotCrossingIdx = remaining.findIndex(v => !MF.isCrossingVector(v))
 			const next = firstNotCrossingIdx > 0 ? remaining.splice(firstNotCrossingIdx, 1)[0] : remaining.shift();
 
-			// never start a new path with a crossing vector. Always try to add crossing into existing routes
+			// never start a new path with a crossing vector, always try to add crossing into existing routes
 			if (MF.isCrossingVector(next)) {
 				skipped.push(next)
 			} else {
@@ -137,7 +158,7 @@ const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][], c
 		}
 	}
 
-	// move all paths with a single vector into skipped.Otherwise, we could break a single path into few
+	// move all paths with a single vector into skipped, otherwise, we could break a single path into few
 	skipped = R.flatten([skipped, paths.filter(p => p.length == 1)])
 	paths = paths.filter(p => p.length > 1)
 	return {paths, skipped};
@@ -280,7 +301,7 @@ const buildFlat = (sector: Sector, paths: Linedef[][]): Flat => {
 }
 
 const hasCrossingVector = (vectors: VectorV[]) => vectors.findIndex(v => MF.isCrossingVector(v)) >= 0
-const hasCrossing = (paths: VectorV[][]) => hasCrossingVector(paths[0]) || hasCrossingVector(paths.flat())
+const hasCrossing = (paths: VectorV[][]) => paths.length > 0 && (hasCrossingVector(paths[0]) || hasCrossingVector(paths.flat()))
 
 // ############################ EXPORTS ############################
 export const testFunctions = {
