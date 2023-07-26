@@ -288,10 +288,12 @@ describe('wad-model#pathClosed', () => {
 
 	it('closed', () => {
 		expect(MF.pathClosed(pathClosedSorted)).toBeTrue()
+		expect(MF.pathOpen(pathClosedSorted)).toBeFalse()
 	})
 
 	it('not closed', () => {
 		expect(MF.pathClosed(pathClosedMixed)).toBeFalse()
+		expect(MF.pathOpen(pathClosedMixed)).toBeTrue()
 	})
 })
 
@@ -391,7 +393,6 @@ describe('map-parser#uniqueVector', () => {
 	it('keep all', () => {
 		expect(MF.uniqueVector([vec, vec1]).length).toEqual(2)
 	})
-
 })
 
 describe('wad-model#vertexNear', () => {
@@ -426,6 +427,17 @@ describe('wad-model#vertexNear', () => {
 	})
 })
 
+describe('wad-model#closePath', () => {
+	it('Continuous Open', () => {
+		const path = MF.closePath(pathContinuousOpen)
+		const pol = pathContinuousOpen.length
+		expect(path.length).toEqual(pol + 1)
+		const newVector = path[pol]
+		expect(pathContinuousOpen[pol - 1].id).toEqual(path[path.length - 2].id)
+		expect(MF.vertexEqual(newVector.start, pathContinuousOpen[pol - 1].end)).toBeTrue()
+		expect(MF.vertexEqual(newVector.end, pathContinuousOpen[0].start)).toBeTrue()
+	})
+})
 
 
 

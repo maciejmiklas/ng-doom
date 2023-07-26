@@ -699,6 +699,8 @@ const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingV
 const pathClosed = (vectors: VectorV[]): boolean =>
 	vectors.length > 2 && vectorsConnected(vectors[0], vectors[vectors.length - 1]) !== VectorConnection.NONE
 
+const pathOpen = (vectors: VectorV[]) => !pathClosed(vectors)
+
 const pathsContinuos = (paths: VectorV[][]): boolean =>
 	paths.filter(pathContinuos).length === paths.length
 
@@ -742,6 +744,14 @@ const findMax = (vs: VectorV[]): number =>
 	R.reduce((max: number, ld: VectorV) => Math.max(max, ld.start.x, ld.start.y, ld.end.x, ld.end.y),
 		Number.MIN_SAFE_INTEGER, vs)
 
+const closePath = (path: VectorV[]): VectorV[] => path.concat({
+	id: -1,
+	start: path[path.length - 1].end,
+	end: path[0].start
+})
+
+const closeOpened = (paths: VectorV[][]): VectorV[][] => paths.map(R.when(pathOpen, closePath))
+
 export const functions = {
 	findMinX,
 	findMaxX,
@@ -777,5 +787,8 @@ export const functions = {
 	hasAction,
 	filterActions,
 	vertexNear,
-	isNotCrossingVector
+	isNotCrossingVector,
+	closePath,
+	closeOpened,
+	pathOpen
 }

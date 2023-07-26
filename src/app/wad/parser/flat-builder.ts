@@ -82,40 +82,47 @@ const buildCrossingPaths = <V extends VectorV>(sectorId: number, vectors: V[]) =
 	})
 
 const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V[][]> => {
-	const boxBuilder = buildBoxPaths(sectorId, vectors)
 	Log.debug(CMP, 'Build paths for Sector: ', sectorId)
+	const boxBuilder = buildBoxPaths(sectorId, vectors)
 
 	// first try building simple "box like" sector
-	return boxBuilder(true, true)
+	return boxBuilder(true, true, false)
 
 		// try sector that consist of multiple simple boxes
 		.orAnother(() => buildCrossingPaths(sectorId, vectors)(false))
 
 		// try simple box without actions
-		.orAnother(() => boxBuilder(false, true))
+		.orAnother(() => boxBuilder(false, true, false))
 
 		// try box with all vectors
-		.orAnother(() => boxBuilder(false, false))
+		.orAnother(() => boxBuilder(false, false, true))
 
 		// try removing action vectors that split single sector into two
 		.orAnother(() => buildCrossingPaths(sectorId, MF.filterSectorSplitters(MF.uniqueVector(vectors)))(true))
 }
 
-const buildBoxPaths = <V extends VectorV>(sectorId: number, vectors: V[]) => (skippActions: boolean, unique: boolean): Either<V[][]> => {
-	let input: V[] = R.when(() => unique, MF.uniqueVector)(vectors)
-	input = R.when(() => skippActions, MF.filterActions)(vectors)
-	return Either.ofCondition(
-		() => input.length > 0,
-		() => 'Sector: ' + sectorId + ' is not simple Box: ' + skippActions + ',' + unique,
-		() => input).map(inp => {
-			const res = expandPaths(inp, [])
-			return Either.ofCondition(
-				() => res.skipped.length == 0 && MF.pathsContinuos(res.paths),
-				() => 'Sector: ' + sectorId + ' is not simple Box',
-				() => res.paths)
-		}
-	)
-}
+const buildBoxPaths = <V extends VectorV>(sectorId: number, vectors: V[]) => (skippActions: boolean, unique: boolean, forceClose: boolean): Either<V[][]> =>
+	Either.ofRight(vectors)
+		.map(R.when(() => unique, MF.uniqueVector))// remove duplicates?
+		.map(R.when(() => skippActions, MF.filterActions)) // remove actions?
+
+		// anything left after removing duplicates and actions?
+		.assert(v => v.length > 0, () => () => 'Sector: ' + sectorId + ' is not simple Box: ' + skippActions + ',' + unique)
+
+		// build paths from vectors after eventually removing duplicates and actions
+		.map(expandPaths)
+
+		// could the path be build?
+		.assert((inp) => inp.skipped.length == 0, (inp) => () => 'Sector: ' + sectorId + ' is not simple Box, ' + inp.skipped.length + ' were elements skipped')
+
+		// no elements were skipped, continue with build paths
+		.map(inp => inp.paths)
+
+		// close opened Paths
+		.map(R.when(() => forceClose, MF.closeOpened))
+
+		// are all paths continuous?
+		.assert(MF.pathsContinuos, () => () => 'Sector: ' + sectorId + ' is not simple Box, path not continuos')
 
 type ExpandResult<V extends VectorV> = {
 	paths: V[][],
@@ -123,7 +130,7 @@ type ExpandResult<V extends VectorV> = {
 }
 
 /** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
-const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][], connectCrossing = true): ExpandResult<V> => {
+const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][] = [], connectCrossing = true): ExpandResult<V> => {
 	const remaining = [...candidates] // we will remove elements one by one from this list and add them to #paths
 	let paths = [...existingPaths]
 	let skipped = [];
