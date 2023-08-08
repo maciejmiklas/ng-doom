@@ -21,7 +21,7 @@ const game = {
 }
 
 const player = {
-	height: 50,
+	height: 40,
 	floorRay: {
 		direction: {
 			x: 0,

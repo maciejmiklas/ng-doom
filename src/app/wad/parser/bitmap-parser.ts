@@ -125,7 +125,7 @@ const unfoldFlatColumn = (wadBytes: number[]) => (filepos: number): Either<Colum
  */
 const parseFlat = (wadBytes: number[], palette: Palette) => (dir: Directory): Either<RgbaBitmap> => {
 	const flatColumn = unfoldFlatColumn(wadBytes)
-	const columns = unfoldFlatColFilePos(dir.filepos).map(colOfs => flatColumn(colOfs))
+	const columns = unfoldFlatColFilePos(dir.filepos).map(flatColumn)
 	const rgba = patchDataToRGBA(columns, FLAT_WIDTH, FLAT_HEIGHT, palette)
 	return Either.ofRight(
 		{

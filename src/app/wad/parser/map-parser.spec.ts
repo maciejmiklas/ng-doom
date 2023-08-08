@@ -43,8 +43,8 @@ import {
 	getSectors,
 	getTextures,
 	getWadBytes,
-	pathClosedMixed,
-	pathClosedSorted,
+	PATH_CLOSED_MIXED,
+	PATH_CLOSED_SORTED,
 	validateDir,
 	VERTEX_0,
 	VERTEX_1,
@@ -1005,12 +1005,12 @@ describe('map-parser#findBacksidesBySector', () => {
 describe('map-parser#findLastNotConnected', () => {
 
 	it('Mixed', () => {
-		const ret = TF.findLastNotConnected(pathClosedMixed)
+		const ret = TF.findLastNotConnected(PATH_CLOSED_MIXED)
 		expect(ret.get()).toEqual(8)
 	})
 
 	it('Sorted', () => {
-		const ret = TF.findLastNotConnected(pathClosedSorted)
+		const ret = TF.findLastNotConnected(PATH_CLOSED_SORTED)
 		expect(ret.isLeft()).toBeTrue()
 	})
 

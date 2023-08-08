@@ -15,15 +15,19 @@
  */
 import {functions as MF, VectorConnection, VectorV} from './wad-model'
 import {
-	e1M3Sector7VectorsFromWad,
-	pathClosedMixed,
-	pathClosedMixed2,
-	pathClosedReversedMix,
-	pathClosedReversedOne,
-	pathClosedSorted,
-	pathContinuousOpen,
-	pathCrossingClosedOrdered,
-	pathCrossingMixed,
+	E1M1_S39,
+	E1M3_S66,
+	E1M3_S7,
+	E1M4_S36,
+	PATH_CLOSED_1,
+	PATH_CLOSED_MIXED,
+	PATH_CLOSED_MIXED_2,
+	PATH_CLOSED_REVERSED_MIX,
+	PATH_CLOSED_REVERSED_ONE,
+	PATH_CLOSED_SORTED,
+	PATH_CONTINUOUS_OPEN,
+	PATH_CROSSING_CLOSED_ORDERED,
+	PATH_CROSSING_MIXED,
 	VectorId
 } from "./testdata/data"
 
@@ -59,7 +63,7 @@ describe('wad-model#reverseVector', () => {
 describe('wad-model#pathToPoints', () => {
 
 	it('Continuous path', () => {
-		const points = MF.pathToPoints(pathClosedMixed2)
+		const points = MF.pathToPoints(PATH_CLOSED_MIXED_2)
 		expect(points.length).toEqual(5)
 
 		const val = new Set()
@@ -71,6 +75,73 @@ describe('wad-model#pathToPoints', () => {
 		)
 	})
 
+	it('Continuous path 1', () => {
+		const points = MF.pathToPoints(PATH_CLOSED_1)
+		expect(points.length).toEqual(5)
+
+		const val = new Set()
+		points.forEach(p => {
+				const value = p.x + "-" + p.y
+				expect(val.has(value)).toBeFalse()
+				val.add(value)
+			}
+		)
+	})
+})
+
+describe('wad-model#firstDuplicate', () => {
+
+	it('found 1', () => {
+		const found = MF.firstDuplicate(E1M4_S36)
+		expect(found.isRight()).toBeTrue()
+		expect(found.get()).toEqual(4)
+	})
+
+	it('found 2', () => {
+		const found = MF.firstDuplicate(E1M3_S66)
+		expect(found.isRight()).toBeTrue()
+		expect(found.get()).toEqual(4)
+	})
+
+	it('not found 1', () => {
+		expect(MF.firstDuplicate(PATH_CLOSED_1).isLeft()).toBeTrue()
+	})
+
+	it('not found 2', () => {
+		expect(MF.firstDuplicate(PATH_CONTINUOUS_OPEN).isLeft()).toBeTrue()
+	})
+
+	it('not found 3', () => {
+		expect(MF.firstDuplicate(PATH_CLOSED_MIXED).isLeft()).toBeTrue()
+	})
+
+	it('not found 4', () => {
+		expect(MF.firstDuplicate(PATH_CLOSED_SORTED).isLeft()).toBeTrue()
+	})
+
+	it('not found 5', () => {
+		expect(MF.firstDuplicate(PATH_CLOSED_MIXED_2).isLeft()).toBeTrue()
+	})
+
+	it('not found 6', () => {
+		expect(MF.firstDuplicate(PATH_CLOSED_REVERSED_ONE).isLeft()).toBeTrue()
+	})
+
+	it('not found 7', () => {
+		expect(MF.firstDuplicate(PATH_CLOSED_REVERSED_MIX).isLeft()).toBeTrue()
+	})
+
+	it('not found 8', () => {
+		expect(MF.firstDuplicate(PATH_CROSSING_CLOSED_ORDERED).isLeft()).toBeTrue()
+	})
+
+	it('not found 9', () => {
+		expect(MF.firstDuplicate(PATH_CROSSING_MIXED).isLeft()).toBeTrue()
+	})
+
+	it('not found 10', () => {
+		expect(MF.firstDuplicate(E1M1_S39).isLeft()).toBeTrue()
+	})
 })
 
 describe('wad-model#hasVertex', () => {
@@ -153,12 +224,12 @@ describe('wad-model#vectorsConnected', () => {
 describe('wad-model#vectorReversed', () => {
 
 	it('In path', () => {
-		expect(MF.vectorReversed(pathClosedReversedOne)(
+		expect(MF.vectorReversed(PATH_CLOSED_REVERSED_ONE)(
 			{"start": {"x": 700, "y": 800}, "end": {"x": 10, "y": 20}})).toBeFalse()
 	})
 
 	it('Not in path', () => {
-		expect(MF.vectorReversed(pathClosedReversedOne)(
+		expect(MF.vectorReversed(PATH_CLOSED_REVERSED_ONE)(
 			{"start": {"x": 700, "y": 800}, "end": {"x": 500, "y": 600}})).toBeTrue()
 	})
 
@@ -167,11 +238,11 @@ describe('wad-model#vectorReversed', () => {
 describe('wad-model#countVertex', () => {
 
 	it('found 4', () => {
-		expect(MF.countVertex(pathCrossingMixed)({"x": 928, "y": -3104})).toEqual(4)
+		expect(MF.countVertex(PATH_CROSSING_MIXED)({"x": 928, "y": -3104})).toEqual(4)
 	})
 
 	it('found 0', () => {
-		expect(MF.countVertex(pathCrossingMixed)({"x": 928, "y": 3360})).toEqual(0)
+		expect(MF.countVertex(PATH_CROSSING_MIXED)({"x": 928, "y": 3360})).toEqual(0)
 	})
 
 })
@@ -179,11 +250,11 @@ describe('wad-model#countVertex', () => {
 describe('wad-model#uniqueVertex', () => {
 
 	it('count', () => {
-		expect(MF.uniqueVertex(pathClosedMixed2).length).toEqual(pathClosedMixed2.length)
+		expect(MF.uniqueVertex(PATH_CLOSED_MIXED_2).length).toEqual(PATH_CLOSED_MIXED_2.length)
 	})
 
 	it('no duplicates', () => {
-		const unique = MF.uniqueVertex(pathClosedMixed2)
+		const unique = MF.uniqueVertex(PATH_CLOSED_MIXED_2)
 		unique.forEach(v => {
 			let cnt = 0
 			unique.forEach(vv => {
@@ -196,14 +267,14 @@ describe('wad-model#uniqueVertex', () => {
 	})
 })
 
-describe('wad-model#findFirstVectorByVertex', () => {
+describe('wad-model#firstVectorByVertex', () => {
 
 	it('found', () => {
-		expect(MF.findFirstVectorByVertex(pathCrossingMixed)({"x": 1184, "y": -3360}).get()).toEqual(5)
+		expect(MF.firstVectorByVertex(PATH_CROSSING_MIXED)({"x": 1184, "y": -3360}).get()).toEqual(5)
 	})
 
 	it('not found', () => {
-		expect(MF.findFirstVectorByVertex(pathCrossingMixed)({"x": 928, "y": 3360}).isLeft()).toBeTruthy()
+		expect(MF.firstVectorByVertex(PATH_CROSSING_MIXED)({"x": 928, "y": 3360}).isLeft()).toBeTruthy()
 	})
 })
 
@@ -211,20 +282,20 @@ describe('wad-model#groupByVertex', () => {
 
 	it('Found', () => {
 		const v = {"x": 928, "y": -3104}
-		const either = MF.groupByVertex(pathCrossingMixed)(v)
+		const either = MF.groupByVertex(PATH_CROSSING_MIXED)(v)
 		expect(either.isRight()).toBeTrue()
 		const res = either.get()
 		expect(res.length).toEqual(2)
 
 		expect(res[0].length).toEqual(4)
-		expect(res[1].length).toEqual(pathCrossingMixed.length - 4)
+		expect(res[1].length).toEqual(PATH_CROSSING_MIXED.length - 4)
 		const has = MF.hasVertex(v)
 		res[0].forEach(vv => expect(has(vv)).toBeTrue())
 		res[1].forEach(vv => expect(has(vv)).toBeFalse())
 	})
 
 	it('Not found', () => {
-		const either = MF.groupByVertex(pathCrossingMixed)({"x": 928, "y": 3360})
+		const either = MF.groupByVertex(PATH_CROSSING_MIXED)({"x": 928, "y": 3360})
 		expect(either.isRight()).toBeFalse()
 	})
 
@@ -233,25 +304,25 @@ describe('wad-model#groupByVertex', () => {
 describe('wad-model#groupCrossingVectors', () => {
 
 	it('Not found', () => {
-		expect(MF.groupCrossingVectors(pathClosedReversedMix).isLeft()).toBeTrue()
+		expect(MF.groupCrossingVectors(PATH_CLOSED_REVERSED_MIX).isLeft()).toBeTrue()
 	})
 
 	it('Crossing flag', () => {
-		const crossing = MF.groupCrossingVectors(pathCrossingClosedOrdered).get();
+		const crossing = MF.groupCrossingVectors(PATH_CROSSING_CLOSED_ORDERED).get();
 		crossing.remaining.forEach(v => expect(MF.isCrossingVector(v)).toBeFalse());
 		crossing.crossing.forEach(vv => vv.forEach(v => expect(MF.isCrossingVector(v)).toBeTrue()));
 	})
 
 	it('closed crossing path and ordered', () => {
-		execCrossingTest(pathCrossingClosedOrdered)
+		execCrossingTest(PATH_CROSSING_CLOSED_ORDERED)
 	})
 
 	it('closed crossing path and mixed', () => {
-		execCrossingTest(pathCrossingMixed)
+		execCrossingTest(PATH_CROSSING_MIXED)
 	})
 
 	it('Crossing mixed', () => {
-		const crossing = MF.groupCrossingVectors(pathCrossingMixed).get();
+		const crossing = MF.groupCrossingVectors(PATH_CROSSING_MIXED).get();
 		crossing.remaining.forEach(v => {
 			expect(MF.isCrossingVector(v)).toBeFalse()
 			expect(v.msg).toBeUndefined()
@@ -287,86 +358,86 @@ const execCrossingTest = (data: VectorId[]) => {
 describe('wad-model#pathClosed', () => {
 
 	it('closed', () => {
-		expect(MF.pathClosed(pathClosedSorted)).toBeTrue()
-		expect(MF.pathOpen(pathClosedSorted)).toBeFalse()
+		expect(MF.pathClosed(PATH_CLOSED_SORTED)).toBeTrue()
+		expect(MF.pathOpen(PATH_CLOSED_SORTED)).toBeFalse()
 	})
 
 	it('not closed', () => {
-		expect(MF.pathClosed(pathClosedMixed)).toBeFalse()
-		expect(MF.pathOpen(pathClosedMixed)).toBeTrue()
+		expect(MF.pathClosed(PATH_CLOSED_MIXED)).toBeFalse()
+		expect(MF.pathOpen(PATH_CLOSED_MIXED)).toBeTrue()
 	})
 })
 
 describe('wad-model#pathContinuos', () => {
 
 	it('Closed', () => {
-		expect(MF.pathContinuos(pathClosedSorted)).toBeTrue()
+		expect(MF.pathContinuos(PATH_CLOSED_SORTED)).toBeTrue()
 	})
 
 	it('Mixed', () => {
-		expect(MF.pathContinuos(pathClosedMixed)).toBeFalse()
+		expect(MF.pathContinuos(PATH_CLOSED_MIXED)).toBeFalse()
 	})
 
 	it('Mixed 2', () => {
-		expect(MF.pathContinuos(pathClosedMixed2)).toBeFalse()
+		expect(MF.pathContinuos(PATH_CLOSED_MIXED_2)).toBeFalse()
 	})
 
 	it('Reversed one', () => {
-		expect(MF.pathContinuos(pathClosedReversedOne)).toBeFalse()
+		expect(MF.pathContinuos(PATH_CLOSED_REVERSED_ONE)).toBeFalse()
 	})
 
 	it('Reversed mix', () => {
-		expect(MF.pathContinuos(pathClosedReversedMix)).toBeFalse()
+		expect(MF.pathContinuos(PATH_CLOSED_REVERSED_MIX)).toBeFalse()
 	})
 
 	it('Continuous open', () => {
-		expect(MF.pathContinuos(pathContinuousOpen)).toBeFalse()
+		expect(MF.pathContinuos(PATH_CONTINUOUS_OPEN)).toBeFalse()
 	})
 })
 
 describe('map-parser#findMinX', () => {
 	it('positive', () => {
-		expect(MF.findMinX(pathCrossingMixed)).toEqual(896)
+		expect(MF.findMinX(PATH_CROSSING_MIXED)).toEqual(896)
 	})
 
 	it('negative', () => {
-		expect(MF.findMinX(e1M3Sector7VectorsFromWad)).toEqual(-640)
+		expect(MF.findMinX(E1M3_S7)).toEqual(-640)
 	})
 })
 
 describe('map-parser#findMaxX', () => {
 	it('positive 1', () => {
-		expect(MF.findMaxX(pathCrossingMixed)).toEqual(1184)
+		expect(MF.findMaxX(PATH_CROSSING_MIXED)).toEqual(1184)
 	})
 
 	it('positive 2', () => {
-		expect(MF.findMaxX(e1M3Sector7VectorsFromWad)).toEqual(288)
+		expect(MF.findMaxX(E1M3_S7)).toEqual(288)
 	})
 })
 
 describe('map-parser#findMinY', () => {
 	it('negative', () => {
-		expect(MF.findMinY(pathCrossingMixed)).toEqual(-3392)
+		expect(MF.findMinY(PATH_CROSSING_MIXED)).toEqual(-3392)
 	})
 
 	it('positive', () => {
-		expect(MF.findMinY(pathClosedReversedOne)).toEqual(20)
+		expect(MF.findMinY(PATH_CLOSED_REVERSED_ONE)).toEqual(20)
 	})
 })
 
 describe('map-parser#findMaxY', () => {
 	it('negative', () => {
-		expect(MF.findMaxY(pathCrossingMixed)).toEqual(-3072)
+		expect(MF.findMaxY(PATH_CROSSING_MIXED)).toEqual(-3072)
 	})
 
 	it('positive', () => {
-		expect(MF.findMaxY(pathClosedReversedOne)).toEqual(800)
+		expect(MF.findMaxY(PATH_CLOSED_REVERSED_ONE)).toEqual(800)
 	})
 })
 
 describe('map-parser#findMax', () => {
 	it('positive', () => {
-		expect(MF.findMax(pathCrossingMixed)).toEqual(1184)
+		expect(MF.findMax(PATH_CROSSING_MIXED)).toEqual(1184)
 	})
 })
 
@@ -429,13 +500,13 @@ describe('wad-model#vertexNear', () => {
 
 describe('wad-model#closePath', () => {
 	it('Continuous Open', () => {
-		const path = MF.closePath(pathContinuousOpen)
-		const pol = pathContinuousOpen.length
+		const path = MF.closePath(PATH_CONTINUOUS_OPEN)
+		const pol = PATH_CONTINUOUS_OPEN.length
 		expect(path.length).toEqual(pol + 1)
 		const newVector = path[pol]
-		expect(pathContinuousOpen[pol - 1].id).toEqual(path[path.length - 2].id)
-		expect(MF.vertexEqual(newVector.start, pathContinuousOpen[pol - 1].end)).toBeTrue()
-		expect(MF.vertexEqual(newVector.end, pathContinuousOpen[0].start)).toBeTrue()
+		expect(PATH_CONTINUOUS_OPEN[pol - 1].id).toEqual(path[path.length - 2].id)
+		expect(MF.vertexEqual(newVector.start, PATH_CONTINUOUS_OPEN[pol - 1].end)).toBeTrue()
+		expect(MF.vertexEqual(newVector.end, PATH_CONTINUOUS_OPEN[0].start)).toBeTrue()
 	})
 })
 

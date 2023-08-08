@@ -66,7 +66,7 @@ const createFallbackMaterial = () => new T.MeshStandardMaterial({
 })
 
 const createFlatMaterial = (texture: Either<Bitmap>, side: T.Side): T.Material =>
-	texture.map(tx => createFlatDataTexture(tx)).map(tx => new T.MeshStandardMaterial({
+	texture.map(createFlatDataTexture).map(tx => new T.MeshStandardMaterial({
 		side,
 		map: tx
 	})).orElse(() => createFallbackMaterial())
@@ -74,17 +74,11 @@ const createFlatMaterial = (texture: Either<Bitmap>, side: T.Side): T.Material =
 
 const toVector2 = (ve: Vertex): T.Vector2 => new T.Vector2(ve.x, ve.y)
 
-const createShapeFromPath = (path: Linedef[]): T.Shape => {
-	return new T.Shape(MF.pathToPoints(path).map(p => toVector2(p)));
-}
+const createShapeFromPath = (path: Linedef[]): T.Shape => new T.Shape(MF.pathToPoints(path).map(toVector2))
 
-const createShapesFromFlatArea = ({walls: fw}: FlatArea): T.Shape[] => {
-	return [createShapeFromPath(fw)];
-}
+const createShapesFromFlatArea = ({walls: fw}: FlatArea): T.Shape[] => [createShapeFromPath(fw)];
 
-const createShapesFromFlatWithShapes = ({walls: fw}: FlatWithShapes): T.Shape[] => {
-	return fw.map(wall => createShapeFromPath(wall));
-}
+const createShapesFromFlatWithShapes = ({walls: fw}: FlatWithShapes): T.Shape[] => fw.map(createShapeFromPath);
 
 const createShapesFromFlatWithHoles = ({walls: fw, holes: fh}: FlatWithHoles, renderHoles: boolean): T.Shape[] => {
 	const shape = createShapeFromPath(fw)
@@ -96,7 +90,7 @@ const createShapesFromFlatWithHoles = ({walls: fw, holes: fh}: FlatWithHoles, re
 
 const createShapesFromFlat = (flat: Flat, renderHoles: boolean): T.Shape[] =>
 	R.cond<Flat[], T.Shape[]>([
-		[(f) => f.type === FlatType.AREA, (f) => createShapesFromFlatArea(f as FlatArea)],
-		[(f) => f.type === FlatType.SHAPES, (f) => createShapesFromFlatWithShapes(f as FlatWithShapes)],
+		[(f) => f.type === FlatType.AREA, createShapesFromFlatArea],
+		[(f) => f.type === FlatType.SHAPES, createShapesFromFlatWithShapes],
 		[R.T, (f) => createShapesFromFlatWithHoles(f as FlatWithHoles, renderHoles)]
 	])(flat)

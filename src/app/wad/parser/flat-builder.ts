@@ -51,10 +51,6 @@ const CMP = 'FLB'
  */
 const buildCrossingPaths = <V extends VectorV>(sectorId: number, vectors: V[]) => (warn: boolean): Either<V[][]> =>
 	MF.groupCrossingVectors(vectors).map(cv => {
-
-		if (sectorId == 72) {
-			console.log('')
-		}
 		// create paths without crossings
 		let expand = expandPaths(cv.remaining, [], false)
 
@@ -88,7 +84,7 @@ const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V
 	// first try building simple "box like" sector
 	return boxBuilder(true, true, false)
 
-		// try sector that consist of multiple simple boxes
+		// try sector that consist of multiple boxes
 		.orAnother(() => buildCrossingPaths(sectorId, vectors)(false))
 
 		// try simple box without actions
@@ -143,8 +139,12 @@ const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][] = 
 		if (!appended) {
 
 			// try to get the first not crossing vector, otherwise any
-			const firstNotCrossingIdx = remaining.findIndex(v => !MF.isCrossingVector(v))
-			const next = firstNotCrossingIdx > 0 ? remaining.splice(firstNotCrossingIdx, 1)[0] : remaining.shift();
+			let nextIdx = remaining.findIndex(MF.isNotCrossingVector)
+
+			// try find first duplicate and start from duplicate
+			nextIdx = remaining.findIndex(v => !MF.isCrossingVector(v))
+
+			const next = nextIdx > 0 ? remaining.splice(nextIdx, 1)[0] : remaining.shift();
 
 			// never start a new path with a crossing vector, always try to add crossing into existing routes
 			if (MF.isCrossingVector(next)) {
@@ -287,8 +287,8 @@ const createFlat = (sector: Sector) => (lindedefs: Linedef[]): Either<Flat> =>
  * 1) few crossing shapes,
  * 2) one large shape with holes.
  */
-const buildFlat = (sector: Sector, paths: Linedef[][]): Flat => {
-	return R.cond<Linedef[][][], Flat>([
+const buildFlat = (sector: Sector, paths: Linedef[][]): Flat =>
+	R.cond<Linedef[][][], Flat>([
 		// only one shape in #paths
 		[(p) => p.length == 1, (p) => ({sector, walls: p[0], type: FlatType.AREA}) as FlatArea],
 
@@ -305,9 +305,9 @@ const buildFlat = (sector: Sector, paths: Linedef[][]): Flat => {
 			return {sector, walls: sorted.shift(), holes: sorted} as FlatWithHoles;
 		}]
 	])(paths)
-}
 
-const hasCrossingVector = (vectors: VectorV[]) => vectors.findIndex(v => MF.isCrossingVector(v)) >= 0
+
+const hasCrossingVector = (vectors: VectorV[]) => vectors.findIndex(MF.isCrossingVector) >= 0
 const hasCrossing = (paths: VectorV[][]) => paths.length > 0 && (hasCrossingVector(paths[0]) || hasCrossingVector(paths.flat()))
 
 // ############################ EXPORTS ############################

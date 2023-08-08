@@ -143,9 +143,8 @@ const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) 
 		// for two sectors sharing common border vectors are defined only in one of those sectors as a backside
 		.concat(findBacksidesBySector(backLinedefs)(sector.id).orElse(() => []))
 
-	// remove duplicates
 	if (linedefs.length === 0) {
-		return Either.ofLeft(() => 'No Linedefs for sector: ' + sector.id)
+		return Either.ofLeft(() => 'No Linedefs for sector: ' + sector.id, LeftType.WARN)
 	}
 
 	// split Linedefs into those building walls and actions, as the actions are selten a part of the wall
@@ -160,6 +159,7 @@ const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) 
 }
 
 const groupLinedefsBySectors = (mapLinedefs: Linedef[], sectors: Sector[]): LinedefBySector[] => {
+	const s36 = sectors.filter(s => s.id === 36)
 	const maxSectorId = findMaxSectorId(mapLinedefs)
 	const bySector = groupLinedefsBySector(mapLinedefs, findBackLinedefs(mapLinedefs))
 

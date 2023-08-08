@@ -52,14 +52,16 @@ export class WorldService implements BuildMapCallback {
 		const res = R.reduceBy((acc: Sector3d, el: Sector3d) => {
 			acc.flats = [...acc.flats, ...el.flats]
 			acc.floors = [...acc.floors, ...el.floors]
+			acc.id = el.id
 			return acc
-		}, {flats: [], floors: []}, () => 'V', sectors)
+		}, {flats: [], floors: [], id: -1}, () => 'V', sectors)
 
 		console.log('>TIME createWorld>', mapDirs[0].name, '=', performance.now() - startTime, 'ms')
 		return res['V']
 	}
 
 	renderSector(lbs: LinedefBySector): Sector3d {
+		console.log('>>', lbs.sector.id, lbs.sector.dir.name)
 		// wall
 		let flats = this.wallService.renderWalls(lbs)
 
@@ -71,7 +73,7 @@ export class WorldService implements BuildMapCallback {
 		const celling = this.flatService.renderFlat(lbs.flat, lbs.sector.cellingTexture, lbs.sector.cellingHeight, false, 'Celling');
 		flats = [...flats, ...celling]
 
-		return {flats, floors};
+		return {flats, floors, id: lbs.sector.id};
 	}
 
 	buildMap(wad: Wad, map: DoomMap, scene: T.Scene): void {
@@ -86,7 +88,8 @@ export class WorldService implements BuildMapCallback {
 
 type Sector3d = {
 	flats: T.Mesh[],
-	floors: T.Mesh[]
+	floors: T.Mesh[],
+	id: number
 }
 
 const createAmbientLight = () =>

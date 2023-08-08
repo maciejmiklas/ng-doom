@@ -52,9 +52,9 @@ const parsePatches = (wadBytes: number[], dirs: Directory[], palette: Palette, p
 	const patchDirFinder = findPatchDir(dirs)
 	const bitmapParser = BP.parseBitmap(wadBytes, palette)
 	const patches = pnames.names
-		.map(pn => patchDirFinder(pn)) // (dirName)=> Either<Directory>
+		.map(patchDirFinder) // (dirName)=> Either<Directory>
 		.filter(d => d.isRight()).map(d => d.get()) // (Either<Directory>)=>Directory
-		.map(d => bitmapParser(d)).filter(b => b.isRight()).map(b => b.get()); // (Directory) => Bitmap
+		.map(bitmapParser).filter(b => b.isRight()).map(b => b.get()); // (Directory) => Bitmap
 
 	return Either.ofCondition(() => patches.length > 0, () => 'No patches', () => patches)
 }

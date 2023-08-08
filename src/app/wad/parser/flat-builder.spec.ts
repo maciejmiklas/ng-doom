@@ -16,21 +16,21 @@
 import {testFunctions as TF} from './flat-builder'
 import {functions as MF} from './wad-model'
 import {
-	e1M3Sector7VectorsFromWad,
+	E1M3_S7, E1M4_S36,
 	getCCOById,
-	pathClosedMixed,
-	pathClosedMixed2,
-	pathClosedReversedMix,
-	pathClosedReversedOne,
-	pathClosedSorted,
-	pathContinuousOpen,
+	PATH_CLOSED_MIXED,
+	PATH_CLOSED_MIXED_2,
+	PATH_CLOSED_REVERSED_MIX,
+	PATH_CLOSED_REVERSED_ONE,
+	PATH_CLOSED_SORTED,
+	PATH_CONTINUOUS_OPEN,
 	pathCrossing300Full,
 	pathCrossing300Full100Started,
-	pathCrossingClosedOrdered,
-	pathCrossingMixed,
+	PATH_CROSSING_CLOSED_ORDERED,
+	PATH_CROSSING_MIXED,
 	pathCrossingsMissing200,
 	pathCrossingsPartial,
-	pathSector39,
+	E1M1_S39,
 	VectorId
 } from "./testdata/data"
 
@@ -41,8 +41,13 @@ const expectClosedPath = (path: VectorId[]) => {
 
 describe('flat-builder#buildPaths', () => {
 
+	it('E1M4 - sector 36', () => {
+		const paths = TF.buildPaths(7, E1M4_S36)
+		console.log('aaa')
+	})
+
 	it('E1M2 - sector 7', () => {
-		const paths = TF.buildPaths(7, e1M3Sector7VectorsFromWad).get()
+		const paths = TF.buildPaths(7, E1M3_S7).get()
 		expect(paths.length).toEqual(4)
 
 		// the main path on sector 7 is open due to vertex misplacement by 8 points - vectors do not connect
@@ -56,7 +61,7 @@ describe('flat-builder#buildPaths', () => {
 	})
 
 	it('Path crossing mixed', () => {
-		const paths = TF.buildPaths(11, pathCrossingMixed).get()
+		const paths = TF.buildPaths(11, PATH_CROSSING_MIXED).get()
 		expect(paths.length).toEqual(3)
 		paths.forEach(p => {
 			expect(p.length).toEqual(4)
@@ -65,7 +70,7 @@ describe('flat-builder#buildPaths', () => {
 	})
 
 	it('Path crossing ordered', () => {
-		const paths = TF.buildPaths(11, pathCrossingClosedOrdered).get()
+		const paths = TF.buildPaths(11, PATH_CROSSING_CLOSED_ORDERED).get()
 		expect(paths.length).toEqual(3)
 		paths.forEach(p => {
 			expect(p.length).toEqual(4)
@@ -74,28 +79,28 @@ describe('flat-builder#buildPaths', () => {
 	})
 
 	it('Path closed reversed mix', () => {
-		const path = TF.buildPaths(11, pathClosedReversedMix).get()
+		const path = TF.buildPaths(11, PATH_CLOSED_REVERSED_MIX).get()
 		expect(path.length).toEqual(1)
 		expect(path[0].length).toEqual(8)
 		expectClosedPath(path[0])
 	})
 
 	it('Path closed mixed', () => {
-		const path = TF.buildPaths(11, pathClosedMixed).get()
+		const path = TF.buildPaths(11, PATH_CLOSED_MIXED).get()
 		expect(path.length).toEqual(1)
 		expect(path[0].length).toEqual(9)
 		expectClosedPath(path[0])
 	})
 
 	it('Path closed mixed 2', () => {
-		const path = TF.buildPaths(11, pathClosedMixed2).get()
+		const path = TF.buildPaths(11, PATH_CLOSED_MIXED_2).get()
 		expect(path.length).toEqual(1)
 		expect(path[0].length).toEqual(5)
 		expectClosedPath(path[0])
 	})
 
 	it('Path closed with extra point', () => {
-		const paths = TF.buildPaths(11, [...pathClosedMixed,
+		const paths = TF.buildPaths(11, [...PATH_CLOSED_MIXED,
 			{"id": 99, "start": {"x": 999, "y": 999}, "end": {"x": 777, "y": 777}}]).get()
 		expect(paths.length).toEqual(1)
 		expect(paths[0].length).toEqual(9)
@@ -103,14 +108,14 @@ describe('flat-builder#buildPaths', () => {
 	})
 
 	it('Path closed mixed and sorted', () => {
-		const paths = TF.buildPaths(11, pathClosedSorted).get()
+		const paths = TF.buildPaths(11, PATH_CLOSED_SORTED).get()
 		expect(paths.length).toEqual(1)
 		expect(paths[0].length).toEqual(9)
 		expectClosedPath(paths[0])
 	})
 
 	it('Two Paths', () => {
-		const paths = TF.buildPaths(11, [...pathClosedMixed, ...pathClosedMixed2]).get()
+		const paths = TF.buildPaths(11, [...PATH_CLOSED_MIXED, ...PATH_CLOSED_MIXED_2]).get()
 		expect(paths.length).toEqual(2)
 		expect(paths[0].length).toEqual(9)
 		expect(paths[1].length).toEqual(5)
@@ -119,7 +124,7 @@ describe('flat-builder#buildPaths', () => {
 	})
 
 	it('Path closed vectors reversed', () => {
-		const paths = TF.buildPaths(11, pathClosedReversedOne).get()
+		const paths = TF.buildPaths(11, PATH_CLOSED_REVERSED_ONE).get()
 		expect(paths.length).toEqual(1)
 		expect(paths[0].length).toEqual(5)
 		expectClosedPath(paths[0])
@@ -129,7 +134,7 @@ describe('flat-builder#buildPaths', () => {
 describe('flat-builder#insertIntoPath', () => {
 
 	it('Insert on the start do not reverse', () => {
-		const inserted = TF.insertIntoPath(pathContinuousOpen)({
+		const inserted = TF.insertIntoPath(PATH_CONTINUOUS_OPEN)({
 			"id": 999,
 			"start": {"x": 901, "y": 902},
 			"end": {"x": 100, "y": 200}
@@ -142,7 +147,7 @@ describe('flat-builder#insertIntoPath', () => {
 	})
 
 	it('Insert on the start and reverse', () => {
-		const inserted = TF.insertIntoPath(pathContinuousOpen)({
+		const inserted = TF.insertIntoPath(PATH_CONTINUOUS_OPEN)({
 			"id": 999,
 			"start": {"x": 100, "y": 200},
 			"end": {"x": 901, "y": 902}
@@ -155,7 +160,7 @@ describe('flat-builder#insertIntoPath', () => {
 	})
 
 	it('Break path - existing element', () => {
-		const inserted = TF.insertIntoPath(pathContinuousOpen)({
+		const inserted = TF.insertIntoPath(PATH_CONTINUOUS_OPEN)({
 			"id": 999,
 			"start": {"x": 120, "y": 220},
 			"end": {"x": 130, "y": 230}
@@ -164,7 +169,7 @@ describe('flat-builder#insertIntoPath', () => {
 	})
 
 	it('Break path - start connecting to 203', () => {
-		const inserted = TF.insertIntoPath(pathContinuousOpen)({
+		const inserted = TF.insertIntoPath(PATH_CONTINUOUS_OPEN)({
 			"id": 203,
 			"start": {"x": 120, "y": 220},
 			"end": {"x": 930, "y": 930}
@@ -173,7 +178,7 @@ describe('flat-builder#insertIntoPath', () => {
 	})
 
 	it('Break path - end connecting to 203', () => {
-		const inserted = TF.insertIntoPath(pathContinuousOpen)({
+		const inserted = TF.insertIntoPath(PATH_CONTINUOUS_OPEN)({
 			"id": 999,
 			"start": {"x": 920, "y": 920},
 			"end": {"x": 130, "y": 230}
@@ -186,7 +191,7 @@ describe('flat-builder#insertIntoPath', () => {
 describe('flat-builder#prependToPath', () => {
 
 	it('VectorConnection:NONE', () => {
-		const res = TF.prependToPath(pathContinuousOpen)({
+		const res = TF.prependToPath(PATH_CONTINUOUS_OPEN)({
 			"id": 999,
 			"start": {"x": 920, "y": 920},
 			"end": {"x": 333, "y": 222}
@@ -195,7 +200,7 @@ describe('flat-builder#prependToPath', () => {
 	})
 
 	it('VectorConnection:V1END_TO_V2START', () => {
-		const res = TF.prependToPath(pathContinuousOpen)({
+		const res = TF.prependToPath(PATH_CONTINUOUS_OPEN)({
 			"id": 999,
 			"start": {"x": 920, "y": 920},
 			"end": {"x": 100, "y": 200}
@@ -203,12 +208,12 @@ describe('flat-builder#prependToPath', () => {
 		expect(res.isRight()).toBeTrue()
 		expect(res.get()[0].id).toEqual(999);
 		expect(res.get()[0].start.x).toEqual(920);
-		expect(res.get().length).toEqual(pathContinuousOpen.length + 1);
+		expect(res.get().length).toEqual(PATH_CONTINUOUS_OPEN.length + 1);
 	})
 
 
 	it('VectorConnection:V1START_TO_V2START', () => {
-		const res = TF.prependToPath(pathContinuousOpen)({
+		const res = TF.prependToPath(PATH_CONTINUOUS_OPEN)({
 			"id": 999,
 			"start": {"x": 100, "y": 200},
 			"end": {"x": 333, "y": 444}
@@ -216,11 +221,11 @@ describe('flat-builder#prependToPath', () => {
 		expect(res.isRight()).toBeTrue()
 		expect(res.get()[0].id).toEqual(999);
 		expect(res.get()[0].start.x).toEqual(333);
-		expect(res.get().length).toEqual(pathContinuousOpen.length + 1);
+		expect(res.get().length).toEqual(PATH_CONTINUOUS_OPEN.length + 1);
 	})
 
 	it('VectorConnection:V1END_TO_V2END', () => {
-		const res = TF.prependToPath(pathContinuousOpen)({
+		const res = TF.prependToPath(PATH_CONTINUOUS_OPEN)({
 			"id": 999,
 			"start": {"x": 920, "y": 920},
 			"end": {"x": 110, "y": 210}
@@ -229,7 +234,7 @@ describe('flat-builder#prependToPath', () => {
 	})
 
 	it('VectorConnection:V1START_TO_V2END', () => {
-		const res = TF.prependToPath(pathContinuousOpen)({
+		const res = TF.prependToPath(PATH_CONTINUOUS_OPEN)({
 			"id": 999,
 			"start": {"x": 110, "y": 210},
 			"end": {"x": 333, "y": 444}
@@ -242,7 +247,7 @@ describe('flat-builder#prependToPath', () => {
 describe('flat-builder#appendToPath', () => {
 
 	it('VectorConnection:NONE', () => {
-		const res = TF.appendToPath(pathContinuousOpen)({
+		const res = TF.appendToPath(PATH_CONTINUOUS_OPEN)({
 			"id": 999,
 			"start": {"x": 920, "y": 920},
 			"end": {"x": 333, "y": 222}
@@ -251,21 +256,21 @@ describe('flat-builder#appendToPath', () => {
 	})
 
 	it('VectorConnection:V1END_TO_V2START', () => {
-		const res = TF.appendToPath(pathContinuousOpen)({
+		const res = TF.appendToPath(PATH_CONTINUOUS_OPEN)({
 			"id": 999,
 			"start": {"x": 150, "y": 250},
 			"end": {"x": 111, "y": 222}
 		})
 		expect(res.isRight()).toBeTrue()
-		const el = res.get()[pathContinuousOpen.length];
+		const el = res.get()[PATH_CONTINUOUS_OPEN.length];
 		expect(el.id).toEqual(999);
 		expect(el.start.x).toEqual(150);
-		expect(res.get().length).toEqual(pathContinuousOpen.length + 1);
+		expect(res.get().length).toEqual(PATH_CONTINUOUS_OPEN.length + 1);
 	})
 
 
 	it('VectorConnection:V1START_TO_V2START', () => {
-		const res = TF.appendToPath(pathContinuousOpen)({
+		const res = TF.appendToPath(PATH_CONTINUOUS_OPEN)({
 			"id": 999,
 			"start": {"x": 140, "y": 240},
 			"end": {"x": 333, "y": 444}
@@ -274,20 +279,20 @@ describe('flat-builder#appendToPath', () => {
 	})
 
 	it('VectorConnection:V1END_TO_V2END', () => {
-		const res = TF.appendToPath(pathContinuousOpen)({
+		const res = TF.appendToPath(PATH_CONTINUOUS_OPEN)({
 			"id": 999,
 			"start": {"x": 920, "y": 920},
 			"end": {"x": 150, "y": 250}
 		})
 		expect(res.isRight()).toBeTrue()
-		const el = res.get()[pathContinuousOpen.length];
+		const el = res.get()[PATH_CONTINUOUS_OPEN.length];
 		expect(el.id).toEqual(999);
 		expect(el.start.x).toEqual(150);
-		expect(res.get().length).toEqual(pathContinuousOpen.length + 1);
+		expect(res.get().length).toEqual(PATH_CONTINUOUS_OPEN.length + 1);
 	})
 
 	it('VectorConnection:V1START_TO_V2END', () => {
-		const res = TF.appendToPath(pathContinuousOpen)({
+		const res = TF.appendToPath(PATH_CONTINUOUS_OPEN)({
 			"id": 999,
 			"start": {"x": 111, "y": 222},
 			"end": {"x": 140, "y": 240}
@@ -432,9 +437,9 @@ describe('flat-builder#expandPaths', () => {
 	})
 
 	it('Sector 39', () => {
-		const res = TF.expandPaths(pathSector39, [])
+		const res = TF.expandPaths(E1M1_S39, [])
 		expect(res.paths.length).toEqual(1)
-		expect(res.paths[0].length).toEqual(pathSector39.length)
+		expect(res.paths[0].length).toEqual(E1M1_S39.length)
 		expect(MF.pathContinuos(res.paths[0])).toBeTrue()
 	})
 
@@ -442,7 +447,7 @@ describe('flat-builder#expandPaths', () => {
 
 describe('flat-builder#sortByHoles', () => {
 	it('Multiple paths', () => {
-		const paths = TF.buildPaths(11, [...pathClosedMixed, ...pathClosedMixed2]).get()
+		const paths = TF.buildPaths(11, [...PATH_CLOSED_MIXED, ...PATH_CLOSED_MIXED_2]).get()
 		const sorted = TF.sortByHoles(paths)
 		expect(sorted[0].length).toEqual(9)
 		expect(sorted[1].length).toEqual(5)
@@ -452,12 +457,12 @@ describe('flat-builder#sortByHoles', () => {
 describe('flat-builder#groupByOuterPath', () => {
 
 	it('Multiple paths', () => {
-		const idx = TF.groupByOuterPath([pathClosedMixed, pathClosedMixed2])
+		const idx = TF.groupByOuterPath([PATH_CLOSED_MIXED, PATH_CLOSED_MIXED_2])
 		expect(idx).toEqual(0)
 	})
 
 	it('Multiple paths reversed', () => {
-		const idx = TF.groupByOuterPath([pathClosedMixed2, pathClosedMixed])
+		const idx = TF.groupByOuterPath([PATH_CLOSED_MIXED_2, PATH_CLOSED_MIXED])
 		expect(idx).toEqual(1)
 	})
 
@@ -466,7 +471,7 @@ describe('flat-builder#groupByOuterPath', () => {
 describe('map-parser#createMaxVertex', () => {
 
 	it('Path closed mixed', () => {
-		const v = TF.createMaxVertex(pathClosedMixed)
+		const v = TF.createMaxVertex(PATH_CLOSED_MIXED)
 		expect(v.x).toEqual(2048)
 		expect(v.y).toEqual(-704)
 	})

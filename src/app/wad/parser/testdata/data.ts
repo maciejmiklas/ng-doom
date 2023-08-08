@@ -355,14 +355,30 @@ export const validateTitlePatchHeader = (header: BitmapHeader) => {
 	expect(header.yOffset).toEqual(0)
 }
 
-export const pathContinuousOpen: VectorId[] = [
+export const E1M4_S36: VectorId[] = [
+	{"id": 523, "start": {"x":-1152, "y": 1440}, "end": {"x": -1216, "y": 1440}},
+	{"id": 524, "start": {"x":-1216, "y": 1440}, "end": {"x": -1280, "y": 1440}},
+	{"id": 531, "start": {"x":-1280, "y": 1536}, "end": {"x": -1216, "y": 1536}},
+	{"id": 532, "start": {"x":-1216, "y": 1536}, "end": {"x": -1152, "y": 1536}},
+	{"id": 537, "start": {"x":-1216, "y": 1536}, "end": {"x": -1216, "y": 1440}},
+	{"id": 536, "start": {"x":-1280, "y": 1536}, "end": {"x": -1280, "y": 1440}},
+	{"id": 537, "start": {"x":-1216, "y": 1536}, "end": {"x": -1216, "y": 1440}},
+	{"id": 538, "start": {"x":-1152, "y": 1440}, "end": {"x": -1152, "y": 1536}}]
+
+export const PATH_CLOSED_1: VectorId[] = [
+	{"id": 201, "start": {"x": -1344, "y": 1440}, "end": {"x": -1344, "y": 1536}},
+	{"id": 202, "start": {"x": -1344, "y": 1536}, "end": {"x": -1280, "y": 1536}},
+	{"id": 203, "start": {"x": -1280, "y": 1536}, "end": {"x": -1280, "y": 1440}},
+	{"id": 204, "start": {"x": -1280, "y": 1440}, "end": {"x": -1344, "y": 1440}}]
+
+export const PATH_CONTINUOUS_OPEN: VectorId[] = [
 	{"id": 201, "start": {"x": 100, "y": 200}, "end": {"x": 110, "y": 210}},
 	{"id": 202, "start": {"x": 110, "y": 210}, "end": {"x": 120, "y": 220}},
 	{"id": 203, "start": {"x": 120, "y": 220}, "end": {"x": 130, "y": 230}},
 	{"id": 204, "start": {"x": 130, "y": 230}, "end": {"x": 140, "y": 240}},
 	{"id": 205, "start": {"x": 140, "y": 240}, "end": {"x": 150, "y": 250}}]
 
-export const pathClosedMixed: VectorId[] = [
+export const PATH_CLOSED_MIXED: VectorId[] = [
 	{"id": 8, "start": {"x": 1728, "y": -704}, "end": {"x": 1856, "y": -704}},
 	{"id": 2, "start": {"x": 2048, "y": -1024}, "end": {"x": 1792, "y": -1280}},
 	{"id": 3, "start": {"x": 1792, "y": -1280}, "end": {"x": 1472, "y": -1280}},
@@ -374,7 +390,7 @@ export const pathClosedMixed: VectorId[] = [
 	{"id": 5, "start": {"x": 1472, "y": -1088}, "end": {"x": 1472, "y": -960}}
 ]
 
-export const pathClosed = [
+export const PATH_CLOSED = [
 	{"start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}},
 	{"start": {"x": 1184, "y": -3104}, "end": {"x": 1216, "y": -3104}},
 	{"start": {"x": 1216, "y": -3104}, "end": {"x": 1216, "y": -3072}},
@@ -387,7 +403,7 @@ export const pathClosed = [
 	{"start": {"x": 1216, "y": -3360}, "end": {"x": 1184, "y": -3360}},
 	{"start": {"x": 1184, "y": -3360}, "end": {"x": 928, "y": -3360}}]
 
-export const pathClosedSorted: VectorId[] = [
+export const PATH_CLOSED_SORTED: VectorId[] = [
 	{"id": 0, "start": {"x": 1856, "y": -704}, "end": {"x": 2048, "y": -704}},
 	{"id": 1, "start": {"x": 2048, "y": -704}, "end": {"x": 2048, "y": -1024}},
 	{"id": 2, "start": {"x": 2048, "y": -1024}, "end": {"x": 1792, "y": -1280}},
@@ -398,21 +414,21 @@ export const pathClosedSorted: VectorId[] = [
 	{"id": 7, "start": {"x": 1472, "y": -704}, "end": {"x": 1728, "y": -704}},
 	{"id": 8, "start": {"x": 1728, "y": -704}, "end": {"x": 1856, "y": -704}}]
 
-export const pathClosedMixed2: VectorId[] = [
+export const PATH_CLOSED_MIXED_2: VectorId[] = [
 	{"id": 10, "start": {"x": 10, "y": 20}, "end": {"x": 100, "y": 200}},
 	{"id": 14, "start": {"x": 700, "y": 800}, "end": {"x": 10, "y": 20}},
 	{"id": 12, "start": {"x": 300, "y": 400}, "end": {"x": 500, "y": 600}},
 	{"id": 13, "start": {"x": 500, "y": 600}, "end": {"x": 700, "y": 800}},
 	{"id": 11, "start": {"x": 100, "y": 200}, "end": {"x": 300, "y": 400}}]
 
-export const pathClosedReversedOne: VectorId[] = [
+export const PATH_CLOSED_REVERSED_ONE: VectorId[] = [
 	{"id": 20, "start": {"x": 10, "y": 20}, "end": {"x": 100, "y": 200}},
 	{"id": 24, "start": {"x": 700, "y": 800}, "end": {"x": 10, "y": 20}},
 	{"id": 22, "start": {"x": 300, "y": 400}, "end": {"x": 500, "y": 600}},
 	{"id": 23, "start": {"x": 700, "y": 800}, "end": {"x": 500, "y": 600}},// reversed
 	{"id": 21, "start": {"x": 100, "y": 200}, "end": {"x": 300, "y": 400}}]
 
-export const pathClosedReversedMix: VectorId[] = [
+export const PATH_CLOSED_REVERSED_MIX: VectorId[] = [
 	{"id": 40, "start": {"x": 64, "y": -3392}, "end": {"x": 128, "y": -3264}},
 	{"id": 41, "start": {"x": 128, "y": -3264}, "end": {"x": 128, "y": -3200}},
 	{"id": 42, "start": {"x": 128, "y": -3200}, "end": {"x": 64, "y": -3072}},
@@ -446,7 +462,7 @@ export const pathClosedReversedMix: VectorId[] = [
        304 -                                           - 302
            --------------------303----------------------
  */
-export const pathCrossingClosedOrdered: VectorId[] = [
+export const PATH_CROSSING_CLOSED_ORDERED: VectorId[] = [
 	// @formatter:off
 	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
 	{"id": 102, "start": {"x": 928, "y": -3072}, "end": {"x": 1184, "y": -3072}},
@@ -463,7 +479,7 @@ export const pathCrossingClosedOrdered: VectorId[] = [
 	// @formatter:on
 ]
 
-export const pathCrossingMixed: VectorId[] = [
+export const PATH_CROSSING_MIXED: VectorId[] = [
 	// @formatter:off
 	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
 	{"id": 103, "start": {"x": 1184, "y": -3104}, "end": {"x": 1184, "y": -3072}},
@@ -481,7 +497,7 @@ export const pathCrossingMixed: VectorId[] = [
 ]
 
 // E1M3 - Sector 66 - sector is divided in the middle by an action
-export const pathCrossingAndDividedNoFlags: VectorId[] = [
+export const E1M3_S66: VectorId[] = [
 	{"id": 36, "start": {"x": -1552, "y": -2640}, "end": {"x": -1456, "y": -2640}},
 	{"id": 701, "start": {"x": -1600, "y": -2944}, "end": {"x": -1552, "y": -2640}},
 	{"id": 699, "start": {"x": -1600, "y": -2944}, "end": {"x": -1408, "y": -2944}},
@@ -490,7 +506,7 @@ export const pathCrossingAndDividedNoFlags: VectorId[] = [
 	{"id": 988, "start": {"x": -1552, "y": -2640}, "end": {"x": -1408, "y": -2944}},
 ]
 
-export const pathSector39 = [
+export const E1M1_S39 = [
 	{"id": 14, "start": {"x": 1216, "y": -3392}, "end": {"x": 1216, "y": -3360}},
 	{"id": 15, "start": {"x": 1216, "y": -3360}, "end": {"x": 1184, "y": -3360}},
 	{"id": 23, "start": {"x": 1184, "y": -3104}, "end": {"x": 1216, "y": -3104}},
@@ -505,7 +521,7 @@ export const pathSector39 = [
 	{"id": 52, "start": {"x": 928, "y": -3360}, "end": {"x": 928, "y": -3104}}]
 
 const getById = (vectors: VectorId[]) => (id: number) => vectors.find(v => v.id === id)
-export const getCCOById = getById(pathCrossingClosedOrdered)
+export const getCCOById = getById(PATH_CROSSING_CLOSED_ORDERED)
 
 export const pathCrossingClosedMixed: VectorId[] = [
 	getCCOById(301), getCCOById(103), getCCOById(104), getCCOById(201), getCCOById(202), getCCOById(302),
@@ -533,7 +549,7 @@ export const pathCrossingsMissing200: VectorId[][] = [
 	[getCCOById(203)],
 ]
 
-export const e1M3Sector7VectorsFromWad: VectorId[] = [
+export const E1M3_S7: VectorId[] = [
 	{"id": 583, "start": {"x": -448, "y": -1728}, "end": {"x": -536, "y": -1728}, msg: "Outer shape #24"},
 	{"id": 586, "start": {"x": -640, "y": -1624}, "end": {"x": -512, "y": -1472}, msg: "Outer shape #01"},
 	{"id": 608, "start": {"x": -128, "y": -1536}, "end": {"x": -128, "y": -1664}, msg: "Outer shape #13"},

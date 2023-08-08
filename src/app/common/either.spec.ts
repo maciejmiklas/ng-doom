@@ -47,6 +47,22 @@ describe('Either#assert', () => {
 	})
 })
 
+describe('Either#ofFunction', () => {
+	const fun = Either.ofFunction((val) => val, val => val == 200, val => () => 'Got ' + val)
+	it('condition false', () => {
+		const res = fun(256)
+		expect(res.isLeft()).toBeTrue()
+		expect(res.message()).toEqual('Got 256')
+	})
+
+	it('condition true', () => {
+		const res = fun(200)
+		expect(res.isRight()).toBeTrue()
+		expect(res.get()).toEqual(200)
+	})
+})
+
+
 describe('Either#append', () => {
 	it('Append to from Right to Right', () => {
 		const res = Either.ofRight({vv: '123'})

@@ -59,6 +59,13 @@ export abstract class Either<T> {
 		return cnd() ? Either.ofRight(right()) : Either.ofLeft(left, type)
 	}
 
+	static ofFunction<IN, T>(fn: (inp: IN) => T, cnd: (tt: T) => boolean, left: (tt: T) => () => string, type = LeftType.OK): (inp: IN) => Either<T> {
+		return (inp: IN) => {
+			const tt = fn(inp)
+			return cnd(tt) ? Either.ofRight(tt) : Either.ofLeft(left(tt), type)
+		}
+	}
+
 	// TODO truth should be a function
 	static ofTruth<T>(truth: Either<any>[], right: () => T, type = LeftType.OK): Either<T> {
 		const left = truth.filter(e => e.isLeft())
