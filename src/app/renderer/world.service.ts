@@ -16,7 +16,7 @@
 import {Injectable} from '@angular/core';
 import * as T from "three";
 import {config as GC} from "../game-config";
-import {DoomMap, LinedefBySector, Wad} from "../wad/parser/wad-model";
+import {DoomMap, FlatBySector, Wad} from "../wad/parser/wad-model";
 import * as R from "ramda";
 import {WallService} from "./wall.service";
 import {FlatService} from "./flat.service";
@@ -44,9 +44,9 @@ export class WorldService implements BuildMapCallback {
 		return scene
 	}
 
-	createWorld({linedefBySector, mapDirs}: DoomMap): Sector3d {
+	createWorld({flatBySector, mapDirs}: DoomMap): Sector3d {
 		const startTime = performance.now()
-		const sectors: Sector3d[] = linedefBySector.map(v => this.renderSector(v))
+		const sectors: Sector3d[] = flatBySector.map(v => this.renderSector(v))
 
 		// Sector3d[] => ['V':Sector3d]
 		const res = R.reduceBy((acc: Sector3d, el: Sector3d) => {
@@ -60,8 +60,7 @@ export class WorldService implements BuildMapCallback {
 		return res['V']
 	}
 
-	renderSector(lbs: LinedefBySector): Sector3d {
-		console.log('>>', lbs.sector.id, lbs.sector.dir.name)
+	renderSector(lbs: FlatBySector): Sector3d {
 		// wall
 		let flats = this.wallService.renderWalls(lbs)
 

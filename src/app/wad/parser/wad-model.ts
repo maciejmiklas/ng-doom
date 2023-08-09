@@ -343,7 +343,7 @@ export type DoomMap = {
 	mapDirs: Directory[]
 	things: Thing[]
 	player: Either<Thing>
-	linedefBySector: LinedefBySector[]
+	flatBySector: FlatBySector[]
 	sectors: Sector[]
 	linedefs: Linedef[]
 
@@ -360,6 +360,10 @@ export type LinedefBySector = {
 
 	/** Linedefs defining an action given by #specialType */
 	actions: Linedef[]
+}
+
+/** Flats for a given sector.  */
+export type FlatBySector = LinedefBySector & {
 	flat: Flat
 }
 
@@ -671,16 +675,15 @@ const hasAction = (v: VectorV): boolean => !hasNoAction(v)
 
 const filterActions = <V extends VectorV>(vectors: V[]): V[] => vectors.filter(hasNoAction)
 
-const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingVectors<V>> => {
-	// Vectors are crossing when at least 3 vectors share a common point. #crossingVertex contains such points.
-	const crossingVertex = uniqueVertex(vectors).filter(v => countVertex(vectors)(v) > 2)
-
-	return Either.ofCondition(
-		() => vectors.length > 0 && crossingVertex.length > 0,
-		() => 'No crossings',
-		() => {
+const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingVectors<V>> =>
+	Either.ofFunction<V[], Vertex[]>(
+		// Vectors are crossing when at least 3 vectors share a common point. #crossingVertex contains such points.
+		vv => uniqueVertex(vv).filter(v => countVertex(vv)(v) > 2),
+		v => v.length > 0, () => () => 'No crossings'
+	)(vectors) // V[] => Vertex[] (crossing vectors)
+		.map(cv => {// cv - crossing vectors
 			let remaining = vectors;
-			const crossing: V[][] = crossingVertex.map(cv =>
+			const crossing: V[][] = cv.map(cv =>
 
 				// Vertex => Either<V[][]> where V[0] contains crossings, V[1] remaining vectors
 				groupByVertex(remaining)(cv)
@@ -701,7 +704,6 @@ const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingV
 				remaining
 			};
 		})
-}
 
 /** Closed path where last element connect to first one, might be not continuos. */
 const pathClosed = (vectors: VectorV[]): boolean =>
@@ -728,6 +730,8 @@ const pathContinuos = (path: VectorV[]): boolean => {
 		path.every((el, idx) =>
 			vertexNear(el.end, nextRoll(idx + 1).start))
 }
+
+const pathNotContinuos = (path: VectorV[]): boolean => !pathContinuos(path)
 
 const toSimpleVectors = <V extends VectorV>(vectors: V[]): VectorV[] => vectors.map(v => toSimpleVector(v))
 const toSimpleVector = <V extends VectorV>(v: V): VectorV => ({id: v.id, start: v.start, end: v.end})
@@ -799,5 +803,6 @@ export const functions = {
 	closePath,
 	closeOpened,
 	pathOpen,
-	firstDuplicate
+	firstDuplicate,
+	pathNotContinuos
 }

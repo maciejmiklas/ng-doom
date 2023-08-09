@@ -82,22 +82,22 @@ const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V
 	const boxBuilder = buildBoxPaths(sectorId, vectors)
 
 	// first try building simple "box like" sector
-	return boxBuilder(true, true, false)
+	return boxBuilder(true, true, false, false)
 
 		// try sector that consist of multiple boxes
 		.orAnother(() => buildCrossingPaths(sectorId, vectors)(false))
 
 		// try simple box without actions
-		.orAnother(() => boxBuilder(false, true, false))
+		.orAnother(() => boxBuilder(false, true, false, false))
 
 		// try box with all vectors
-		.orAnother(() => boxBuilder(false, false, true))
+		.orAnother(() => boxBuilder(false, false, true, true))
 
 		// try removing action vectors that split single sector into two
 		.orAnother(() => buildCrossingPaths(sectorId, MF.filterSectorSplitters(MF.uniqueVector(vectors)))(true))
 }
 
-const buildBoxPaths = <V extends VectorV>(sectorId: number, vectors: V[]) => (skippActions: boolean, unique: boolean, forceClose: boolean): Either<V[][]> =>
+const buildBoxPaths = <V extends VectorV>(sectorId: number, vectors: V[]) => (skippActions: boolean, unique: boolean, forceClose: boolean, bidirectional: boolean): Either<V[][]> =>
 	Either.ofRight(vectors)
 		.map(R.when(() => unique, MF.uniqueVector))// remove duplicates?
 		.map(R.when(() => skippActions, MF.filterActions)) // remove actions?
@@ -106,7 +106,7 @@ const buildBoxPaths = <V extends VectorV>(sectorId: number, vectors: V[]) => (sk
 		.assert(v => v.length > 0, () => () => 'Sector: ' + sectorId + ' is not simple Box: ' + skippActions + ',' + unique)
 
 		// build paths from vectors after eventually removing duplicates and actions
-		.map(expandPaths)
+		.map(v => expandPaths(v, [], true, bidirectional))
 
 		// could the path be build?
 		.assert((inp) => inp.skipped.length == 0, (inp) => () => 'Sector: ' + sectorId + ' is not simple Box, ' + inp.skipped.length + ' were elements skipped')
@@ -126,7 +126,7 @@ type ExpandResult<V extends VectorV> = {
 }
 
 /** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
-const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][] = [], connectCrossing = true): ExpandResult<V> => {
+const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][] = [], connectCrossing = true, bidirectional = true): ExpandResult<V> => {
 	const remaining = [...candidates] // we will remove elements one by one from this list and add them to #paths
 	let paths = [...existingPaths]
 	let skipped = [];
@@ -138,25 +138,27 @@ const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][] = 
 		// none of #remaining could be connected to already existing paths, so start a new path
 		if (!appended) {
 
-			// try to get the first not crossing vector, otherwise any
-			let nextIdx = remaining.findIndex(MF.isNotCrossingVector)
+			// try to get the first not crossing vector
+			const nextIdx = Either.ofFunction<V[], number>(
+				vv => vv.findIndex(MF.isNotCrossingVector),
+				idx => idx > 0,
+				() => () => 'No crossing vectors')(remaining)
 
-			// try find first duplicate and start from duplicate
-			nextIdx = remaining.findIndex(v => !MF.isCrossingVector(v))
+				// apparently all vectors are crossing, try finding a duplicate. That would separate two areas, as it has two sides.
+				.orAnother(() => MF.firstDuplicate(remaining))
 
-			const next = nextIdx > 0 ? remaining.splice(nextIdx, 1)[0] : remaining.shift();
+				// just get first element from list
+				.orElse(() => 0)
+
+			const next = remaining.splice(nextIdx, 1)[0];
 
 			// never start a new path with a crossing vector, always try to add crossing into existing routes
-			if (MF.isCrossingVector(next)) {
-				skipped.push(next)
-			} else {
-				paths.push([next])
-			}
+			!connectCrossing && MF.isCrossingVector(next) ? skipped.push(next) : paths.push([next])
 		}
 		appended = false
 
 		for (let remIdx = 0; !appended && remIdx < remaining.length; remIdx++) {
-			insertIntoPaths(paths, remaining[remIdx], connectCrossing).exec(np => {
+			insertIntoPaths(paths, remaining[remIdx], connectCrossing, bidirectional).exec(np => {
 				paths = np;
 				// remove vector from #remaining as we have appended it to current path
 				remaining.splice(remIdx, 1)
@@ -172,13 +174,13 @@ const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][] = 
 }
 
 /** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
-const insertIntoPaths = <V extends VectorV>(paths: V[][], candidate: V, connectCrossing = false): Either<V[][]> => {
+const insertIntoPaths = <V extends VectorV>(paths: V[][], candidate: V, connectCrossing = false, bidirectional = true): Either<V[][]> => {
 	let inserted = Either.ofLeft<V[][]>(() => 'Candidate not appended');
 
 	// go over paths and try finding one where we can append candidate
 	R.addIndex<V[]>(R.find)((path, pathIdx) => {
 		// inserting #candidate into the path will return a new path
-		inserted = insertIntoPath(path)(candidate, connectCrossing)
+		inserted = insertIntoPath(path)(candidate, connectCrossing, bidirectional)
 
 			// insert into #paths the new extended path
 			.map(foundPath => R.update(pathIdx, foundPath, paths))
@@ -191,13 +193,14 @@ const insertIntoPaths = <V extends VectorV>(paths: V[][], candidate: V, connectC
  * Tries to insert given #candidate into #path only if it's not fully built.
  * It will not directly connect two crossing vectors unless #connectCrossing is true
  */
-const insertIntoPath = <V extends VectorV>(path: V[]) => (candidate: V, connectCrossing = false): Either<V[]> =>
+const insertIntoPath = <V extends VectorV>(path: V[]) => (candidate: V, connectCrossing = false, bidirectional = true): Either<V[]> =>
 	Either.ofConditionFlat(
 		// do not alter already closed path
-		() => !MF.pathContinuos(path), () => 'Path already closed.',
+		() => MF.pathNotContinuos(path), () => 'Path already closed.',
 
 		// try inserting into path from left and eventually on the right
-		() => prependToPath(path)(candidate, connectCrossing).orAnother(() => appendToPath(path)(candidate, connectCrossing)))
+		() => appendToPath(path)(candidate, connectCrossing)
+			.orAnother(() => bidirectional ? prependToPath(path)(candidate, connectCrossing) : Either.ofLeft(() => 'Prepend disabled')))
 
 /**
  * Tries to insert given #candidate at the beginning #path.
@@ -313,9 +316,9 @@ const hasCrossing = (paths: VectorV[][]) => paths.length > 0 && (hasCrossingVect
 // ############################ EXPORTS ############################
 export const testFunctions = {
 	insertIntoPath,
+	insertIntoPaths,
 	prependToPath,
 	appendToPath,
-	insertIntoPaths,
 	expandPaths,
 	sortByHoles,
 	groupByOuterPath,

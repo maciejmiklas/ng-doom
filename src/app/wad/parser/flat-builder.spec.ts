@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 import {testFunctions as TF} from './flat-builder'
-import {functions as MF} from './wad-model'
+import {functions as MF, VectorV} from './wad-model'
 import {
-	E1M3_S7, E1M4_S36,
+	E1M1_S39,
+	E1M3_S66,
+	E1M3_S7,
+	E1M4_S36,
 	getCCOById,
 	PATH_CLOSED_MIXED,
 	PATH_CLOSED_MIXED_2,
@@ -24,40 +27,49 @@ import {
 	PATH_CLOSED_REVERSED_ONE,
 	PATH_CLOSED_SORTED,
 	PATH_CONTINUOUS_OPEN,
-	pathCrossing300Full,
-	pathCrossing300Full100Started,
 	PATH_CROSSING_CLOSED_ORDERED,
 	PATH_CROSSING_MIXED,
+	pathCrossing300Full,
+	pathCrossing300Full100Started,
 	pathCrossingsMissing200,
 	pathCrossingsPartial,
-	E1M1_S39,
 	VectorId
 } from "./testdata/data"
+import {Either} from "../../common/either";
 
 
 const expectClosedPath = (path: VectorId[]) => {
 	expect(MF.pathContinuos(path)).toBeTrue()
 }
 
+const assertPaths = (pathsEi: Either<VectorV[][]>, size: number) => {
+	expect(pathsEi.isRight()).toBeTrue()
+	const paths = pathsEi.val
+	expect(paths.length).toEqual(size)
+
+	for (let i = 0; i < paths.length; i++) {
+		expect(MF.pathClosed(paths[i])).toBeTrue()
+		expect(MF.pathContinuos(paths[i])).toBeTrue()
+	}
+}
+
 describe('flat-builder#buildPaths', () => {
 
-	it('E1M4 - sector 36', () => {
-		const paths = TF.buildPaths(7, E1M4_S36)
-		console.log('aaa')
+	// see testdata/E1M3-S66.png
+	it('E1M3 - sector 66', () => {
+		const pathsEi = TF.buildPaths(66, E1M3_S66);
+		assertPaths(pathsEi, 2)
 	})
 
-	it('E1M2 - sector 7', () => {
-		const paths = TF.buildPaths(7, E1M3_S7).get()
-		expect(paths.length).toEqual(4)
+	// see testdata/E1M4-S36.png
+	it('E1M4 - sector 36', () => {
+		assertPaths(TF.buildPaths(36, E1M4_S36), 2)
+	})
 
-		// the main path on sector 7 is open due to vertex misplacement by 8 points - vectors do not connect
-		expect(MF.pathClosed(paths[0])).toBeFalse()
-		expect(MF.pathContinuos(paths[0])).toBeFalse()
-
-		for (let i = 1; i < paths.length; i++) {
-			expect(MF.pathClosed(paths[i])).toBeTrue()
-			expect(MF.pathContinuos(paths[i])).toBeTrue()
-		}
+	// see testdata/E1M4-S7.png
+	it('E1M3 - sector 7', () => {
+		const pathsEi = TF.buildPaths(7, E1M3_S7)
+		assertPaths(pathsEi, 4)
 	})
 
 	it('Path crossing mixed', () => {

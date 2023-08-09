@@ -20,6 +20,7 @@ import {
 	Directory,
 	DoomMap,
 	DoomTexture,
+	FlatBySector,
 	functions as MF,
 	Linedef,
 	LinedefBySector,
@@ -110,6 +111,7 @@ const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomT
 	const linedefs = parseLinedefs(bytes, mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes, textureLoader)(mapDirs, sectors), sectors)
 	const things = parseThings(bytes)(mapDirs)
 	const playerArr = things.filter(th => th.thingType == ThingType.PLAYER);
+
 	return {
 		mapName,
 		mapDirs,
@@ -117,7 +119,7 @@ const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomT
 		player: Either.ofCondition(() => playerArr.length > 0, () => 'Map without player!', () => playerArr[0], LeftType.WARN),
 		linedefs,
 		sectors,
-		linedefBySector: groupLinedefsBySectors(linedefs, sectors),
+		flatBySector: buildFlatsBySectors(linedefs, sectors),
 		sky: textureLoader(WC.sky.textureName)
 	}
 }
@@ -149,17 +151,22 @@ const groupLinedefsBySector = (mapLinedefs: Linedef[], backLinedefs: Linedef[]) 
 
 	// split Linedefs into those building walls and actions, as the actions are selten a part of the wall
 	const linedefsByAction = groupByWallAndAction(linedefs)
-	const flatFactory = FB.createFlat(sector)
-	return flatFactory(linedefs).map(flat => ({
+	return Either.ofRight(({
 		sector,
 		linedefs,
 		actions: linedefsByAction[1],
+	}))
+}
+
+const buildFlatsForSector = (lbs: LinedefBySector): Either<FlatBySector> => {
+	const flatFactory = FB.createFlat(lbs.sector)
+	return flatFactory(lbs.linedefs).map(flat => ({
+		...lbs,
 		flat
 	}))
 }
 
-const groupLinedefsBySectors = (mapLinedefs: Linedef[], sectors: Sector[]): LinedefBySector[] => {
-	const s36 = sectors.filter(s => s.id === 36)
+const buildFlatsBySectors = (mapLinedefs: Linedef[], sectors: Sector[]): FlatBySector[] => {
 	const maxSectorId = findMaxSectorId(mapLinedefs)
 	const bySector = groupLinedefsBySector(mapLinedefs, findBackLinedefs(mapLinedefs))
 
@@ -178,7 +185,7 @@ const groupLinedefsBySectors = (mapLinedefs: Linedef[], sectors: Sector[]): Line
 		.map(s => s.get())
 
 		// Sector => Either<LinedefBySector>
-		.map(bySector)
+		.map(s => bySector(s).map(buildFlatsForSector))
 
 		// remove not existing LinedefBySector from array
 		.filter(ld => ld.filter())
@@ -377,7 +384,7 @@ export const testFunctions = {
 	scalePos,
 	parseSector,
 	parseSectors,
-	groupLinedefsBySectors,
+	buildFlatsBySectors,
 	createTextureLoader,
 	groupBySectorArray,
 	parseFlags,

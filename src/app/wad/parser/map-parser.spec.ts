@@ -719,7 +719,7 @@ describe('map-parser#parseMaps', () => {
 
 	it('Linedefs belong to same sector', () => {
 		maps.forEach(map => {
-			map.linedefBySector.forEach(lbs => {
+			map.flatBySector.forEach(lbs => {
 				const sectorId = lbs.sector.id
 				lbs.linedefs.forEach(ld => {
 					if (ld.backSide.isLeft()) {
@@ -886,7 +886,7 @@ describe('map-parser#groupLinedefsBySectors', () => {
 	const vertexes = TF.parseVertexes(getWadBytes())(getE1M1Dirs())
 	const sidedefs = TF.parseSidedefs(getWadBytes(), TF.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
 	const linedefs = TF.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors())
-	const gr: LinedefBySector[] = TF.groupLinedefsBySectors(linedefs, getSectors())
+	const gr: LinedefBySector[] = TF.buildFlatsBySectors(linedefs, getSectors())
 
 	it('Sectors size on E1M1', () => {
 		let found = 0

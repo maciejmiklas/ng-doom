@@ -17,7 +17,7 @@ import {LinearFilter} from "three/src/constants";
 import * as T from "three";
 
 const game = {
-	startMap: "E1M4",
+	startMap: "E1M2",
 }
 
 const player = {
@@ -52,7 +52,7 @@ const scene = {
 	scale: 1,
 	ambientLight: {
 		color: 0XFFFFCC,
-		intensity: 0.5
+		intensity: 0.8
 	},
 	debug: {
 		axesHelper: {
