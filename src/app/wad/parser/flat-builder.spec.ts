@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as R from 'ramda'
 import {testFunctions as TF} from './flat-builder'
 import {functions as MF, VectorV} from './wad-model'
 import {
+	E1M1_S37,
 	E1M1_S39,
 	E1M3_S66,
 	E1M3_S7,
@@ -27,7 +29,6 @@ import {
 	PATH_CLOSED_REVERSED_ONE,
 	PATH_CLOSED_SORTED,
 	PATH_CONTINUOUS_OPEN,
-	PATH_CROSSING_CLOSED_ORDERED,
 	PATH_CROSSING_MIXED,
 	pathCrossing300Full,
 	pathCrossing300Full100Started,
@@ -53,17 +54,24 @@ const assertPaths = (pathsEi: Either<VectorV[][]>, size: number) => {
 	}
 }
 
+const assertDoesNotContainLinedef = (pathsEi: Either<VectorV[][]>, ldIdx: number) => {
+	expect(pathsEi.isRight()).toBeTrue()
+	expect(R.flatten(pathsEi.val).filter(v => v.id === ldIdx).length).withContext('Contains linedef: ' + ldIdx).toEqual(0)
+}
+
 describe('flat-builder#buildPaths', () => {
 
 	// see testdata/E1M3-S66.png
 	it('E1M3 - sector 66', () => {
 		const pathsEi = TF.buildPaths(66, E1M3_S66);
-		assertPaths(pathsEi, 2)
+		assertPaths(pathsEi, 1)
+		assertDoesNotContainLinedef(pathsEi, 988)
 	})
 
 	// see testdata/E1M4-S36.png
 	it('E1M4 - sector 36', () => {
-		assertPaths(TF.buildPaths(36, E1M4_S36), 2)
+		const pathsEi1 = TF.buildPaths(36, E1M4_S36);
+		assertPaths(pathsEi1, 2)
 	})
 
 	// see testdata/E1M4-S7.png
@@ -72,17 +80,9 @@ describe('flat-builder#buildPaths', () => {
 		assertPaths(pathsEi, 4)
 	})
 
-	it('Path crossing mixed', () => {
-		const paths = TF.buildPaths(11, PATH_CROSSING_MIXED).get()
-		expect(paths.length).toEqual(3)
-		paths.forEach(p => {
-			expect(p.length).toEqual(4)
-			expectClosedPath(p)
-		})
-	})
 
 	it('Path crossing ordered', () => {
-		const paths = TF.buildPaths(11, PATH_CROSSING_CLOSED_ORDERED).get()
+		const paths = TF.buildPaths(11, E1M1_S37).get()
 		expect(paths.length).toEqual(3)
 		paths.forEach(p => {
 			expect(p.length).toEqual(4)
@@ -109,14 +109,6 @@ describe('flat-builder#buildPaths', () => {
 		expect(path.length).toEqual(1)
 		expect(path[0].length).toEqual(5)
 		expectClosedPath(path[0])
-	})
-
-	it('Path closed with extra point', () => {
-		const paths = TF.buildPaths(11, [...PATH_CLOSED_MIXED,
-			{"id": 99, "start": {"x": 999, "y": 999}, "end": {"x": 777, "y": 777}}]).get()
-		expect(paths.length).toEqual(1)
-		expect(paths[0].length).toEqual(9)
-		expectClosedPath(paths[0])
 	})
 
 	it('Path closed mixed and sorted', () => {
@@ -414,10 +406,10 @@ describe('flat-builder#expandPaths', () => {
 
 		// Crossing vectors can be directly connected - so 304 follows 301
 		expect(res.paths[1].length).toEqual(4)
-		expect(res.paths[1][0].id).toEqual(304)
-		expect(res.paths[1][1].id).toEqual(301)
-		expect(res.paths[1][2].id).toEqual(302)
-		expect(res.paths[1][3].id).toEqual(303)
+		expect(res.paths[1][0].id).toEqual(301)
+		expect(res.paths[1][1].id).toEqual(302)
+		expect(res.paths[1][2].id).toEqual(303)
+		expect(res.paths[1][3].id).toEqual(304)
 	})
 
 	it('Build 200 connect crossings', () => {
@@ -428,24 +420,10 @@ describe('flat-builder#expandPaths', () => {
 		res.paths.forEach(p => expect(MF.pathContinuos(p)).toBeTrue())
 
 		expect(res.paths[2].length).toEqual(4)
-		expect(res.paths[2][0].id).toEqual(204)
-		expect(res.paths[2][1].id).toEqual(201)
-		expect(res.paths[2][2].id).toEqual(202)
-		expect(res.paths[2][3].id).toEqual(203)
-	})
-
-	it('Build 200 do not connect crossings', () => {
-		const res = TF.expandPaths([getCCOById(201), getCCOById(202), getCCOById(204)], pathCrossingsMissing200, false)
-
-		expect(res.paths.length).toEqual(3)
-		expect(res.paths[2].length).toEqual(3)
-		expect(res.paths[2][0].id).toEqual(202)
-		expect(res.paths[2][1].id).toEqual(203)
-		expect(res.paths[2][2].id).toEqual(204)
-
-		// 201 cannot be connected because both ends of the 200-path already have a crossing vector( 202 and 204)
-		expect(res.skipped.length).toEqual(1)
-		expect(res.skipped[0].id).toEqual(201)
+		expect(res.paths[2][0].id).toEqual(201)
+		expect(res.paths[2][1].id).toEqual(202)
+		expect(res.paths[2][2].id).toEqual(203)
+		expect(res.paths[2][3].id).toEqual(204)
 	})
 
 	it('Sector 39', () => {

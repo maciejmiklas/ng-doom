@@ -440,6 +440,25 @@ export const PATH_CLOSED_REVERSED_MIX: VectorId[] = [
 	{"id": 47, "start": {"x": 64, "y": -3392}, "end": {"x": 48, "y": -3392}},
 ]
 
+
+
+export const PATH_CROSSING_MIXED: VectorId[] = [
+	// @formatter:off
+	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
+	{"id": 103, "start": {"x": 1184, "y": -3104}, "end": {"x": 1184, "y": -3072}},
+	{"id": 201, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3360}, msg: 'Crossing A on: [928, -3104] and B on: [928, -3360]', crossing_flag:true},
+	{"id": 104, "start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
+	{"id": 202, "start": {"x": 928, "y": -3360}, "end": {"x": 896, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
+	{"id": 302, "start": {"x": 1184, "y": -3360}, "end": {"x": 1184, "y": -3392}},
+	{"id": 304, "start": {"x": 928, "y": -3392}, "end": {"x": 928, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
+	{"id": 102, "start": {"x": 928, "y": -3072}, "end": {"x": 1184, "y": -3072}},
+	{"id": 301, "start": {"x": 928, "y": -3360}, "end": {"x": 1184, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
+	{"id": 203, "start": {"x": 896, "y": -3104}, "end": {"x": 896, "y": -3360}},
+	{"id": 204, "start": {"x": 896, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
+	{"id": 303, "start": {"x": 1184, "y": -3392}, "end": {"x": 928, "y": -3392}},
+	// @formatter:on
+]
+
 /**
  Sector37, two crossings A and B
 
@@ -463,67 +482,23 @@ export const PATH_CLOSED_REVERSED_MIX: VectorId[] = [
        304 -                                           - 302
            --------------------303----------------------
  */
-export const PATH_CROSSING_CLOSED_ORDERED: VectorId[] = [
-	// @formatter:off
-	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
+export const E1M1_S37: VectorId[] = [
+	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}},
 	{"id": 102, "start": {"x": 928, "y": -3072}, "end": {"x": 1184, "y": -3072}},
 	{"id": 103, "start": {"x": 1184, "y": -3072}, "end": {"x": 1184, "y": -3104}},
-	{"id": 104, "start": {"x": 1184, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
-	{"id": 201, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3360}, msg: 'Crossing A on: [928, -3104] and B on: [928, -3360]', crossing_flag:true},
-	{"id": 202, "start": {"x": 928, "y": -3360}, "end": {"x": 896, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
+	{"id": 104, "start": {"x": 1184, "y": -3104}, "end": {"x": 928, "y": -3104}},
+	{"id": 201, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3360}},
+	{"id": 202, "start": {"x": 928, "y": -3360}, "end": {"x": 896, "y": -3360}},
 	{"id": 203, "start": {"x": 896, "y": -3360}, "end": {"x": 896, "y": -3104}},
-	{"id": 204, "start": {"x": 896, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
-	{"id": 301, "start": {"x": 928, "y": -3360}, "end": {"x": 1184, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
+	{"id": 204, "start": {"x": 896, "y": -3104}, "end": {"x": 928, "y": -3104}},
+	{"id": 301, "start": {"x": 928, "y": -3360}, "end": {"x": 1184, "y": -3360}},
 	{"id": 302, "start": {"x": 1184, "y": -3360}, "end": {"x": 1184, "y": -3392}},
 	{"id": 303, "start": {"x": 1184, "y": -3392}, "end": {"x": 928, "y": -3392}},
-	{"id": 304, "start": {"x": 928, "y": -3392}, "end": {"x": 928, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
-	// @formatter:on
+	{"id": 304, "start": {"x": 928, "y": -3392}, "end": {"x": 928, "y": -3360}},
 ]
-
-export const PATH_CROSSING_MIXED: VectorId[] = [
-	// @formatter:off
-	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
-	{"id": 103, "start": {"x": 1184, "y": -3104}, "end": {"x": 1184, "y": -3072}},
-	{"id": 201, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3360}, msg: 'Crossing A on: [928, -3104] and B on: [928, -3360]', crossing_flag:true},
-	{"id": 104, "start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
-	{"id": 202, "start": {"x": 928, "y": -3360}, "end": {"x": 896, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
-	{"id": 302, "start": {"x": 1184, "y": -3360}, "end": {"x": 1184, "y": -3392}},
-	{"id": 304, "start": {"x": 928, "y": -3392}, "end": {"x": 928, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
-	{"id": 102, "start": {"x": 928, "y": -3072}, "end": {"x": 1184, "y": -3072}},
-	{"id": 301, "start": {"x": 928, "y": -3360}, "end": {"x": 1184, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
-	{"id": 203, "start": {"x": 896, "y": -3104}, "end": {"x": 896, "y": -3360}},
-	{"id": 204, "start": {"x": 896, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
-	{"id": 303, "start": {"x": 1184, "y": -3392}, "end": {"x": 928, "y": -3392}},
-	// @formatter:on
-]
-
-// E1M3 - Sector 66 - sector is divided in the middle by an action
-// see E1M2_S66.png
-export const E1M3_S66: VectorId[] = [
-	{"id": 36, "start": {"x": -1552, "y": -2640}, "end": {"x": -1456, "y": -2640}},
-	{"id": 701, "start": {"x": -1600, "y": -2944}, "end": {"x": -1552, "y": -2640}},
-	{"id": 699, "start": {"x": -1600, "y": -2944}, "end": {"x": -1408, "y": -2944}},
-	{"id": 700, "start": {"x": -1408, "y": -2944}, "end": {"x": -1456, "y": -2640}},
-	{"id": 988, "start": {"x": -1552, "y": -2640}, "end": {"x": -1408, "y": -2944}},
-	{"id": 988, "start": {"x": -1552, "y": -2640}, "end": {"x": -1408, "y": -2944}},
-]
-
-export const E1M1_S39 = [
-	{"id": 14, "start": {"x": 1216, "y": -3392}, "end": {"x": 1216, "y": -3360}},
-	{"id": 15, "start": {"x": 1216, "y": -3360}, "end": {"x": 1184, "y": -3360}},
-	{"id": 23, "start": {"x": 1184, "y": -3104}, "end": {"x": 1216, "y": -3104}},
-	{"id": 24, "start": {"x": 1216, "y": -3104}, "end": {"x": 1216, "y": -3072}},
-	{"id": 26, "start": {"x": 1344, "y": -3264}, "end": {"x": 1344, "y": -3360}},
-	{"id": 27, "start": {"x": 1344, "y": -3200}, "end": {"x": 1344, "y": -3264}},
-	{"id": 29, "start": {"x": 1344, "y": -3104}, "end": {"x": 1344, "y": -3200}},
-	{"id": 40, "start": {"x": 1344, "y": -3360}, "end": {"x": 1216, "y": -3392}},
-	{"id": 41, "start": {"x": 1216, "y": -3072}, "end": {"x": 1344, "y": -3104}},
-	{"id": 50, "start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}},
-	{"id": 51, "start": {"x": 1184, "y": -3360}, "end": {"x": 928, "y": -3360}},
-	{"id": 52, "start": {"x": 928, "y": -3360}, "end": {"x": 928, "y": -3104}}]
 
 const getById = (vectors: VectorId[]) => (id: number) => vectors.find(v => v.id === id)
-export const getCCOById = getById(PATH_CROSSING_CLOSED_ORDERED)
+export const getCCOById = getById(E1M1_S37)
 
 export const pathCrossingClosedMixed: VectorId[] = [
 	getCCOById(301), getCCOById(103), getCCOById(104), getCCOById(201), getCCOById(202), getCCOById(302),
@@ -550,6 +525,32 @@ export const pathCrossingsMissing200: VectorId[][] = [
 	[getCCOById(301), getCCOById(302), getCCOById(303), getCCOById(304)],
 	[getCCOById(203)],
 ]
+
+// E1M3 - Sector 66 - sector is divided in the middle by an action
+// see E1M2_S66.png
+export const E1M3_S66: VectorId[] = [
+	{"id": 36, "start": {"x": -1552, "y": -2640}, "end": {"x": -1456, "y": -2640}},
+	{"id": 701, "start": {"x": -1600, "y": -2944}, "end": {"x": -1552, "y": -2640}},
+	{"id": 699, "start": {"x": -1600, "y": -2944}, "end": {"x": -1408, "y": -2944}},
+	{"id": 700, "start": {"x": -1408, "y": -2944}, "end": {"x": -1456, "y": -2640}},
+	{"id": 988, "start": {"x": -1552, "y": -2640}, "end": {"x": -1408, "y": -2944}, specialType: 2},
+	{"id": 988, "start": {"x": -1552, "y": -2640}, "end": {"x": -1408, "y": -2944}, specialType: 2},
+]
+
+// see E1M1_S39.png
+export const E1M1_S39 = [
+	{"id": 14, "start": {"x": 1216, "y": -3392}, "end": {"x": 1216, "y": -3360}},
+	{"id": 15, "start": {"x": 1216, "y": -3360}, "end": {"x": 1184, "y": -3360}},
+	{"id": 23, "start": {"x": 1184, "y": -3104}, "end": {"x": 1216, "y": -3104}},
+	{"id": 24, "start": {"x": 1216, "y": -3104}, "end": {"x": 1216, "y": -3072}},
+	{"id": 26, "start": {"x": 1344, "y": -3264}, "end": {"x": 1344, "y": -3360}},
+	{"id": 27, "start": {"x": 1344, "y": -3200}, "end": {"x": 1344, "y": -3264}},
+	{"id": 29, "start": {"x": 1344, "y": -3104}, "end": {"x": 1344, "y": -3200}},
+	{"id": 40, "start": {"x": 1344, "y": -3360}, "end": {"x": 1216, "y": -3392}},
+	{"id": 41, "start": {"x": 1216, "y": -3072}, "end": {"x": 1344, "y": -3104}},
+	{"id": 50, "start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}},
+	{"id": 51, "start": {"x": 1184, "y": -3360}, "end": {"x": 928, "y": -3360}},
+	{"id": 52, "start": {"x": 928, "y": -3360}, "end": {"x": 928, "y": -3104}}]
 
 // see E1M3_S7.png
 // 964 and 962 ar ONLY in sector 15, not in 7!

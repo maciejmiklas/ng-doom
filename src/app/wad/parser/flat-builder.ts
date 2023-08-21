@@ -55,7 +55,7 @@ const buildCrossingPaths = <V extends VectorV>(sectorId: number, vectors: V[]) =
 		let expand = expandPaths(cv.remaining, [], false)
 
 		// add crossing vectors to already existing paths
-		expand = expandPaths(cv.crossing.concat(expand.skipped).flat(), expand.paths, false)
+		expand = expandPaths(cv.crossing.concat(expand.skipped), expand.paths, false)
 
 		let paths = expand.paths;
 		if (expand.skipped.length > 0) {
@@ -99,7 +99,7 @@ const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V
 
 const buildBoxPaths = <V extends VectorV>(sectorId: number, vectors: V[]) => (skippActions: boolean, unique: boolean, forceClose: boolean, bidirectional: boolean): Either<V[][]> =>
 	Either.ofRight(vectors)
-		.map(R.when(() => unique, MF.uniqueVector))// remove duplicates?
+		//.map(R.when(() => unique, MF.uniqueVector))// remove duplicates?
 		.map(R.when(() => skippActions, MF.filterActions)) // remove actions?
 
 		// anything left after removing duplicates and actions?
@@ -118,7 +118,7 @@ const buildBoxPaths = <V extends VectorV>(sectorId: number, vectors: V[]) => (sk
 		.map(R.when(() => forceClose, MF.closeOpened))
 
 		// are all paths continuous?
-		.assert(MF.pathsContinuos, () => () => 'Sector: ' + sectorId + ' is not simple Box, path not continuos')
+		.assert(MF.pathsContinuos, () => () => 'Sector: ' + sectorId + ' contains broken shapes')
 
 type ExpandResult<V extends VectorV> = {
 	paths: V[][],
@@ -138,14 +138,11 @@ const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][] = 
 		// none of #remaining could be connected to already existing paths, so start a new path
 		if (!appended) {
 
-			// try to get the first not crossing vector
-			const nextIdx = Either.ofFunction<V[], number>(
-				vv => vv.findIndex(MF.isNotCrossingVector),
-				idx => idx > 0,
-				() => () => 'No crossing vectors')(remaining)
+			// first try starting building route from duplicate, as those are dividing shapes
+			const nextIdx = MF.firstDuplicate(remaining)
 
-				// apparently all vectors are crossing, try finding a duplicate. That would separate two areas, as it has two sides.
-				.orAnother(() => MF.firstDuplicate(remaining))
+				// no duplicated, try non-crossing vector
+				.orAnother(() => MF.firstNotCrossing(remaining))
 
 				// just get first element from list
 				.orElse(() => 0)

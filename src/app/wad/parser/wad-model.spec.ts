@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {functions as MF, VectorConnection, VectorV} from './wad-model'
+import {functions as MF, testFunctions as TF, VectorConnection, VectorV} from './wad-model'
 import {
+	E1M1_S37,
 	E1M1_S39,
 	E1M3_S66,
 	E1M3_S7,
@@ -26,7 +27,6 @@ import {
 	PATH_CLOSED_REVERSED_ONE,
 	PATH_CLOSED_SORTED,
 	PATH_CONTINUOUS_OPEN,
-	PATH_CROSSING_CLOSED_ORDERED,
 	PATH_CROSSING_MIXED,
 	VectorId
 } from "./testdata/data"
@@ -77,7 +77,7 @@ describe('wad-model#pathToPoints', () => {
 
 	it('Continuous path 1', () => {
 		const points = MF.pathToPoints(PATH_CLOSED_1)
-		expect(points.length).toEqual(5)
+		expect(points.length).toEqual(4)
 
 		const val = new Set()
 		points.forEach(p => {
@@ -86,6 +86,50 @@ describe('wad-model#pathToPoints', () => {
 				val.add(value)
 			}
 		)
+	})
+})
+
+describe('wad-model#isCrossingVector', () => {
+
+	it('no flag', () => {
+		const vv = {
+			"id": 988,
+			"start": {"x": -1552, "y": -2640},
+			"end": {"x": -1408, "y": -2944},
+		}
+		expect(MF.isCrossingVector(vv)).toBeFalse()
+	})
+
+	it('flag true', () => {
+		const vv = {
+			"id": 988,
+			"start": {"x": -1552, "y": -2640},
+			"end": {"x": -1408, "y": -2944},
+		}
+		TF.setCrossing(vv)
+		expect(MF.isCrossingVector(vv)).toBeTrue()
+	})
+})
+
+describe('wad-model#firstNotCrossing', () => {
+
+	it('none', () => {
+		MF.cleanCrossingVectors(E1M3_S66)
+		MF.groupCrossingVectors(E1M3_S66)
+		const found = MF.firstNotCrossing(E1M3_S66)
+		expect(found.isLeft()).toBeTrue()
+	})
+
+	it('all crossing', () => {
+		MF.groupCrossingVectors(E1M3_S66)
+		const found = MF.firstNotCrossing(E1M3_S66)
+		expect(found.isLeft()).toBeTrue()
+	})
+
+	it('found', () => {
+		MF.groupCrossingVectors(E1M4_S36)
+		const found = MF.firstNotCrossing(E1M4_S36)
+		expect(found.isRight()).toBeTrue()
 	})
 })
 
@@ -132,7 +176,7 @@ describe('wad-model#firstDuplicate', () => {
 	})
 
 	it('not found 8', () => {
-		expect(MF.firstDuplicate(PATH_CROSSING_CLOSED_ORDERED).isLeft()).toBeTrue()
+		expect(MF.firstDuplicate(E1M1_S37).isLeft()).toBeTrue()
 	})
 
 	it('not found 9', () => {
@@ -301,58 +345,76 @@ describe('wad-model#groupByVertex', () => {
 
 })
 
+
+describe('wad-model#markCrossingVectors', () => {
+
+	it('Some are crossing', () => {
+		MF.cleanCrossingVectors(E1M4_S36)
+		expect(E1M4_S36.filter(MF.isCrossingVector).length).toEqual(0)
+
+		MF.markCrossingVectors(E1M4_S36)
+		expect(E1M4_S36.filter(MF.isCrossingVector).length).toEqual(6)
+
+		MF.cleanCrossingVectors(E1M4_S36)
+		expect(E1M4_S36.filter(MF.isCrossingVector).length).toEqual(0)
+	})
+
+	it('No crossings', () => {
+		MF.cleanCrossingVectors(E1M3_S7)
+		expect(E1M3_S7.filter(MF.isCrossingVector).length).toEqual(0)
+
+		MF.markCrossingVectors(E1M3_S7)
+		expect(E1M3_S7.filter(MF.isCrossingVector).length).toEqual(0)
+	})
+
+	it('all are crossing', () => {
+		MF.cleanCrossingVectors(E1M3_S66)
+		expect(E1M3_S66.filter(MF.isCrossingVector).length).toEqual(0)
+
+		MF.markCrossingVectors(E1M3_S66)
+		expect(E1M3_S66.filter(MF.isCrossingVector).length).toEqual(6)
+
+		MF.cleanCrossingVectors(E1M3_S66)
+		expect(E1M3_S66.filter(MF.isCrossingVector).length).toEqual(0)
+	})
+})
+
 describe('wad-model#groupCrossingVectors', () => {
 
-	it('Not found', () => {
-		expect(MF.groupCrossingVectors(PATH_CLOSED_REVERSED_MIX).isLeft()).toBeTrue()
+	it('No crossings 1', () => {
+		expect(MF.groupCrossingVectors(E1M1_S39).isLeft()).toBeTrue()
 	})
 
-	it('Crossing flag', () => {
-		const crossing = MF.groupCrossingVectors(PATH_CROSSING_CLOSED_ORDERED).get();
-		crossing.remaining.forEach(v => expect(MF.isCrossingVector(v)).toBeFalse());
-		crossing.crossing.forEach(vv => vv.forEach(v => expect(MF.isCrossingVector(v)).toBeTrue()));
+	it('No crossings 2', () => {
+		expect(MF.groupCrossingVectors(E1M3_S7).isLeft()).toBeTrue()
 	})
 
-	it('closed crossing path and ordered', () => {
-		execCrossingTest(PATH_CROSSING_CLOSED_ORDERED)
+	it('All are crossing', () => {
+		execCrossingTest(E1M3_S66)
 	})
 
-	it('closed crossing path and mixed', () => {
-		execCrossingTest(PATH_CROSSING_MIXED)
+	it('Some are crossing 1', () => {
+		execCrossingTest(E1M4_S36)
 	})
 
-	it('Crossing mixed', () => {
-		const crossing = MF.groupCrossingVectors(PATH_CROSSING_MIXED).get();
-		crossing.remaining.forEach(v => {
-			expect(MF.isCrossingVector(v)).toBeFalse()
-			expect(v.msg).toBeUndefined()
-		});
-		crossing.crossing.forEach(vv => vv.forEach(v => {
-			expect(MF.isCrossingVector(v)).toBeTrue()
-			expect(v.msg.startsWith('Crossing')).toBeTrue()
-		}));
+	it('Some are crossing 2', () => {
+		execCrossingTest(E1M1_S37)
 	})
 
 })
 
 const execCrossingTest = (data: VectorId[]) => {
+	MF.cleanCrossingVectors(data)
 	const crossing = MF.groupCrossingVectors(data).get();
-	const cr0 = crossing.crossing[0];
-	expect(cr0.length).toEqual(4)
-	cr0.forEach(cr => {
-		expect(cr.msg.startsWith('Crossing A')).toBeTrue()
-		expect(MF.isCrossingVector(cr)).toBeTrue()
-	})
 
-	const cr1 = crossing.crossing[1];
-	expect(cr1.length).toEqual(3)
-	cr1.forEach(cr => {
-		expect(cr.msg.startsWith('Crossing B')).toBeTrue()
-		expect(MF.isCrossingVector(cr)).toBeTrue()
-	})
+	// all crossings are has been flagged
+	crossing.crossing.forEach(v => expect(MF.isCrossingVector(v)).toBeTrue());
 
+	// remaining are not crossing
 	crossing.remaining.forEach(v => expect(MF.isCrossingVector(v)).toBeFalse());
-	crossing.remaining.forEach(v => expect(v.msg).toBeUndefined());
+
+	expect(crossing.crossing.length + crossing.remaining.length).toEqual(data.length)
+	MF.cleanCrossingVectors(data)
 }
 
 describe('wad-model#pathClosed', () => {
@@ -365,6 +427,35 @@ describe('wad-model#pathClosed', () => {
 	it('not closed', () => {
 		expect(MF.pathClosed(PATH_CLOSED_MIXED)).toBeFalse()
 		expect(MF.pathOpen(PATH_CLOSED_MIXED)).toBeTrue()
+	})
+})
+
+describe('wad-model#hasAction', () => {
+
+	it('no action: special type = 0', () => {
+		expect(MF.hasAction({
+			"id": 988,
+			"start": {"x": -1552, "y": -2640},
+			"end": {"x": -1408, "y": -2944},
+			specialType: 0
+		})).toBeFalse()
+	})
+
+	it('no action: special type not set', () => {
+		expect(MF.hasAction({
+			"id": 988,
+			"start": {"x": -1552, "y": -2640},
+			"end": {"x": -1408, "y": -2944}
+		})).toBeFalse()
+	})
+
+	it('action: special type = 2', () => {
+		expect(MF.hasAction({
+			"id": 988,
+			"start": {"x": -1552, "y": -2640},
+			"end": {"x": -1408, "y": -2944},
+			specialType: 2
+		})).toBeTrue()
 	})
 })
 
