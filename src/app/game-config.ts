@@ -17,7 +17,7 @@ import {LinearFilter} from "three/src/constants";
 import * as T from "three";
 
 const game = {
-	startMap: "E1M2",
+	startMap: "E1M1",
 }
 
 const player = {

@@ -206,15 +206,15 @@ describe('Either#ofNullable', () => {
 	const nn = Either.ofNullable(100, () => 'test 100')
 
 	it('from null - isLeft', () => {
-		expect(nil.isLeft()).toBeTruthy()
+		expect(nil.isLeft()).toBeTrue()
 	})
 
 	it('from null - isRight', () => {
-		expect(nil.isRight()).toBeFalsy()
+		expect(nil.isRight()).toBeFalse()
 	})
 
 	it('from null - filter', () => {
-		expect(nil.filter()).toBeFalsy()
+		expect(nil.filter()).toBeFalse()
 	})
 
 	it('from null - get', () => {
@@ -498,6 +498,24 @@ describe('Either#ofCondition', () => {
 
 	it('truthyInt - get', () => {
 		expect(truthyInt.get()).toEqual(99)
+	})
+})
+
+describe('Either#ofConditionC', () => {
+	const func = Either.ofConditionC<number, string>((v) => v > 0, (v) => () => 'V:' + v, (v) => 'R:' + (1000 + v))
+
+	it('true', () => {
+		const res = func(33)
+		expect(res.isRight()).toBeTrue()
+		expect(res.isLeft()).toBeFalse()
+		expect(res.get()).toEqual('R:1033')
+	})
+
+	it('false', () => {
+		const res = func(-22)
+		expect(res.isRight()).toBeFalse()
+		expect(res.isLeft()).toBeTrue()
+		expect(res.message()).toEqual('V:-22')
 	})
 })
 

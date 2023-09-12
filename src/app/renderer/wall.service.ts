@@ -65,22 +65,22 @@ const renderUpperWall = ({id: sid}: Sector) => (ld: Linedef): Either<T.Mesh[]> =
 	const texture = Either.ofCondition(
 		() => sid !== ld.sector.id,
 		() => 'Backside has no upper texture on: ' + ld.id,
-		() => ld.backSide.val.upperTexture).orElse(() => ld.frontSide.upperTexture)
+		() => ld.backSide.get().upperTexture).orElse(() => ld.frontSide.upperTexture)
 
 	if (texture.isLeft()) {
 		return Either.ofLeft(() => 'No texture for upper wall: ' + ld.id)
 	}
 
-	const wallHeight = (ld: Linedef) => Math.abs(ld.sector.cellingHeight - ld.backSide.val.sector.cellingHeight)
+	const wallHeight = (ld: Linedef) => Math.abs(ld.sector.cellingHeight - ld.backSide.get().sector.cellingHeight)
 	const mesh = ld.flags.has(LinedefFlag.UPPER_TEXTURE_UNPEGGED) ?
 		// the upper texture will begin at the higher ceiling and be drawn downwards.
-		wall(() => T.DoubleSide, texture.val,
-			(ld, wallHeight) => Math.max(ld.sector.cellingHeight, ld.backSide.val.sector.cellingHeight) - wallHeight / 2,
+		wall(() => T.DoubleSide, texture.get(),
+			(ld, wallHeight) => Math.max(ld.sector.cellingHeight, ld.backSide.get().sector.cellingHeight) - wallHeight / 2,
 			wallHeight)(ld)
 		:
 		// the upper texture is pegged to the lowest ceiling
-		wall(() => T.DoubleSide, texture.val,
-			(ld, wallHeight) => Math.min(ld.sector.cellingHeight, ld.backSide.val.sector.cellingHeight) + wallHeight / 2,
+		wall(() => T.DoubleSide, texture.get(),
+			(ld, wallHeight) => Math.min(ld.sector.cellingHeight, ld.backSide.get().sector.cellingHeight) + wallHeight / 2,
 			wallHeight)(ld)
 
 	return Either.ofRight([mesh])
@@ -93,7 +93,7 @@ const renderUpperWall = ({id: sid}: Sector) => (ld: Linedef): Either<T.Mesh[]> =
  */
 const renderMiddleWall = (ld: Linedef): Either<T.Mesh[]> => {
 	return Either.ofTruth([ld.frontSide.middleTexture],
-		() => [wall(() => T.DoubleSide, ld.frontSide.middleTexture.val,
+		() => [wall(() => T.DoubleSide, ld.frontSide.middleTexture.get(),
 			(ld, wallHeight) => ld.sector.floorHeight + wallHeight / 2,
 			(ld) => ld.sector.cellingHeight - ld.sector.floorHeight)(ld)])
 }
@@ -109,7 +109,7 @@ const renderLowerWall = ({id: sid}: Sector) => (ld: Linedef): Either<T.Mesh[]> =
 	const texture = Either.ofCondition(
 		() => sid !== ld.sector.id,
 		() => 'Backside has no lower texture on: ' + ld.id,
-		() => ld.backSide.val.lowerTexture).orElse(() => ld.frontSide.lowerTexture)
+		() => ld.backSide.get().lowerTexture).orElse(() => ld.frontSide.lowerTexture)
 
 	if (texture.isLeft()) {
 		return Either.ofLeft(() => 'No texture for lower wall: ' + ld.id)
@@ -118,12 +118,12 @@ const renderLowerWall = ({id: sid}: Sector) => (ld: Linedef): Either<T.Mesh[]> =
 	const height = (lde) => Math.abs(lde.sector.floorHeight - lde.backSide.val.sector.floorHeight)
 	const mesh = ld.flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED) ?
 		// the upper texture is pegged to the highest flor
-		wall(() => T.DoubleSide, texture.val,
-			(ld, wallHeight) => Math.max(ld.sector.floorHeight, ld.backSide.val.sector.floorHeight) - wallHeight / 2,
+		wall(() => T.DoubleSide, texture.get(),
+			(ld, wallHeight) => Math.max(ld.sector.floorHeight, ld.backSide.get().sector.floorHeight) - wallHeight / 2,
 			height)(ld)
 		:
 		// the upper texture is pegged to the lowest flor
-		wall(() => T.DoubleSide, texture.val,
+		wall(() => T.DoubleSide, texture.get(),
 			(ld, wallHeight) => Math.min(ld.sector.floorHeight, ld.backSide.get().sector.floorHeight) + wallHeight / 2,
 			height)(ld)
 

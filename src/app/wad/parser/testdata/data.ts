@@ -43,7 +43,7 @@ import {Either} from '../../../common/either'
 export type VectorId = VectorV & {
 	id: number,
 	msg?: string
-	crossing_flag?: boolean
+	crossing?: boolean
 }
 
 let _linedefs = null
@@ -391,19 +391,6 @@ export const PATH_CLOSED_MIXED: VectorId[] = [
 	{"id": 5, "start": {"x": 1472, "y": -1088}, "end": {"x": 1472, "y": -960}}
 ]
 
-export const PATH_CLOSED = [
-	{"start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}},
-	{"start": {"x": 1184, "y": -3104}, "end": {"x": 1216, "y": -3104}},
-	{"start": {"x": 1216, "y": -3104}, "end": {"x": 1216, "y": -3072}},
-	{"start": {"x": 1216, "y": -3072}, "end": {"x": 1344, "y": -3104}},
-	{"start": {"x": 1344, "y": -3104}, "end": {"x": 1344, "y": -3200}},
-	{"start": {"x": 1344, "y": -3200}, "end": {"x": 1344, "y": -3264}},
-	{"start": {"x": 1344, "y": -3264}, "end": {"x": 1344, "y": -3360}},
-	{"start": {"x": 1344, "y": -3360}, "end": {"x": 1216, "y": -3392}},
-	{"start": {"x": 1216, "y": -3392}, "end": {"x": 1216, "y": -3360}},
-	{"start": {"x": 1216, "y": -3360}, "end": {"x": 1184, "y": -3360}},
-	{"start": {"x": 1184, "y": -3360}, "end": {"x": 928, "y": -3360}}]
-
 export const PATH_CLOSED_SORTED: VectorId[] = [
 	{"id": 0, "start": {"x": 1856, "y": -704}, "end": {"x": 2048, "y": -704}},
 	{"id": 1, "start": {"x": 2048, "y": -704}, "end": {"x": 2048, "y": -1024}},
@@ -440,21 +427,19 @@ export const PATH_CLOSED_REVERSED_MIX: VectorId[] = [
 	{"id": 47, "start": {"x": 64, "y": -3392}, "end": {"x": 48, "y": -3392}},
 ]
 
-
-
 export const PATH_CROSSING_MIXED: VectorId[] = [
 	// @formatter:off
-	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
+	{"id": 101, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3072}, msg: 'Crossing A on: [928, -3104]', crossing:true},
 	{"id": 103, "start": {"x": 1184, "y": -3104}, "end": {"x": 1184, "y": -3072}},
-	{"id": 201, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3360}, msg: 'Crossing A on: [928, -3104] and B on: [928, -3360]', crossing_flag:true},
-	{"id": 104, "start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
-	{"id": 202, "start": {"x": 928, "y": -3360}, "end": {"x": 896, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
+	{"id": 201, "start": {"x": 928, "y": -3104}, "end": {"x": 928, "y": -3360}, msg: 'Crossing A on: [928, -3104] and B on: [928, -3360]', crossing:true},
+	{"id": 104, "start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}, msg: 'Crossing A on: [928, -3104]', crossing:true},
+	{"id": 202, "start": {"x": 928, "y": -3360}, "end": {"x": 896, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing:true},
 	{"id": 302, "start": {"x": 1184, "y": -3360}, "end": {"x": 1184, "y": -3392}},
-	{"id": 304, "start": {"x": 928, "y": -3392}, "end": {"x": 928, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
+	{"id": 304, "start": {"x": 928, "y": -3392}, "end": {"x": 928, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing:true},
 	{"id": 102, "start": {"x": 928, "y": -3072}, "end": {"x": 1184, "y": -3072}},
-	{"id": 301, "start": {"x": 928, "y": -3360}, "end": {"x": 1184, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing_flag:true},
+	{"id": 301, "start": {"x": 928, "y": -3360}, "end": {"x": 1184, "y": -3360}, msg: 'Crossing B on: [928, -3360]', crossing:true},
 	{"id": 203, "start": {"x": 896, "y": -3104}, "end": {"x": 896, "y": -3360}},
-	{"id": 204, "start": {"x": 896, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A on: [928, -3104]', crossing_flag:true},
+	{"id": 204, "start": {"x": 896, "y": -3104}, "end": {"x": 928, "y": -3104}, msg: 'Crossing A on: [928, -3104]', crossing:true},
 	{"id": 303, "start": {"x": 1184, "y": -3392}, "end": {"x": 928, "y": -3392}},
 	// @formatter:on
 ]
@@ -538,7 +523,7 @@ export const E1M3_S66: VectorId[] = [
 ]
 
 // see E1M1_S39.png
-export const E1M1_S39 = [
+export const E1M1_S39: VectorId[] = [
 	{"id": 14, "start": {"x": 1216, "y": -3392}, "end": {"x": 1216, "y": -3360}},
 	{"id": 15, "start": {"x": 1216, "y": -3360}, "end": {"x": 1184, "y": -3360}},
 	{"id": 23, "start": {"x": 1184, "y": -3104}, "end": {"x": 1216, "y": -3104}},
@@ -551,6 +536,34 @@ export const E1M1_S39 = [
 	{"id": 50, "start": {"x": 928, "y": -3104}, "end": {"x": 1184, "y": -3104}},
 	{"id": 51, "start": {"x": 1184, "y": -3360}, "end": {"x": 928, "y": -3360}},
 	{"id": 52, "start": {"x": 928, "y": -3360}, "end": {"x": 928, "y": -3104}}]
+
+
+// see E1M1_S72.png
+export const E1M1_S72: VectorId[] = [
+	{"id": 290, "start": {"x": 2856, "y": -4160}, "end": {"x": 2888, "y": -4160}},
+	{"id": 291, "start": {"x": 2888, "y": -4160}, "end": {"x": 2912, "y": -4160}},
+	{"id": 292, "start": {"x": 3160, "y": -4352}, "end": {"x": 3128, "y": -4352}},
+	{"id": 293, "start": {"x": 3128, "y": -4352}, "end": {"x": 3104, "y": -4352}},
+	{"id": 294, "start": {"x": 3104, "y": -4160}, "end": {"x": 3128, "y": -4160}},
+	{"id": 295, "start": {"x": 3128, "y": -4160}, "end": {"x": 3160, "y": -4160}},
+	{"id": 296, "start": {"x": 2912, "y": -4352}, "end": {"x": 2888, "y": -4352}},
+	{"id": 297, "start": {"x": 2888, "y": -4352}, "end": {"x": 2856, "y": -4352}},
+	{"id": 298, "start": {"x": 2888, "y": -4352}, "end": {"x": 2888, "y": -4320}},
+	{"id": 299, "start": {"x": 2888, "y": -4320}, "end": {"x": 2888, "y": -4192}},
+	{"id": 300, "start": {"x": 2888, "y": -4192}, "end": {"x": 2888, "y": -4160}},
+	{"id": 301, "start": {"x": 3128, "y": -4320}, "end": {"x": 3128, "y": -4352}},
+	{"id": 302, "start": {"x": 3128, "y": -4160}, "end": {"x": 3128, "y": -4192}},
+	{"id": 303, "start": {"x": 3128, "y": -4192}, "end": {"x": 3128, "y": -4320}},
+	{"id": 308, "start": {"x": 2912, "y": -4160}, "end": {"x": 3104, "y": -4160}},
+	{"id": 309, "start": {"x": 3104, "y": -4352}, "end": {"x": 2912, "y": -4352}},
+	{"id": 313, "start": {"x": 2856, "y": -4352}, "end": {"x": 2856, "y": -4160}},
+	{"id": 314, "start": {"x": 3160, "y": -4160}, "end": {"x": 3160, "y": -4352}},
+	{"id": 298, "start": {"x": 2888, "y": -4352}, "end": {"x": 2888, "y": -4320}},
+	{"id": 299, "start": {"x": 2888, "y": -4320}, "end": {"x": 2888, "y": -4192}},
+	{"id": 300, "start": {"x": 2888, "y": -4192}, "end": {"x": 2888, "y": -4160}},
+	{"id": 301, "start": {"x": 3128, "y": -4320}, "end": {"x": 3128, "y": -4352}},
+	{"id": 302, "start": {"x": 3128, "y": -4160}, "end": {"x": 3128, "y": -4192}},
+	{"id": 303, "start": {"x": 3128, "y": -4192}, "end": {"x": 3128, "y": -4320}}]
 
 // see E1M3_S7.png
 // 964 and 962 ar ONLY in sector 15, not in 7!
@@ -596,3 +609,21 @@ export const E1M3_S7: VectorId[] = [
 	{"id": 956, "start": {"x": 192, "y": -1312}, "end": {"x": 192, "y": -1440}},
 	{"id": 957, "start": {"x": 192, "y": -1440}, "end": {"x": -64, "y": -1440}},
 	{"id": 958, "start": {"x": -64, "y": -1440}, "end": {"x": -64, "y": -1312}}]
+
+export const E1M5_S18: VectorId[] = [
+	{"id":162,"start":{"x":-896,"y":896},"end":{"x":-896,"y":768}},
+	{"id":163,"start":{"x":-1064,"y":768},"end":{"x":-1064,"y":896}},
+	{"id":303,"start":{"x":-896,"y":768},"end":{"x":-896,"y":704}},
+	{"id":478,"start":{"x":-1064,"y":768},"end":{"x":-896,"y":768}},
+	{"id":479,"start":{"x":-1064,"y":896},"end":{"x":-896,"y":896}},
+	{"id":501,"start":{"x":-896,"y":960},"end":{"x":-896,"y":896}},
+	{"id":502,"start":{"x":-1064,"y":896},"end":{"x":-1064,"y":960}},
+	{"id":534,"start":{"x":-1064,"y":704},"end":{"x":-1064,"y":768}},
+	{"id":478,"start":{"x":-1064,"y":768},"end":{"x":-896,"y":768}},
+	{"id":479,"start":{"x":-1064,"y":896},"end":{"x":-896,"y":896}},
+	{"id":511,"start":{"x":-896,"y":960},"end":{"x":-1064,"y":960}},
+	{"id":543,"start":{"x":-1064,"y":704},"end":{"x":-896,"y":704}}]
+
+export const ALL_PATHS: VectorId[][] = [E1M4_S36, PATH_CLOSED_1, PATH_CONTINUOUS_OPEN, PATH_CLOSED_MIXED,
+	PATH_CLOSED_SORTED, PATH_CLOSED_MIXED_2, PATH_CLOSED_REVERSED_ONE, PATH_CLOSED_REVERSED_MIX, PATH_CROSSING_MIXED,
+	E1M1_S37, E1M3_S66, E1M1_S39, E1M1_S72, E1M3_S7]

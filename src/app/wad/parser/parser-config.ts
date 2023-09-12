@@ -18,5 +18,9 @@ const vertex = {
 	near: 5
 }
 
+const flat = {
+	maxSkip: 5
+}
+
 // ############################ EXPORTS ############################
-export const config = {vertex}
+export const config = {vertex,flat}

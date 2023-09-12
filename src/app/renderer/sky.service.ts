@@ -42,7 +42,7 @@ export class SkyService implements BuildMapCallback {
 			adjust.height,
 			U.lineWidth(minY, maxY) + adjust.depth);
 
-		const material = type == GC.BoxType.ORIGINAL ? skyBoxOriginalMaterial(sky.val.patches[0].bitmap) : skyBoxBitmapMaterial()
+		const material = type == GC.BoxType.ORIGINAL ? skyBoxOriginalMaterial(sky.get().patches[0].bitmap) : skyBoxBitmapMaterial()
 		const mesh = new T.Mesh(skyBox, material);
 
 		// set position to the middle of the map.

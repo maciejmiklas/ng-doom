@@ -7,7 +7,7 @@ export enum LeftType {
 
 export abstract class Either<T> {
 
-	readonly val: T
+	protected readonly val: T
 	protected readonly msg: () => string
 
 	protected constructor(value: T, msg: () => string) {
@@ -59,7 +59,13 @@ export abstract class Either<T> {
 		return cnd() ? Either.ofRight(right()) : Either.ofLeft(left, type)
 	}
 
-	static ofFunction<IN, T>(fn: (inp: IN) => T, cnd: (tt: T) => boolean, left: (tt: T) => () => string, type = LeftType.OK): (inp: IN) => Either<T> {
+	static ofConditionC<IN, OUT>(cnd: (inp: IN) => boolean, left: (inp: IN) => () => string, right: (inp: IN) => OUT, type = LeftType.OK): (inp: IN) => Either<OUT> {
+		return (inp: IN) => {
+			return cnd(inp) ? Either.ofRight(right(inp)) : Either.ofLeft(left(inp), type)
+		}
+	}
+
+	static ofFunction<IN, OUT>(fn: (inp: IN) => OUT, cnd: (tt: OUT) => boolean, left: (tt: OUT) => () => string, type = LeftType.OK): (inp: IN) => Either<OUT> {
 		return (inp: IN) => {
 			const tt = fn(inp)
 			return cnd(tt) ? Either.ofRight(tt) : Either.ofLeft(left(tt), type)
@@ -193,8 +199,8 @@ export class Right<T> extends Either<T> {
 	}
 
 	assert(cnd: (v: T) => boolean, left: (v: T) => () => string, type = LeftType.OK): Either<T> {
-		if (!cnd(this.val)) {
-			const msg = left(this.val)
+		if (!cnd(this.get())) {
+			const msg = left(this.get())
 			if (Log.isWarn() && type == LeftType.WARN) {
 				Log.warn(Right.CMP, 'Assert:', msg())
 

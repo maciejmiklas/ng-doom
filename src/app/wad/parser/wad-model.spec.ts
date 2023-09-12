@@ -13,23 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {functions as MF, testFunctions as TF, VectorConnection, VectorV} from './wad-model'
+import {functions as MF, VectorConnection, VectorV} from './wad-model'
 import {
-	E1M1_S37,
-	E1M1_S39,
-	E1M3_S66,
 	E1M3_S7,
-	E1M4_S36,
 	PATH_CLOSED_1,
-	PATH_CLOSED_MIXED,
 	PATH_CLOSED_MIXED_2,
-	PATH_CLOSED_REVERSED_MIX,
 	PATH_CLOSED_REVERSED_ONE,
-	PATH_CLOSED_SORTED,
-	PATH_CONTINUOUS_OPEN,
-	PATH_CROSSING_MIXED,
-	VectorId
+	PATH_CROSSING_MIXED
 } from "./testdata/data"
+
 
 describe('wad-model#vertexEqual', () => {
 	it('Equal', () => {
@@ -86,105 +78,6 @@ describe('wad-model#pathToPoints', () => {
 				val.add(value)
 			}
 		)
-	})
-})
-
-describe('wad-model#isCrossingVector', () => {
-
-	it('no flag', () => {
-		const vv = {
-			"id": 988,
-			"start": {"x": -1552, "y": -2640},
-			"end": {"x": -1408, "y": -2944},
-		}
-		expect(MF.isCrossingVector(vv)).toBeFalse()
-	})
-
-	it('flag true', () => {
-		const vv = {
-			"id": 988,
-			"start": {"x": -1552, "y": -2640},
-			"end": {"x": -1408, "y": -2944},
-		}
-		TF.setCrossing(vv)
-		expect(MF.isCrossingVector(vv)).toBeTrue()
-	})
-})
-
-describe('wad-model#firstNotCrossing', () => {
-
-	it('none', () => {
-		MF.cleanCrossingVectors(E1M3_S66)
-		MF.groupCrossingVectors(E1M3_S66)
-		const found = MF.firstNotCrossing(E1M3_S66)
-		expect(found.isLeft()).toBeTrue()
-	})
-
-	it('all crossing', () => {
-		MF.groupCrossingVectors(E1M3_S66)
-		const found = MF.firstNotCrossing(E1M3_S66)
-		expect(found.isLeft()).toBeTrue()
-	})
-
-	it('found', () => {
-		MF.groupCrossingVectors(E1M4_S36)
-		const found = MF.firstNotCrossing(E1M4_S36)
-		expect(found.isRight()).toBeTrue()
-	})
-})
-
-describe('wad-model#firstDuplicate', () => {
-
-	it('found 1', () => {
-		const found = MF.firstDuplicate(E1M4_S36)
-		expect(found.isRight()).toBeTrue()
-		expect(found.get()).toEqual(4)
-	})
-
-	it('found 2', () => {
-		const found = MF.firstDuplicate(E1M3_S66)
-		expect(found.isRight()).toBeTrue()
-		expect(found.get()).toEqual(4)
-	})
-
-	it('not found 1', () => {
-		expect(MF.firstDuplicate(PATH_CLOSED_1).isLeft()).toBeTrue()
-	})
-
-	it('not found 2', () => {
-		expect(MF.firstDuplicate(PATH_CONTINUOUS_OPEN).isLeft()).toBeTrue()
-	})
-
-	it('not found 3', () => {
-		expect(MF.firstDuplicate(PATH_CLOSED_MIXED).isLeft()).toBeTrue()
-	})
-
-	it('not found 4', () => {
-		expect(MF.firstDuplicate(PATH_CLOSED_SORTED).isLeft()).toBeTrue()
-	})
-
-	it('not found 5', () => {
-		expect(MF.firstDuplicate(PATH_CLOSED_MIXED_2).isLeft()).toBeTrue()
-	})
-
-	it('not found 6', () => {
-		expect(MF.firstDuplicate(PATH_CLOSED_REVERSED_ONE).isLeft()).toBeTrue()
-	})
-
-	it('not found 7', () => {
-		expect(MF.firstDuplicate(PATH_CLOSED_REVERSED_MIX).isLeft()).toBeTrue()
-	})
-
-	it('not found 8', () => {
-		expect(MF.firstDuplicate(E1M1_S37).isLeft()).toBeTrue()
-	})
-
-	it('not found 9', () => {
-		expect(MF.firstDuplicate(PATH_CROSSING_MIXED).isLeft()).toBeTrue()
-	})
-
-	it('not found 10', () => {
-		expect(MF.firstDuplicate(E1M1_S39).isLeft()).toBeTrue()
 	})
 })
 
@@ -311,125 +204,6 @@ describe('wad-model#uniqueVertex', () => {
 	})
 })
 
-describe('wad-model#firstVectorByVertex', () => {
-
-	it('found', () => {
-		expect(MF.firstVectorByVertex(PATH_CROSSING_MIXED)({"x": 1184, "y": -3360}).get()).toEqual(5)
-	})
-
-	it('not found', () => {
-		expect(MF.firstVectorByVertex(PATH_CROSSING_MIXED)({"x": 928, "y": 3360}).isLeft()).toBeTruthy()
-	})
-})
-
-describe('wad-model#groupByVertex', () => {
-
-	it('Found', () => {
-		const v = {"x": 928, "y": -3104}
-		const either = MF.groupByVertex(PATH_CROSSING_MIXED)(v)
-		expect(either.isRight()).toBeTrue()
-		const res = either.get()
-		expect(res.length).toEqual(2)
-
-		expect(res[0].length).toEqual(4)
-		expect(res[1].length).toEqual(PATH_CROSSING_MIXED.length - 4)
-		const has = MF.hasVertex(v)
-		res[0].forEach(vv => expect(has(vv)).toBeTrue())
-		res[1].forEach(vv => expect(has(vv)).toBeFalse())
-	})
-
-	it('Not found', () => {
-		const either = MF.groupByVertex(PATH_CROSSING_MIXED)({"x": 928, "y": 3360})
-		expect(either.isRight()).toBeFalse()
-	})
-
-})
-
-
-describe('wad-model#markCrossingVectors', () => {
-
-	it('Some are crossing', () => {
-		MF.cleanCrossingVectors(E1M4_S36)
-		expect(E1M4_S36.filter(MF.isCrossingVector).length).toEqual(0)
-
-		MF.markCrossingVectors(E1M4_S36)
-		expect(E1M4_S36.filter(MF.isCrossingVector).length).toEqual(6)
-
-		MF.cleanCrossingVectors(E1M4_S36)
-		expect(E1M4_S36.filter(MF.isCrossingVector).length).toEqual(0)
-	})
-
-	it('No crossings', () => {
-		MF.cleanCrossingVectors(E1M3_S7)
-		expect(E1M3_S7.filter(MF.isCrossingVector).length).toEqual(0)
-
-		MF.markCrossingVectors(E1M3_S7)
-		expect(E1M3_S7.filter(MF.isCrossingVector).length).toEqual(0)
-	})
-
-	it('all are crossing', () => {
-		MF.cleanCrossingVectors(E1M3_S66)
-		expect(E1M3_S66.filter(MF.isCrossingVector).length).toEqual(0)
-
-		MF.markCrossingVectors(E1M3_S66)
-		expect(E1M3_S66.filter(MF.isCrossingVector).length).toEqual(6)
-
-		MF.cleanCrossingVectors(E1M3_S66)
-		expect(E1M3_S66.filter(MF.isCrossingVector).length).toEqual(0)
-	})
-})
-
-describe('wad-model#groupCrossingVectors', () => {
-
-	it('No crossings 1', () => {
-		expect(MF.groupCrossingVectors(E1M1_S39).isLeft()).toBeTrue()
-	})
-
-	it('No crossings 2', () => {
-		expect(MF.groupCrossingVectors(E1M3_S7).isLeft()).toBeTrue()
-	})
-
-	it('All are crossing', () => {
-		execCrossingTest(E1M3_S66)
-	})
-
-	it('Some are crossing 1', () => {
-		execCrossingTest(E1M4_S36)
-	})
-
-	it('Some are crossing 2', () => {
-		execCrossingTest(E1M1_S37)
-	})
-
-})
-
-const execCrossingTest = (data: VectorId[]) => {
-	MF.cleanCrossingVectors(data)
-	const crossing = MF.groupCrossingVectors(data).get();
-
-	// all crossings are has been flagged
-	crossing.crossing.forEach(v => expect(MF.isCrossingVector(v)).toBeTrue());
-
-	// remaining are not crossing
-	crossing.remaining.forEach(v => expect(MF.isCrossingVector(v)).toBeFalse());
-
-	expect(crossing.crossing.length + crossing.remaining.length).toEqual(data.length)
-	MF.cleanCrossingVectors(data)
-}
-
-describe('wad-model#pathClosed', () => {
-
-	it('closed', () => {
-		expect(MF.pathClosed(PATH_CLOSED_SORTED)).toBeTrue()
-		expect(MF.pathOpen(PATH_CLOSED_SORTED)).toBeFalse()
-	})
-
-	it('not closed', () => {
-		expect(MF.pathClosed(PATH_CLOSED_MIXED)).toBeFalse()
-		expect(MF.pathOpen(PATH_CLOSED_MIXED)).toBeTrue()
-	})
-})
-
 describe('wad-model#hasAction', () => {
 
 	it('no action: special type = 0', () => {
@@ -456,33 +230,6 @@ describe('wad-model#hasAction', () => {
 			"end": {"x": -1408, "y": -2944},
 			specialType: 2
 		})).toBeTrue()
-	})
-})
-
-describe('wad-model#pathContinuos', () => {
-
-	it('Closed', () => {
-		expect(MF.pathContinuos(PATH_CLOSED_SORTED)).toBeTrue()
-	})
-
-	it('Mixed', () => {
-		expect(MF.pathContinuos(PATH_CLOSED_MIXED)).toBeFalse()
-	})
-
-	it('Mixed 2', () => {
-		expect(MF.pathContinuos(PATH_CLOSED_MIXED_2)).toBeFalse()
-	})
-
-	it('Reversed one', () => {
-		expect(MF.pathContinuos(PATH_CLOSED_REVERSED_ONE)).toBeFalse()
-	})
-
-	it('Reversed mix', () => {
-		expect(MF.pathContinuos(PATH_CLOSED_REVERSED_MIX)).toBeFalse()
-	})
-
-	it('Continuous open', () => {
-		expect(MF.pathContinuos(PATH_CONTINUOUS_OPEN)).toBeFalse()
 	})
 })
 
@@ -588,19 +335,3 @@ describe('wad-model#vertexNear', () => {
 		expect(MF.vertexNear(v1, v2)).toBeTrue()
 	})
 })
-
-describe('wad-model#closePath', () => {
-	it('Continuous Open', () => {
-		const path = MF.closePath(PATH_CONTINUOUS_OPEN)
-		const pol = PATH_CONTINUOUS_OPEN.length
-		expect(path.length).toEqual(pol + 1)
-		const newVector = path[pol]
-		expect(PATH_CONTINUOUS_OPEN[pol - 1].id).toEqual(path[path.length - 2].id)
-		expect(MF.vertexEqual(newVector.start, PATH_CONTINUOUS_OPEN[pol - 1].end)).toBeTrue()
-		expect(MF.vertexEqual(newVector.end, PATH_CONTINUOUS_OPEN[0].start)).toBeTrue()
-	})
-})
-
-
-
-

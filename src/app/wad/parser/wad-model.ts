@@ -27,7 +27,6 @@
  */
 import {Either} from '../../common/either'
 import * as R from 'ramda'
-import U from "../../common/util";
 import {config as MC} from "./parser-config"
 
 export type Header = {
@@ -188,24 +187,7 @@ export type VectorV = {
 	end: Vertex
 }
 
-const CROSSING_FLAG = "crossing_flag";
-const setCrossing = (v: VectorV) => v[CROSSING_FLAG] = true
-const cleanCrossing = (v: VectorV) => v[CROSSING_FLAG] = undefined
-const cleanCrossingVectors = (vectors: VectorV[]): void => vectors.forEach(cleanCrossing)
-const isCrossingVector = (v: VectorV) => v[CROSSING_FLAG] !== undefined
-const isNotCrossingVector = (v: VectorV) => !isCrossingVector(v)
 
-const DUPLICATED_FLAG = "duplicate_flag";
-const setDuplicated = (v: VectorV) => v[DUPLICATED_FLAG] = true
-const isDuplicatedVector = (v: VectorV) => v[DUPLICATED_FLAG] !== undefined
-const isNotDuplicatedVector = (v: VectorV) => !isDuplicatedVector(v)
-
-const areCrossing = (v1: VectorV, v2: VectorV) => isCrossingVector(v1) && isCrossingVector(v2)
-
-export type CrossingVectors<V extends VectorV> = {
-	crossing: V[],
-	remaining: V[]
-}
 
 export const MIN_VECTOR_V = <VectorV>{
 	start: {x: -Infinity, y: -Infinity},
@@ -593,7 +575,7 @@ const reverseVector = <V extends VectorV>(input: V): V => {
 }
 
 const pathToPoints = (vectors: VectorV[]): Vertex[] =>
-	R.uniqWith<Vertex, Vertex>((v1, v2) => v1.x === v2.x && v1.y === v2.y)(R.flatten(vectors.map(v => [v.start, v.end])))
+	R.uniqWith<Vertex>((v1, v2) => v1.x === v2.x && v1.y === v2.y)(R.flatten(vectors.map(v => [v.start, v.end])))
 
 const hasVertex = (vertex: Vertex) => (vector: VectorV): boolean =>
 	vertexEqual(vertex, vector.start) || vertexEqual(vertex, vector.end)
@@ -604,14 +586,13 @@ const vectorReversed = (vectors: VectorV[]) => (ve: VectorV): boolean =>
 		return con === VectorConnection.V1END_TO_V2START || con === VectorConnection.V1START_TO_V2END ? v : undefined
 	})
 
-const vectorsConnected = (v1: VectorV, v2: VectorV): VectorConnection =>
-	R.cond([
-		[(v1, v2) => vertexNear(v1.start, v2.end), () => VectorConnection.V1START_TO_V2END],
-		[(v1, v2) => vertexNear(v1.start, v2.start), () => VectorConnection.V1START_TO_V2START],
-		[(v1, v2) => vertexNear(v1.end, v2.start), () => VectorConnection.V1END_TO_V2START],
-		[(v1, v2) => vertexNear(v1.end, v2.end), () => VectorConnection.V1END_TO_V2END],
-		[R.T, () => VectorConnection.NONE]
-	])(v1, v2)
+const vectorsConnected = (v1: VectorV, v2: VectorV): VectorConnection => R.cond([
+	[(v1, v2) => vertexNear(v1.start, v2.end), () => VectorConnection.V1START_TO_V2END],
+	[(v1, v2) => vertexNear(v1.start, v2.start), () => VectorConnection.V1START_TO_V2START],
+	[(v1, v2) => vertexNear(v1.end, v2.start), () => VectorConnection.V1END_TO_V2START],
+	[(v1, v2) => vertexNear(v1.end, v2.end), () => VectorConnection.V1END_TO_V2END],
+	[R.T, () => VectorConnection.NONE]
+])(v1, v2)
 
 const reversed = (con: VectorConnection) => con === VectorConnection.V1START_TO_V2START || con === VectorConnection.V1END_TO_V2END;
 
@@ -629,36 +610,7 @@ const uniqueVertex = (vectors: VectorV[]): Vertex[] => {
 
 const uniqueVector = <V extends VectorV>(vectors: V[]): V[] => R.uniqWith(vectorsEqual, vectors)
 
-const firstNotCrossing = (vectors: VectorV[]): Either<number> =>
-	Either.ofFunction<VectorV[], number>(
-		vv => vv.findIndex(isNotCrossingVector),
-		idx => idx !== -1,
-		() => () => 'No crossing vectors')(vectors)
-
-const firstDuplicate = (vectors: VectorV[]): Either<number> => {
-	const eq = R.curry(vectorsEqual)
-	return Either.ofFunction<VectorV[], number>(
-		(vv) => vv.findIndex((el, idx, all) =>
-			R.findLastIndex(eq(el), all) !== idx
-		),
-		(idx) => idx !== -1,
-		() => () => 'Duplicate not found')(vectors)
-}
-
-const firstVectorByVertex = (vectors: VectorV[]) => (vertex: Vertex): Either<number> => {
-	const idx = vectors.findIndex(hasVertex(vertex))
-	return Either.ofCondition(() => idx >= 0, () => 'No Vector for:' + JSON.stringify(vertex), () => idx)
-}
-
-/** V[0] - vectors containing given vertex, V[1] - remaining vectors. */
-const groupByVertex = <V extends VectorV>(vectors: V[]) => (vertex: Vertex): Either<V[][]> => {
-	const remaining = vectors.filter(v => !hasVertex(vertex)(v), vectors)
-	const found = vectors.filter(hasVertex(vertex), vectors)
-	return Either.ofCondition(
-		() => found.length > 0,
-		() => 'Vertex: ' + stringifyVertex(vertex) + ' not found in: ' + stringifyVectors(vectors),
-		() => [found, remaining])
-}
+const hasNoVector = <V extends VectorV>(points: Vertex[]) => (vector: V): boolean => !hasVector(points)(vector)
 
 /**
  * @return true, if both points of the given vector are in a given list of points.
@@ -666,73 +618,10 @@ const groupByVertex = <V extends VectorV>(vectors: V[]) => (vertex: Vertex): Eit
 const hasVector = <V extends VectorV>(points: Vertex[]) => (vector: V): boolean =>
 	points.find(v => vertexEqual(v, vector.start)) !== undefined && points.find(v => vertexEqual(v, vector.end)) !== undefined
 
-const hasNoVector = <V extends VectorV>(points: Vertex[]) => (vector: V): boolean => !hasVector(points)(vector)
-
-const filterSectorSplitters = <V extends VectorV>(vectors: V[]): V[] => {
-	// find common points (vertex) for crossing vectors
-	const crossingVertex = uniqueVertex(vectors).filter(v => countVertex(vectors)(v) > 2)
-
-	// Now we have shared points (Vertex) for all crossing vectors. If a particular vector has both ends in this list
-	// and it's an action, it means that this vector splits the sector into two parts and should be removed.
-	return vectors.filter(hasNoAction).filter(hasNoVector(crossingVertex))
-}
-
 const hasNoAction = (v: VectorV): boolean => !hasAction(v)
 const hasAction = (v: VectorV): boolean => !R.isNil(v.specialType) && v.specialType !== 0
 
 const filterActions = <V extends VectorV>(vectors: V[]): V[] => vectors.filter(hasNoAction)
-
-
-const markCrossingVectors = (vectors: VectorV[]): void => {
-	// TODO change nested exec to flatMap
-	Either.ofFunction<VectorV[], Vertex[]>(
-		// Vectors are crossing when at least 3 vectors share a common point.
-		vv => uniqueVertex(vv).filter(v => countVertex(vv)(v) > 2),
-		v => v.length > 0, () => () => 'No crossings'
-	)(vectors) // V[] => Vertex[] (crossing vectors)
-		.exec(cvs => cvs.forEach(cv =>
-			groupByVertex(vectors)(cv).exec(gr => gr[0].forEach(setCrossing))))
-}
-
-const groupCrossingVectors = <V extends VectorV>(vectors: V[]): Either<CrossingVectors<V>> => {
-	markCrossingVectors(vectors)
-	return Either.ofFunction<V[], V[]>(
-		ve => ve.filter(isCrossingVector),
-		v => v.length > 0,
-		() => () => 'No crossing vectors')(vectors)
-		.map(crossing => ({
-			crossing,
-			remaining: vectors.filter(isNotCrossingVector)
-		}))
-}
-
-/** Closed path where last element connect to first one, might be not continuos. */
-const pathClosed = (vectors: VectorV[]): boolean =>
-	vectors.length > 2 && vectorsConnected(vectors[0], vectors[vectors.length - 1]) !== VectorConnection.NONE
-
-const pathOpen = (vectors: VectorV[]) => !pathClosed(vectors)
-
-const pathsContinuos = (paths: VectorV[][]): boolean =>
-	paths.filter(pathContinuos).length === paths.length
-
-/** Continuos and closed path. */
-const pathContinuos = (path: VectorV[]): boolean => {
-
-	// #nextRoll will ensure that we compare last element with first one once iterator gets to the end of the path
-	const nextRoll = U.nextRoll(path)
-
-	// path needs at least 3 elements
-	return path.length > 2 &&
-
-		// optimization - do not iterate over whole path, when start does not connect to an end
-		pathClosed(path) &&
-
-		// compare each element in list with next one to ensure that siblings are connected
-		path.every((el, idx) =>
-			vertexNear(el.end, nextRoll(idx + 1).start))
-}
-
-const pathNotContinuos = (path: VectorV[]): boolean => !pathContinuos(path)
 
 const toSimpleVectors = <V extends VectorV>(vectors: V[]): VectorV[] => vectors.map(v => toSimpleVector(v))
 const toSimpleVector = <V extends VectorV>(v: V): VectorV => ({id: v.id, start: v.start, end: v.end})
@@ -757,17 +646,10 @@ const findMax = (vs: VectorV[]): number =>
 	R.reduce((max: number, ld: VectorV) => Math.max(max, ld.start.x, ld.start.y, ld.end.x, ld.end.y),
 		Number.MIN_SAFE_INTEGER, vs)
 
-const closePath = (path: VectorV[]): VectorV[] => path.concat({
-	id: -1,
-	start: path[path.length - 1].end,
-	end: path[0].start
-})
-
-const closeOpened = (paths: VectorV[][]): VectorV[][] => paths.map(R.when(pathOpen, closePath))
 
 // ############################ EXPORTS ############################
 export const testFunctions = {
-	setCrossing
+
 }
 
 export const functions = {
@@ -776,7 +658,6 @@ export const functions = {
 	findMinY,
 	findMaxY,
 	findMax,
-	pathContinuos,
 	vertexEqual,
 	reverseVector,
 	pathToPoints,
@@ -785,33 +666,18 @@ export const functions = {
 	vectorReversed,
 	countVertex,
 	uniqueVertex,
-	firstVectorByVertex,
-	groupByVertex,
-	groupCrossingVectors,
-	pathClosed,
 	toSimpleVectors,
 	toSimpleVector,
 	stringifyVectors,
 	stringifyVector,
 	reversed,
-	isCrossingVector,
-	areCrossing,
 	vectorsEqual,
 	hasVector,
-	filterSectorSplitters,
 	uniqueVector,
-	pathsContinuos,
 	hasNoAction,
 	hasAction,
 	filterActions,
 	vertexNear,
-	isNotCrossingVector,
-	closePath,
-	closeOpened,
-	pathOpen,
-	firstDuplicate,
-	pathNotContinuos,
-	firstNotCrossing,
-	markCrossingVectors,
-	cleanCrossingVectors
+	hasNoVector,
+	stringifyVertex
 }

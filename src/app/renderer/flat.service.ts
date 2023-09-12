@@ -38,7 +38,7 @@ import * as R from "ramda";
 export class FlatService {
 
 	renderFlat(flat: Flat, texture: Either<Bitmap>, height: number, renderHoles: boolean, type: string): T.Mesh[] {
-		if (texture.isRight() && texture.val.name.includes("SKY")) {
+		if (texture.isRight() && texture.get().name.includes("SKY")) {
 			return []; // SKY should be transparent so that the player can see the sky.
 		}
 
