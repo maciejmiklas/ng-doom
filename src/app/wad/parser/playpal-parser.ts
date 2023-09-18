@@ -23,7 +23,7 @@ const PLAYPAL_COLORS = 256
 const PLAYPAL_BYTES = RBG_BYTES * 256
 const RBG_A = 255
 
-/*
+/**
  * @see https://doomwiki.org/wiki/COLORMAP
  * @see https://doomwiki.org/wiki/PLAYPAL
  */
@@ -46,7 +46,7 @@ const parsePalette = (paletteBytes: number[], dir: Directory) => (paletteNumber:
 const parsePlaypal = (wadBytes: number[], dirs: Directory[]): Either<Playpal> => {
 	return DP.findDirectoryByName(dirs)(Directories.PLAYPAL).map(dir => {
 		const paletteParser = parsePalette(wadBytes, dir)
-		const palettes = R.range(0, 13).map(idx => paletteParser(idx))
+		const palettes = R.range(0, 13).map(paletteParser)
 		return {dir, palettes}
 	})
 }

@@ -376,6 +376,24 @@ describe('Either#ofEitherArray', () => {
 
 })
 
+describe('Either#onLeft', () => {
+	it('Left', () => {
+		let val = 100;
+		Either.ofLeft(() => 'lest ist').onLeft(() => {
+			val = 500
+		})
+		expect(val).toEqual(500)
+	})
+
+	it('Right', () => {
+		let val = 100;
+		Either.ofRight(() => 'right ist').onLeft(() => {
+			val = 500
+		})
+		expect(val).toEqual(100)
+	})
+})
+
 describe('Either#unitl', () => {
 	it('Number Array', () => {
 		const res = Either.until<number>(v => Either.ofCondition(() => v < 5, () => 'End', () => v + 1), Either.ofRight(0)).get()

@@ -90,7 +90,7 @@ const parseMapDirs = (dirs: Directory[]) => (mapDir: Directory): Either<Director
 
 const parseMapsDirs = (allDirs: Directory[], startMapDirs: Directory[]): Directory[][] =>
 	R.mapAccum((acc, dir) =>
-		[acc, parseMapDirs(allDirs)(dir).orElse(() => null)], [], startMapDirs)[1].filter(v => !R.isNil(v))
+		[acc, parseMapDirs(allDirs)(dir).orElse(() => null)], [], startMapDirs)[1].filter(R.isNotNil)
 
 const createTextureLoader = (textures: DoomTexture[]) => (name: string): Either<DoomTexture> =>
 	Either.ofNullable(textures.find(t => U.cs(t.name, name)), () => 'Texture not found: ' + name, LeftType.WARN)
@@ -101,14 +101,17 @@ const createFlatLoader = (flats: Bitmap[]) => (name: string): Either<Bitmap> =>
 const parseMaps = (bytes: number[], dirs: Directory[], textures: DoomTexture[], flats: Bitmap[]): Either<DoomMap[]> => {
 	const textureLoader = createTextureLoader(textures)
 	const flatLoader = createFlatLoader(flats)
-	return Either.ofArray(parseMapsDirs(dirs, findAllMapStartDirs(dirs)).map(parseMap(bytes, textureLoader, flatLoader)), () => 'No maps found')
+	return Either.ofArray(parseMapsDirs(dirs, findAllMapStartDirs(dirs))
+		.map(parseMap(bytes, textureLoader, flatLoader)), () => 'No maps found')
 }
 
 const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>, flatLoader: (name: string) => Either<Bitmap>) => (mapDirs: Directory[]): DoomMap => {
 	const mapName = mapDirs[0].name
 	Log.info(CMP, 'Parse Map: ', mapName)
 	const sectors = parseSectors(bytes)(mapDirs, flatLoader)
-	const linedefs = parseLinedefs(bytes, mapDirs, parseVertexes(bytes)(mapDirs), parseSidedefs(bytes, textureLoader)(mapDirs, sectors), sectors)
+	const linedefs = parseLinedefs(bytes, mapDirs,
+		parseVertexes(bytes)(mapDirs),
+		parseSidedefs(bytes, textureLoader)(mapDirs, sectors), sectors)
 	const things = parseThings(bytes)(mapDirs)
 	const playerArr = things.filter(th => th.thingType == ThingType.PLAYER);
 
@@ -116,7 +119,8 @@ const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomT
 		mapName,
 		mapDirs,
 		things,
-		player: Either.ofCondition(() => playerArr.length > 0, () => 'Map without player!', () => playerArr[0], LeftType.WARN),
+		player: Either.ofCondition(() => playerArr.length > 0,
+			() => 'Map without player!', () => playerArr[0], LeftType.WARN),
 		linedefs,
 		sectors,
 		flatBySector: buildFlatsBySectors(linedefs, sectors),

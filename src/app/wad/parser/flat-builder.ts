@@ -145,37 +145,50 @@ const sortBySize = <V extends VectorV>(candidates: V[][]): V[][] => R.sort(
  * 	and this is the one having a sibling.
  */
 const nextForNewPath = (vec: VectorV[]): number => {
-
 	const idx = vec.findIndex((el, idx, all) => {
 		return idx + 1 < vec.length && el.id == vec[idx + 1].id && isDuplicatedVector(el) && isDuplicatedVector(vec[idx + 1]);
 	})
 	return idx > 0 ? idx : 0;
 }
 
+type ModifyPathResult<V extends VectorV> = {
+	remaining: V[],
+	paths: V[][]
+}
+
+const insertOne = <V extends VectorV>(remaining: V[], paths: V[][], bidirectional = false): Either<ModifyPathResult<V>> =>
+	U.mapFirst(insertIntoPaths(paths, bidirectional))(remaining).map(res =>
+		({
+			remaining: R.remove(res[0], 1, remaining),
+			paths: res[1]
+		})
+	)
+
+const startNewPath = <V extends VectorV>(remaining: V[], paths: V[][], bidirectional = false): Either<ModifyPathResult<V>> => {
+	const idx = nextForNewPath(remaining)
+	return Either.ofRight(({
+		remaining: R.remove(idx, 1, remaining),
+		paths: R.append([remaining[idx]], paths)
+	}))
+}
+
 /** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
 const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][] = [], bidirectional = false): ExpandResult<V> => {
-	const remaining = sortForExpand(candidates) // we will remove elements one by one from this list and add them to #paths
+	let remaining = sortForExpand(candidates) // we will remove elements one by one from this list and add them to #paths
 	let paths = [...existingPaths]
 	let skipped = [];
-	let appended = paths.length > 0
 
 	// go until all elements in #remaining has been moved to #paths
 	while (remaining.length > 0) {
-
-		// none of #remaining could be connected to already existing paths, so start a new path
-		if (!appended) {
-			paths.push([remaining.splice(nextForNewPath(remaining), 1)[0]])
-		}
-		appended = false
-
-		for (let remIdx = 0; !appended && remIdx < remaining.length; remIdx++) {
-			insertIntoPaths(paths, remaining[remIdx], true, bidirectional).exec(np => {
-				paths = np;
-				// remove vector from #remaining as we have appended it to current path
-				remaining.splice(remIdx, 1)
-				appended = true;
-			})
-		}
+		insertOne(remaining, paths, bidirectional).exec(res => {
+			paths = res.paths
+			remaining = res.remaining
+		})
+			// none of #remaining could be appended to existing paths, try starting a new path
+			.onLeft(() => startNewPath(remaining, paths, bidirectional).exec(res => {
+			paths = res.paths
+			remaining = res.remaining
+		}))
 	}
 
 	// move all paths with a single vector into skipped, otherwise, we could break a single path into few
@@ -185,45 +198,36 @@ const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][] = 
 }
 
 /** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
-const insertIntoPaths = <V extends VectorV>(paths: V[][], candidate: V, connectCrossing = false, bidirectional = true): Either<V[][]> => {
-	let inserted = Either.ofLeft<V[][]>(() => 'Candidate not appended');
+const insertIntoPaths = <V extends VectorV>(paths: V[][], bidirectional = true) => (candidate: V): Either<V[][]> =>
 
-	// go over paths and try finding one where we can append candidate
-	R.addIndex<V[]>(R.find)((path, pathIdx) => {
-		// inserting #candidate into the path will return a new path
-		inserted = insertIntoPath(path)(candidate, connectCrossing, bidirectional)
-
-			// insert into #paths the new extended path
-			.map(foundPath => R.update(pathIdx, foundPath, paths))
-		return inserted.isRight()
-	})(paths)
-
-	return inserted;
-}
+	// go over #paths and try inserting #candidate into one
+	U.mapFirst<V[], V[]>((el, idx) =>
+		insertIntoPath(el)(candidate, bidirectional)
+	)(paths) // mapFirst returns altered path (#ap[1]) and index in paths (#ap[0]) for this path
+		.map(ap => R.update(ap[0], ap[1], paths))
 
 /**
  * Tries to insert given #candidate into #path only if it's not fully built.
  * It will not directly connect two crossing vectors unless #connectCrossing is true
  */
-const insertIntoPath = <V extends VectorV>(path: V[]) => (candidate: V, connectCrossing = false, bidirectional = true): Either<V[]> =>
+const insertIntoPath = <V extends VectorV>(path: V[]) => (candidate: V, bidirectional = true): Either<V[]> =>
 	Either.ofConditionFlat(
 		// do not alter already closed path
 		() => pathNotContinuos(path), () => 'Path already closed.',
 
 		// try inserting into path from left and eventually on the right
-		() => appendToPath(path)(candidate, connectCrossing)
-			.orAnother(() => bidirectional ? prependToPath(path)(candidate, connectCrossing) : Either.ofLeft(() => 'Prepend disabled')))
+		() => appendToPath(path)(candidate)
+			.orAnother(() => bidirectional ? prependToPath(path)(candidate) : Either.ofLeft(() => 'Prepend disabled')))
 
 /**
  * Tries to insert given #candidate at the beginning #path.
  * Inserted element will be eventually flipped.
  * It will not directly connect two crossing vectors unless #connectCrossing is true
  */
-const prependToPath = <V extends VectorV>(path: V[]) => (candidate: V, connectCrossing = false): Either<V[]> => {
+const prependToPath = <V extends VectorV>(path: V[]) => (candidate: V): Either<V[]> => {
 	const pathEl = path[0]
 	const connection = MF.vectorsConnected(candidate, pathEl)
 	return R.cond([
-		[() => !connectCrossing && areCrossing(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Crossing vectors.')],
 		[() => MF.vectorsEqual(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Equal vectors')],
 		[(con) => con === VectorConnection.NONE, () => Either.ofLeft<V[]>(() => 'Vector does not connect with path start.')],
 		[(con) => ((con === VectorConnection.V1START_TO_V2END || con === VectorConnection.V1END_TO_V2END)),
@@ -239,11 +243,10 @@ const prependToPath = <V extends VectorV>(path: V[]) => (candidate: V, connectCr
  * Inserted element will be eventually flipped.
  * It will not directly connect two crossing vectors unless #connectCrossing is true
  */
-const appendToPath = <V extends VectorV>(path: V[]) => (candidate: V, connectCrossing = false): Either<V[]> => {
+const appendToPath = <V extends VectorV>(path: V[]) => (candidate: V): Either<V[]> => {
 	const pathEl = path[path.length - 1]
 	const connection = MF.vectorsConnected(pathEl, candidate)
 	return R.cond([
-		[() => !connectCrossing && areCrossing(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Crossing vectors.')],
 		[() => MF.vectorsEqual(candidate, pathEl), () => Either.ofLeft<V[]>(() => 'Equal vectors')],
 		[(con) => con === VectorConnection.NONE, () => Either.ofLeft<V[]>(() => 'Vector does not connect with path end.')],
 		[(con) => ((con === VectorConnection.V1START_TO_V2END || con === VectorConnection.V1START_TO_V2START)),
@@ -328,10 +331,7 @@ const hasCrossing = (paths: VectorV[][]) => paths.length > 0 && (hasCrossingVect
 const pathClosed = (vectors: VectorV[]): boolean =>
 	vectors.length > 2 && MF.vectorsConnected(vectors[0], vectors[vectors.length - 1]) !== VectorConnection.NONE
 
-const pathOpen = (vectors: VectorV[]) => {
-	const res = !pathClosed(vectors)
-	return res
-}
+const pathOpen = (vectors: VectorV[]) => !pathClosed(vectors)
 
 const closeOpened = (paths: VectorV[][]): VectorV[][] => paths.map(R.when(pathOpen, closePath))
 
@@ -341,8 +341,7 @@ const closePath = <V extends VectorV>(path: V[]): V[] => path.concat(<V>{
 	end: path[0].start
 })
 
-const pathsContinuos = (paths: VectorV[][]): boolean =>
-	paths.filter(pathContinuos).length === paths.length
+const pathsContinuos = (paths: VectorV[][]): boolean => paths.filter(pathContinuos).length === paths.length
 
 /** Continuos and closed path. */
 const pathContinuos = (path: VectorV[]): boolean => {

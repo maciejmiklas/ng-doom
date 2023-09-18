@@ -281,27 +281,27 @@ describe('flat-builder#appendToPath', () => {
 describe('flat-builder#insertIntoPaths', () => {
 
 	it('Never start new path', () => {
-		expect(TF.insertIntoPaths(pathCrossing300Full, getCCOById(102)).isLeft()).toBeTrue()
-		expect(TF.insertIntoPaths(pathCrossing300Full, getCCOById(202)).isLeft()).toBeTrue()
-		expect(TF.insertIntoPaths(pathCrossing300Full100Started, getCCOById(202)).isLeft()).toBeTrue()
+		expect(TF.insertIntoPaths(pathCrossing300Full, true)(getCCOById(102)).isLeft()).toBeTrue()
+		expect(TF.insertIntoPaths(pathCrossing300Full, true)(getCCOById(202)).isLeft()).toBeTrue()
+		expect(TF.insertIntoPaths(pathCrossing300Full100Started, true)(getCCOById(202)).isLeft()).toBeTrue()
 	})
 
 	it('Do not break closed path', () => {
-		expect(TF.insertIntoPaths(pathCrossing300Full, getCCOById(301)).isLeft()).toBeTrue()
-		expect(TF.insertIntoPaths(pathCrossing300Full, getCCOById(302)).isLeft()).toBeTrue()
+		expect(TF.insertIntoPaths(pathCrossing300Full, true)(getCCOById(301)).isLeft()).toBeTrue()
+		expect(TF.insertIntoPaths(pathCrossing300Full, true)(getCCOById(302)).isLeft()).toBeTrue()
 	})
 
 	it('Ignore already existing', () => {
-		expect(TF.insertIntoPaths(pathCrossing300Full100Started, getCCOById(102)).isLeft()).toBeTrue()
+		expect(TF.insertIntoPaths(pathCrossing300Full100Started, true)(getCCOById(102)).isLeft()).toBeTrue()
 	})
 
 	it('Expand 102', () => {
-		let path = TF.insertIntoPaths(pathCrossing300Full100Started, getCCOById(103)).get()
+		let path = TF.insertIntoPaths(pathCrossing300Full100Started, true)(getCCOById(103)).get()
 		expect(path[0].length).toEqual(2)
 		expect(path[0][0].id).toEqual(102)
 		expect(path[0][1].id).toEqual(103)
 
-		path = TF.insertIntoPaths(path, getCCOById(101)).get()
+		path = TF.insertIntoPaths(path, true)(getCCOById(101)).get()
 		expect(path[0].length).toEqual(3)
 		expect(path[0][0].id).toEqual(101)
 		expect(path[0][1].id).toEqual(102)
@@ -311,7 +311,7 @@ describe('flat-builder#insertIntoPaths', () => {
 	it('Start new path', () => {
 		let path = [...pathCrossing300Full100Started]
 		path.push([getCCOById(202)])
-		path = TF.insertIntoPaths(path, getCCOById(203)).get()
+		path = TF.insertIntoPaths(path, true)(getCCOById(203)).get()
 		expect(path[2].length).toEqual(2)
 		expect(path[2][0].id).toEqual(202)
 		expect(path[2][1].id).toEqual(203)

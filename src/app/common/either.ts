@@ -99,6 +99,8 @@ export abstract class Either<T> {
 
 	abstract orElse(fn: () => T): T
 
+	abstract onLeft(fn: () => void): void
+
 	abstract orAnother(fn: () => Either<T>): Either<T>
 
 	abstract isLeft(): boolean
@@ -178,6 +180,10 @@ export class Left<T> extends Either<T> {
 		return fn()
 	}
 
+	onLeft(fn: () => void): void {
+		fn()
+	}
+
 	orAnother(fn: () => Either<T>): Either<T> {
 		return fn()
 	}
@@ -214,6 +220,9 @@ export class Right<T> extends Either<T> {
 
 	orElse(fn: () => T): T {
 		return this.val
+	}
+
+	onLeft(fn: () => void): void {
 	}
 
 	orAnother(fn: () => Either<T>): Either<T> {

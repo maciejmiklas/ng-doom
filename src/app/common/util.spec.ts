@@ -15,6 +15,7 @@
  */
 import U from './util'
 import * as R from 'ramda'
+import {Either} from "./either";
 
 const IWAD_STR = [73, 87, 65, 68]; // IWAD
 const BROWN98_STR = [66, 82, 79, 87, 78, 57, 56, 45, 65]; // BROWN96-A
@@ -505,6 +506,21 @@ describe('util#lineWidth', () => {
 	})
 })
 
+describe('util#mapFirst', () => {
+	const cond = U.mapFirst<number, string>(el => el == 11 ? Either.ofRight('FOUND 11') : Either.ofLeft(() => 'no'))
+
+	it('found', () => {
+		const res = cond([1, 23, 234, 45654, 12, 11, 423, 23, 54, 12, 22])
+		expect(res.isRight()).toBeTrue()
+		expect(res.get()[0]).toEqual(5)
+		expect(res.get()[1]).toEqual('FOUND 11')
+	})
+
+	it('not found', () => {
+		const res = cond([1, 23, 234, 45654, 12, 121, 423, 23, 54, 12, 22])
+		expect(res.isRight()).toBeFalse()
+	})
+})
 
 
 

@@ -120,11 +120,24 @@ const nextRoll = <V>(list: V[]) => (idx: number): V =>
 		[R.T, (v) => list[v]] // #idx on the existing list position -> return the current at #idx
 	])(idx)
 
-//	s1.trim().localeCompare(s2.trim(), undefined, {sensitivity: 'base'}) === 0; - this one is VERY SLOW!
-const cs = (s1: string, s2: string): boolean =>
-	s1.toUpperCase().trim() === s2.toUpperCase().trim()
+const cs = (s1: string, s2: string): boolean => s1.toUpperCase().trim() === s2.toUpperCase().trim()
 
 const lineWidth = (start: number, end: number) => Math.abs(end - start)
+
+/**
+ * Executes the given mapping function on each element in a given array until the mapping function returns Right.
+ * When this happens, it returns the index of an array and a mapped value.
+ */
+const mapFirst = <IN, OUT>(cond: (el: IN, idx: number) => Either<OUT>) => (inp: IN[]): Either<[number, OUT]> => {
+	const res = []
+	for (let idx = 0; idx < inp.length; idx++) {
+		const cr = cond(inp[idx], idx)
+		if (cr.isRight()) {
+			return Either.ofRight([idx, cr.get()])
+		}
+	}
+	return Either.ofLeft(() => 'not found');
+}
 
 export default {
 	base64ToUint8NumberArray,
@@ -144,6 +157,7 @@ export default {
 	nullSafeArray,
 	nextRoll,
 	cs,
-	lineWidth
+	lineWidth,
+	mapFirst
 }
 

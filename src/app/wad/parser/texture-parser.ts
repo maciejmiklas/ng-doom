@@ -206,7 +206,7 @@ const applyPatch = (width: number, height: number, to: Uint8ClampedArray) => (fr
 	const rgbaPixelOffsetFrom = rgbaPixelOffset(from.bitmap.width)
 	const rgbaPixelOffsetTo = rgbaPixelOffset(width)
 
-	// TODO not functional
+	// TODO not functional - see U.itn
 	for (let fromY = fromYInit, toY = toYInit; fromY < fromYMax && toY < height; fromY++, toY++) {
 		for (let fromX = fromXInit, toX = toXInit; fromX < fromXMax && toX < width; fromX++, toX++) {
 			copyRgbaPixel(from.bitmap.rgba, rgbaPixelOffsetFrom(fromX, fromY))(to, rgbaPixelOffsetTo(toX, toY))

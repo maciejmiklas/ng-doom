@@ -168,6 +168,9 @@ class Flicker implements RenderCallback {
 
 			case FlickerState.SEQUENCE_ON: {
 				const sequence = this.sequences[this.sequenceIdx];
+				if (R.isNil(sequence)) {//TODO - I've not NPE here: sequence nil at: 0 0 0
+					console.log('sequence nil at:', this.sequenceIdx, this.sequenceDurationIdx, this.sequences.length)
+				}
 				if (this.timeMs > sequence.duration[this.sequenceDurationIdx]) {
 					this.timeMs = 0;
 					this.flipLight()
@@ -187,7 +190,11 @@ class Flicker implements RenderCallback {
 		GC.flashLight.flicker.sequence.forEach(ac => {
 			const repeat = random(ac.repeat.min, ac.repeat.max)
 			if (repeat > 0) {
-				actions.push({duration: R.unfold((n) => n == repeat ? false : [random(ac.durationMs.min, ac.durationMs.max), n + 1], 0)})
+				actions.push({
+					duration: R.unfold((n) => n == repeat ?
+						false :
+						[random(ac.durationMs.min, ac.durationMs.max), n + 1], 0)
+				})
 			}
 		})
 		return actions;
