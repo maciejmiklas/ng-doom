@@ -168,10 +168,10 @@ class Flicker implements RenderCallback {
 
 			case FlickerState.SEQUENCE_ON: {
 				const sequence = this.sequences[this.sequenceIdx];
-				if (R.isNil(sequence)) {//TODO - I've not NPE here: sequence nil at: 0 0 0
-					console.log('sequence nil at:', this.sequenceIdx, this.sequenceDurationIdx, this.sequences.length)
-				}
-				if (this.timeMs > sequence.duration[this.sequenceDurationIdx]) {
+				if (R.isNil(sequence)) {
+					this.light(true)
+					this.state = FlickerState.WAIT
+				} else if (this.timeMs > sequence.duration[this.sequenceDurationIdx]) {
 					this.timeMs = 0;
 					this.flipLight()
 					this.sequenceDurationIdx++;

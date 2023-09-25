@@ -17,7 +17,7 @@ import {LinearFilter} from "three/src/constants";
 import * as T from "three";
 
 const game = {
-	startMap: "E1M4",
+	startMap: "E1M1",
 }
 
 const player = {
@@ -83,6 +83,12 @@ const wall = {
 	shadow: {
 		receive: true,
 		cast: true
+	},
+	texture: {
+		scroll: {
+			speedPerSec: 0.0002,
+			resetAtOffset: 1000000
+		}
 	}
 }
 

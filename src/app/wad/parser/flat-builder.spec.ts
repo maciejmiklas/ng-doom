@@ -295,7 +295,7 @@ describe('flat-builder#insertIntoPaths', () => {
 		expect(TF.insertIntoPaths(pathCrossing300Full100Started, true)(getCCOById(102)).isLeft()).toBeTrue()
 	})
 
-	it('Expand 102', () => {
+	it('ExpandResult 102', () => {
 		let path = TF.insertIntoPaths(pathCrossing300Full100Started, true)(getCCOById(103)).get()
 		expect(path[0].length).toEqual(2)
 		expect(path[0][0].id).toEqual(102)

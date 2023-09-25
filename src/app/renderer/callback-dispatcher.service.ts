@@ -18,6 +18,7 @@ import {DebugService} from "./debug.service";
 import {DoomMap, Wad} from '../wad/parser/wad-model';
 import {WorldService} from "./world.service";
 import {SkyService} from "./sky.service";
+import {WallService} from "./wall.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -38,7 +39,8 @@ export class CallbackDispatcherService implements RenderCallback, InitCallback, 
 							private skyService: SkyService,
 							private playerService: PlayerService,
 							private worldService: WorldService,
-							private debugService: DebugService) {
+							private debugService: DebugService,
+							private wallService: WallService) {
 
 		this.inits.push(
 			this.keyboardService,
@@ -50,7 +52,7 @@ export class CallbackDispatcherService implements RenderCallback, InitCallback, 
 		this.starts.push(this.rendererService)
 		this.resizes.push(this.cameraService)
 		this.maps.push(this.cameraService, this.worldService, this.skyService)
-		this.renders.push(this.flashlightService, this.controlsService, this.playerService, this.debugService)
+		this.renders.push(this.flashlightService, this.controlsService, this.playerService, this.debugService, this.wallService)
 		this.rendererService.register(this)
 	}
 

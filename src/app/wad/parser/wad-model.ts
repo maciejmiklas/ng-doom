@@ -152,7 +152,7 @@ export type Position = {
 export type Thing = MapLump & {
 	position: Position
 	angleFacing: number,
-	thingType: number,// TODO type should be enum from https://doomwiki.org/wiki/Thing_types#Monsters
+	thingType: number, // https://doomwiki.org/wiki/Thing_types#Monsters
 	flags: number
 }
 
@@ -180,14 +180,19 @@ export enum VectorConnection {
 	NONE,
 }
 
+/**
+ * @see https://doomwiki.org/wiki/Linedef_type#Table_of_all_types
+ */
+export enum SpecialType {
+	SCROLLING_WALL_LEFT = 48,
+}
+
 export type VectorV = {
 	id?: number,
 	specialType?: number,
 	start: Vertex,
 	end: Vertex
 }
-
-
 
 export const MIN_VECTOR_V = <VectorV>{
 	start: {x: -Infinity, y: -Infinity},
@@ -646,11 +651,8 @@ const findMax = (vs: VectorV[]): number =>
 	R.reduce((max: number, ld: VectorV) => Math.max(max, ld.start.x, ld.start.y, ld.end.x, ld.end.y),
 		Number.MIN_SAFE_INTEGER, vs)
 
-
 // ############################ EXPORTS ############################
-export const testFunctions = {
-
-}
+export const testFunctions = {}
 
 export const functions = {
 	findMinX,

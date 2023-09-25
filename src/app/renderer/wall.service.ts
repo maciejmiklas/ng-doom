@@ -14,50 +14,89 @@
  * limitations under the License.
  */
 import {Injectable} from '@angular/core';
-import {DoomTexture, Linedef, LinedefBySector, LinedefFlag, Sector} from "../wad/parser/wad-model";
+import {DoomTexture, Linedef, LinedefBySector, LinedefFlag, Sector, SpecialType} from "../wad/parser/wad-model";
 import * as T from "three";
+import {WebGLRenderer} from "three";
 import {functions as TF} from "./texture-factory";
 import {Either} from "../common/either";
 import {config as GC} from "../game-config";
+import {DisposeCallback, RenderCallback} from "./callbacks";
+import {DataTexture} from "three/src/textures/DataTexture";
+
+// https://doomwiki.org/wiki/Texture_alignment
+// https://doomwiki.org/wiki/Sidedef
+// https://doomwiki.org/wiki/Linedef_type#Table_of_all_types
 
 @Injectable({
 	providedIn: 'root'
 })
-export class WallService {
+export class WallService implements RenderCallback, DisposeCallback {
 
-// https://doomwiki.org/wiki/Texture_alignment
-// https://doomwiki.org/wiki/Sidedef
+	private readonly scrollingWallLeft: T.Mesh[] = []
+
 	renderWalls({sector, linedefs}: LinedefBySector): T.Mesh[] {
 		let mesh: T.Mesh[] = []
 
-		const upperWallRenderer = renderUpperWall(sector);
-		const lowerWallRenderer = renderLowerWall(sector);
-		// TODO render middleTexture: Middle floating textures can be used to achieve a variety of faux 3D effects such as 3D bridge
 		linedefs.forEach(ld => {
-			mesh = renderMiddleWall(ld).map(m => mesh.concat(m)).orElse(() => mesh)
-			mesh = upperWallRenderer(ld).map(m => mesh.concat(m)).orElse(() => mesh)
-			mesh = lowerWallRenderer(ld).map(m => mesh.concat(m)).orElse(() => mesh)
+			mesh = renderMiddleWall(sector)(ld)
+				.exec(m => this.onNewMesh(ld, m))
+				.map(m => mesh.concat(m))
+				.orElse(() => mesh)
+
+			mesh = renderUpperWall(sector)(ld)
+				.exec(m => this.onNewMesh(ld, m))
+				.map(m => mesh.concat(m))
+				.orElse(() => mesh)
+
+			mesh = renderLowerWall(sector)(ld)
+				.exec(m => this.onNewMesh(ld, m))
+				.map(m => mesh.concat(m))
+				.orElse(() => mesh)
 		})
 		return mesh
 	}
+
+	onRender(deltaMs: number, renderer: WebGLRenderer): void {
+		this.scrollWalls(deltaMs)
+	}
+
+	scrollWalls(deltaMs: number) {
+		this.scrollingWallLeft.forEach(mesh => {
+			const material = mesh.material as T.MeshStandardMaterial
+			const tx = material.map as DataTexture
+			tx.offset.x += deltaMs * GC.wall.texture.scroll.speedPerSec
+			if (tx.offset.x > GC.wall.texture.scroll.resetAtOffset) {
+				tx.offset.x = 0;
+			}
+		})
+	}
+
+	dispose(): void {
+		this.scrollingWallLeft.splice(0)
+	}
+
+	onNewMesh(ld: Linedef, mesh: T.Mesh) {
+		if (ld.specialType == SpecialType.SCROLLING_WALL_LEFT.valueOf()) {
+			this.scrollingWallLeft.push(mesh)
+		}
+	}
 }
 
-const createWallMaterial = (dt: DoomTexture, wallWidth: number, side: T.Side, color = null): T.Material => {
+const createWallMaterial = (dt: DoomTexture, wallWidth: number, side: T.Side, color = null): T.MeshStandardMaterial => {
 	const map = TF.createDataTexture(dt);
 	map.repeat.x = wallWidth / dt.width
-	const material = new T.MeshStandardMaterial({
+	return new T.MeshStandardMaterial({
 		map,
-		transparent: true,
+		transparent: true, // TODO - only some are transparent
 		side,
 		color,
 	});
-	return material
 }
 
 /** front side -> upper wall */
-const renderUpperWall = ({id: sid}: Sector) => (ld: Linedef): Either<T.Mesh[]> => {
+const renderUpperWall = ({id: sid}: Sector) => (ld: Linedef): Either<T.Mesh> => {
 	if (ld.backSide.isLeft()) {
-		return Either.ofLeft(() => 'No upper wall for one sided Linedef: ' + ld.id)
+		return Either.ofLeft(() => 'No upper wall for: ' + ld.id)
 	}
 
 	// when current Linedef belongs to current Sector take front-side texture, otherwise try backside as we are looking at
@@ -83,25 +122,23 @@ const renderUpperWall = ({id: sid}: Sector) => (ld: Linedef): Either<T.Mesh[]> =
 			(ld, wallHeight) => Math.min(ld.sector.cellingHeight, ld.backSide.get().sector.cellingHeight) + wallHeight / 2,
 			wallHeight)(ld)
 
-	return Either.ofRight([mesh])
+	return Either.ofRight(mesh)
 }
 
 /**
  * front side -> middle wall part.
- *
- * The top of the texture is at the ceiling, the texture continues downward to the floor.
  */
-const renderMiddleWall = (ld: Linedef): Either<T.Mesh[]> => {
-	return Either.ofTruth([ld.frontSide.middleTexture],
-		() => [wall(() => T.DoubleSide, ld.frontSide.middleTexture.get(),
+// TODO: https://doomwiki.org/wiki/Texture_alignment -> If the "lower unpegged" flag is set on the linedef, .....
+const renderMiddleWall = ({id: sid}: Sector) => (ld: Linedef): Either<T.Mesh> =>
+	Either.ofTruth([ld.frontSide.middleTexture],
+		() => wall(() => T.DoubleSide, ld.frontSide.middleTexture.get(),
 			(ld, wallHeight) => ld.sector.floorHeight + wallHeight / 2,
-			(ld) => ld.sector.cellingHeight - ld.sector.floorHeight)(ld)])
-}
+			(ld) => ld.sector.cellingHeight - ld.sector.floorHeight)(ld))
 
 /** front side -> lower wall part */
-const renderLowerWall = ({id: sid}: Sector) => (ld: Linedef): Either<T.Mesh[]> => {
+const renderLowerWall = ({id: sid}: Sector) => (ld: Linedef): Either<T.Mesh> => {
 	if (ld.backSide.isLeft()) {
-		return Either.ofLeft(() => 'No lower wall for single sided Linedef: ' + ld.id)
+		return Either.ofLeft(() => 'No lower wall for: ' + ld.id)
 	}
 
 	// when current Linedef belongs to current Sector take front-side texture, otherwise try backside as we are looking at
@@ -115,7 +152,7 @@ const renderLowerWall = ({id: sid}: Sector) => (ld: Linedef): Either<T.Mesh[]> =
 		return Either.ofLeft(() => 'No texture for lower wall: ' + ld.id)
 	}
 
-	const height = (lde) => Math.abs(lde.sector.floorHeight - lde.backSide.val.sector.floorHeight)
+	const height = (lde: Linedef) => Math.abs(lde.sector.floorHeight - lde.backSide.get().sector.floorHeight)
 	const mesh = ld.flags.has(LinedefFlag.LOWER_TEXTURE_UNPEGGED) ?
 		// the upper texture is pegged to the highest flor
 		wall(() => T.DoubleSide, texture.get(),
@@ -127,7 +164,7 @@ const renderLowerWall = ({id: sid}: Sector) => (ld: Linedef): Either<T.Mesh[]> =
 			(ld, wallHeight) => Math.min(ld.sector.floorHeight, ld.backSide.get().sector.floorHeight) + wallHeight / 2,
 			height)(ld)
 
-	return Either.ofRight([mesh])
+	return Either.ofRight(mesh)
 }
 
 const wall = (sideF: (ld: Linedef) => T.Side,

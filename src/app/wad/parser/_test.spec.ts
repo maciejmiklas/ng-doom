@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+import {testFunctions as TF} from "./flat-builder";
+import {E1M1_S39} from "./testdata/data";
+
+// karma options: --include=**/_test.spec.ts
 describe('test', () => {
-	it('ABC', () => {
-//		const maps = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats())
-	//	const m1e1 = maps.get()[1]
-		expect(true).toBeTruthy();
+	it('E1M1_S39', () => {
+		const pathsEi = TF.buildPaths(39, E1M1_S39)
+		console.log(pathsEi)
 	})
 })

@@ -226,7 +226,7 @@ export class Right<T> extends Either<T> {
 	}
 
 	orAnother(fn: () => Either<T>): Either<T> {
-		return Either.ofRight(this.val)
+		return this
 	}
 
 	exec(fn: (v: T) => void): Either<T> {

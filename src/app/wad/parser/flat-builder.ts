@@ -151,50 +151,53 @@ const nextForNewPath = (vec: VectorV[]): number => {
 	return idx > 0 ? idx : 0;
 }
 
-type ModifyPathResult<V extends VectorV> = {
+type PathModification<V extends VectorV> = {
 	remaining: V[],
 	paths: V[][]
 }
 
-const insertOne = <V extends VectorV>(remaining: V[], paths: V[][], bidirectional = false): Either<ModifyPathResult<V>> =>
-	U.mapFirst(insertIntoPaths(paths, bidirectional))(remaining).map(res =>
+const insertOne = <V extends VectorV>(bidirectional = false) => (pm: PathModification<V>): Either<PathModification<V>> =>
+	U.mapFirst(insertIntoPaths(pm.paths, bidirectional))(pm.remaining).map(res =>
 		({
-			remaining: R.remove(res[0], 1, remaining),
+			remaining: R.remove(res[0], 1, pm.remaining),
 			paths: res[1]
 		})
 	)
 
-const startNewPath = <V extends VectorV>(remaining: V[], paths: V[][], bidirectional = false): Either<ModifyPathResult<V>> => {
-	const idx = nextForNewPath(remaining)
+const startNewPath = <V extends VectorV>(pm: PathModification<V>): Either<PathModification<V>> => {
+	const idx = nextForNewPath(pm.remaining)
 	return Either.ofRight(({
-		remaining: R.remove(idx, 1, remaining),
-		paths: R.append([remaining[idx]], paths)
+		remaining: R.remove(idx, 1, pm.remaining),
+		paths: R.append([pm.remaining[idx]], pm.paths)
 	}))
 }
 
 /** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
 const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][] = [], bidirectional = false): ExpandResult<V> => {
-	let remaining = sortForExpand(candidates) // we will remove elements one by one from this list and add them to #paths
-	let paths = [...existingPaths]
-	let skipped = [];
+	const res = R.until<PathModification<V>, PathModification<V>>(
+		// keep going until all remaining has been used
+		pm => pm.remaining.length === 0,
 
-	// go until all elements in #remaining has been moved to #paths
-	while (remaining.length > 0) {
-		insertOne(remaining, paths, bidirectional).exec(res => {
-			paths = res.paths
-			remaining = res.remaining
-		})
+		pm => insertOne<V>(bidirectional)(pm) // try inserting one of the #remaining into existing path
+
 			// none of #remaining could be appended to existing paths, try starting a new path
-			.onLeft(() => startNewPath(remaining, paths, bidirectional).exec(res => {
-			paths = res.paths
-			remaining = res.remaining
-		}))
-	}
+			.orAnother(() => startNewPath(pm))
 
-	// move all paths with a single vector into skipped, otherwise, we could break a single path into few
-	skipped = R.flatten([skipped, paths.filter(p => p.length == 1)])
-	paths = paths.filter(p => p.length > 1)
-	return {paths, skipped};
+			.orElse(() => { // fallback, should never happen
+				Log.error(CMP, 'expandPaths has failed for:', MF.stringifyVectors(candidates))
+				return {paths: pm.paths, remaining: []}
+			})
+	)({
+		paths: existingPaths,
+		remaining: sortForExpand(candidates)
+	})
+
+	return {
+		paths: res.paths.filter(p => p.length > 1),
+
+		// move all paths with a single vector into skipped, otherwise, we could break a single path into few
+		skipped: res.paths.filter(p => p.length == 1).map(p => p[0])
+	}
 }
 
 /** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
