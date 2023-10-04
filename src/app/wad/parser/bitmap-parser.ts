@@ -43,7 +43,6 @@ const FLAT_HEIGHT = 64
  * @see https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
  * https://doomwiki.org/wiki/Flat
  */
-
 const parsePost = (wadBytes: number[]) => (filepos: number): Either<Post> => {
 	const ubyteParser = U.parseUint8(wadBytes)
 	const topdelta = ubyteParser(filepos)

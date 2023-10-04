@@ -17,20 +17,20 @@ import {Component, OnInit} from '@angular/core'
 import {WadStorageService} from '../wad-storage.service'
 import {functions as sp} from '../parser/sprite-parser'
 import {functions as tp} from '../parser/texture-parser'
-import {BitmapSprite} from '../parser/wad-model'
+import {BitmapSprite, Sprite} from '../parser/wad-model'
 import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {MainEvent} from '../../main/main-event'
 import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {WadSpritesNavbarComponent} from './wad-sprites-navbar/wad-sprites-navbar.component'
-import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
-import { PbmpAnimationComponent } from '../pbmp-animation/pbmp-animation.component';
-import { NgFor } from '@angular/common';
+import {NgbPopover} from '@ng-bootstrap/ng-bootstrap';
+import {PbmpAnimationComponent} from '../pbmp-animation/pbmp-animation.component';
+import {NgFor} from '@angular/common';
 
 @Component({
-    selector: 'app-wad-sprite',
-    templateUrl: './wad-sprites.component.html',
-    standalone: true,
-    imports: [NgFor, PbmpAnimationComponent, NgbPopover]
+	selector: 'app-wad-sprite',
+	templateUrl: './wad-sprites.component.html',
+	standalone: true,
+	imports: [NgFor, PbmpAnimationComponent, NgbPopover]
 })
 export class WadSpritesComponent implements OnInit, SpritesListControl {
 
@@ -51,7 +51,7 @@ export class WadSpritesComponent implements OnInit, SpritesListControl {
 		this.sprites = this.readSprites(s => s.name.toLowerCase().includes(filter.toLowerCase()))
 	}
 
-	private readSprites(filterSprite: (Sprite) => boolean): BitmapSprite[][] {
+	private readSprites(filterSprite: (s: Sprite) => boolean): BitmapSprite[][] {
 		const wad = this.wadStorage.getCurrent().get().wad
 		return sp
 			.parseSpritesAsArray(wad.bytes, wad.dirs) // (bytes[])=>Sprite[]

@@ -16,20 +16,26 @@
 import {Injectable} from '@angular/core';
 import * as T from "three";
 import {config as GC} from "../game-config";
-import {DoomMap, FlatBySector, Wad} from "../wad/parser/wad-model";
-import * as R from "ramda";
+import {FlatBySector, Wad} from "../wad/parser/wad-model";
 import {WallService} from "./wall.service";
 import {FlatService} from "./flat.service";
 import {BuildMapCallback} from "./callbacks";
+import * as R from 'ramda'
+import {ThingService} from "./thing.service";
+import {Log} from "../common/log";
+import {Either, LeftType} from "../common/either";
+import {Sector3d} from "./renderer-model";
+
+const CMP = "WorldService"
 
 @Injectable({
 	providedIn: 'root'
 })
 export class WorldService implements BuildMapCallback {
+	private _sectors: Sector3d[]
+	private _floors: T.Mesh[]
 
-	private _sectors: Sector3d
-
-	constructor(private wallService: WallService, private flatService: FlatService) {
+	constructor(private wallService: WallService, private flatService: FlatService, private thingService: ThingService) {
 	}
 
 	createScene(): T.Scene {
@@ -39,56 +45,63 @@ export class WorldService implements BuildMapCallback {
 			scene.scale.set(GC.scene.scale, GC.scene.scale, GC.scene.scale)
 		}
 
-		scene.background = new T.Color(GC.sky.color);
 		scene.add(createAmbientLight())
 		return scene
 	}
 
-	createWorld({flatBySector, mapDirs}: DoomMap): Sector3d {
+	buildMap(wad: Wad, mapId: number, scene: T.Scene): void {
 		const startTime = performance.now()
-		const sectors: Sector3d[] = flatBySector.map(v => this.renderSector(v))
+		this._sectors = this.createWorld(wad, mapId)
+		this._sectors.forEach(sc => {
+			sc.walls.forEach(wl => scene.add(wl))
+			scene.add(sc.floor)
+			sc.ceiling.exec(fl => scene.add(fl))
+		})
 
-		// Sector3d[] => ['V':Sector3d]
-		const res = R.reduceBy((acc: Sector3d, el: Sector3d) => {
-			acc.flats = [...acc.flats, ...el.flats]
-			acc.floors = [...acc.floors, ...el.floors]
-			acc.id = el.id
-			return acc
-		}, {flats: [], floors: [], id: -1}, () => 'V', sectors)
+		this._floors = R.flatten(this._sectors.map(s => s.floor))
 
-		console.log('>TIME createWorld>', mapDirs[0].name, '=', performance.now() - startTime, 'ms')
-		return res['V']
+		// sprite and things
+		const map = wad.maps[mapId]
+		const st = this.thingService.createThings(map.things, this._floors)
+
+		Log.info(CMP, 'Map ', map.mapDirs[0].name, ' created in ', performance.now() - startTime, 'ms')
 	}
 
-	renderSector(lbs: FlatBySector): Sector3d {
+	private createWorld(wad: Wad, mapId: number): Sector3d[] {
+		const map = wad.maps[mapId]
+		const sectors: Sector3d[] = map.flatBySector.map(v => this.renderSector(v))
+			.filter(s => s.isRight()).map(s => s.get())
+		return sectors
+	}
+
+	private renderSector(lbs: FlatBySector): Either<Sector3d> {
+		Log.info(CMP, "Rendering sector ", lbs.sector.id)
+
 		// wall
-		let flats = this.wallService.renderWalls(lbs)
+		const walls = this.wallService.renderWalls(lbs)
 
 		// floor
-		const floors = this.flatService.renderFlat(lbs.flat, lbs.sector.floorTexture, lbs.sector.floorHeight, true, 'Floor(sector)')
-		flats = [...flats, ...floors]
+		const floor = this.flatService.renderFlat(lbs.flat, lbs.sector.floorTexture,
+			lbs.sector.floorHeight, true, 'Floor')
 
-		// celling
-		const celling = this.flatService.renderFlat(lbs.flat, lbs.sector.cellingTexture, lbs.sector.cellingHeight, false, 'Celling');
-		flats = [...flats, ...celling]
+		if (floor.isLeft()) {
+			return Either.ofLeft(() => 'Sector ' + lbs.sector.id + ' without floor!', LeftType.WARN);
+		}
 
-		return {flats, floors, id: lbs.sector.id};
+		// ceiling
+		const ceiling = this.flatService.renderFlat(lbs.flat, lbs.sector.cellingTexture,
+			lbs.sector.cellingHeight, false, 'Celling');
+
+		return Either.ofRight({sectorId: lbs.sector.id, walls, floor: floor.get(), ceiling})
 	}
 
-	buildMap(wad: Wad, map: DoomMap, scene: T.Scene): void {
-		this._sectors = this.createWorld(map)
-		this._sectors.flats.forEach(fl => scene.add(fl))
-	}
-
-	get sectors(): Sector3d {
+	get sectors(): Sector3d[] {
 		return this._sectors;
 	}
-}
 
-type Sector3d = {
-	flats: T.Mesh[],
-	floors: T.Mesh[],
-	id: number
+	get floors(): T.Mesh[] {
+		return this._floors;
+	}
 }
 
 const createAmbientLight = () =>

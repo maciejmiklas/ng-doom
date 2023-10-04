@@ -346,7 +346,7 @@ from 50-200 kilobytes each in size, uncompressed.
 descriptive names, e.g. if J.R.R. Tolkien made a new level, he might call
 it GONDOLIN.WAD - to use this level, a player would type
 
-  DOOM -FILE GONDOLIN.WAD 
+  DOOM -FILE GONDOLIN.WAD
 
 at the command line, along with any other parameters. More than one
 external file can be added, thus in general:
@@ -782,7 +782,7 @@ fire
    6 0006   YKEY ab     $ Yellow keycard
   39 0027 r YSKU ab     $ Yellow skullkey
 
-2035 07f3   BAR1 ab+    # Barrel; not an obstacle after blown up 
+2035 07f3   BAR1 ab+    # Barrel; not an obstacle after blown up
                             (BEXP sprite)
   72 0048 2 KEEN a+     # A guest appearance by Billy
 
@@ -892,7 +892,7 @@ Dec. Hex  Radius Height Mass Tough Speed  Sprite name or class of things:
    9 0009   20     56    100    30     8  SPOS
   65 0041   20     56    100    70     8  CPOS
 3001 0bb9   20     56    100    60     8  TROO
-3002 0bba   30     56    400   150    10  SARG 
+3002 0bba   30     56    400   150    10  SARG
   58 003a   30     56    400   150    10  SARG (Inviso model)
 3006 0bbe   16     56     50   100     8  SKUL
 3005 0bbd   31     56    400   400     8  HEAD
@@ -1122,7 +1122,7 @@ R       potentially repeatable activation
 m       Monster actions can activate the line's effect
 Sound   The type of noise made by moving sectors
 Speed   How quickly a floor moves up/down etc.
-Tm      Time - how long it "rests"; doors "rest" when they've gone as 
+Tm      Time - how long it "rests"; doors "rest" when they've gone as
           high as they're going to go, lifts "rest" at the bottom, etc.
 Chg     Change - some of them cause a floor texture change and/or special
           sector change. See note 11 below.
@@ -1202,8 +1202,8 @@ linedef that has one side in the tagged sector.
 they all can pass a special sector trait of "0" or "nothing", i.e. if
 the destination is an acid-floor or "damaging" sector, then any of these
 lines can erase the damaging effect. Lines 59, 93, 37, 84, and 9 (see
-note 12 for more specifics on line type 9) also have the ability to 
-transfer the "secret" trait of SS 9, and the damaging traits of SS 
+note 12 for more specifics on line type 9) also have the ability to
+transfer the "secret" trait of SS 9, and the damaging traits of SS
 4, 5, 7, 11, and 16. None of the "blinking light" effects of SSs can be
 transferred. SS 4 "blinks" and causes damage, but only the damaging part
 can be transferred. SS 11 also turns off god-mode and causes a level END
@@ -1415,7 +1415,7 @@ EXIT LEVEL
 124 * Exit  nW-  clunk -     -  -   End level, go to secret level
 
 TELEPORT
- 
+
  39   Telpt  W1m tport -     -  -   Teleport
  97   Telpt  WRm tport -     -  -   Teleport
 125 * Telpt  W1m tport -     -  -   Teleport monsters only
@@ -1441,8 +1441,8 @@ LIGHT
   A sidedef is a definition of what wall texture(s) to draw along a
 LINEDEF, and a group of sidedefs outline the space of a SECTOR.
   There will be one sidedef for a line that borders only one sector
-(and it must be the RIGHT side, as noted in [4-3]). It is not 
-necessary to define what the doom player would see from the other 
+(and it must be the RIGHT side, as noted in [4-3]). It is not
+necessary to define what the doom player would see from the other
 side of that line because the doom player can't go there. The doom
 player can only go where there is a sector.
   Each sidedef's record is 30 bytes, comprising 2 <short> fields, then
@@ -1694,7 +1694,7 @@ actual level space, i.e. sectors.
 +-----+-----------+           a = ssector             6 = ssector
 
   1. Make segs from all the linedefs. There are 5 two-sided lines here.
-  2. Pick the vertex at 0 and go west (left). This is the first 
+  2. Pick the vertex at 0 and go west (left). This is the first
        partition line. Note the . . extension line.
   3. Pick the vertex at 1, going east. The backwards extension . . cuts
        the line 3>2>, and the unlabeled left edge line. The left edge
@@ -1741,7 +1741,7 @@ fewer splits. For example,
     |^    ^|           16 segs. If A and B are chosen, however,
 +---+a    b+---+ < B   there are no extra vertices, and only three
 |              |       ssectors and 12 segs.
-+--------------+       
++--------------+
 
   I've read that for a "small" number of polygons (less than 1000?),
 which is what we're dealing with in a doom level, one should definitely
@@ -1774,9 +1774,9 @@ the other, although fairly convincing illusions are possible.
 (3) name of the flat used for the floor texture, from the directory.
 (4) name of the flat used for the ceiling texture.
       All the flats in the directory between F_START and F_END work
-      as either floors or ceilings. 
-(5) lightlevel of this sector: 0 = total dark, 255 (0xff) = maximum 
-      light. There are actually only 32 brightnesses possible (see 
+      as either floors or ceilings.
+(5) lightlevel of this sector: 0 = total dark, 255 (0xff) = maximum
+      light. There are actually only 32 brightnesses possible (see
       COLORMAP [8-2]), so 0-7 are the same, ..., 248-255 are the same.
 (6) special sector: see [4-9-1] immediately below.
 (7) a "tag" number corresponding to LINEDEF(s) with the same tag
@@ -2132,7 +2132,7 @@ new DOOM.WAD or ALLFLATS.WAD pwad, but you have to make sure no floor
 or ceiling uses an entry name which isn't in your F_ section. And you
 have to include these four entries for DOOM 1 use, although you can
 change their actual contents (pictures): FLOOR4_8, SFLR6_1, MFLR8_4,
-and FLOOR7_2. The first three are needed as backgrounds for the episode 
+and FLOOR7_2. The first three are needed as backgrounds for the episode
 end texts. The last is what is shown "outside" the border of the display
 window if the display is not full-screen.
 
@@ -2178,7 +2178,7 @@ of each byte worth of data. Feel free to figure this out and tell me.
   DS* entries in the directory refer to lumps that are sound data for
 systems using soundcards.
   This data is in a RAW format for 8-bit 11 KHz mono sound - first is
-an 8-byte header composed of 4 unsigned short integers: 
+an 8-byte header composed of 4 unsigned short integers:
 
 (1) 3           (means what?)
 (2) 11025       (the sample rate, samples per second)
@@ -2365,7 +2365,7 @@ integers:
       to form the overall picture. To tile vertically on a very tall wall
       without exhibiting the "Tutti Frutti" effect, a texture must have
       height 128, the maximum. There is no maximum width.
-      
+
 (6) always 0.
 (7) always 0.
 (8) Number of 5-field (5 <short>) patch descriptors that follow. This
@@ -2577,7 +2577,7 @@ equal to its length in bytes divided by (140 * number_of_players).
 
   The four bytes recording each player's actions are:
 
-  (a) Forward/Backward Movement. 
+  (a) Forward/Backward Movement.
   (b) Strafe Right/Left Movement.
   (c) Turn Left/Right.
   (d) other actions - use/activate, fire, change weapons.
@@ -2697,8 +2697,8 @@ the context. All of the stuff below applies to registered version 1.2,
 and some of it applies to version 1.666 also. This chapter has not yet
 been completely updated for 1.666, but it soon will be.
 
-[10-1]: Version 1.2 DOOM.EXE Data Segment Overview  
-==================================================  
+[10-1]: Version 1.2 DOOM.EXE Data Segment Overview
+==================================================
 
   The data begins at 0x6f414 (455700) and continues to the end of the
 file, 0x8db27 (580391). Here's an overview of the sections:
@@ -2751,7 +2751,7 @@ versions 1.2 and 1.666 of DOOM.EXE. 1.2 offsets are to the left of the
 asterisk, 1.666 to the right. "Integer" means a 4-byte <long> integer
 in hi-lo format, unless otherwise noted (e.g. "2-byte short integer").
 
-6f414 *** 82a14 
+6f414 *** 82a14
 
   START OF DATA. Several times I'll refer to "pointers". All of these
 pointers are integers. Add the values of these pointers to $6f414 or
@@ -2761,7 +2761,7 @@ being pointed to.
 larger values, that point to a location in the code, NOT the data. I call
 these "code-pointers" for now. I know it's a lame term.
 
-6f414 *** a2228 
+6f414 *** a2228
 
   TEXT STRINGS. They all start on 4-byte boundaries, i.e. at xxxx0/4/8/c.
 $00 ends the string. Then the next one starts at the next boundary, so a 4
@@ -2773,7 +2773,7 @@ string.
   I think this is the last string, "TZ"
 
 73144
-  
+
   Misc. stuff I haven't investigated. Some of it has to do with sound card
 stuff and mice and joysticks, because at 7384c is "DMXGUS.INI" and at 74ba8
 are pointers which point to the strings "None", "PC_Speaker", "Adlib", etc.
@@ -2914,7 +2914,7 @@ $00, a 8-byte string, $00, and a final integer.
 the animation cycle's LAST listed texture, the second string is the FIRST
 listed texture. The cycle includes them and all entries between them in
 whichever wad file is in effect (It doesn't have to be DOOM.WAD, a pwad
-with new TEXTURE1 and 2 resources works quite nicely). The final 8 
+with new TEXTURE1 and 2 resources works quite nicely). The final 8
 doesn't seem to mean much.
 
 85dc8
@@ -2985,7 +2985,7 @@ settings OFF, 1, 2, 3, 4.
 
 868a8 ***
 
-  SPLAT MARK COORDINATES. At what screen coordinates to place the WISPLAT
+  SPLAT MARK COORDINATES. At what screen coordinates to createThings the WISPLAT
 picture on the end-level screen, for th 27 levels. 54 integers, 27 pairs.
 e1m1 x, e1m1 y, ..., e3m9 y.
 
@@ -3019,7 +3019,7 @@ get the entries in DOOM.WAD for the sound data. The "chgun" is the 1/2 -
 there's no "DSCHGUN" in doom.wad, and the entry in this table is incomplete
 anyway, lacking the all-important 0, -1, -1, 0, 0, 0 ending :-). There seem
 to be a few glitches in the way the sounds were fit into the whole scheme,
-this is just one of them. 
+this is just one of them.
 
 879ec ***
 
@@ -3096,7 +3096,7 @@ is 28 bytes in 7 integers:
   1     Solid           creatures can't pass through (but projectiles can)
   2     Shootable       can be hurt (note barrels have this set)
   3     NoSector        totally invisible
-  4     NoBlockmap      
+  4     NoBlockmap
   5
   6     (InPain)        ?
   7
@@ -3110,7 +3110,7 @@ is 28 bytes in 7 integers:
   15    (Semi-NoClip)   climb tall steps
   16    Missile         projectiles
   17    (Disappearing   ?
-         Weapon)        
+         Weapon)
   18    Shadow          semi-invisible like Spectres
   19    NoBlood         uses PUFF instead of BLUD when hurt (e.g. barrels)
   20    (SlideHelpless) ?
@@ -3186,10 +3186,10 @@ are directly inserted.
 
 ------
 
-<WAD file>      := "PWAD"|"IWAD" 
-                   <numlumps> 
-                   <infotableofs> 
-                   <lumps> 
+<WAD file>      := "PWAD"|"IWAD"
+                   <numlumps>
+                   <infotableofs>
+                   <lumps>
                    <directory>
 
 <numlumps>      := <long>               ;number of lumps in WAD file
@@ -3251,7 +3251,7 @@ different kinds of lumps:
 <header_16>     := <version>
                    <skill>
                    <episode>
-                   <map> 
+                   <map>
                    <mode>
                    <respawn>
                    <fast>
@@ -3338,7 +3338,7 @@ different kinds of lumps:
                    <short:0>
                    <short:0>
                    <num_patches>        ;<short>
-                   <patches>            
+                   <patches>
 <patches>       := <patch> [num_patches]
 <patch>         := <x_offset>           ;all are <short>
                    <y_offset>
@@ -3365,7 +3365,7 @@ different kinds of lumps:
                    <top_offset>
 <pointers>      := <pointer> [width]    ;<long>
 <pixel_data>    := <column> [width]
-<column>        := <post> [...] 
+<column>        := <post> [...]
                    <byte:255>           ;255 (0xff) ends the column
 <post>          := <rowstart>           ;<byte>
                    <num_pixels>         ;<byte>
@@ -3380,15 +3380,15 @@ different kinds of lumps:
 
 ------
 
-<maplevel>      := <THINGS> 
-                   <LINDEDEFS> 
-                   <SIDEDEFS> 
-                   <VERTEXES> 
-                   <SEGS> 
-                   <SSECTORS> 
-                   <NODES> 
-                   <SECTORS> 
-                   <REJECT> 
+<maplevel>      := <THINGS>
+                   <LINDEDEFS>
+                   <SIDEDEFS>
+                   <VERTEXES>
+                   <SEGS>
+                   <SSECTORS>
+                   <NODES>
+                   <SECTORS>
+                   <REJECT>
                    <BLOCKMAP>
 
 <THINGS>        := <thing> [...]
@@ -3417,7 +3417,7 @@ different kinds of lumps:
 
 <VERTEXES>      := <vertex> [...]
 <vertex>        := <X_coord>            ;both are <short>
-                   <Y_coord>    
+                   <Y_coord>
 
 <SEGS>          := <seg> [...]          ;<segs> stored by <subsector> order
 <seg>           := <vertex_start>       ;all are <short>
@@ -3501,7 +3501,7 @@ messed up, because every single DP* and DS* and D_* lump that's in
 the shareware DOOM1.WAD is in the registered DOOM.WAD twice. The error
 doesn't adversely affect play in any way, but it does take up an
 unnecessary 800k on the hard drive.
-  
+
   Some of the lumps in the sprite section are unused. Versions before
 1.666 had PBULx0 and PSHEx0, x=A-B, which were pictures of bullet and
 shell casings being ejected after the player fired a weapon (this
@@ -3513,7 +3513,7 @@ some new sprite lumps in version 1.666 of DOOM 1 which are "semi-unused"
 because they aren't used in DOOM 1, but they ARE used in DOOM 2. They
 are all projectile sprites, so it's probably just a little leftover
 from compiling the WAD.
-  
+
   So, in case it might help with converting demos, or for any other
 reason, here is a list, entirely by Paul Falstad, of all the changes
 to the levels between DOOM 1.2 and DOOM 1.666. The 1.4 and 1.5 beta's
@@ -3534,7 +3534,7 @@ E1M4
   main floor.
 
 E1M5
-- Thing #216 (a deathmatch start) got moved from (-2112, 512) to 
+- Thing #216 (a deathmatch start) got moved from (-2112, 512) to
   (-800, 1200); that is, it got moved from the west courtyard (the one
   with the supercharger) to the hidden hallway just south of the pentagram.
 - Sector #105's floor was lowered from 88 to 80.  In other words, the
@@ -3640,7 +3640,7 @@ DESIGN12.ZIP    Level Design FAQ, edited by Tom Neff
 DMFAQ666.ZIP    The Official DOOM FAQ 6.666 by Hank Leukart.
                   A huge collection of information about the history
                   of DOOM, notes on game play, and lists of add-on
-                  utilities available to enhance play. 
+                  utilities available to enhance play.
 
 DOOMBSP.ZIP     The source code from id's bsp routines, which build
                   the NODES structure and the REJECT and BLOCKMAP too.
@@ -3653,7 +3653,7 @@ METRICS.ZIP     "DOOM Metrics", by Scott Amspoker. Has some more info
 TEXPATCH.ZIP    Textures To Patches, by Gregory Lewis. Shows the
                   patch composition of every texture in registered
                   DOOM.
-              
+
 TEXTURES.ZIP    "Managing Textures and the Unpegged Attribute", by
                   Scott Amspoker. Explains in great depth how textures
                   are drawn on walls, how the unpegged flag works, and
@@ -3675,7 +3675,7 @@ DH200.ZIP       DOOM.EXE Hack Editor, by Greg Lewis. This program
 ???             "DOOM Deathmatch Wad Ranking", by James Dicke and Jim
                   Urbas. Is a good system for rating how good and how
                   fun deathmatch play is on pwads. If you want to find
-                  the best deathmatch levels, this is a good place to
+                  the best deathmatch levels, this is a good createThings to
                   start.
 
 ???             pwad review documents and lists.
@@ -3688,10 +3688,10 @@ APPENDIX [A-5]: Acknowledgments
 -------------------------------
 
   The following people either brought mistakes to my attention, or
-provided additional information that I've incorporated into these 
-specs. Thanks for all the help! Sorry if I left anyone out. 
-  If you have any comments or questions, have spotted any errors, 
-or have any possible additions, please send me e-mail. If you've 
+provided additional information that I've incorporated into these
+specs. Thanks for all the help! Sorry if I left anyone out.
+  If you have any comments or questions, have spotted any errors,
+or have any possible additions, please send me e-mail. If you've
 contacted me before, please note my new address (msfell@aol.com).
 
 id Software
@@ -3718,7 +3718,7 @@ Frans P. de Vries (fpdevries@hgl.signaal.nl)
         comprehensive list of typos and mistakes in the 1.3 specs.
 
 Paul Falstad (pjf@crash.cts.com)
-        I got ALL of the [8-6-1] information from his messages. 
+        I got ALL of the [8-6-1] information from his messages.
 
 Robert Fenske (rfenske@swri.edu)
         Passed along a great linedef flag list. Also helped with linedef
@@ -3733,7 +3733,7 @@ Uwe Girlich (girlich@aix520.informatik.uni-leipzig.de)
 Stuart Herbert (ac3slh@sunc.sheffield.ac.uk)
         Clarifying how pegged/unpegged flags work.
 
-Herre de Jonge (herre@morra.et.tudelft.nl) 
+Herre de Jonge (herre@morra.et.tudelft.nl)
         First pointed out the stairs mistake in the 1.3 specs.
 
 Tom Klok (a344@mindlink.bc.ca)
@@ -3780,11 +3780,11 @@ Robert D. Potter (potter@bronze.lcs.mit.edu)
         Theory about what BLOCKMAP is for and how the engine uses it.
 
 Raphael Quinet (eedraq@chapelle.ericsson.se)
-        Lots of rigorous contributions on linedef types and special 
+        Lots of rigorous contributions on linedef types and special
         sectors. Not to mention DEU!
 
 Colin Reed (dyl@cix.compulink.co.uk)
-        I had the x upper and lower bounds for node bounding boxes 
+        I had the x upper and lower bounds for node bounding boxes
         backwards a few versions ago.
 
 Joost Schuur (jschuur@studserv.zdv.uni-tuebingen.de)

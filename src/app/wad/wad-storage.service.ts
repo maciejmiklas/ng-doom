@@ -24,6 +24,8 @@ import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {Log} from '../common/log'
 import {WadEvent} from './wad-event'
 
+const CMP = "WadStorageService"
+
 @Injectable({
 	providedIn: 'root'
 })
@@ -87,7 +89,7 @@ export class WadStorageService {
 		const bytes = Either.ofRight(Array.from(new Uint8Array(wadBuf))).get()
 		const startTime = performance.now()
 		const wad = wp.parseWad(bytes)
-		console.log('>Parse WAD>', performance.now() - startTime, 'ms')
+		Log.info(CMP, 'WAD parsed in ', performance.now() - startTime, ' ms')
 		return wad
 	}
 }

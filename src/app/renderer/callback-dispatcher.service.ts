@@ -1,3 +1,18 @@
+/*
+ * Copyright 2022 Maciej Miklas
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import {Injectable} from '@angular/core';
 import {
 	BuildMapCallback,
@@ -15,7 +30,7 @@ import {KeyboardService} from "./keyboard.service";
 import {ControlsService} from "./controls.service";
 import {PlayerService} from "./player.service";
 import {DebugService} from "./debug.service";
-import {DoomMap, Wad} from '../wad/parser/wad-model';
+import {Wad} from '../wad/parser/wad-model';
 import {WorldService} from "./world.service";
 import {SkyService} from "./sky.service";
 import {WallService} from "./wall.service";
@@ -32,15 +47,15 @@ export class CallbackDispatcherService implements RenderCallback, InitCallback, 
 	private readonly maps: BuildMapCallback[] = []
 
 	constructor(private cameraService: CameraService,
-							private flashlightService: FlashlightService,
-							private rendererService: RendererService,
-							private keyboardService: KeyboardService,
-							private controlsService: ControlsService,
-							private skyService: SkyService,
-							private playerService: PlayerService,
-							private worldService: WorldService,
-							private debugService: DebugService,
-							private wallService: WallService) {
+				private flashlightService: FlashlightService,
+				private rendererService: RendererService,
+				private keyboardService: KeyboardService,
+				private controlsService: ControlsService,
+				private skyService: SkyService,
+				private playerService: PlayerService,
+				private worldService: WorldService,
+				private debugService: DebugService,
+				private wallService: WallService) {
 
 		this.inits.push(
 			this.keyboardService,
@@ -56,8 +71,8 @@ export class CallbackDispatcherService implements RenderCallback, InitCallback, 
 		this.rendererService.register(this)
 	}
 
-	buildMap(wad: Wad, map: DoomMap, scene: T.Scene): void {
-		this.maps.forEach(cb => cb.buildMap(wad, map, scene))
+	buildMap(wad: Wad, mapId: number, scene: T.Scene): void {
+		this.maps.forEach(cb => cb.buildMap(wad, mapId, scene))
 	}
 
 	onRender(deltaMs: number, renderer: T.WebGLRenderer): void {

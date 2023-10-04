@@ -57,13 +57,12 @@ export class PlayComponent implements OnInit {
 
 		// build map
 		const wad = this.wadStorage.getCurrent().get().wad
-		const foundMap = wad.maps.filter(m => m.mapName === GC.game.startMap)
-		if (foundMap.length != 1) {
+		const foundMap = wad.maps.findIndex(m => m.mapName === GC.game.startMap)
+		if (foundMap == -1) {
 			Log.error("No such map: ", GC.game.startMap)
 			return
 		}
-		const map = foundMap[0]
-		this.callback.buildMap(wad, map, this.scene)
+		this.callback.buildMap(wad, foundMap, this.scene)
 
 		// start rendering
 		this.callback.startRenderLoop()

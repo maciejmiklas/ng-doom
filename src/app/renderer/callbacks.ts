@@ -31,7 +31,7 @@ export interface DisposeCallback {
 }
 
 export interface BuildMapCallback {
-	buildMap(wad: Wad, map: DoomMap, scene: T.Scene): void
+	buildMap(wad: Wad, mapId: number, scene: T.Scene): void
 }
 
 export interface StartRenderLoopCallback {

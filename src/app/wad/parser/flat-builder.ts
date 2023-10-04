@@ -175,7 +175,7 @@ const startNewPath = <V extends VectorV>(pm: PathModification<V>): Either<PathMo
 /** #paths contains array of paths: [[path1],[path2],...,[pathX]] */
 const expandPaths = <V extends VectorV>(candidates: V[], existingPaths: V[][] = [], bidirectional = false): ExpandResult<V> => {
 	const res = R.until<PathModification<V>, PathModification<V>>(
-		// keep going until all remaining has been used
+		// keep going until all vectors from #remaining has been used
 		pm => pm.remaining.length === 0,
 
 		pm => insertOne<V>(bidirectional)(pm) // try inserting one of the #remaining into existing path

@@ -87,56 +87,106 @@ const wall = {
 	texture: {
 		scroll: {
 			speedPerSec: 0.0002,
-			resetAtOffset: 1000000
+			resetAt: 1000000
 		}
 	}
 }
 
-enum BoxType {
+enum SkyType {
 	BITMAP,
 	ORIGINAL
 }
 
 const sky = {
-	color: '#131313',
-	adjust: [{
-		type: BoxType.BITMAP,
-		width: 30000,
-		height: 30000,
-		depth: 30000,
-		y: 0
-	}, {
-		type: BoxType.ORIGINAL,
-		width: 30000,
-		height: 30000,
-		depth: 30000,
-		y: 12000
-	}],
-	textureName: 'SKY1',
-	box: {
-		type: BoxType.BITMAP,
-		bitmap: {
-			name: 'redeclipse',
-			ext: 'png'
+	active: 'REDECLIPSE',
+	def: [
+		{
+			name:'SKY1',
+			type: SkyType.ORIGINAL,
+			color: '#6C6C62',
+			position: {
+				width: 30000,
+				height: 30000,
+				depth: 30000,
+				y: 12000
+			}
 		},
-		bitmaps: [{
-			name: 'corona',
-			ext: 'png'
-		}, {
-			name: 'graycloud',
-			ext: 'jpg'
-		}, {
-			name: 'indigo',
-			ext: 'jpg'
-		}, {
-			name: 'redclipse',
-			ext: 'png'
-		}, {
-			name: 'yellowcloud',
-			ext: 'jpg'
-		}
-		]
-	}
+		{
+			name:'REDECLIPSE',
+			type: SkyType.BITMAP,
+			color: '#131313',
+			position: {
+				width: 30000,
+				height: 30000,
+				depth: 30000,
+				y: 0
+			},
+			bitmap: {
+				name: 'redeclipse',
+				ext: 'png'
+			},
+		},
+		{
+			name:'CORONA',
+			type: SkyType.BITMAP,
+			color: '#131313',
+			position: {
+				width: 30000,
+				height: 30000,
+				depth: 30000,
+				y: 0
+			},
+			bitmap: {
+				name: 'corona',
+				ext: 'png'
+			},
+		},
+		{
+			name:'YELLOW_CLOUD',
+			type: SkyType.BITMAP,
+			color: '#131313',
+			position: {
+				width: 30000,
+				height: 30000,
+				depth: 30000,
+				y: 0
+			},
+			bitmap: {
+				name: 'yellowcloud',
+				ext: 'jpg'
+			},
+		},
+		{
+			name:'GRAY_CLOUD',
+			type: SkyType.BITMAP,
+			color: '#131313',
+			position: {
+				width: 30000,
+				height: 30000,
+				depth: 30000,
+				y: 0
+			},
+			bitmap: {
+				name: 'graycloud',
+				ext: 'jpg'
+			},
+		},
+		{
+			name:'INDIGO',
+			type: SkyType.BITMAP,
+			color: '#131313',
+			position: {
+				width: 30000,
+				height: 30000,
+				depth: 30000,
+				y: 0
+			},
+			bitmap: {
+				name: 'indigo',
+				ext: 'jpg'
+			},
+		},
+	]
 }
 
 const camera = {
@@ -149,7 +199,7 @@ const camera = {
 		near: 0.1,
 
 		/** Camera frustum far plane */
-		far: 20000000
+		far: 400099
 	},
 
 	position: {
@@ -277,4 +327,4 @@ const flashLight = {
 }
 
 // ############################ EXPORTS ############################
-export const config = {BoxType, player, move, camera, game, flat, renderer, texture, sky, scene, flashLight, wall}
+export const config = {SkyType, player, move, camera, game, flat, renderer, texture, sky, scene, flashLight, wall}

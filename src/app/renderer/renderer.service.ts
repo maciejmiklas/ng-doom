@@ -17,6 +17,9 @@ import {Injectable} from '@angular/core';
 import * as T from "three";
 import {config as GC} from "../game-config";
 import {InitCallback, RenderCallback, StartRenderLoopCallback} from "./callbacks";
+import {Log} from "../common/log";
+
+const CMP = "RendererService"
 
 @Injectable({
 	providedIn: 'root'
@@ -52,6 +55,7 @@ export class RendererService implements InitCallback, StartRenderLoopCallback {
 			this.renderer.setPixelRatio(window.devicePixelRatio)
 		}
 
+		Log.info(CMP, 'WebGL2 supported:', this.renderer.capabilities.isWebGL2)
 	}
 
 	startRenderLoop(): void {

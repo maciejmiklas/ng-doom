@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { TestBed } from '@angular/core/testing';
 
-import { CallbackDispatcherService } from './callback-dispatcher.service';
+import * as T from "three";
+import {Either} from "../common/either";
+import {Sprite, Thing} from "../wad/parser/wad-model";
 
-describe('CallbackDispatcherService', () => {
-  let service: CallbackDispatcherService;
+export type Sector3d = {
+	sectorId: number,
+	walls: T.Mesh[],
+	floor: T.Mesh,
+	ceiling: Either<T.Mesh>
+}
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(CallbackDispatcherService);
-  });
-
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-});
+export type SpriteThing = {
+	sectorId: number,
+	thing: Thing,
+	dSprite: Sprite,
+	tSprite: T.Sprite
+}

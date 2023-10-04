@@ -20,8 +20,13 @@ import {WebGLRenderer} from "three";
 import {functions as TF} from "./texture-factory";
 import {Either} from "../common/either";
 import {config as GC} from "../game-config";
-import {DisposeCallback, RenderCallback} from "./callbacks";
+import {RenderCallback} from "./callbacks";
 import {DataTexture} from "three/src/textures/DataTexture";
+import {Scene} from "three/src/scenes/Scene";
+import {Camera} from "three/src/cameras/Camera";
+import {BufferGeometry} from "three/src/core/BufferGeometry";
+import {Material} from "three/src/materials/Material";
+import {Group} from "three/src/objects/Group";
 
 // https://doomwiki.org/wiki/Texture_alignment
 // https://doomwiki.org/wiki/Sidedef
@@ -30,55 +35,43 @@ import {DataTexture} from "three/src/textures/DataTexture";
 @Injectable({
 	providedIn: 'root'
 })
-export class WallService implements RenderCallback, DisposeCallback {
+export class WallService implements RenderCallback {
 
-	private readonly scrollingWallLeft: T.Mesh[] = []
+	private lastRenderDeltaMs = 0
 
 	renderWalls({sector, linedefs}: LinedefBySector): T.Mesh[] {
-		let mesh: T.Mesh[] = []
+		const middleWall = linedefs.map(renderMiddleWall(sector))
+			.filter(m => m.isRight())
+			.map(m => m.get())
 
-		linedefs.forEach(ld => {
-			mesh = renderMiddleWall(sector)(ld)
-				.exec(m => this.onNewMesh(ld, m))
-				.map(m => mesh.concat(m))
-				.orElse(() => mesh)
+		const upperWall = linedefs.map(renderUpperWall(sector))
+			.filter(m => m.isRight())
+			.map(m => m.get())
 
-			mesh = renderUpperWall(sector)(ld)
-				.exec(m => this.onNewMesh(ld, m))
-				.map(m => mesh.concat(m))
-				.orElse(() => mesh)
+		const lowerWall = linedefs.map(renderLowerWall(sector))
+			.filter(m => m.isRight())
+			.map(m => m.get())
 
-			mesh = renderLowerWall(sector)(ld)
-				.exec(m => this.onNewMesh(ld, m))
-				.map(m => mesh.concat(m))
-				.orElse(() => mesh)
-		})
+		const mesh: T.Mesh[] = [...middleWall, ...upperWall, ...lowerWall]
+		this.setupScrollingWalls(mesh);
 		return mesh
 	}
 
+	setupScrollingWalls(meshes: T.Mesh[]): void {
+		meshes.filter(m => m.userData.ld.specialType == SpecialType.SCROLLING_WALL_LEFT.valueOf())
+			.forEach(mesh =>
+				mesh.onBeforeRender = (renderer: WebGLRenderer, scene: Scene, camera: Camera, geometry: BufferGeometry, material: Material, group: Group) => {
+					const sm = mesh.material as T.MeshStandardMaterial
+					const tx = sm.map as DataTexture
+					tx.offset.x += this.lastRenderDeltaMs * GC.wall.texture.scroll.speedPerSec
+					if (tx.offset.x > GC.wall.texture.scroll.resetAt) {
+						tx.offset.x = 0;
+					}
+				})
+	}
+
 	onRender(deltaMs: number, renderer: WebGLRenderer): void {
-		this.scrollWalls(deltaMs)
-	}
-
-	scrollWalls(deltaMs: number) {
-		this.scrollingWallLeft.forEach(mesh => {
-			const material = mesh.material as T.MeshStandardMaterial
-			const tx = material.map as DataTexture
-			tx.offset.x += deltaMs * GC.wall.texture.scroll.speedPerSec
-			if (tx.offset.x > GC.wall.texture.scroll.resetAtOffset) {
-				tx.offset.x = 0;
-			}
-		})
-	}
-
-	dispose(): void {
-		this.scrollingWallLeft.splice(0)
-	}
-
-	onNewMesh(ld: Linedef, mesh: T.Mesh) {
-		if (ld.specialType == SpecialType.SCROLLING_WALL_LEFT.valueOf()) {
-			this.scrollingWallLeft.push(mesh)
-		}
+		this.lastRenderDeltaMs = deltaMs
 	}
 }
 
@@ -89,7 +82,7 @@ const createWallMaterial = (dt: DoomTexture, wallWidth: number, side: T.Side, co
 		map,
 		transparent: true, // TODO - only some are transparent
 		side,
-		color,
+		color
 	});
 }
 
@@ -182,5 +175,6 @@ const wall = (sideF: (ld: Linedef) => T.Side,
 	mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x))
 	mesh.receiveShadow = GC.wall.shadow.receive
 	mesh.castShadow = GC.wall.shadow.cast
+	mesh.userData = {ld: ld}
 	return mesh
 }

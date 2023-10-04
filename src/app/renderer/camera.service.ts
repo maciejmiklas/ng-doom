@@ -55,8 +55,8 @@ export class CameraService implements WindowResizeCallback, BuildMapCallback {
 		this.camera.updateProjectionMatrix()
 	}
 
-	buildMap(wad: Wad, map: DoomMap): void {
-		map.player.exec(p => this.positionCamera(p))
+	buildMap(wad: Wad, mapId: number, scene: T.Scene): void {
+		wad.maps[mapId].player.exec(p => this.positionCamera(p))
 	}
 
 }

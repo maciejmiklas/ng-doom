@@ -147,12 +147,13 @@ export type Position = {
  * map editor through an associated editor number. When the map is loaded, an actor that corresponds to that number will be spawned at the
  * location of that map thing. See thing types for a listing of all things that have an associated editor number.
  *
- * see: https://doomwiki.org/wiki/Thing
+ * @see: https://doomwiki.org/wiki/Thing
+ * @see: https://doomwiki.org/wiki/Thing_types#Monsters
  */
 export type Thing = MapLump & {
 	position: Position
 	angleFacing: number,
-	thingType: number, // https://doomwiki.org/wiki/Thing_types#Monsters
+	thingType: number,
 	flags: number
 }
 
@@ -235,11 +236,11 @@ export type FlatWithHoles = Flat & {
 }
 
 export type FlatWithShapes = Flat & {
-	walls: Linedef[][],
+	walls: Linedef[][]
 }
 
 export type FlatArea = Flat & {
-	walls: Linedef[],
+	walls: Linedef[]
 }
 
 /**  @see https://doomwiki.org/wiki/Linedef#Linedef_flags  */
@@ -403,7 +404,7 @@ export type TitlePic = {
 }
 
 /**
- * Sprites represent graphics used in Things, for example: gun, monster, pickup, power up.
+ * Sprites are graphics used for Things, for example: gun, monster, pickup, power up.
  *
  * Directory Name not only provides name for the Sprite, but also info about animation frames and angle: first 4-characters are the
  * Sprite's name, 5-th character is the frame number for animation (A-Z), following characters define angle.
@@ -547,7 +548,8 @@ export type Wad = {
 	bytes: number[],
 	playpal: Playpal,
 	textures: DoomTexture[],
-	flatBitmaps: RgbaBitmap[]
+	flatBitmaps: RgbaBitmap[],
+	sprites: Record<string, Sprite>,
 
 	/** The palette that has been used to render bitmaps within this WAS. */
 	palette: Palette

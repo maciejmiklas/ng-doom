@@ -20,6 +20,7 @@ import {functions as MP} from './map-parser'
 import {functions as TP} from './texture-parser'
 import {functions as BP} from './bitmap-parser'
 import {functions as PP} from './playpal-parser'
+import {functions as SP} from './sprite-parser'
 
 const parseTitlePic = (bytes: number[], dirs: Directory[], palette: Palette): Either<TitlePic> => {
 	const find = DP.findDirectoryByName(dirs)
@@ -50,6 +51,7 @@ const parseWad = (bytes: number[]): Either<Wad> =>
 		.append(w => TP.parsePatches(bytes, w.dirs, w.palette, w.pnames), (w, v) => w.patches = v)// patches
 		.append(w => TP.parseTextures(bytes, w.dirs, w.pnames, w.patches), (w, v) => w.textures = v) // textures
 		.append(w => TP.parseFlats(bytes, w.dirs, w.palette), (w, v) => w.flatBitmaps = v) // flatBitmaps
+		.append(w => Either.ofRight(SP.parseSpritesAsMap(bytes, w.dirs)), (w, v) => w.sprites = v) // Sprites
 		.append(w => MP.parseMaps(bytes, w.dirs, w.textures, w.flatBitmaps), (w, v) => w.maps = v); // maps
 
 // ############################ EXPORTS ############################

@@ -37,19 +37,20 @@ import * as R from "ramda";
 })
 export class FlatService {
 
-	renderFlat(flat: Flat, texture: Either<Bitmap>, height: number, renderHoles: boolean, type: string): T.Mesh[] {
+	renderFlat(flat: Flat, texture: Either<Bitmap>, height: number, renderHoles: boolean, type: string): Either<T.Mesh> {
 		if (texture.isRight() && texture.get().name.includes("SKY")) {
-			return []; // SKY should be transparent so that the player can see the sky.
+			return Either.ofLeft(()=>'Floor is SKY'); // SKY should be transparent so that the player can see the sky.
 		}
 
-		const mesh = new T.Mesh(new T.ShapeGeometry(createShapesFromFlat(flat, renderHoles)),
-			createFlatMaterial(texture, T.DoubleSide))
+		const shapes = createShapesFromFlat(flat, renderHoles);
+		const mesh = new T.Mesh(new T.ShapeGeometry(shapes), createFlatMaterial(texture, T.DoubleSide))
 		mesh.rotation.set(Math.PI / 2, Math.PI, Math.PI)
 		mesh.position.y = height
 		mesh.name = type + ':' + flat.sector.id;
 		mesh.receiveShadow = GC.flat.shadow.receive
 		mesh.castShadow = GC.flat.shadow.cast
-		return [mesh]
+		mesh.userData = {flat, shapes}
+		return Either.ofRight(mesh)
 	}
 }
 
@@ -60,7 +61,7 @@ const createFlatDataTexture = (bitmap: RgbaBitmap): T.DataTexture => {
 }
 
 const createFallbackMaterial = () => new T.MeshStandardMaterial({
-	transparent: true,
+	transparent: false,
 	color: 'green',
 	side: T.DoubleSide
 })
@@ -70,7 +71,6 @@ const createFlatMaterial = (texture: Either<Bitmap>, side: T.Side): T.Material =
 		side,
 		map: tx
 	})).orElse(() => createFallbackMaterial())
-
 
 const toVector2 = (ve: Vertex): T.Vector2 => new T.Vector2(ve.x, ve.y)
 

@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import * as T from 'three'
 import {InitCallback, RenderCallback} from "./callbacks";
-import {config as gc} from "../game-config";
+import {config as GC} from "../game-config";
 import {WorldService} from "./world.service";
 import {Either, LeftType} from "../common/either";
 import {Intersection} from "three/src/core/Raycaster";
@@ -28,17 +28,20 @@ export class PlayerService implements InitCallback, RenderCallback {
 	}
 
 	findActiveFloor(): Either<Intersection> {
-		const cp = this.camera.position
-		const flr = gc.player.floorRay
-		this.raycaster.setFromCamera(cp, this.camera)
+		this.raycaster.setFromCamera(this.camera.position, this.camera)
+		const flr = GC.player.floorRay
 		this.raycaster.ray.direction.set(flr.direction.x, flr.direction.y, flr.direction.z)
 		this.raycaster.ray.origin.y += flr.origin.adjust.y
-		const inters = this.raycaster.intersectObjects(this.worldService.sectors.floors)
-		return Either.ofCondition(() => inters.length > 0, () => "Floor not found for player position", () => inters[0], LeftType.WARN)
+		const inters = this.raycaster.intersectObjects(this.worldService.floors)
+
+		console.log('RC', this.raycaster.ray.origin, this.raycaster.ray.direction)
+		return Either.ofCondition(() => inters.length > 0,
+			() => 'Floor not found for player position',
+			() => inters[0], LeftType.WARN)
 	}
 
 	private logSector(el: Intersection) {
-		if (Log.isInfo() && gc.player.debug.logSectorName) {
+		if (Log.isInfo() && GC.player.debug.logSectorName) {
 			const florName = el.object.name;
 			if (this.lastFloorName !== florName) {
 				Log.info(CMP, 'Entering: ', el.object.name)
@@ -50,12 +53,11 @@ export class PlayerService implements InitCallback, RenderCallback {
 	onRender(deltaMs: number, renderer: T.WebGLRenderer): void {
 		this.findActiveFloor().exec(el => {
 				this.logSector(el)
-				return this.positionGoal = Math.round((el.point.y / gc.scene.scale) + gc.player.height + gc.camera.position.adjust.y)
+				return this.positionGoal = Math.round((el.point.y / GC.scene.scale) + GC.player.height + GC.camera.position.adjust.y)
 			}
 		)
-
 		const camY = Math.round(this.camera.position.y);
-		const dc = gc.player.damping
+		const dc = GC.player.damping
 		const mul = Math.abs(this.positionGoal - camY) > dc.fallHeight ? dc.fallSpeed : dc.climbSpeed
 		if (this.positionGoal > camY) {
 			this.camera.position.y = Math.min(this.camera.position.y + Math.round(deltaMs * mul), this.positionGoal)

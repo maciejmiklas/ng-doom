@@ -15,14 +15,14 @@
  */
 import { TestBed } from '@angular/core/testing';
 
-import { CallbackDispatcherService } from './callback-dispatcher.service';
+import { ThingService } from './thing.service';
 
-describe('CallbackDispatcherService', () => {
-  let service: CallbackDispatcherService;
+describe('ThingService', () => {
+  let service: ThingService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(CallbackDispatcherService);
+    service = TestBed.inject(ThingService);
   });
 
   it('should be created', () => {

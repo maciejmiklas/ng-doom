@@ -20,38 +20,49 @@ import {config as GC} from "../game-config";
 import U from "../common/util";
 import {functions as TF} from "./texture-factory";
 import {BuildMapCallback} from "./callbacks";
+import {MeshStandardMaterialParameters} from "three/src/materials/MeshStandardMaterial";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class SkyService implements BuildMapCallback {
 
-	buildMap(wad: Wad, map: DoomMap, scene: T.Scene): void {
-		scene.add(this.createSky(map))
+	buildMap(wad: Wad, mapId: number, scene: T.Scene): void {
+		scene.add(this.createSky(wad.maps[mapId], scene))
 	}
 
-	createSky({linedefs, sky}: DoomMap): T.Mesh {
+	createSky({linedefs, sky}: DoomMap, scene: T.Scene): T.Mesh {
 		const minX = MF.findMinX(linedefs)
 		const maxX = MF.findMaxX(linedefs)
 		const minY = MF.findMinY(linedefs)
 		const maxY = MF.findMaxY(linedefs)
-		const type = GC.sky.box.type == GC.BoxType.ORIGINAL && sky.isRight() ? GC.BoxType.ORIGINAL : GC.BoxType.BITMAP
-		const adjust = GC.sky.adjust.filter(a => a.type === type)[0]
-		const skyBox = new T.BoxGeometry(
-			U.lineWidth(minX, maxX) + adjust.width,
-			adjust.height,
-			U.lineWidth(minY, maxY) + adjust.depth);
+		const sc = skyConf()
 
-		const material = type == GC.BoxType.ORIGINAL ? skyBoxOriginalMaterial(sky.get().patches[0].bitmap) : skyBoxBitmapMaterial()
+		scene.background = new T.Color(sc.color);
+
+		const skyBox = new T.BoxGeometry(
+			U.lineWidth(minX, maxX) + sc.position.width,
+			sc.position.height,
+			U.lineWidth(minY, maxY) + sc.position.depth);
+
+		const material = sc.type === GC.SkyType.ORIGINAL ? skyBoxOriginalMaterial(sky.get().patches[0].bitmap) : skyBoxBitmapMaterial(sc)
 		const mesh = new T.Mesh(skyBox, material);
+		mesh.renderOrder = -1
 
 		// set position to the middle of the map.
-		mesh.position.set(maxX - U.lineWidth(minX, maxX) / 2, adjust.y, -maxY + U.lineWidth(minY, maxY) / 2)
+		mesh.position.set(maxX - U.lineWidth(minX, maxX) / 2, sc.position.y, -maxY + U.lineWidth(minY, maxY) / 2)
 		return mesh;
 	}
 }
 
-const orgBoxFactory = (map: T.DataTexture) => () => new T.MeshStandardMaterial({map, side: T.BackSide})
+const skyConf = () => GC.sky.def.find(sd => sd.name === GC.sky.active)
+
+const COMMON_MATERIAL_PROPS: MeshStandardMaterialParameters = {side: T.BackSide, depthTest: false}
+
+const orgBoxFactory = (map: T.DataTexture) => () => new T.MeshStandardMaterial({
+	map,
+	...COMMON_MATERIAL_PROPS
+})
 
 const emptyMaterial = () => new T.MeshStandardMaterial()
 
@@ -61,13 +72,13 @@ const skyBoxOriginalMaterial = (sky: Bitmap): T.MeshStandardMaterial[] => {
 	return [fact(), fact(), emptyMaterial(), emptyMaterial(), fact(), fact()] // ft, bk, -, -, rt, lf
 }
 
-const boxPaths = (name, ext): string[] =>
+const skyBoxBitmapMaterial = (sc): T.MeshStandardMaterial[] => boxPaths(sc.bitmap.name, sc.bitmap.ext).map(image =>
+	new T.MeshStandardMaterial({map: new T.TextureLoader().load(image), ...COMMON_MATERIAL_PROPS})
+);
+
+const boxPaths = (name: string, ext: string): string[] =>
 	["ft", "bk", "up", "dn", "rt", "lf"].map(side =>
 		'./assets/sky/' + name + '/' + side + '.' + ext)
-
-const skyBoxBitmapMaterial = (): T.MeshStandardMaterial[] => boxPaths(GC.sky.box.bitmap.name, GC.sky.box.bitmap.ext).map(image =>
-	new T.MeshStandardMaterial({map: new T.TextureLoader().load(image), side: T.BackSide})
-);
 
 // ############################ EXPORTS ############################
 export const testFunctions = {
