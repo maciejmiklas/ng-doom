@@ -16,7 +16,7 @@
 
 import * as T from "three";
 import {Either} from "../common/either";
-import {Sprite, Thing} from "../wad/parser/wad-model";
+import {Sector, Sprite, Thing} from "../wad/parser/wad-model";
 
 export type Sector3d = {
 	sectorId: number,
@@ -26,8 +26,8 @@ export type Sector3d = {
 }
 
 export type SpriteThing = {
-	sectorId: number,
+	sector: Sector,
 	thing: Thing,
 	dSprite: Sprite,
-	tSprite: T.Sprite
+	tSprite: T.Mesh
 }

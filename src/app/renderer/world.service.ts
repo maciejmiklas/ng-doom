@@ -62,7 +62,7 @@ export class WorldService implements BuildMapCallback {
 
 		// sprite and things
 		const map = wad.maps[mapId]
-		const st = this.thingService.createThings(map.things, this._floors)
+		const st = this.thingService.createThings(map.things, wad.sprites)
 
 		Log.info(CMP, 'Map ', map.mapDirs[0].name, ' created in ', performance.now() - startTime, 'ms')
 	}

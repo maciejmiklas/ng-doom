@@ -35,6 +35,8 @@ import {
 	PATH_CROSSING_MIXED,
 	pathCrossing300Full,
 	pathCrossing300Full100Started,
+	POLY_01_A,
+	POLY_01_G,
 	VectorId
 } from "./testdata/data"
 import {Either} from "../../common/either";
@@ -58,11 +60,11 @@ const assertPaths = (pathsEi: Either<VectorV[][]>, size: number) => {
 	}
 }
 
-describe('flat-builder#buildPaths', () => {
+describe('flat-builder#buildPolygons', () => {
 
 	// see testdata/E1M1_S37.jpg
 	it('E1M1_S37', () => {
-		const paths = TF.buildPaths(11, E1M1_S37).get()
+		const paths = TF.buildPolygons(11, E1M1_S37).get()
 		expect(paths.length).toEqual(3)
 		paths.forEach(p => {
 			expect(p.length).toEqual(4)
@@ -72,37 +74,37 @@ describe('flat-builder#buildPaths', () => {
 
 	// see testdata/E1M1_S39.jpg
 	it('E1M1_S39', () => {
-		const pathsEi = TF.buildPaths(39, E1M1_S39)
+		const pathsEi = TF.buildPolygons(39, E1M1_S39)
 		assertPaths(pathsEi, 1)
 	})
 
 	// see testdata/E1M1_S72.jpg
 	it('E1M1_S72', () => {
-		const pathsEi = TF.buildPaths(72, E1M1_S72)
+		const pathsEi = TF.buildPolygons(72, E1M1_S72)
 		assertPaths(pathsEi, 3)
 	})
 
 	// see testdata/E1M4_S7.jpg
 	it('E1M3_S7', () => {
-		const pathsEi = TF.buildPaths(7, E1M3_S7)
+		const pathsEi = TF.buildPolygons(7, E1M3_S7)
 		assertPaths(pathsEi, 4)
 	})
 
 	// see testdata/E1M3_S66.jpg
 	it('E1M3_S66', () => {
-		const pathsEi = TF.buildPaths(66, E1M3_S66);
+		const pathsEi = TF.buildPolygons(66, E1M3_S66);
 		assertPaths(pathsEi, 2)
 	})
 
 	// see testdata/E1M4_S36.png
 	it('E1M4_S36', () => {
-		const pathsEi = TF.buildPaths(36, E1M4_S36);
+		const pathsEi = TF.buildPolygons(36, E1M4_S36);
 		assertPaths(pathsEi, 2)
 	})
 
 	// see testdata/E1M5_S18.jpg
 	it('E1M5_S18', () => {
-		const pathsEi = TF.buildPaths(36, E1M5_S18);
+		const pathsEi = TF.buildPolygons(36, E1M5_S18);
 		assertPaths(pathsEi, 3)
 	})
 
@@ -387,7 +389,7 @@ describe('flat-builder#expandPaths', () => {
 
 describe('flat-builder#sortByHoles', () => {
 	it('Multiple paths', () => {
-		const paths = TF.buildPaths(11, [...PATH_CLOSED_MIXED, ...PATH_CLOSED_MIXED_2]).get()
+		const paths = TF.buildPolygons(11, [...PATH_CLOSED_MIXED, ...PATH_CLOSED_MIXED_2]).get()
 		const sorted = TF.sortByHoles(paths)
 		expect(sorted[0].length).toEqual(9)
 		expect(sorted[1].length).toEqual(5)
@@ -883,7 +885,6 @@ describe('flat-builder#sortForExpand', () => {
 		}
 	})
 
-
 	it('E1M3_S66', () => {
 		TF.markCrossingVectors(E1M3_S66)
 		TF.markDuplicatedVectors(E1M3_S66)
@@ -906,6 +907,3 @@ describe('flat-builder#sortForExpand', () => {
 		}
 	})
 })
-
-
-

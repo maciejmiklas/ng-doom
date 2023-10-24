@@ -15,12 +15,14 @@
  */
 import {functions as MF, VectorConnection, VectorV} from './wad-model'
 import {
-	E1M3_S7,
+	E1M1_S39, E1M1_S72,
+	E1M3_S7, E1M5_S18,
 	PATH_CLOSED_1,
 	PATH_CLOSED_MIXED_2,
 	PATH_CLOSED_REVERSED_ONE,
-	PATH_CROSSING_MIXED
+	PATH_CROSSING_MIXED, POLY_01_A, POLY_01_G
 } from "./testdata/data"
+import {testFunctions as TF} from "./flat-builder";
 
 
 describe('wad-model#vertexEqual', () => {
@@ -333,5 +335,170 @@ describe('wad-model#vertexNear', () => {
 		const v1 = {x: 8, y: 3}
 		const v2 = {x: 5, y: 5}
 		expect(MF.vertexNear(v1, v2)).toBeTrue()
+	})
+})
+
+describe('flat-builder#containsVertex', () => {
+	const pa = MF.containsVertex(POLY_01_A)
+	const pg = MF.containsVertex(POLY_01_G)
+
+	it('POLY_01_A - outside - left 1', () => {
+		expect(pa({"x": 1, "y": 1})).toBeFalse()
+	})
+
+	it('POLY_01_A - outside - left 2', () => {
+		expect(pa({"x": 0, "y": 3})).toBeFalse()
+	})
+
+	it('POLY_01_A - inside - left on line', () => {
+		expect(pa({"x": 2, "y": 1})).toBeTrue()
+	})
+
+	it('POLY_01_A - outside - down 1', () => {
+		expect(pa({"x": 4, "y": -1})).toBeFalse()
+	})
+
+	it('POLY_01_A - outside - right from G', () => {
+		expect(pa({"x": 11, "y": 2})).toBeFalse()
+	})
+
+	it('POLY_01_A - outside-  right on G 1', () => {
+		expect(pa({"x": 8, "y": 2})).toBeFalse()
+	})
+
+	it('POLY_01_A - outside - right on G 2', () => {
+		expect(pa({"x": 6, "y": 4})).toBeFalse()
+	})
+
+	it('POLY_01_A - right - on G 3', () => {
+		expect(pa({"x": 6, "y": 2})).toBeTrue()
+	})
+
+	it('POLY_01_A - outside - top 1', () => {
+		expect(pa({"x": 5, "y": 5})).toBeFalse()
+	})
+
+	it('POLY_01_G - outside - top 2', () => {
+		expect(pg({"x": 5, "y": 7})).toBeFalse()
+	})
+
+	it('POLY_01_G - outside - top 2', () => {
+		expect(pg({"x": 15, "y": 17})).toBeFalse()
+	})
+
+	it('POLY_01_G - outside - down 1', () => {
+		expect(pg({"x": 6, "y": 0})).toBeFalse()
+	})
+
+	it('POLY_01_G - outside - down 1', () => {
+		expect(pg({"x": 6, "y": -1111})).toBeFalse()
+	})
+
+	it('POLY_01_G - outside - far right down', () => {
+		expect(pg({"x": 66666, "y": -1111})).toBeFalse()
+	})
+
+	it('POLY_01_G - inside 001', () => {
+		expect(pg({"x": 8, "y": 2})).toBeTrue()
+	})
+
+	it('POLY_01_G - inside 002', () => {
+		expect(pg({"x": 6, "y": 4})).toBeTrue()
+	})
+
+	it('POLY_01_G - inside 003', () => {
+		expect(pg({"x": 9, "y": 4})).toBeTrue()
+	})
+
+	it('POLY_01_G - inside - on line left', () => {
+		expect(pg({"x": 7, "y": 2})).toBeTrue()
+	})
+
+	it('POLY_01_G - inside - on edge left', () => {
+		expect(pg({"x": 6, "y": 1})).toBeTrue()
+	})
+
+	it('POLY_01_G - inside - on line left', () => {
+		expect(pg({"x": 5, "y": 5})).toBeTrue()
+	})
+
+	it('E1M1_S39 - inside - Thing 114', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(39, E1M1_S39).get()[0])
+		expect(MF.containsVertex(poly)({"x": 1024, "y": -3264})).toBeTrue()
+	})
+
+	it('E1M1_S39 - inside - Thing 35', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(39, E1M1_S39).get()[0])
+		expect(MF.containsVertex(poly)({"x": 1312, "y": -3264})).toBeTrue()
+	})
+
+	it('E1M1_S72 - inside - Thing 44', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(72, E1M1_S72).get()[0])
+		expect(MF.containsVertex(poly)({"x": 2912, "y": -4176})).toBeTrue()
+	})
+
+	it('E1M1_S72 - inside - Thing 45', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(72, E1M1_S72).get()[0])
+		expect(MF.containsVertex(poly)({"x": 3104, "y": -4176})).toBeTrue()
+	})
+
+	it('E1M1_S72 - inside - Thing 125', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(72, E1M1_S72).get()[0])
+		expect(MF.containsVertex(poly)({"x": 2944, "y": -4256})).toBeTrue()
+	})
+
+	it('E1M1_S72 - inside - Thing 112', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(72, E1M1_S72).get()[0])
+		expect(MF.containsVertex(poly)({"x": 3072, "y": -4256})).toBeTrue()
+	})
+
+	it('E1M1_S72 - inside - Thing 48', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(72, E1M1_S72).get()[0])
+		expect(MF.containsVertex(poly)({"x": 2944, "y": -4320})).toBeTrue()
+	})
+
+	it('E1M1_S72 - outside', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(72, E1M1_S72).get()[0])
+		expect(MF.containsVertex(poly)({"x": 1, "y": 1})).toBeFalse()
+	})
+
+	it('E1M3_S7 - inside - Thing 296', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(7, E1M3_S7).get()[0])
+		expect(MF.containsVertex(poly)({"x": 192, "y": -1280})).toBeTrue()
+	})
+
+	it('E1M3_S7 - inside - Thing 35', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(7, E1M3_S7).get()[0])
+		expect(MF.containsVertex(poly)({"x": -464, "y": -1712})).toBeTrue()
+	})
+
+	it('E1M3_S7 - inside - Thing 40', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(7, E1M3_S7).get()[0])
+		expect(MF.containsVertex(poly)({"x": -192, "y": -1856})).toBeTrue()
+	})
+
+	it('E1M3_S7 - outside', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(7, E1M3_S7).get()[0])
+		expect(MF.containsVertex(poly)({"x": -2192, "y": -1856})).toBeFalse()
+	})
+
+	it('E1M3_S7 - inside - Thing 320', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(7, E1M3_S7).get()[0])
+		expect(MF.containsVertex(poly)({"x": 256, "y": -1472})).toBeTrue()
+	})
+
+	it('E1M5_S18 - outside - Thing 128', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(18, E1M5_S18).get()[1])
+		expect(MF.containsVertex(poly)({"x": -960, "y": 864})).toBeFalse()
+	})
+
+	it('E1M5_S18 - inside - Thing 128', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(18, E1M5_S18).get()[2])
+		expect(MF.containsVertex(poly)({"x": -960, "y": 864})).toBeTrue()
+	})
+
+	it('E1M5_S18 - inside - Thing 129', () => {
+		const poly = MF.pathToPoints(TF.buildPolygons(18, E1M5_S18).get()[2])
+		expect(MF.containsVertex(poly)({"x": -980, "y": 800})).toBeTrue()
 	})
 })

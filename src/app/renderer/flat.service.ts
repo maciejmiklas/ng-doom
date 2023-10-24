@@ -14,32 +14,20 @@
  * limitations under the License.
  */
 import {Injectable} from '@angular/core';
-import {
-	Bitmap,
-	Flat,
-	FlatArea,
-	FlatType,
-	FlatWithHoles,
-	FlatWithShapes,
-	functions as MF,
-	Linedef,
-	RgbaBitmap,
-	Vertex
-} from "../wad/parser/wad-model";
+import {Bitmap, Flat, functions as MF, Linedef, RgbaBitmap, Vertex} from "../wad/parser/wad-model";
 import * as T from "three";
 import {functions as TF} from "./texture-factory";
 import {config as GC} from "../game-config";
 import {Either} from "../common/either";
-import * as R from "ramda";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class FlatService {
 
-	renderFlat(flat: Flat, texture: Either<Bitmap>, height: number, renderHoles: boolean, type: string): Either<T.Mesh> {
+	renderFlat(flat: Flat, texture: Either<RgbaBitmap>, height: number, renderHoles: boolean, type: string): Either<T.Mesh> {
 		if (texture.isRight() && texture.get().name.includes("SKY")) {
-			return Either.ofLeft(()=>'Floor is SKY'); // SKY should be transparent so that the player can see the sky.
+			return Either.ofLeft(() => 'Floor is SKY'); // SKY should be transparent so that the player can see the sky.
 		}
 
 		const shapes = createShapesFromFlat(flat, renderHoles);
@@ -66,7 +54,7 @@ const createFallbackMaterial = () => new T.MeshStandardMaterial({
 	side: T.DoubleSide
 })
 
-const createFlatMaterial = (texture: Either<Bitmap>, side: T.Side): T.Material =>
+const createFlatMaterial = (texture: Either<RgbaBitmap>, side: T.Side): T.Material =>
 	texture.map(createFlatDataTexture).map(tx => new T.MeshStandardMaterial({
 		side,
 		map: tx
@@ -76,21 +64,10 @@ const toVector2 = (ve: Vertex): T.Vector2 => new T.Vector2(ve.x, ve.y)
 
 const createShapeFromPath = (path: Linedef[]): T.Shape => new T.Shape(MF.pathToPoints(path).map(toVector2))
 
-const createShapesFromFlatArea = ({walls: fw}: FlatArea): T.Shape[] => [createShapeFromPath(fw)];
-
-const createShapesFromFlatWithShapes = ({walls: fw}: FlatWithShapes): T.Shape[] => fw.map(createShapeFromPath);
-
-const createShapesFromFlatWithHoles = ({walls: fw, holes: fh}: FlatWithHoles, renderHoles: boolean): T.Shape[] => {
-	const shape = createShapeFromPath(fw)
+const createShapesFromFlat = (flat: Flat, renderHoles: boolean): T.Shape[] => {
+	const shapes = flat.walls.map(createShapeFromPath)
 	if (renderHoles) {
-		fh.map(hole => createShapeFromPath(hole)).forEach(hole => shape.holes.push(hole))
+		flat.holes.exec(holes => holes.map(hole => createShapeFromPath(hole)).forEach(hole => shapes[0].holes.push(hole)))
 	}
-	return [shape];
+	return shapes;
 }
-
-const createShapesFromFlat = (flat: Flat, renderHoles: boolean): T.Shape[] =>
-	R.cond<Flat[], T.Shape[]>([
-		[(f) => f.type === FlatType.AREA, createShapesFromFlatArea],
-		[(f) => f.type === FlatType.SHAPES, createShapesFromFlatWithShapes],
-		[R.T, (f) => createShapesFromFlatWithHoles(f as FlatWithHoles, renderHoles)]
-	])(flat)

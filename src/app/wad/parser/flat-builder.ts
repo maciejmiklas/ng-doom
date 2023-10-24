@@ -15,20 +15,7 @@
  */
 import * as R from 'ramda'
 import {Either, LeftType} from '../../common/either'
-import {
-	Flat,
-	FlatArea,
-	FlatType,
-	FlatWithHoles,
-	FlatWithShapes,
-	functions as MF,
-	Linedef,
-	MIN_VECTOR_V,
-	Sector,
-	VectorConnection,
-	VectorV,
-	Vertex
-} from './wad-model'
+import {Flat, functions as MF, Linedef, MIN_VECTOR_V, Sector, VectorConnection, VectorV, Vertex} from './wad-model'
 import {Log} from "../../common/log";
 import U from "../../common/util";
 import {config as MC} from "./parser-config"
@@ -61,7 +48,7 @@ const cleanFlags = (vectors: VectorV[]): void => {
 
 const areCrossing = (v1: VectorV, v2: VectorV) => isCrossingVector(v1) && isCrossingVector(v2)
 
-const buildPaths = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V[][]> => {
+const buildPolygons = <V extends VectorV>(sectorId: number, vectors: V[]): Either<V[][]> => {
 	Log.debug(CMP, 'Build paths for Sector: ', sectorId)
 	markCrossingVectors(vectors)
 	markDuplicatedVectors(vectors)
@@ -301,31 +288,31 @@ const sortByHoles = <V extends VectorV>(paths: V[][]): V[][] => {
 }
 
 const createFlat = (sector: Sector) => (lindedefs: Linedef[]): Either<Flat> =>
-	buildPaths(sector.id, lindedefs).map(paths => buildFlat(sector, paths))
+	buildPolygons(sector.id, lindedefs).map(polygons => buildFlat(sector, polygons))
 
 /**
  * Two scenarios are supported where there are multiple shapes within one sector:
  * 1) few crossing shapes,
  * 2) one large shape with holes.
  */
-const buildFlat = (sector: Sector, paths: Linedef[][]): Flat =>
+const buildFlat = (sector: Sector, polygons: Linedef[][]): Flat =>
 	R.cond<Linedef[][][], Flat>([
 		// only one shape in #paths
-		[(p) => p.length == 1, (p) => ({sector, walls: p[0], type: FlatType.AREA}) as FlatArea],
+		[(p) => p.length == 1, (p) => (
+			{sector, walls: [p[0]], wallsPolygon: [MF.pathToPoints(p[0])], holes: Either.ofLeft(() => 'single shape')})],
 
 		// multiple crossings shapes in #paths
 		[(p) => hasCrossing(p), (p) => ({
-			sector,
-			walls: p,
-			type: FlatType.SHAPES
-		}) as FlatWithShapes],
+			sector, walls: p, wallsPolygon: p.map(MF.pathToPoints), holes: Either.ofLeft(() => 'no holes')
+		})],
 
 		// one large shape with a few holes
 		[R.T, (p) => {
-			const sorted = sortByHoles(p);
-			return {sector, walls: sorted.shift(), holes: sorted} as FlatWithHoles;
+			const sorted = sortByHoles(p)
+			const walls = sorted.shift()
+			return {sector, walls: [walls], wallsPolygon: [MF.pathToPoints(walls)], holes: Either.ofRight(sorted)}
 		}]
-	])(paths)
+	])(polygons)
 
 const hasCrossingVector = (vectors: VectorV[]) => vectors.findIndex(isCrossingVector) >= 0
 const hasCrossing = (paths: VectorV[][]) => paths.length > 0 && (hasCrossingVector(paths[0]) || hasCrossingVector(paths.flat()))
@@ -443,7 +430,6 @@ const firstDuplicatePos = (vectors: VectorV[], from = 0): Either<number> => {
 		() => () => 'Duplicate not found')(vectors)
 }
 
-
 // ############################ EXPORTS ############################
 export const testFunctions = {
 	insertIntoPath,
@@ -453,7 +439,7 @@ export const testFunctions = {
 	expandPaths,
 	sortByHoles,
 	groupByOuterPath,
-	buildPaths,
+	buildPolygons,
 	createMaxVertex,
 	closeOpened,
 	pathContinuos,

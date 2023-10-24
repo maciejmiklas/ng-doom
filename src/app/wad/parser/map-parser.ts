@@ -16,7 +16,6 @@
 import * as R from 'ramda'
 import {Either, LeftType} from '../../common/either'
 import {
-	Bitmap,
 	Directory,
 	DoomMap,
 	DoomTexture,
@@ -26,6 +25,7 @@ import {
 	LinedefBySector,
 	LinedefFlag,
 	MapLumpType,
+	RgbaBitmap,
 	Sector,
 	Sidedef,
 	Thing,
@@ -39,7 +39,7 @@ import {Log} from "../../common/log"
 import {functions as FB} from "./flat-builder"
 import {config as WC} from "../wad-config"
 
-const CMP = 'MPA'
+const CMP = 'MP'
 
 const findLastNotConnected = (linedefs: VectorV[]): Either<number> => {
 	const next = U.nextRoll(linedefs)
@@ -95,26 +95,26 @@ const parseMapsDirs = (allDirs: Directory[], startMapDirs: Directory[]): Directo
 const createTextureLoader = (textures: DoomTexture[]) => (name: string): Either<DoomTexture> =>
 	Either.ofNullable(textures.find(t => U.cs(t.name, name)), () => 'Texture not found: ' + name, LeftType.WARN)
 
-const createFlatLoader = (flats: Bitmap[]) => (name: string): Either<Bitmap> =>
+const createFlatLoader = (flats: RgbaBitmap[]) => (name: string): Either<RgbaBitmap> =>
 	Either.ofNullable(flats.find(t => U.cs(t.name, name)), () => 'Flat not found: ' + name, LeftType.WARN)
 
-const parseMaps = (bytes: number[], dirs: Directory[], textures: DoomTexture[], flats: Bitmap[]): Either<DoomMap[]> => {
+const parseMaps = (bytes: number[], dirs: Directory[], textures: DoomTexture[], flats: RgbaBitmap[]): Either<DoomMap[]> => {
 	const textureLoader = createTextureLoader(textures)
 	const flatLoader = createFlatLoader(flats)
 	return Either.ofArray(parseMapsDirs(dirs, findAllMapStartDirs(dirs))
 		.map(parseMap(bytes, textureLoader, flatLoader)), () => 'No maps found')
 }
 
-const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>, flatLoader: (name: string) => Either<Bitmap>) => (mapDirs: Directory[]): DoomMap => {
+const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomTexture>, flatLoader: (name: string) => Either<RgbaBitmap>) => (mapDirs: Directory[]): DoomMap => {
 	const mapName = mapDirs[0].name
 	Log.info(CMP, 'Parse Map: ', mapName)
 	const sectors = parseSectors(bytes)(mapDirs, flatLoader)
 	const linedefs = parseLinedefs(bytes, mapDirs,
 		parseVertexes(bytes)(mapDirs),
 		parseSidedefs(bytes, textureLoader)(mapDirs, sectors), sectors)
-	const things = parseThings(bytes)(mapDirs)
+	const flatBySector = buildFlatsBySectors(linedefs, sectors)
+	const things = parseThings(bytes, mapDirs, flatBySector)
 	const playerArr = things.filter(th => th.thingType == ThingType.PLAYER);
-
 	return {
 		mapName,
 		mapDirs,
@@ -123,7 +123,7 @@ const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomT
 			() => 'Map without player!', () => playerArr[0], LeftType.WARN),
 		linedefs,
 		sectors,
-		flatBySector: buildFlatsBySectors(linedefs, sectors),
+		flatBySector,
 		sky: textureLoader(WC.sky.textureName)
 	}
 }
@@ -198,32 +198,50 @@ const buildFlatsBySectors = (mapLinedefs: Linedef[], sectors: Sector[]): FlatByS
 		.map(s => s.get())
 }
 
+/**
+ * @param dir Directory
+ * @param size size of directory in bytes, for example Thing: "Level thing data is stored in the THINGS lump. Each entry is 10 bytes long."
+ */
 const unfoldByDirectorySize = (dir: Directory, size: number): number[] =>
 	R.unfold((idx) => idx === dir.size / size ? false : [dir.filepos + idx * 10, idx + 1], 0)
 
-const parseThing = (bytes: number[], thingDir: Directory) => (thingIdx: number): Thing => {
+const parseThing = (bytes: number[], thingDir: Directory, flats: FlatBySector[]) => (thingIdx: number): Either<Thing> => {
 	const offset = thingDir.filepos + 10 * thingIdx
 	const shortParser = U.parseInt16(bytes)
-	return {
+	const position = {
+		x: shortParser(offset),
+		y: shortParser(offset + 2),
+	}
+
+	const sector = findSectorByVertex(flats)(position)
+	return Either.ofCondition(() => sector.isRight(), () => 'No Sector for Thing:' + thingIdx, () => ({
 		dir: thingDir,
-		position: {
-			x: shortParser(offset),
-			y: shortParser(offset + 2),
-		},
+		position,
 		angleFacing: shortParser(offset + 4),
 		lumpType: MapLumpType.THINGS,
 		thingType: shortParser(offset + 6),
 		flags: shortParser(offset + 8),
-	}
+		sector: sector.get()
+	}))
 }
 
-const parseThings = (bytes: number[]) => (mapDirs: Directory[]): Thing[] => {
+const containsVertex = (polygons: Vertex[][], pos: Vertex): boolean => {
+	return polygons.filter(po => MF.containsVertex(po)(pos)).length > 0
+}
+
+const findSectorByVertex = (flats: FlatBySector[]) => (pos: Vertex): Either<Sector> => {
+	const found = flats.filter(fl => containsVertex(fl.flat.wallsPolygon, pos)).map(se => se.sector)
+	return Either.ofCondition(() => found.length > 0, () => 'Vertex not in polygons', () => found[0])
+}
+
+const parseThings = (bytes: number[], mapDirs: Directory[], flats: FlatBySector[]): Thing[] => {
 	const thingDir = mapDirs[MapLumpType.THINGS]
-	const parser = parseThing(bytes, thingDir)
-	return unfoldByDirectorySize(thingDir, 10).map((ofs, thingIdx) => parser(thingIdx)).map(th => th)
+	const parser = parseThing(bytes, thingDir, flats)
+	return unfoldByDirectorySize(thingDir, 10).map((ofs, thingIdx) => parser(thingIdx))
+		.filter(th => th.isRight()).map(th => th.get()).map(th => th)
 }
 
-const parseSector = (bytes: number[], dir: Directory, flatLoader: (name: string) => Either<Bitmap>) => (thingIdx: number): Sector => {
+const parseSector = (bytes: number[], dir: Directory, flatLoader: (name: string) => Either<RgbaBitmap>) => (thingIdx: number): Sector => {
 	const offset = dir.filepos + 26 * thingIdx
 	const shortParser = U.parseInt16(bytes)
 	const strParser = U.parseStr(bytes)
@@ -241,7 +259,7 @@ const parseSector = (bytes: number[], dir: Directory, flatLoader: (name: string)
 	}
 }
 
-const parseSectors = (bytes: number[]) => (mapDirs: Directory[], flatLoader: (name: string) => Either<Bitmap>): Sector[] => {
+const parseSectors = (bytes: number[]) => (mapDirs: Directory[], flatLoader: (name: string) => Either<RgbaBitmap>): Sector[] => {
 	const sectorsDir = mapDirs[MapLumpType.SECTORS]
 	const parser = parseSector(bytes, sectorsDir, flatLoader)
 	return unfoldByDirectorySize(sectorsDir, 26).map((ofs, thingIdx) => parser(thingIdx))
@@ -367,7 +385,6 @@ const findBackLinedefs = (linedefs: Linedef[]): Linedef[] => linedefs.filter(ld 
 const findBacksidesBySector = (backLinedefs: Linedef[]) => (sectorId: number): Either<Linedef[]> =>
 	Either.ofArray(backLinedefs.filter(ld => ld.backSide.get().sector.id == sectorId),
 		() => 'No backsides for Sector: ' + sectorId)
-
 
 // ############################ EXPORTS ############################
 export const testFunctions = {

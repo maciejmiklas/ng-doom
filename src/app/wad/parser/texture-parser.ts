@@ -140,7 +140,7 @@ const parseTextureByDir = (wadBytes: number[], dirs: Directory[], pnames: Pnames
 const findFlatDirs = (dirs: Directory[]): Either<Directory[]> =>
 	DP.findBetween(dirs)(Directories.F_START, Directories.F_END)((d) => !d.name.includes('_START') && !d.name.includes('_END'))
 
-const parseFlats = (wadBytes: number[], dirs: Directory[], palette: Palette): Either<RgbaBitmap[]> => {
+const parseFlats = (wadBytes: number[], dirs: Directory[], palette: Palette): Either<Bitmap[]> => {
 	const flatParser = BP.parseFlat(wadBytes, palette)
 	return findFlatDirs(dirs)
 		.map(dirs => dirs.map(d => flatParser(d)))// Either<Directory> => Either[]<Either<Bitmap[]>>
@@ -150,31 +150,6 @@ const parseFlats = (wadBytes: number[], dirs: Directory[], palette: Palette): Ei
 
 const toImageData = (bitmap: RgbaBitmap): ImageData => {
 	return new ImageData(bitmap.rgba, bitmap.width, bitmap.height)
-}
-
-const maxSpriteSize = (sprite: BitmapSprite): number => Math.max(
-	sprite.frames.map(s => s.header.width).reduce((prev, cur) => prev > cur ? prev : cur),
-	sprite.frames.map(s => s.header.height).reduce((prev, cur) => prev > cur ? prev : cur))
-
-const calcScale = (maxScale: number) => (sprite: BitmapSprite): number => {
-	const scale = maxScale / maxSpriteSize(sprite)
-	return scale - scale % 1
-}
-
-const toBitmapSprites = (sprite: Sprite): Either<BitmapSprite[]> => {
-	const sprites = Object.keys(sprite.animations).map(angle => sprite.animations[angle]).map((d: FrameDir[]) => toBitmapSprite(d))
-		.filter(md => md.isRight()).map(md => md.get())
-	return Either.ofCondition(() => sprites.length > 0, () => sprite.name + ' has no sprites', () => sprites)
-}
-
-const toBitmapSprite = (frame: FrameDir[]): Either<BitmapSprite> => {
-	const frames: Bitmap[] = frame.filter(f => f.bitmap.isRight()).map(f => f.bitmap.get())
-	const first = frame[0]
-	return Either.ofCondition(() => frames.length > 0, () => first.spriteName + ' has no frames', () => ({
-		name: first.spriteName,
-		angle: first.angle.toString(),
-		frames
-	}))
 }
 
 const toImageBitmap = (bitmap: Bitmap) => (width: number, height: number): Promise<ImageBitmap> => {
@@ -217,9 +192,7 @@ const applyPatch = (width: number, height: number, to: Uint8ClampedArray) => (fr
 // ############################ EXPORTS ############################
 export const testFunctions = {
 	findPatchDir,
-	toBitmapSprite,
 	toImageData,
-	maxSpriteSize,
 	parseTextureByDir,
 	findFlatDirs
 }
@@ -229,9 +202,7 @@ export const functions = {
 	parsePatches,
 	parsePnames,
 	toImageBitmap,
-	calcScale,
 	toImageData,
 	parseFlats,
-	toBitmapSprites,
 	highlightPatch
 }

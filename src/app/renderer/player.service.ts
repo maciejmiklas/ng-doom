@@ -33,8 +33,6 @@ export class PlayerService implements InitCallback, RenderCallback {
 		this.raycaster.ray.direction.set(flr.direction.x, flr.direction.y, flr.direction.z)
 		this.raycaster.ray.origin.y += flr.origin.adjust.y
 		const inters = this.raycaster.intersectObjects(this.worldService.floors)
-
-		console.log('RC', this.raycaster.ray.origin, this.raycaster.ray.direction)
 		return Either.ofCondition(() => inters.length > 0,
 			() => 'Floor not found for player position',
 			() => inters[0], LeftType.WARN)

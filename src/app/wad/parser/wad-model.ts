@@ -133,12 +133,6 @@ export type MapLump = Lump & {
 	lumpType: MapLumpType
 }
 
-/** range from -32768 to +32767 */
-export type Position = {
-	x: number,
-	y: number
-}
-
 /**
  * Things represent players, monsters, pick-ups, and projectiles. Inside the game, these are known as actors, or mobjs. They also represent
  * obstacles, certain decorations, player start positions and teleport landing sites.
@@ -151,7 +145,8 @@ export type Position = {
  * @see: https://doomwiki.org/wiki/Thing_types#Monsters
  */
 export type Thing = MapLump & {
-	position: Position
+	position: Vertex,
+	sector: Sector,
 	angleFacing: number,
 	thingType: number,
 	flags: number
@@ -162,13 +157,13 @@ export enum ThingType {
 }
 
 /**
- * Position on the map. WAD contains list of all possible positions stored in Lump: VERTEXES.
- * SIDEDEFS contains list of walls on particular map, where each wall references two Vertex, as it's start and end
- * position on the map.
+ * x-y position on the map, range from -32768 to +32767.
+ * WAD contains list of all possible positions stored in Lump: VERTEXES. SIDEDEFS contains list of walls on particular
+ * map, where each wall references two Vertex, as it's start and end position on the map.
  *
  * @see https://doomwiki.org/wiki/Vertex
  */
-export type Vertex = Position & {
+export type Vertex = {
 	x: number,
 	y: number
 }
@@ -218,29 +213,20 @@ export type Linedef = VectorV & MapLump & {
 	backSide: Either<Sidedef>
 }
 
-export enum FlatType {
-	HOLES, // FlatWithHoles
-	SHAPES, // FlatWithShapes
-	AREA//FlatArea
-}
-
 /**  Flat(flor or celling) is deducted from Linedef and contains closed shapes and holes. */
 export type Flat = {
 	sector: Sector
-	type: FlatType
-}
 
-export type FlatWithHoles = Flat & {
-	walls: Linedef[],
-	holes: Linedef[][]
-}
+	/**
+	 * The first dimension is a shape, and the second contains walls within this particular shape.
+	 * Most sectors have only one shape: [1][walls].
+	 *
+	 * Each wall is a closed polygon.
+	 */
+	walls: Linedef[][],
+	wallsPolygon: Vertex[][]
 
-export type FlatWithShapes = Flat & {
-	walls: Linedef[][]
-}
-
-export type FlatArea = Flat & {
-	walls: Linedef[]
+	holes: Either<Linedef[][]>
 }
 
 /**  @see https://doomwiki.org/wiki/Linedef#Linedef_flags  */
@@ -267,7 +253,7 @@ export type Sidedef = MapLump & {
 	 * x: How many pixels to shift all the sidedef textures on the X axis (right or left).
 	 * y: How many pixels to shift all the sidedef textures on the Y axis (up or down).
 	 */
-	offset: Position
+	offset: Vertex
 
 	/**
 	 * The texture that will be displayed on the border between a sector and its neighboring ceiling of a different
@@ -301,9 +287,9 @@ export type Sidedef = MapLump & {
  */
 export type Sector = MapLump & {
 	id: number
-	floorTexture: Either<Bitmap>
+	floorTexture: Either<RgbaBitmap>
 	floorHeight: number
-	cellingTexture: Either<Bitmap>
+	cellingTexture: Either<RgbaBitmap>
 	cellingHeight: number
 	lightLevel: number
 	specialType: number
@@ -416,6 +402,7 @@ export type TitlePic = {
  * Each sprite consists of multiple directories, where each one provides info for a single frame.
  *
  * @see https://doomwiki.org/wiki/Sprite
+ * @see https://zdoom.org/wiki/Sprite
  */
 export type Sprite = {
 
@@ -426,7 +413,9 @@ export type Sprite = {
 	 * K: angle, V: frames for animation. Each entry in Bitmap[] represents single frame,
 	 * for example: Bitmap[0] -> A, Bitmap[1] -> B
 	 */
-	animations: Record<string, FrameDir[]>
+	animations: Record<string, FrameDir[]>,
+
+	bitmaps: BitmapSprite[]
 }
 
 /**
@@ -486,8 +475,6 @@ export type Bitmap = RgbaBitmap & {
 
 	/** Picture in Doom format consists of columns (x-axis) going downward on the screen (y-axis). */
 	columns: Either<Column>[]
-
-	rgba: Uint8ClampedArray
 }
 
 /**
@@ -653,6 +640,18 @@ const findMax = (vs: VectorV[]): number =>
 	R.reduce((max: number, ld: VectorV) => Math.max(max, ld.start.x, ld.start.y, ld.end.x, ld.end.y),
 		Number.MIN_SAFE_INTEGER, vs)
 
+// based on https://wrfranklin.org/Research/Short_Notes/pnpoly.html
+const containsVertex = (poly: Vertex[]) => (vertex: Vertex): boolean => {
+	let inside = false;
+	for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+		if (((poly[i].y > vertex.y) != (poly[j].y > vertex.y)) &&
+			(vertex.x < (poly[j].x - poly[i].x) * (vertex.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)) {
+			inside = !inside;
+		}
+	}
+	return inside;
+}
+
 // ############################ EXPORTS ############################
 export const testFunctions = {}
 
@@ -683,5 +682,6 @@ export const functions = {
 	filterActions,
 	vertexNear,
 	hasNoVector,
-	stringifyVertex
+	stringifyVertex,
+	containsVertex,
 }

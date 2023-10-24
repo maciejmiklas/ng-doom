@@ -20,7 +20,7 @@ import {E1M1_S39} from "./testdata/data";
 // karma options: --include=**/_test.spec.ts
 describe('test', () => {
 	it('E1M1_S39', () => {
-		const pathsEi = TF.buildPaths(39, E1M1_S39)
+		const pathsEi = TF.buildPolygons(39, E1M1_S39)
 		console.log(pathsEi)
 	})
 })

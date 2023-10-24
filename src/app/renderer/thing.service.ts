@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 import {Injectable} from '@angular/core';
-import {Position, Thing} from "../wad/parser/wad-model";
+import {Sprite, Thing} from "../wad/parser/wad-model";
 import * as T from "three";
 import {Log} from "../common/log";
-import {Either} from "../common/either";
 import {SpriteThing} from "./renderer-model";
-import {config as GC} from "../game-config";
+import {Either, LeftType} from "../common/either";
 
 const CMP = "ThingService"
 
@@ -31,29 +30,20 @@ export class ThingService {
 	constructor() {
 	}
 
-	createThings(things: Thing[], floors: T.Mesh[]): SpriteThing[] {
+	createThings(things: Thing[], sprites: Record<string, Sprite>): SpriteThing[] {
 		Log.debug(CMP, "Placing things...")
-
-		const findFloorHeightF = findFloorHeight(floors);
-		return things.map(th => findFloorHeightF(th.position)
-			.map(floorHeight => createSprite(th, floorHeight)))
-			.filter(ei => ei.isRight()).map(ei => ei.get())
+		return things.map(createSprite(sprites)).filter(sp => sp.isRight()).map(sp => sp.get())
 	}
 }
 
-const createSprite = (thing: Thing, floorHeight: number): SpriteThing => {
+const createSprite = (sprites: Record<string, Sprite>) => (thing: Thing): Either<SpriteThing> => {
+	const spr = sprites[thing.dir.name]
+	if (spr == undefined) {
+		return Either.ofLeft(() => 'Thing: ' + thing.dir.name + ' has no sprite', LeftType.WARN)
+	}
+	const geometry = new T.PlaneGeometry(1, 1);
+	const material = new T.MeshBasicMaterial({color: 0xffff00, side: T.DoubleSide});
+	const plane = new T.Mesh(geometry, material);
 	return null
 }
 
-const findFloorHeight = (floors: T.Mesh[]) => (pos: Position): Either<number> => {
-	const flr = GC.player.floorRay
-	const rc = new T.Raycaster(new T.Vector3(pos.x, 0, pos.y), new T.Vector3(pos.x, 1, pos.y))
-	const intersect = rc.intersectObjects(floors)
-	if (intersect.length > 0) {
-		console.log('FOUND!!!', intersect.length)
-	}
-	{
-		console.log('?', pos.x, pos.y)
-	}
-	return Either.ofLeft(() => 'lleefftt');
-}

@@ -25,12 +25,14 @@ import {
 	Directory,
 	DoomMap,
 	DoomTexture,
+	FlatBySector,
 	Header,
 	Linedef,
 	MapLumpType,
 	Palette,
 	Pnames,
 	Post,
+	RgbaBitmap,
 	Sector,
 	VectorV,
 	Vertex
@@ -46,17 +48,17 @@ export type VectorId = VectorV & {
 	crossing?: boolean
 }
 
-let _linedefs = null
+let _linedefs: Linedef[] = null
 export const getE1M1Linedefs = (): Linedef[] => {
 	if (!_linedefs) {
 		const vertexes = tf.parseVertexes(getWadBytes())(getE1M1Dirs())
-		const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
-		_linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors())
+		const sidedefs = tf.parseSidedefs(getWadBytes(), tf.createTextureLoader(getTextures()))(getE1M1Dirs(), getE1M1Sectors())
+		_linedefs = tf.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getE1M1Sectors())
 	}
 	return _linedefs
 }
 
-let _wadBytes = null
+let _wadBytes: number[] = null
 export const getWadBytes = (): number[] => {
 	if (!_wadBytes) {
 		// @ts-ignore
@@ -65,7 +67,7 @@ export const getWadBytes = (): number[] => {
 	return _wadBytes
 }
 
-let _maps = null
+let _maps: DoomMap[] = null
 export const getMaps = (): DoomMap[] => {
 	if (!_maps) {
 		_maps = mp.parseMaps(getWadBytes(), getAllDirs(), getTextures(), getFlats()).get()
@@ -73,7 +75,7 @@ export const getMaps = (): DoomMap[] => {
 	return _maps
 }
 
-let _e1M1Dirs = null
+let _e1M1Dirs: Directory[] = null
 export const getE1M1Dirs = (): Directory[] => {
 	if (_e1M1Dirs == null) {
 		_e1M1Dirs = tf.parseMapDirs(getAllDirs())(tf.findNextMapStartingDir(getAllDirs())(0).get()).get()
@@ -81,15 +83,23 @@ export const getE1M1Dirs = (): Directory[] => {
 	return _e1M1Dirs
 }
 
-let _sectors = null
-export const getSectors = (): Sector[] => {
-	if (_sectors == null) {
-		_sectors = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createFlatLoader(getFlats()))
+let _e1m1Sectors: Sector[] = null
+export const getE1M1Sectors = (): Sector[] => {
+	if (_e1m1Sectors == null) {
+		_e1m1Sectors = tf.parseSectors(getWadBytes())(getE1M1Dirs(), tf.createFlatLoader(getFlats()))
 	}
-	return _sectors
+	return _e1m1Sectors
 }
 
-let _palette = null
+let _elm1FlatsBySector: FlatBySector[] = null
+export const getE1M1FlatBySector = (): FlatBySector[] => {
+	if (_elm1FlatsBySector == null) {
+		_elm1FlatsBySector = tf.buildFlatsBySectors(getE1M1Linedefs(), getE1M1Sectors())
+	}
+	return _elm1FlatsBySector
+}
+
+let _palette: Palette = null
 export const getPalette = (): Palette => {
 	if (_palette == null) {
 		_palette = pp.parsePlaypal(getWadBytes(), getAllDirs()).get().palettes[0]
@@ -97,7 +107,7 @@ export const getPalette = (): Palette => {
 	return _palette
 }
 
-let _pnames = null
+let _pnames: Pnames = null
 export const getPnames = (): Pnames => {
 	if (_pnames == null) {
 		_pnames = tp.parsePnames(getWadBytes(), getAllDirs()).get()
@@ -105,7 +115,7 @@ export const getPnames = (): Pnames => {
 	return _pnames
 }
 
-let _patches = null
+let _patches: Bitmap[] = null
 export const getPatches = (): Bitmap[] => {
 	if (_patches == null) {
 		_patches = tp.parsePatches(getWadBytes(), getAllDirs(), getPalette(), getPnames()).get()
@@ -113,7 +123,7 @@ export const getPatches = (): Bitmap[] => {
 	return _patches
 }
 
-let _textures = null
+let _textures: DoomTexture[] = null
 export const getTextures = (): DoomTexture[] => {
 	if (!_textures) {
 		_textures = tp.parseTextures(getWadBytes(), getAllDirs(), getPnames(), getPatches()).get()
@@ -121,16 +131,16 @@ export const getTextures = (): DoomTexture[] => {
 	return _textures
 }
 
-let _flats = null
-export const getFlats = (): Bitmap[] => {
+let _flats: RgbaBitmap[] = null
+export const getFlats = (): RgbaBitmap[] => {
 	if (!_flats) {
 		_flats = tp.parseFlats(getWadBytes(), getAllDirs(), getPalette()).get()
 	}
 	return _flats
 }
 
-let _header = null
-export const getHeader = () => {
+let _header: Either<Header> = null
+export const getHeader = (): Either<Header> => {
 	if (!_header) {
 		_header = dp.parseHeader(getWadBytes())
 	}
@@ -150,8 +160,8 @@ export const getAllDirsOp = (): Either<Directory[]> => {
 	return _allDirs
 }
 
-let _firstMap = null
-export const getFirstMap = () => {
+let _firstMap: Directory = null
+export const getFirstMap = (): Directory => {
 	if (!_firstMap) {
 		_firstMap = getAllDirsOp().map(dirs => mpt.findNextMapStartingDir(dirs)).get()(0).get()
 	}
@@ -611,18 +621,40 @@ export const E1M3_S7: VectorId[] = [
 	{"id": 958, "start": {"x": -64, "y": -1440}, "end": {"x": -64, "y": -1312}}]
 
 export const E1M5_S18: VectorId[] = [
-	{"id":162,"start":{"x":-896,"y":896},"end":{"x":-896,"y":768}},
-	{"id":163,"start":{"x":-1064,"y":768},"end":{"x":-1064,"y":896}},
-	{"id":303,"start":{"x":-896,"y":768},"end":{"x":-896,"y":704}},
-	{"id":478,"start":{"x":-1064,"y":768},"end":{"x":-896,"y":768}},
-	{"id":479,"start":{"x":-1064,"y":896},"end":{"x":-896,"y":896}},
-	{"id":501,"start":{"x":-896,"y":960},"end":{"x":-896,"y":896}},
-	{"id":502,"start":{"x":-1064,"y":896},"end":{"x":-1064,"y":960}},
-	{"id":534,"start":{"x":-1064,"y":704},"end":{"x":-1064,"y":768}},
-	{"id":478,"start":{"x":-1064,"y":768},"end":{"x":-896,"y":768}},
-	{"id":479,"start":{"x":-1064,"y":896},"end":{"x":-896,"y":896}},
-	{"id":511,"start":{"x":-896,"y":960},"end":{"x":-1064,"y":960}},
-	{"id":543,"start":{"x":-1064,"y":704},"end":{"x":-896,"y":704}}]
+	{"id": 162, "start": {"x": -896, "y": 896}, "end": {"x": -896, "y": 768}},
+	{"id": 163, "start": {"x": -1064, "y": 768}, "end": {"x": -1064, "y": 896}},
+	{"id": 303, "start": {"x": -896, "y": 768}, "end": {"x": -896, "y": 704}},
+	{"id": 478, "start": {"x": -1064, "y": 768}, "end": {"x": -896, "y": 768}},
+	{"id": 479, "start": {"x": -1064, "y": 896}, "end": {"x": -896, "y": 896}},
+	{"id": 501, "start": {"x": -896, "y": 960}, "end": {"x": -896, "y": 896}},
+	{"id": 502, "start": {"x": -1064, "y": 896}, "end": {"x": -1064, "y": 960}},
+	{"id": 534, "start": {"x": -1064, "y": 704}, "end": {"x": -1064, "y": 768}},
+	{"id": 478, "start": {"x": -1064, "y": 768}, "end": {"x": -896, "y": 768}},
+	{"id": 479, "start": {"x": -1064, "y": 896}, "end": {"x": -896, "y": 896}},
+	{"id": 511, "start": {"x": -896, "y": 960}, "end": {"x": -1064, "y": 960}},
+	{"id": 543, "start": {"x": -1064, "y": 704}, "end": {"x": -896, "y": 704}}]
+
+export const POLY_01_A: Vertex[] = [
+	{"x": 1, "y": 4}, // A
+	{"x": 5, "y": 4}, // G
+	{"x": 7, "y": 3}, // F
+	{"x": 7, "y": 2}, // E
+	{"x": 6, "y": 1}, // K
+	{"x": 5, "y": 0}, // D
+	{"x": 3, "y": 0}, // C
+	{"x": 1, "y": 2}, // B
+]
+
+export const POLY_01_G: Vertex[] = [
+	{"x": 5, "y": 4}, // G
+	{"x": 5, "y": 6}, // H
+	{"x": 10, "y": 6}, // I
+	{"x": 10, "y": 1}, // J
+	{"x": 6, "y": 1}, // K
+	{"x": 7, "y": 2}, // E
+	{"x": 7, "y": 3}, // F
+	{"x": 5, "y": 4}, // G
+]
 
 export const ALL_PATHS: VectorId[][] = [E1M4_S36, PATH_CLOSED_1, PATH_CONTINUOUS_OPEN, PATH_CLOSED_MIXED,
 	PATH_CLOSED_SORTED, PATH_CLOSED_MIXED_2, PATH_CLOSED_REVERSED_ONE, PATH_CLOSED_REVERSED_MIX, PATH_CROSSING_MIXED,

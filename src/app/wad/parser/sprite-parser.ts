@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Directories, Directory, FrameDir, Palette, Sprite} from './wad-model'
-import {Either} from '../../common/either'
+import {Bitmap, BitmapSprite, Directories, Directory, FrameDir, Palette, Sprite} from './wad-model'
+import {Either, LeftType} from '../../common/either'
 import {functions as DP} from './directory-parser'
 import {functions as BP} from './bitmap-parser'
 import * as R from 'ramda'
@@ -79,13 +79,40 @@ const toFramesByAngle = (dirs: FrameDir[]): Record<string, FrameDir[]> =>
 /** K: Sprite's name, V: the Sprite */
 const parseSpritesAsArray = (wadBytes: number[], dirs: Directory[]): Sprite[] => {
 	return groupDirsBySpriteName(findSpriteDirs(dirs)).map(toFrameDirs(wadBytes, getPalette())).map(frames => {
-		return {name: frames[0].spriteName, animations: toFramesByAngle(frames)}
-	})
+		const animations = toFramesByAngle(frames)
+		const name = frames[0].spriteName
+		return toBitmapSprites(name, animations).map(bitmaps => ({name, animations, bitmaps}))
+	}).filter(bs => bs.isRight()).map(bs => bs.get())
 }
 
 /** K: Sprite's name, V: the Sprite */
 const parseSpritesAsMap = (wadBytes: number[], dirs: Directory[]): Record<string, Sprite> =>
 	R.mapAccum((acc: {}, s: Sprite) => [acc, acc[s.name] = s], {}, parseSpritesAsArray(wadBytes, dirs))[0]
+
+const toBitmapSprites = (name: string, animations: Record<string, FrameDir[]>): Either<BitmapSprite[]> => {
+	const sprites = Object.keys(animations).map(angle => animations[angle]).map((d: FrameDir[]) => toBitmapSprite(d))
+		.filter(md => md.isRight()).map(md => md.get())
+	return Either.ofCondition(() => sprites.length > 0, () => name + ' has no sprites', () => sprites, LeftType.WARN)
+}
+
+const toBitmapSprite = (frame: FrameDir[]): Either<BitmapSprite> => {
+	const frames: Bitmap[] = frame.filter(f => f.bitmap.isRight()).map(f => f.bitmap.get())
+	const first = frame[0]
+	return Either.ofCondition(() => frames.length > 0, () => first.spriteName + ' has no frames', () => ({
+		name: first.spriteName,
+		angle: first.angle.toString(),
+		frames
+	}))
+}
+
+const maxSpriteSize = (sprite: BitmapSprite): number => Math.max(
+	sprite.frames.map(s => s.header.width).reduce((prev, cur) => prev > cur ? prev : cur),
+	sprite.frames.map(s => s.header.height).reduce((prev, cur) => prev > cur ? prev : cur))
+
+const calcScale = (maxScale: number) => (sprite: BitmapSprite): number => {
+	const scale = maxScale / maxSpriteSize(sprite)
+	return scale - scale % 1
+}
 
 // ############################ EXPORTS ############################
 export const testFunctions = {
@@ -100,11 +127,17 @@ export const testFunctions = {
 	parseDirMirrorFrameName,
 	parseDirMirrorAngle,
 	hasMirrorFrame,
-	toFrameDirs
+	toFrameDirs,
+	maxSpriteSize,
+	calcScale,
+	toBitmapSprite,
+	toBitmapSprites
 }
 
 export const functions = {
 	parseSpritesAsMap,
-	parseSpritesAsArray
+	parseSpritesAsArray,
+	calcScale,
+	toBitmapSprites
 }
 

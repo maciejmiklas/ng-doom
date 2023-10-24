@@ -168,52 +168,7 @@ describe('texture-parser#toImageData', () => {
 	})
 })
 
-describe('texture-parser#toBitmapSprite', () => {
-	const sprites: Sprite[] = SP.parseSpritesAsArray(getWadBytes(), getAllDirs())
 
-	it('AMMO', () => {
-		const bs: BitmapSprite = TF.toBitmapSprite(sprites[0].animations[0]).get()
-		expect(bs.name).toEqual('AMMO')
-		expect(bs.angle).toEqual('0')
-		bs.frames.forEach(f => {
-			expect(f.header.dir.name).toContain('AMMO')
-		})
-	})
-
-	it('BKEY', () => {
-		const bs: BitmapSprite = TF.toBitmapSprite(sprites[10].animations[0]).get()
-		expect(bs.name).toEqual('BKEY')
-		expect(bs.angle).toEqual('0')
-		bs.frames.forEach(f => {
-			expect(f.header.dir.name).toContain('BKEY')
-		})
-	})
-})
-
-describe('texture-parser#maxSpriteSize', () => {
-	const sprites: Sprite[] = SP.parseSpritesAsArray(getWadBytes(), getAllDirs())
-
-	it('AMMO', () => {
-		const bs: BitmapSprite = TF.toBitmapSprite(sprites[0].animations[0]).get()
-		expect(bs.name).toEqual('AMMO')
-		expect(TF.maxSpriteSize(bs)).toEqual(28)
-
-		bs.frames.forEach(f => {
-			expect(f.header.width).toBeLessThanOrEqual(28)
-			expect(f.header.height).toBeLessThanOrEqual(28)
-		})
-	})
-
-	it('BKEY', () => {
-		const bs: BitmapSprite = TF.toBitmapSprite(sprites[10].animations[0]).get()
-		expect(bs.name).toEqual('BKEY')
-		expect(TF.maxSpriteSize(bs)).toEqual(16)
-		bs.frames.forEach(f => {
-			expect(f.header.width).toBeLessThanOrEqual(16)
-			expect(f.header.height).toBeLessThanOrEqual(16)
-		})
-	})
-})
 
 
 describe('texture-parser#parseTextures', () => {

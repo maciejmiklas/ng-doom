@@ -35,12 +35,13 @@ import {
 	getAllDirs,
 	getAllDirsOp,
 	getE1M1Dirs,
+	getE1M1FlatBySector,
 	getE1M1Linedefs,
+	getE1M1Sectors,
 	getFirstMap,
 	getFlats,
 	getHeader,
 	getMaps,
-	getSectors,
 	getTextures,
 	getWadBytes,
 	PATH_CLOSED_MIXED,
@@ -124,6 +125,7 @@ const validateFirstThing = (thing: Thing) => {
 	expect(thing.angleFacing).toEqual(90)
 	expect(thing.thingType).toEqual(1)
 	expect(thing.flags).toEqual(7)
+	expect(thing.sector.id).toEqual(38)
 }
 
 const validateThirdThing = (thing: Thing) => {
@@ -133,6 +135,7 @@ const validateThirdThing = (thing: Thing) => {
 	expect(thing.angleFacing).toEqual(90)
 	expect(thing.thingType).toEqual(3)
 	expect(thing.flags).toEqual(7)
+	expect(thing.sector.id).toEqual(38)
 }
 
 const validateLastThing = (thing: Thing) => {
@@ -142,32 +145,33 @@ const validateLastThing = (thing: Thing) => {
 	expect(thing.angleFacing).toEqual(0)
 	expect(thing.thingType).toEqual(2015)
 	expect(thing.flags).toEqual(7)
+	expect(thing.sector.id).toEqual(62)
 }
 
 describe('map-parser#parseThing', () => {
 	const thingsDir = getAllDirs()[getFirstMap().idx + 1]
-	const parser = TF.parseThing(getWadBytes(), thingsDir)
+	const parser = TF.parseThing(getWadBytes(), thingsDir, getE1M1FlatBySector())
 
 	it('Validate Things dir', () => {
 		validateThingsDir(thingsDir)
 	})
 
 	it('First Thing', () => {
-		validateFirstThing(parser(0))
+		validateFirstThing(parser(0).get())
 	})
 
 	it('Third Thing', () => {
-		validateThirdThing(parser(2))
+		validateThirdThing(parser(2).get())
 	})
 
 	it('Last Thing', () => {
-		validateLastThing(parser(thingsDir.size / 10 - 1))
+		validateLastThing(parser(thingsDir.size / 10 - 1).get())
 	})
 })
 
 describe('map-parser#parseThings', () => {
 	const thingsDir = getAllDirs()[getFirstMap().idx + MapLumpType.THINGS]
-	const things: Thing[] = TF.parseThings(getWadBytes())(getE1M1Dirs())
+	const things: Thing[] = TF.parseThings(getWadBytes(), getE1M1Dirs(), getE1M1FlatBySector())
 
 	it('Things dir name', () => {
 		expect(thingsDir.name).toEqual('THINGS')
@@ -270,7 +274,7 @@ const validateSidedefDir = (dir: Directory) => {
 
 describe('map-parser#parseSidedef', () => {
 	const thingsDir = getAllDirs()[getFirstMap().idx + +MapLumpType.SIDEDEFS]
-	const parser = TF.parseSidedef(getWadBytes(), thingsDir, TF.createTextureLoader(getTextures()), getSectors())
+	const parser = TF.parseSidedef(getWadBytes(), thingsDir, TF.createTextureLoader(getTextures()), getE1M1Sectors())
 
 	it('Sidedef Nr. 0', () => {
 		validateSidedef0(parser(0).get())
@@ -294,7 +298,7 @@ describe('map-parser#parseSidedef', () => {
 })
 
 describe('map-parser#parseSidedefs', () => {
-	const parsed = TF.parseSidedefs(getWadBytes(), TF.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
+	const parsed = TF.parseSidedefs(getWadBytes(), TF.createTextureLoader(getTextures()))(getE1M1Dirs(), getE1M1Sectors())
 
 	it('Sidedef Nr. 0', () => {
 		validateSidedef0(parsed[0].get())
@@ -426,8 +430,8 @@ const validateLindedef26 = (lindedef: Linedef) => {
 describe('map-parser#parseLinedef', () => {
 	const linedefDir = getAllDirs()[getFirstMap().idx + MapLumpType.LINEDEFS]
 	const vertexes = TF.parseVertexes(getWadBytes())(getE1M1Dirs())
-	const sidedefs = TF.parseSidedefs(getWadBytes(), TF.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
-	const parser = TF.parseLinedef(getWadBytes(), linedefDir, vertexes, sidedefs, getSectors())
+	const sidedefs = TF.parseSidedefs(getWadBytes(), TF.createTextureLoader(getTextures()))(getE1M1Dirs(), getE1M1Sectors())
+	const parser = TF.parseLinedef(getWadBytes(), linedefDir, vertexes, sidedefs, getE1M1Sectors())
 
 	it('Validate Lindedefs Dir', () => {
 		validateLindedefsDir(linedefDir)
@@ -829,8 +833,8 @@ describe('map-parser#parseSectors', () => {
 describe('map-parser#groupBySectorArray', () => {
 	const sectors: Sector[] = TF.parseSectors(getWadBytes())(getE1M1Dirs(), TF.createFlatLoader(getFlats()))
 	const vertexes = TF.parseVertexes(getWadBytes())(getE1M1Dirs())
-	const sidedefs = TF.parseSidedefs(getWadBytes(), TF.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
-	const linedefs = TF.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors())
+	const sidedefs = TF.parseSidedefs(getWadBytes(), TF.createTextureLoader(getTextures()))(getE1M1Dirs(), getE1M1Sectors())
+	const linedefs = TF.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getE1M1Sectors())
 	const gr: Linedef[][] = TF.groupBySectorArray(linedefs)
 
 	it('No duplicates', () => {
@@ -884,9 +888,9 @@ describe('map-parser#groupBySectorArray', () => {
 
 describe('map-parser#groupLinedefsBySectors', () => {
 	const vertexes = TF.parseVertexes(getWadBytes())(getE1M1Dirs())
-	const sidedefs = TF.parseSidedefs(getWadBytes(), TF.createTextureLoader(getTextures()))(getE1M1Dirs(), getSectors())
-	const linedefs = TF.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getSectors())
-	const gr: LinedefBySector[] = TF.buildFlatsBySectors(linedefs, getSectors())
+	const sidedefs = TF.parseSidedefs(getWadBytes(), TF.createTextureLoader(getTextures()))(getE1M1Dirs(), getE1M1Sectors())
+	const linedefs = TF.parseLinedefs(getWadBytes(), getE1M1Dirs(), vertexes, sidedefs, getE1M1Sectors())
+	const gr: LinedefBySector[] = TF.buildFlatsBySectors(linedefs, getE1M1Sectors())
 
 	it('Sectors size on E1M1', () => {
 		let found = 0
@@ -1016,7 +1020,6 @@ describe('map-parser#findLastNotConnected', () => {
 
 })
 
-
 describe('map-parser#findMaxSectorId', () => {
 
 	it('E1M1 - LD', () => {
@@ -1031,4 +1034,5 @@ describe('map-parser#findMaxSectorId', () => {
 		expect(TF.findMaxSectorId(getMaps()[3].linedefs)).toEqual(138)
 	})
 })
+
 
