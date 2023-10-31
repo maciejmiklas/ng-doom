@@ -95,7 +95,7 @@ export class CarouselComponent implements OnInit, AfterViewInit, CarouselControl
 	}
 
 	private parseSlideIdx(name: string): number {
-		return parseInt(name.substr(10, name.length), 10)
+		return parseInt(name.substring(10, name.length), 10)
 	}
 
 	ngAfterViewInit(): void {

@@ -663,7 +663,7 @@ fields:
       is west, 270 is south. This value is only used for monsters, player
       starts, deathmatch starts, and teleporter landing spots. Other
       things look the same from all directions. Values are rounded to
-      the nearest 45 degree angle, so if the value is 80, it will
+      the nearest 45 degree rotation, so if the value is 80, it will
       actually face 90 - north.
 (4) Type of thing, see next subsection, [4-2-1]
 (5) Thing options, see [4-2-3]
@@ -1515,7 +1515,7 @@ which are part of the NODES recursive tree.
 
 (1) start of seg is VERTEX with this number
 (2) end VERTEX
-(3) angle: 0= east, 16384=north, -16384=south, -32768=west.
+(3) rotation: 0= east, 16384=north, -16384=south, -32768=west.
       In hex, it's 0000=east, 4000=north, 8000=west, c000=south.
       This is also know as BAMS for Binary Angle Measurement.
 (4) LINEDEF that this seg goes along
@@ -1532,7 +1532,7 @@ which are part of the NODES recursive tree.
       the two endpoints of the linedef, this offset will be 0.
 
   For diagonal segs, the offset distance can be obtained from the
-formula DISTANCE = SQR((x2 - x1)^2 + (y2 - y1)^2). The angle can be
+formula DISTANCE = SQR((x2 - x1)^2 + (y2 - y1)^2). The rotation can be
 calculated from the inverse tangent of the dx and dy in the vertices,
 multiplied to convert PI/2 radians (90 degrees) to 16384. And since
 most arctan functions return a value between -(pi/2) and (pi/2),
@@ -1719,7 +1719,7 @@ actual level space, i.e. sectors.
 needs to be able to pick partition lines automatically. From studying
 the original maps, it appears that they usually chose a linedef which
 divides the child's space roughly in "half". This is restricted by the
-availability of a seg in a good location, with a good angle. Also, the
+availability of a seg in a good location, with a good rotation. Also, the
 "half" refers to the total number of ssectors in any particular child,
 which we have no way of knowing when we start! Optimization methods are
 probably used, or maybe brute force, trying every candidate seg until
@@ -2012,7 +2012,7 @@ DOOM 1 sprite is W=22, but some of the DOOM 2 monsters need a few more
 frames.
   The "0" in the lump name is for "rotations" or "rot"s. All the
 static objects like torches and barrels and dead bodies look the same
-from any angle. This is because they have a "rot=0 lump" as DOOM itself
+from any rotation. This is because they have a "rot=0 lump" as DOOM itself
 might say. Monsters and projectiles look different from different
 angles. This is done with rots 1-8. This diagram shows how rot 1 is for
 the front and they go counter-clockwise (looking from above) to 8:
@@ -3394,7 +3394,7 @@ different kinds of lumps:
 <THINGS>        := <thing> [...]
 <thing>         := <x_position>         ;all are <short>
                    <y_position>
-                   <angle>
+                   <rotation>
                    <type>
                    <options>
 

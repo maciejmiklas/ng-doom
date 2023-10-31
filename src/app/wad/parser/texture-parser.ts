@@ -16,11 +16,9 @@
 import * as R from 'ramda'
 import {
 	Bitmap,
-	BitmapSprite,
 	Directories,
 	Directory,
 	DoomTexture,
-	FrameDir,
 	Palette,
 	Patch,
 	Pnames,
@@ -53,8 +51,8 @@ const parsePatches = (wadBytes: number[], dirs: Directory[], palette: Palette, p
 	const bitmapParser = BP.parseBitmap(wadBytes, palette)
 	const patches = pnames.names
 		.map(patchDirFinder) // (dirName)=> Either<Directory>
-		.filter(d => d.isRight()).map(d => d.get()) // (Either<Directory>)=>Directory
-		.map(bitmapParser).filter(b => b.isRight()).map(b => b.get()); // (Directory) => Bitmap
+		.filter(d => d.filter()).map(d => d.get()) // (Either<Directory>)=>Directory
+		.map(bitmapParser).filter(b => b.filter()).map(b => b.get()); // (Directory) => Bitmap
 
 	return Either.ofCondition(() => patches.length > 0, () => 'No patches', () => patches)
 }

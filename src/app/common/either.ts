@@ -107,6 +107,7 @@ export abstract class Either<T> {
 
 	abstract isRight(): boolean
 
+	abstract filter(type: LeftType): boolean
 	abstract filter(): boolean
 
 	abstract map(fn: (val: T) => any): Either<any>
@@ -169,8 +170,14 @@ export class Left<T> extends Either<T> {
 		return false
 	}
 
-	filter(): boolean {
-		if (Log.isDebug()) {
+	filter(type = LeftType.OK): boolean {
+		if (Log.isWarn() && type == LeftType.WARN) {
+			Log.warn(Right.CMP, 'Filter out:', this.message())
+
+		} else if (Log.isError() && type == LeftType.ERROR) {
+			Log.error(Right.CMP, 'Filter out:', this.message())
+
+		} else if (Log.isDebug()) {
 			Log.debug(Left.CMP, 'Filter false: ', this.message())
 		}
 		return false
@@ -268,7 +275,7 @@ export class Right<T> extends Either<T> {
 		return true
 	}
 
-	filter(): boolean {
+	filter(type = LeftType.OK): boolean {
 		return true
 	}
 

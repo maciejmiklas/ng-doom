@@ -238,7 +238,7 @@ const parseThings = (bytes: number[], mapDirs: Directory[], flats: FlatBySector[
 	const thingDir = mapDirs[MapLumpType.THINGS]
 	const parser = parseThing(bytes, thingDir, flats)
 	return unfoldByDirectorySize(thingDir, 10).map((ofs, thingIdx) => parser(thingIdx))
-		.filter(th => th.isRight()).map(th => th.get()).map(th => th)
+		.filter(th => th.filter()).map(th => th.get()).map(th => th)
 }
 
 const parseSector = (bytes: number[], dir: Directory, flatLoader: (name: string) => Either<RgbaBitmap>) => (thingIdx: number): Sector => {

@@ -16,9 +16,8 @@
 import {functions as TP, testFunctions as TF} from './texture-parser'
 
 import {getAllDirs, getPalette, getPatches, getPnames, getWadBytes} from './testdata/data'
-import {Bitmap, BitmapSprite, Directories, Directory, DoomTexture, Pnames, Sprite} from './wad-model'
+import {Bitmap, Directories, Directory, DoomTexture, Pnames} from './wad-model'
 import {functions as DP} from './directory-parser'
-import {functions as SP} from './sprite-parser'
 import {functions as BP} from './bitmap-parser'
 
 describe('texture-parser#findPatchDir', () => {
@@ -167,8 +166,6 @@ describe('texture-parser#toImageData', () => {
 		expect(data[396]).toEqual(179)
 	})
 })
-
-
 
 
 describe('texture-parser#parseTextures', () => {

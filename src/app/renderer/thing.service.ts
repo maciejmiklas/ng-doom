@@ -32,7 +32,7 @@ export class ThingService {
 
 	createThings(things: Thing[], sprites: Record<string, Sprite>): SpriteThing[] {
 		Log.debug(CMP, "Placing things...")
-		return things.map(createSprite(sprites)).filter(sp => sp.isRight()).map(sp => sp.get())
+		return things.map(createSprite(sprites)).filter(sp => sp.filter()).map(sp => sp.get())
 	}
 }
 

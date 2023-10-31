@@ -1,4 +1,4 @@
-import {Either} from './either'
+import {Either, LeftType} from './either'
 
 class TwoStrings {
 	public vv: string | undefined
@@ -215,6 +215,10 @@ describe('Either#ofNullable', () => {
 
 	it('from null - filter', () => {
 		expect(nil.filter()).toBeFalse()
+	})
+
+	it('from null - LeftType', () => {
+		expect(nil.filter(LeftType.OK)).toBeFalse()
 	})
 
 	it('from null - get', () => {

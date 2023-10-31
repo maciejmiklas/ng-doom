@@ -64,18 +64,18 @@ export type Directory = {
  * Names of static directories
  */
 export enum Directories {
-	PLAYPAL = 'PLAYPAL',
+	PLAYPAL = 'PLAYPAL', // The fourteen palettes used at runtime. Detailed on page 246.
 	TITLEPIC = 'TITLEPIC',
 	VERTEXES = 'VERTEXES',
 	CREDIT = 'CREDIT',
 	M_DOOM = 'M_DOOM',
-	S_START = 'S_START',
-	S_END = 'S_END',
+	S_START = 'S_START', // Zero-sized lump marking start of item/monster "sprites" section.
+	S_END = 'S_END', // Zero-sized lump marking end of item/monster "sprites" section.
 	PNAMES = 'PNAMES',
-	TEXTURE1 = 'TEXTURE1',
+	TEXTURE1 = 'TEXTURE1', // A dictionary of all wall texture lumps referenced by SIDEDEFS.
 	TEXTURE2 = 'TEXTURE2',
-	F_START = 'F_START',
-	F_END = 'F_END'
+	F_START = 'F_START', // Zero-sized lump marking the beginning of flat textures.
+	F_END = 'F_END' // Zero-sized lump marking the end of flat textures.
 }
 
 /**
@@ -392,9 +392,9 @@ export type TitlePic = {
 /**
  * Sprites are graphics used for Things, for example: gun, monster, pickup, power up.
  *
- * Directory Name not only provides name for the Sprite, but also info about animation frames and angle: first 4-characters are the
- * Sprite's name, 5-th character is the frame number for animation (A-Z), following characters define angle.
- * Example: SHTGA0,SHTGB0,SHTGAC0 -> Sprite SHTG, single angle 0, 3 frames: A, B, C.
+ * Directory Name not only provides name for the Sprite, but also info about animation frames and rotation: first 4-characters are the
+ * Sprite's name, 5-th character is the frame number for animation (A-Z), following characters define rotation.
+ * Example: SHTGA0,SHTGB0,SHTGAC0 -> Sprite SHTG, single rotation 0, 3 frames: A, B, C.
  *
  * Some sprites can have mirrored image, for example: SARGC3C7 -> this represents two frames: SARGC3 and SARGC7 as mirror image of the
  * first one.
@@ -403,6 +403,7 @@ export type TitlePic = {
  *
  * @see https://doomwiki.org/wiki/Sprite
  * @see https://zdoom.org/wiki/Sprite
+ * @see doc/dmspec16.txt -> CHAPTER [5]: Graphics
  */
 export type Sprite = {
 
@@ -410,12 +411,34 @@ export type Sprite = {
 	name: string,
 
 	/**
-	 * K: angle, V: frames for animation. Each entry in Bitmap[] represents single frame,
-	 * for example: Bitmap[0] -> A, Bitmap[1] -> B
+	 * K: frame name, ASCII: A-Z
+	 * V: frames for different rotations/angles. Eventually this list contains only one element,
+	 * 		if this frame has only one angle.
 	 */
-	animations: Record<string, FrameDir[]>,
+	frames: Record<string, Frame[]>,
+}
 
-	bitmaps: BitmapSprite[]
+export type Frame = {
+	/** Sprite dir, like: TROOA2A8 or TROOA3A7 */
+	dir: Directory,
+
+	/** Frame name, ASCII: A-Z */
+	frameName: string,
+
+	/** 4-character name */
+	spriteName: string,
+
+	/**
+	 *        3
+	 *       4 | 2
+	 *        \|/
+	 *      5--*----> 1   Thing is facing this direction
+	 *        /|\
+	 *       6 | 8
+	 *         7
+	 */
+	rotation: number,
+	bitmap: Bitmap,
 }
 
 /**
@@ -507,22 +530,6 @@ export type Patch = {
 	patchName: string
 
 	bitmap: Bitmap
-}
-
-export type BitmapSprite = {
-	name: string,
-	angle: string,
-	frames: Bitmap[]
-}
-
-export type FrameDir = {
-	/** A, B, C,....F */
-	frameName: string,
-	spriteName: string,
-	angle: number,
-	mirror: boolean,
-	bitmap: Either<Bitmap>,
-	dir: Directory,
 }
 
 export type Wad = {

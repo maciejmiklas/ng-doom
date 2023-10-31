@@ -41,15 +41,15 @@ export class WallService implements RenderCallback {
 
 	renderWalls({sector, linedefs}: LinedefBySector): T.Mesh[] {
 		const middleWall = linedefs.map(renderMiddleWall(sector))
-			.filter(m => m.isRight())
+			.filter(m => m.filter())
 			.map(m => m.get())
 
 		const upperWall = linedefs.map(renderUpperWall(sector))
-			.filter(m => m.isRight())
+			.filter(m => m.filter())
 			.map(m => m.get())
 
 		const lowerWall = linedefs.map(renderLowerWall(sector))
-			.filter(m => m.isRight())
+			.filter(m => m.filter())
 			.map(m => m.get())
 
 		const mesh: T.Mesh[] = [...middleWall, ...upperWall, ...lowerWall]

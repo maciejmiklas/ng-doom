@@ -16,7 +16,7 @@
 import {Component, OnInit} from '@angular/core'
 import {WadStorageService} from '../wad-storage.service'
 import {functions as SP} from '../parser/sprite-parser'
-import {BitmapSprite, Sprite} from '../parser/wad-model'
+import {Bitmap, Sprite} from '../parser/wad-model'
 import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {MainEvent} from '../../main/main-event'
 import {NavbarPluginFactory} from '../../main/navbar_plugin'
@@ -33,7 +33,7 @@ import {NgFor} from '@angular/common';
 })
 export class WadSpritesComponent implements OnInit, SpritesListControl {
 
-	sprites: BitmapSprite[][]
+	sprites: SingleSprite[]
 	scale: number[]
 	private readonly ZOOM_MAX_SIZE = 150; // box has 200px, it's set in .app-sprite
 
@@ -42,7 +42,7 @@ export class WadSpritesComponent implements OnInit, SpritesListControl {
 
 	ngOnInit(): void {
 		this.sprites = this.readSprites(() => true)
-		this.scale = this.sprites.map(s => s[0]).map(SP.calcScale(this.ZOOM_MAX_SIZE))
+		this.scale = this.sprites.map(s => s.sprite).map(SP.calcScale(this.ZOOM_MAX_SIZE))
 		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadSpritesNavbarComponent, this)))
 	}
 
@@ -50,11 +50,23 @@ export class WadSpritesComponent implements OnInit, SpritesListControl {
 		this.sprites = this.readSprites(s => s.name.toLowerCase().includes(filter.toLowerCase()))
 	}
 
-	private readSprites(filterSprite: (s: Sprite) => boolean): BitmapSprite[][] {
-		return Object.entries(this.wadStorage.getCurrent().get().wad.sprites).map(w => w[1])
+	private readSprites(filterSprite: (s: Sprite) => boolean): SingleSprite[] {
+		const sss = Object.entries(this.wadStorage.getCurrent().get().wad.sprites).map(w => w[1])
 			.filter(s => filterSprite(s))
-			.map(s => s.bitmaps)
+			.map(sprite => ({
+				name: sprite.name,
+				sprite,
+				frames: Object.values(sprite.frames).map(fr => fr[0].bitmap)
+			}))
+
+		return sss;
 	}
+}
+
+export type SingleSprite = {
+	name: string,
+	frames: Bitmap[],
+	sprite: Sprite
 }
 
 export interface SpritesListControl {

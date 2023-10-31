@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Bitmap, BitmapSprite, Directories, Directory, FrameDir, Palette, Sprite} from './wad-model'
+import {Bitmap, Directories, Directory, Frame, Palette, Sprite} from './wad-model'
 import {Either, LeftType} from '../../common/either'
 import {functions as DP} from './directory-parser'
 import {functions as BP} from './bitmap-parser'
@@ -32,84 +32,70 @@ const findSpriteDirs = (dirs: Directory[]): Directory[] => {
 
 /** #sprites contains only Dirs declaring sprites. */
 const groupDirsBySpriteName = (sprites: Directory[]): Directory[][] => {
-	const sorted = R.sortBy(parseDirSpriteName)(sprites); // sort by #sectorId in order to be able to group by it
-	return R.groupWith((d1: Directory, d2: Directory) => parseDirSpriteName(d1) === parseDirSpriteName(d2))(sorted)
+	const sorted = R.sortBy(parseSpriteName)(sprites); // sort by sprite name in order to be able to group by it
+	return R.groupWith((d1: Directory, d2: Directory) => parseSpriteName(d1) === parseSpriteName(d2))(sorted)
 }
 
-const parseDirSpriteName = (dir: Directory): string => dir.name.substr(0, 4)
-const parseDirFrameName = (dir: Directory): string => dir.name.substr(4, 1)
-const parseDirAngle = (dir: Directory): number => Number(dir.name.substr(5, 1))
-const parseDirMirrorFrameName = (dir: Directory): string => dir.name.substr(6, 1)
-const parseDirMirrorAngle = (dir: Directory): number => Number(dir.name.substr(7, 1))
-const hasMirrorFrame = (dir: Directory): number => Number(dir.name.length === 8)
+const parseSpriteName = ({name}: Directory): string => name.substring(0, 4)
+const parseFrameName = ({name}: Directory): string => name.substring(4, 5)
+const parseRotation = ({name}: Directory): number => Number(name.substring(5, 6))
+const parseMirrorFrameName = ({name}: Directory): string => name.substring(6, 7)
+const parseMirrorRotation = ({name}: Directory): number => Number(name.substring(7, 8))
+const isMirrorFrame = ({name}: Directory): boolean => name.length === 8
 
 /** #dirs contains all dirs for single sprite */
-const toFrameDirs = (wadBytes: number[], palette: Palette) => (dirs: Directory[]): FrameDir[] => {
-	const fd: FrameDir[] = dirs.map(toFrameDir(wadBytes, palette))
-	const fdMirror: FrameDir[] = dirs.filter(hasMirrorFrame).map(toMirrorFrameDir(wadBytes, palette))
-	return fd.concat(fdMirror)
-}
-
-const toFrameDir = (wadBytes: number[], palette: Palette) => (dir: Directory): FrameDir => {
-	return {
-		frameName: parseDirFrameName(dir),
-		spriteName: parseDirSpriteName(dir),
-		dir,
-		angle: parseDirAngle(dir),
-		mirror: false,
-		bitmap: BP.parseBitmap(wadBytes, palette)(dir)
-	}
-}
-
-const toMirrorFrameDir = (wadBytes: number[], palette: Palette) => (dir: Directory): FrameDir => {
-	return {
-		frameName: parseDirMirrorFrameName(dir),
-		spriteName: parseDirSpriteName(dir),
-		dir,
-		angle: parseDirMirrorAngle(dir),
-		mirror: true,
-		bitmap: BP.parseBitmap(wadBytes, palette)(dir)
-	}
-}
-
-/** #dirs contains all dirs for single sprite */
-const toFramesByAngle = (dirs: FrameDir[]): Record<string, FrameDir[]> =>
-	R.groupBy((d: FrameDir) => d.angle.toString())(dirs)
-
-/** K: Sprite's name, V: the Sprite */
-const parseSpritesAsArray = (wadBytes: number[], dirs: Directory[]): Sprite[] => {
-	return groupDirsBySpriteName(findSpriteDirs(dirs)).map(toFrameDirs(wadBytes, getPalette())).map(frames => {
-		const animations = toFramesByAngle(frames)
-		const name = frames[0].spriteName
-		return toBitmapSprites(name, animations).map(bitmaps => ({name, animations, bitmaps}))
-	}).filter(bs => bs.isRight()).map(bs => bs.get())
+const toFrames = (wadBytes: number[], palette: Palette) => (dirs: Directory[]): Frame[] => {
+	const fd = dirs.map(toMainFrame(wadBytes, palette))
+	const fdMirror = dirs.filter(isMirrorFrame).map(toMirrorFrame(wadBytes, palette))
+	return fd.concat(fdMirror).filter(f => f.filter(LeftType.WARN)).map(f => f.get())
 }
 
 /** K: Sprite's name, V: the Sprite */
-const parseSpritesAsMap = (wadBytes: number[], dirs: Directory[]): Record<string, Sprite> =>
-	R.mapAccum((acc: {}, s: Sprite) => [acc, acc[s.name] = s], {}, parseSpritesAsArray(wadBytes, dirs))[0]
+const parseSprites = (wadBytes: number[], dirs: Directory[]): Record<string, Sprite> => {
+	const sprites = groupDirsBySpriteName(findSpriteDirs(dirs)).map(toFrames(wadBytes, getPalette()))
+		// #fs contains all frames for a single sprite
+		.map(fs => {
+			const name = fs[0].spriteName
+			const frames: Record<string, Frame[]> = R.groupBy<Frame>(fr => fr.frameName)(fs)
+			return Either.ofRight({name, frames})
+		}).filter(bs => bs.filter(LeftType.WARN)).map(bs => bs.get())
 
-const toBitmapSprites = (name: string, animations: Record<string, FrameDir[]>): Either<BitmapSprite[]> => {
-	const sprites = Object.keys(animations).map(angle => animations[angle]).map((d: FrameDir[]) => toBitmapSprite(d))
-		.filter(md => md.isRight()).map(md => md.get())
-	return Either.ofCondition(() => sprites.length > 0, () => name + ' has no sprites', () => sprites, LeftType.WARN)
+	return R.reduce(
+		(rec, sp: Sprite) => {
+			rec[sp.name] = sp
+			return rec
+		}, {}, sprites)
 }
 
-const toBitmapSprite = (frame: FrameDir[]): Either<BitmapSprite> => {
-	const frames: Bitmap[] = frame.filter(f => f.bitmap.isRight()).map(f => f.bitmap.get())
-	const first = frame[0]
-	return Either.ofCondition(() => frames.length > 0, () => first.spriteName + ' has no frames', () => ({
-		name: first.spriteName,
-		angle: first.angle.toString(),
-		frames
+const toMainFrame = (wadBytes: number[], palette: Palette) => (dir: Directory): Either<Frame> =>
+	BP.parseBitmap(wadBytes, palette)(dir).map(bitmap => ({
+		spriteName: parseSpriteName(dir),
+		frameName: parseFrameName(dir),
+		rotation: parseRotation(dir),
+		dir,
+		bitmap
 	}))
+
+const toMirrorFrame = (wadBytes: number[], palette: Palette) => (dir: Directory): Either<Frame> =>
+	BP.parseBitmap(wadBytes, palette)(dir).map(bitmap => ({// TODO mirror/rotate bitmap
+		spriteName: parseSpriteName(dir),
+		frameName: parseMirrorFrameName(dir),
+		rotation: parseMirrorRotation(dir),
+		dir,
+		bitmap
+	}))
+
+const spriteToBitmaps = (sprite: Sprite): Bitmap[] =>
+	Object.values(sprite.frames).flat().map(fr => fr.bitmap)
+
+const maxSpriteSize = (sprite: Sprite): number => {
+	const sb = spriteToBitmaps(sprite)
+	return Math.max(
+		sb.map(s => s.header.width).reduce((prev, cur) => prev > cur ? prev : cur),
+		sb.map(s => s.header.height).reduce((prev, cur) => prev > cur ? prev : cur))
 }
 
-const maxSpriteSize = (sprite: BitmapSprite): number => Math.max(
-	sprite.frames.map(s => s.header.width).reduce((prev, cur) => prev > cur ? prev : cur),
-	sprite.frames.map(s => s.header.height).reduce((prev, cur) => prev > cur ? prev : cur))
-
-const calcScale = (maxScale: number) => (sprite: BitmapSprite): number => {
+const calcScale = (maxScale: number) => (sprite: Sprite): number => {
 	const scale = maxScale / maxSpriteSize(sprite)
 	return scale - scale % 1
 }
@@ -120,24 +106,20 @@ export const testFunctions = {
 	findEndDir,
 	groupDirsBySpriteName,
 	findSpriteDirs,
-	toFramesByAngle,
-	parseDirSpriteName,
-	parseDirFrameName,
-	parseDirAngle,
-	parseDirMirrorFrameName,
-	parseDirMirrorAngle,
-	hasMirrorFrame,
-	toFrameDirs,
 	maxSpriteSize,
 	calcScale,
-	toBitmapSprite,
-	toBitmapSprites
+	parseSpriteName,
+	parseFrameName,
+	parseRotation,
+	parseMirrorRotation,
+	hasMirrorFrame: isMirrorFrame,
+	parseMirrorFrameName,
+	toMainFrame,
+	toMirrorFrame
 }
 
 export const functions = {
-	parseSpritesAsMap,
-	parseSpritesAsArray,
 	calcScale,
-	toBitmapSprites
+	parseSprites
 }
 

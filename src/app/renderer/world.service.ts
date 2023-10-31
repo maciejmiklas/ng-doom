@@ -70,7 +70,7 @@ export class WorldService implements BuildMapCallback {
 	private createWorld(wad: Wad, mapId: number): Sector3d[] {
 		const map = wad.maps[mapId]
 		const sectors: Sector3d[] = map.flatBySector.map(v => this.renderSector(v))
-			.filter(s => s.isRight()).map(s => s.get())
+			.filter(s => s.filter()).map(s => s.get())
 		return sectors
 	}
 
