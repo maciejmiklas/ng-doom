@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Injectable} from '@angular/core';
+import {Injectable} from '@angular/core'
 import {
 	BuildMapCallback,
 	DisposeCallback,
@@ -21,19 +21,19 @@ import {
 	RenderCallback,
 	StartRenderLoopCallback,
 	WindowResizeCallback
-} from "./callbacks";
+} from "./callbacks"
 import * as T from 'three'
-import {CameraService} from "./camera.service";
-import {FlashlightService} from "./flashlight.service";
-import {RendererService} from "./renderer.service";
-import {KeyboardService} from "./keyboard.service";
-import {ControlsService} from "./controls.service";
-import {PlayerService} from "./player.service";
-import {DebugService} from "./debug.service";
-import {Wad} from '../wad/parser/wad-model';
-import {WorldService} from "./world.service";
-import {SkyService} from "./sky.service";
-import {WallService} from "./wall.service";
+import {CameraService} from "./camera.service"
+import {FlashlightService} from "./flashlight.service"
+import {RendererService} from "./renderer.service"
+import {KeyboardService} from "./keyboard.service"
+import {ControlsService} from "./controls.service"
+import {PlayerService} from "./player.service"
+import {DebugService} from "./debug.service"
+import {Wad} from '../wad/parser/wad-model'
+import {WorldService} from "./world.service"
+import {SkyService} from "./sky.service"
+import {WallService} from "./wall.service"
 
 @Injectable({
 	providedIn: 'root'
@@ -47,15 +47,15 @@ export class CallbackDispatcherService implements RenderCallback, InitCallback, 
 	private readonly maps: BuildMapCallback[] = []
 
 	constructor(private cameraService: CameraService,
-				private flashlightService: FlashlightService,
-				private rendererService: RendererService,
-				private keyboardService: KeyboardService,
-				private controlsService: ControlsService,
-				private skyService: SkyService,
-				private playerService: PlayerService,
-				private worldService: WorldService,
-				private debugService: DebugService,
-				private wallService: WallService) {
+							private flashlightService: FlashlightService,
+							private rendererService: RendererService,
+							private keyboardService: KeyboardService,
+							private controlsService: ControlsService,
+							private skyService: SkyService,
+							private playerService: PlayerService,
+							private worldService: WorldService,
+							private debugService: DebugService,
+							private wallService: WallService) {
 
 		this.inits.push(
 			this.keyboardService,

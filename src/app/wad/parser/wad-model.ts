@@ -142,17 +142,24 @@ export type MapLump = Lump & {
  * location of that map thing. See thing types for a listing of all things that have an associated editor number.
  *
  * @see: https://doomwiki.org/wiki/Thing
- * @see: https://doomwiki.org/wiki/Thing_types#Monsters
+ * @see: https://doomwiki.org/wiki/Thing_types
  */
 export type Thing = MapLump & {
 	position: Vertex,
 	sector: Sector,
 	angleFacing: number,
-	thingType: number,
+	thingTypeId: number,
+	type: ThingType,
 	flags: number
 }
 
-export enum ThingType {
+export type ThingType = {
+	radius: number,
+	sprite?: string,
+	label: string
+}
+
+export enum ThingTypes {
 	PLAYER = 1
 }
 
@@ -317,7 +324,7 @@ export type DoomMap = {
 	mapName: string
 	mapDirs: Directory[]
 	things: Thing[]
-	player: Either<Thing>
+	player: Either<Thing> // TODO why player is  Either?
 	flatBySector: FlatBySector[]
 	sectors: Sector[]
 	linedefs: Linedef[]
@@ -416,6 +423,10 @@ export type Sprite = {
 	 * 		if this frame has only one angle.
 	 */
 	frames: Record<string, Frame[]>,
+
+	// max width/height for any frame
+	maxWidth: number
+	maxHeight: number
 }
 
 export type Frame = {
@@ -509,7 +520,7 @@ export type Bitmap = RgbaBitmap & {
 export type DoomTexture = Lump & RgbaBitmap & {
 	patchCount: number
 	patches: Patch[]
-};
+}
 
 /**
  * Patch defines how the patch should be drawn inside the texture.
@@ -595,7 +606,7 @@ const vectorsConnected = (v1: VectorV, v2: VectorV): VectorConnection => R.cond(
 	[R.T, () => VectorConnection.NONE]
 ])(v1, v2)
 
-const reversed = (con: VectorConnection) => con === VectorConnection.V1START_TO_V2START || con === VectorConnection.V1END_TO_V2END;
+const reversed = (con: VectorConnection) => con === VectorConnection.V1START_TO_V2START || con === VectorConnection.V1END_TO_V2END
 
 const countVertex = (vectors: VectorV[]) => (vertex: Vertex) =>
 	R.reduce<VectorV, number>((acc, v) => hasVertex(vertex)(v) ? ++acc : acc, 0, vectors)
@@ -649,14 +660,14 @@ const findMax = (vs: VectorV[]): number =>
 
 // based on https://wrfranklin.org/Research/Short_Notes/pnpoly.html
 const containsVertex = (poly: Vertex[]) => (vertex: Vertex): boolean => {
-	let inside = false;
+	let inside = false
 	for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
 		if (((poly[i].y > vertex.y) != (poly[j].y > vertex.y)) &&
 			(vertex.x < (poly[j].x - poly[i].x) * (vertex.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)) {
-			inside = !inside;
+			inside = !inside
 		}
 	}
-	return inside;
+	return inside
 }
 
 // ############################ EXPORTS ############################

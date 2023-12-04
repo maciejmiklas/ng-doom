@@ -20,8 +20,8 @@ import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import { Router, RouterLink } from '@angular/router'
 import {WadEvent} from '../wad/wad-event'
 import {MenuEvent} from './menu-event'
-import { NgFor, NgClass } from '@angular/common';
-import { NgbAccordion, NgbPanel, NgbPanelHeader, NgbPanelToggle, NgbPanelContent } from '@ng-bootstrap/ng-bootstrap';
+import { NgFor, NgClass } from '@angular/common'
+import { NgbAccordion, NgbPanel, NgbPanelHeader, NgbPanelToggle, NgbPanelContent } from '@ng-bootstrap/ng-bootstrap'
 
 @Component({
     selector: 'app-menu',

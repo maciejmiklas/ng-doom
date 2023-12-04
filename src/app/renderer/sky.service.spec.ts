@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {TestBed} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing'
 
-import {SkyService, testFunctions as tf} from './sky.service';
+import {SkyService, testFunctions as tf} from './sky.service'
 
 describe('SkyService', () => {
-	let service: SkyService;
+	let service: SkyService
 
 	beforeEach(() => {
-		TestBed.configureTestingModule({});
-		service = TestBed.inject(SkyService);
-	});
+		TestBed.configureTestingModule({})
+		service = TestBed.inject(SkyService)
+	})
 
 	it('should be created', () => {
-		expect(service).toBeTruthy();
-	});
-});
+		expect(service).toBeTruthy()
+	})
+})
 
 
 describe('three-builder#boxPaths', () => {

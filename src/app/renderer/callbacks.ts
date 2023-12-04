@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as T from "three";
-import {DoomMap, Wad} from "../wad/parser/wad-model";
+import * as T from "three"
+import {DoomMap, Wad} from "../wad/parser/wad-model"
 
 // ### each service implementing callback has to be registered at: callback-dispatcher.service.ts ###
 

@@ -1,10 +1,10 @@
 import {Component} from '@angular/core'
 import {NavbarPlugin} from '../../../main/navbar_plugin'
 import {MapControl} from '../wad-map.component'
-import { NgxBootstrapSliderModule } from '@maciejmiklas/ngx-bootstrap-slider';
-import { ReactiveFormsModule } from '@angular/forms';
-import { NgFor } from '@angular/common';
-import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
+import { NgxBootstrapSliderModule } from '@maciejmiklas/ngx-bootstrap-slider'
+import { ReactiveFormsModule } from '@angular/forms'
+import { NgFor } from '@angular/common'
+import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap'
 
 @Component({
     selector: 'app-wad-map-navbar',

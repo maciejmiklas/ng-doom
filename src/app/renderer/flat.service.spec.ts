@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing'
 
-import { FlatService } from './flat.service';
+import { FlatService } from './flat.service'
 
 describe('FlatService', () => {
-  let service: FlatService;
+  let service: FlatService
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(FlatService);
-  });
+    TestBed.configureTestingModule({})
+    service = TestBed.inject(FlatService)
+  })
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-});
+    expect(service).toBeTruthy()
+  })
+})

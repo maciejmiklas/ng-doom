@@ -16,7 +16,7 @@
 import {functions as SP, testFunctions as TF} from './sprite-parser'
 
 import {getAllDirs, getPalette, getWadBytes} from './testdata/data'
-import {Directory} from './wad-model'
+import {BitmapHeader, Directory} from './wad-model'
 
 describe('sprite_parser#findStartDir', () => {
 	it('S_START', () => {
@@ -192,6 +192,13 @@ describe('texture-parser#parseSprites', () => {
 	const spritesRec = SP.parseSprites(getWadBytes(), getAllDirs())
 	const sprites = Object.values(spritesRec)
 
+	it('Max/Min size', () => {
+		sprites.forEach(sp => {
+			expect(sp.maxHeight).toBeGreaterThanOrEqual(5)
+			expect(sp.maxWidth).toBeGreaterThanOrEqual(5)
+		})
+	})
+
 	it('Record key match sprite name', () => {
 		Object.entries(spritesRec).forEach(en => {
 			expect(en[0]).toEqual(en[1].name)
@@ -232,8 +239,44 @@ describe('texture-parser#parseSprites', () => {
 			}))
 		})
 	})
-
 })
+
+const widthHeaders: BitmapHeader[] = [
+	{
+		dir: null,
+		width: 25,
+		height: 75,
+		xOffset: 1,
+		yOffset: 1,
+		columnofs: null
+	},
+	{
+		dir: null,
+		width: 10,
+		height: 60,
+		xOffset: 1,
+		yOffset: 1,
+		columnofs: null
+	},
+	{
+		dir: null,
+		width: 15,
+		height: 65,
+		xOffset: 1,
+		yOffset: 1,
+		columnofs: null
+	}]
+
+describe('sprite_parser#findMaxWidth/Height', () => {
+	it('findMaxWidth', () => {
+		expect(TF.findMaxWidth(widthHeaders)).toEqual(25)
+	})
+
+	it('findMaxHeight', () => {
+		expect(TF.findMaxHeight(widthHeaders)).toEqual(75)
+	})
+})
+
 
 
 

@@ -20,9 +20,9 @@ import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {MainEvent} from '../../main/main-event'
 import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {WadPatchesNavbarComponent} from './wad-patches-navbar/wad-patches-navbar.component'
-import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
-import { PbmpComponent } from '../pbmp/pbmp.component';
-import { NgFor } from '@angular/common';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap'
+import { PbmpComponent } from '../pbmp/pbmp.component'
+import { NgFor } from '@angular/common'
 
 @Component({
     selector: 'app-wad-patches',

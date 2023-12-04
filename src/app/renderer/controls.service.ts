@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Injectable} from '@angular/core';
-import {PointerLockControls} from "three/examples/jsm/controls/PointerLockControls";
-import * as T from "three";
-import {RenderCallback, InitCallback} from "./callbacks";
+import {Injectable} from '@angular/core'
+import {PointerLockControls} from "three/examples/jsm/controls/PointerLockControls"
+import * as T from "three"
+import {RenderCallback, InitCallback} from "./callbacks"
 import {config as GC} from '../game-config'
 
 @Injectable({

@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing'
 
-import { ThingService } from './thing.service';
+import { ThingService } from './thing.service'
 
 describe('ThingService', () => {
-  let service: ThingService;
+  let service: ThingService
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(ThingService);
-  });
+    TestBed.configureTestingModule({})
+    service = TestBed.inject(ThingService)
+  })
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-});
+    expect(service).toBeTruthy()
+  })
+})

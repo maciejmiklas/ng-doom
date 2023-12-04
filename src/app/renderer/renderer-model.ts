@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as T from "three";
-import {Either} from "../common/either";
-import {Sector, Sprite, Thing} from "../wad/parser/wad-model";
+import * as T from "three"
+import {Either} from "../common/either"
+import {Sector, Sprite, Thing} from "../wad/parser/wad-model"
 
 export type Sector3d = {
 	sectorId: number,
@@ -26,8 +26,7 @@ export type Sector3d = {
 }
 
 export type SpriteThing = {
-	sector: Sector,
 	thing: Thing,
-	dSprite: Sprite,
-	tSprite: T.Mesh
+	sprite: Sprite,
+	mesh: T.Mesh
 }

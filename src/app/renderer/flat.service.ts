@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Injectable} from '@angular/core';
-import {Bitmap, Flat, functions as MF, Linedef, RgbaBitmap, Vertex} from "../wad/parser/wad-model";
-import * as T from "three";
-import {functions as TF} from "./texture-factory";
-import {config as GC} from "../game-config";
-import {Either} from "../common/either";
+import {Injectable} from '@angular/core'
+import {Flat, functions as MF, Linedef, RgbaBitmap, Vertex} from "../wad/parser/wad-model"
+import * as T from "three"
+import {functions as TF} from "./texture-factory"
+import {config as GC} from "../game-config"
+import {Either} from "../common/either"
 
 @Injectable({
 	providedIn: 'root'
@@ -27,17 +27,16 @@ export class FlatService {
 
 	renderFlat(flat: Flat, texture: Either<RgbaBitmap>, height: number, renderHoles: boolean, type: string): Either<T.Mesh> {
 		if (texture.isRight() && texture.get().name.includes("SKY")) {
-			return Either.ofLeft(() => 'Floor is SKY'); // SKY should be transparent so that the player can see the sky.
+			return Either.ofLeft(() => 'Ignoring SKY') // SKY should be transparent so that the player can see the sky.
 		}
 
-		const shapes = createShapesFromFlat(flat, renderHoles);
+		const shapes = createShapesFromFlat(flat, renderHoles)
 		const mesh = new T.Mesh(new T.ShapeGeometry(shapes), createFlatMaterial(texture, T.DoubleSide))
 		mesh.rotation.set(Math.PI / 2, Math.PI, Math.PI)
 		mesh.position.y = height
-		mesh.name = type + ':' + flat.sector.id;
+		mesh.name = type + ':' + flat.sector.id
 		mesh.receiveShadow = GC.flat.shadow.receive
 		mesh.castShadow = GC.flat.shadow.cast
-		mesh.userData = {flat, shapes}
 		return Either.ofRight(mesh)
 	}
 }
@@ -69,5 +68,5 @@ const createShapesFromFlat = (flat: Flat, renderHoles: boolean): T.Shape[] => {
 	if (renderHoles) {
 		flat.holes.exec(holes => holes.map(hole => createShapeFromPath(hole)).forEach(hole => shapes[0].holes.push(hole)))
 	}
-	return shapes;
+	return shapes
 }

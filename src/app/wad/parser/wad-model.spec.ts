@@ -22,7 +22,7 @@ import {
 	PATH_CLOSED_REVERSED_ONE,
 	PATH_CROSSING_MIXED, POLY_01_A, POLY_01_G
 } from "./testdata/data"
-import {testFunctions as TF} from "./flat-builder";
+import {testFunctions as TF} from "./flat-builder"
 
 
 describe('wad-model#vertexEqual', () => {

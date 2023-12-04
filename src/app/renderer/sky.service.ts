@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Injectable} from '@angular/core';
-import {Bitmap, DoomMap, functions as MF, Wad} from "../wad/parser/wad-model";
-import * as T from "three";
-import {config as GC} from "../game-config";
-import U from "../common/util";
-import {functions as TF} from "./texture-factory";
-import {BuildMapCallback} from "./callbacks";
-import {MeshStandardMaterialParameters} from "three/src/materials/MeshStandardMaterial";
+import {Injectable} from '@angular/core'
+import {Bitmap, DoomMap, functions as MF, Wad} from "../wad/parser/wad-model"
+import * as T from "three"
+import {config as GC} from "../game-config"
+import U from "../common/util"
+import {functions as TF} from "./texture-factory"
+import {BuildMapCallback} from "./callbacks"
+import {MeshStandardMaterialParameters} from "three/src/materials/MeshStandardMaterial"
 
 @Injectable({
 	providedIn: 'root'
@@ -38,20 +38,20 @@ export class SkyService implements BuildMapCallback {
 		const maxY = MF.findMaxY(linedefs)
 		const sc = skyConf()
 
-		scene.background = new T.Color(sc.color);
+		scene.background = new T.Color(sc.color)
 
 		const skyBox = new T.BoxGeometry(
 			U.lineWidth(minX, maxX) + sc.position.width,
 			sc.position.height,
-			U.lineWidth(minY, maxY) + sc.position.depth);
+			U.lineWidth(minY, maxY) + sc.position.depth)
 
 		const material = sc.type === GC.SkyType.ORIGINAL ? skyBoxOriginalMaterial(sky.get().patches[0].bitmap) : skyBoxBitmapMaterial(sc)
-		const mesh = new T.Mesh(skyBox, material);
+		const mesh = new T.Mesh(skyBox, material)
 		mesh.renderOrder = -1
 
 		// set position to the middle of the map.
 		mesh.position.set(maxX - U.lineWidth(minX, maxX) / 2, sc.position.y, -maxY + U.lineWidth(minY, maxY) / 2)
-		return mesh;
+		return mesh
 	}
 }
 
@@ -74,7 +74,7 @@ const skyBoxOriginalMaterial = (sky: Bitmap): T.MeshStandardMaterial[] => {
 
 const skyBoxBitmapMaterial = (sc): T.MeshStandardMaterial[] => boxPaths(sc.bitmap.name, sc.bitmap.ext).map(image =>
 	new T.MeshStandardMaterial({map: new T.TextureLoader().load(image), ...COMMON_MATERIAL_PROPS})
-);
+)
 
 const boxPaths = (name: string, ext: string): string[] =>
 	["ft", "bk", "up", "dn", "rt", "lf"].map(side =>

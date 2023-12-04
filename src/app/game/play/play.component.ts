@@ -19,10 +19,10 @@ import * as T from 'three'
 import {WadStorageService} from '../../wad/wad-storage.service'
 
 import {config as GC} from '../../game-config'
-import {CameraService} from "../../renderer/camera.service";
-import {WorldService} from "../../renderer/world.service";
-import {CallbackDispatcherService} from "../../renderer/callback-dispatcher.service";
-import {Log} from "../../common/log";
+import {CameraService} from "../../renderer/camera.service"
+import {WorldService} from "../../renderer/world.service"
+import {CallbackDispatcherService} from "../../renderer/callback-dispatcher.service"
+import {Log} from "../../common/log"
 
 @Component({
 	selector: 'app-play',
@@ -52,7 +52,7 @@ export class PlayComponent implements OnInit {
 		this.scene = this.worldService.createScene()
 		this.camera = this.cameraService.create(this.canvas, this.scene)
 
-		//init
+		// init
 		this.callback.init(this.canvas, this.scene, this.camera)
 
 		// build map

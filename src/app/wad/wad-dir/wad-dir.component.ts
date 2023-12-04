@@ -15,7 +15,7 @@
  */
 import {Component, Input} from '@angular/core'
 import {Directory} from '../parser/wad-model'
-import { WadDirElementComponent } from '../wad-dir-element/wad-dir-element.component';
+import { WadDirElementComponent } from '../wad-dir-element/wad-dir-element.component'
 
 @Component({
     selector: 'app-wad-dir',

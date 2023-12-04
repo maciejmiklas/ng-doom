@@ -58,8 +58,10 @@ const findBetween = (dirs: Directory[]) => (from: string, to: string) => (filter
 	const finder = findDirectoryByName(dirs)
 	const fromDir = finder(from)
 	const toDir = finder(to)
-	return Either.ofTruth([fromDir, toDir], () => dirs.slice(fromDir.get().idx, toDir.get().idx).filter(d => filter(d)))
-		.map(dirs => Either.ofCondition(() => dirs.length > 0, () => 'No dirs between:' + from + '->' + to, () => dirs))
+	return Either.ofTruth([fromDir, toDir],
+		() => dirs.slice(fromDir.get().idx, toDir.get().idx).filter(d => filter(d)))
+		.map(dirs => Either.ofCondition(() => dirs.length > 0,
+			() => 'No dirs between:' + from + '->' + to, () => dirs))
 }
 
 // ############################ EXPORTS ############################

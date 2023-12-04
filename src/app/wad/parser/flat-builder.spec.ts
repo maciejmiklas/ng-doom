@@ -39,7 +39,7 @@ import {
 	POLY_01_G,
 	VectorId
 } from "./testdata/data"
-import {Either} from "../../common/either";
+import {Either} from "../../common/either"
 
 afterEach(() => {
 	ALL_PATHS.forEach(TF.cleanFlags)
@@ -92,19 +92,19 @@ describe('flat-builder#buildPolygons', () => {
 
 	// see testdata/E1M3_S66.jpg
 	it('E1M3_S66', () => {
-		const pathsEi = TF.buildPolygons(66, E1M3_S66);
+		const pathsEi = TF.buildPolygons(66, E1M3_S66)
 		assertPaths(pathsEi, 2)
 	})
 
 	// see testdata/E1M4_S36.png
 	it('E1M4_S36', () => {
-		const pathsEi = TF.buildPolygons(36, E1M4_S36);
+		const pathsEi = TF.buildPolygons(36, E1M4_S36)
 		assertPaths(pathsEi, 2)
 	})
 
 	// see testdata/E1M5_S18.jpg
 	it('E1M5_S18', () => {
-		const pathsEi = TF.buildPolygons(36, E1M5_S18);
+		const pathsEi = TF.buildPolygons(36, E1M5_S18)
 		assertPaths(pathsEi, 3)
 	})
 
@@ -185,9 +185,9 @@ describe('flat-builder#prependToPath', () => {
 			"end": {"x": 100, "y": 200}
 		})
 		expect(res.isRight()).toBeTrue()
-		expect(res.get()[0].id).toEqual(999);
-		expect(res.get()[0].start.x).toEqual(920);
-		expect(res.get().length).toEqual(PATH_CONTINUOUS_OPEN.length + 1);
+		expect(res.get()[0].id).toEqual(999)
+		expect(res.get()[0].start.x).toEqual(920)
+		expect(res.get().length).toEqual(PATH_CONTINUOUS_OPEN.length + 1)
 	})
 
 
@@ -198,9 +198,9 @@ describe('flat-builder#prependToPath', () => {
 			"end": {"x": 333, "y": 444}
 		})
 		expect(res.isRight()).toBeTrue()
-		expect(res.get()[0].id).toEqual(999);
-		expect(res.get()[0].start.x).toEqual(333);
-		expect(res.get().length).toEqual(PATH_CONTINUOUS_OPEN.length + 1);
+		expect(res.get()[0].id).toEqual(999)
+		expect(res.get()[0].start.x).toEqual(333)
+		expect(res.get().length).toEqual(PATH_CONTINUOUS_OPEN.length + 1)
 	})
 
 	it('VectorConnection:V1END_TO_V2END', () => {
@@ -241,10 +241,10 @@ describe('flat-builder#appendToPath', () => {
 			"end": {"x": 111, "y": 222}
 		})
 		expect(res.isRight()).toBeTrue()
-		const el = res.get()[PATH_CONTINUOUS_OPEN.length];
-		expect(el.id).toEqual(999);
-		expect(el.start.x).toEqual(150);
-		expect(res.get().length).toEqual(PATH_CONTINUOUS_OPEN.length + 1);
+		const el = res.get()[PATH_CONTINUOUS_OPEN.length]
+		expect(el.id).toEqual(999)
+		expect(el.start.x).toEqual(150)
+		expect(res.get().length).toEqual(PATH_CONTINUOUS_OPEN.length + 1)
 	})
 
 
@@ -264,10 +264,10 @@ describe('flat-builder#appendToPath', () => {
 			"end": {"x": 150, "y": 250}
 		})
 		expect(res.isRight()).toBeTrue()
-		const el = res.get()[PATH_CONTINUOUS_OPEN.length];
-		expect(el.id).toEqual(999);
-		expect(el.start.x).toEqual(150);
-		expect(res.get().length).toEqual(PATH_CONTINUOUS_OPEN.length + 1);
+		const el = res.get()[PATH_CONTINUOUS_OPEN.length]
+		expect(el.id).toEqual(999)
+		expect(el.start.x).toEqual(150)
+		expect(res.get().length).toEqual(PATH_CONTINUOUS_OPEN.length + 1)
 	})
 
 	it('VectorConnection:V1START_TO_V2END', () => {
@@ -334,7 +334,7 @@ const assertPathsContinuos = (res: Either<VectorV[][]>, length = 1) => {
 const assertPathsArrContinuos = (res: VectorV[][], length = 1) => {
 	expect(res.length).toEqual(length)
 	res.forEach(path => expect(TF.pathContinuos(path)))
-};
+}
 
 describe('flat-builder#expandPaths', () => {
 
@@ -468,7 +468,7 @@ const firstCrossingDuplicatePosFound = (vv: VectorId[], pos: number) => {
 	TF.markCrossingVectors(vv)
 	const found = TF.firstCrossingDuplicatePos(vv)
 	expect(found.isRight()).toBeTrue()
-	expect(found.get()).toEqual(pos);
+	expect(found.get()).toEqual(pos)
 }
 
 const firstCrossingDuplicatePosNotFound = (vv: VectorId[]) => {
@@ -485,7 +485,7 @@ describe('flat-builder#firstCrossingDuplicatePos', () => {
 	})
 
 	it('E1M1_S72 - found', () => {
-		firstCrossingDuplicatePosFound(E1M1_S72, 8);
+		firstCrossingDuplicatePosFound(E1M1_S72, 8)
 	})
 
 	it('E1M3_S7 - none', () => {
@@ -493,11 +493,11 @@ describe('flat-builder#firstCrossingDuplicatePos', () => {
 	})
 
 	it('E1M3_S66 - found', () => {
-		firstCrossingDuplicatePosFound(E1M3_S66, 4);
+		firstCrossingDuplicatePosFound(E1M3_S66, 4)
 	})
 
 	it('E1M4_S36 - found', () => {
-		firstCrossingDuplicatePosFound(E1M4_S36, 4);
+		firstCrossingDuplicatePosFound(E1M4_S36, 4)
 	})
 })
 

@@ -382,7 +382,7 @@ describe('Either#ofEitherArray', () => {
 
 describe('Either#onLeft', () => {
 	it('Left', () => {
-		let val = 100;
+		let val = 100
 		Either.ofLeft(() => 'lest ist').onLeft(() => {
 			val = 500
 		})
@@ -390,7 +390,7 @@ describe('Either#onLeft', () => {
 	})
 
 	it('Right', () => {
-		let val = 100;
+		let val = 100
 		Either.ofRight(() => 'right ist').onLeft(() => {
 			val = 500
 		})

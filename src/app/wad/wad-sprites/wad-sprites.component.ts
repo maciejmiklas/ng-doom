@@ -21,9 +21,9 @@ import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {MainEvent} from '../../main/main-event'
 import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {WadSpritesNavbarComponent} from './wad-sprites-navbar/wad-sprites-navbar.component'
-import {NgbPopover} from '@ng-bootstrap/ng-bootstrap';
-import {PbmpAnimationComponent} from '../pbmp-animation/pbmp-animation.component';
-import {NgFor} from '@angular/common';
+import {NgbPopover} from '@ng-bootstrap/ng-bootstrap'
+import {PbmpAnimationComponent} from '../pbmp-animation/pbmp-animation.component'
+import {NgFor} from '@angular/common'
 
 @Component({
 	selector: 'app-wad-sprite',
@@ -35,7 +35,7 @@ export class WadSpritesComponent implements OnInit, SpritesListControl {
 
 	sprites: SingleSprite[]
 	scale: number[]
-	private readonly ZOOM_MAX_SIZE = 150; // box has 200px, it's set in .app-sprite
+	private readonly ZOOM_MAX_SIZE = 150 // box has 200px, it's set in .app-sprite
 
 	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService) {
 	}
@@ -59,7 +59,7 @@ export class WadSpritesComponent implements OnInit, SpritesListControl {
 				frames: Object.values(sprite.frames).map(fr => fr[0].bitmap)
 			}))
 
-		return sss;
+		return sss
 	}
 }
 

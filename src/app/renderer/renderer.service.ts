@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Injectable} from '@angular/core';
-import * as T from "three";
-import {config as GC} from "../game-config";
-import {InitCallback, RenderCallback, StartRenderLoopCallback} from "./callbacks";
-import {Log} from "../common/log";
+import {Injectable} from '@angular/core'
+import * as T from "three"
+import {config as GC} from "../game-config"
+import {InitCallback, RenderCallback, StartRenderLoopCallback} from "./callbacks"
+import {Log} from "../common/log"
 
 const CMP = "RendererService"
 
@@ -63,9 +63,9 @@ export class RendererService implements InitCallback, StartRenderLoopCallback {
 	}
 }
 
-const clock = new T.Clock();
+const clock = new T.Clock()
 const animation = (callbacks: RenderCallback[], renderer: T.WebGLRenderer, scene: T.Scene, camera: T.PerspectiveCamera) => (): void => {
-	const delta = clock.getDelta();
+	const delta = clock.getDelta()
 	callbacks.forEach(cb => cb.onRender(Math.round(delta * 1000), renderer))
 	renderer.render(scene, camera)
 }

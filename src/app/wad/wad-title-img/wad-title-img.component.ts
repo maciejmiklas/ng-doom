@@ -19,8 +19,8 @@ import {WadStorageService} from '../wad-storage.service'
 import {Slide} from '../../common/carousel/carousel-model'
 import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {MainEvent} from '../../main/main-event'
-import { PbmpComponent } from '../pbmp/pbmp.component';
-import { CarouselComponent } from '../../common/carousel/carousel.component';
+import { PbmpComponent } from '../pbmp/pbmp.component'
+import { CarouselComponent } from '../../common/carousel/carousel.component'
 
 @Component({
     selector: 'app-wad-title-img',

@@ -16,8 +16,8 @@
 import {Component, Input, OnInit} from '@angular/core'
 import * as R from 'ramda'
 import {Palette, RGBA} from '../parser/wad-model'
-import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
-import { NgFor, NgStyle } from '@angular/common';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap'
+import { NgFor, NgStyle } from '@angular/common'
 
 @Component({
     selector: 'app-wad-palette',

@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {LinearFilter} from "three/src/constants";
-import * as T from "three";
+import {LinearFilter} from "three/src/constants"
+import * as T from "three"
 
 const game = {
 	startMap: "E1M1",

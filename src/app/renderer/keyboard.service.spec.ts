@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing'
 
-import { KeyboardService } from './keyboard.service';
+import { KeyboardService } from './keyboard.service'
 
 describe('KeyboardService', () => {
-  let service: KeyboardService;
+  let service: KeyboardService
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(KeyboardService);
-  });
+    TestBed.configureTestingModule({})
+    service = TestBed.inject(KeyboardService)
+  })
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-});
+    expect(service).toBeTruthy()
+  })
+})

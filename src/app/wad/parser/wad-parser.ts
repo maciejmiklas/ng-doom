@@ -31,13 +31,12 @@ const parseTitlePic = (bytes: number[], dirs: Directory[], palette: Palette): Ei
 		.map(d => BP.parseBitmap(bytes, palette)(d)), find('HELP2')
 		.map(d => BP.parseBitmap(bytes, palette)(d)))
 
-	return Either.ofCondition(() => title.isRight() && credit.isRight() && credit.isRight(),
-		() => 'Image Folders not found', () => ({
-			help,
-			title: title.get(),
-			credit: credit.get(),
-			mDoom: md.get()
-		}), LeftType.WARN)
+	return Either.ofTruth([title, credit, md], () => ({
+		help,
+		title: title.get(),
+		credit: credit.get(),
+		mDoom: md.get()
+	}), LeftType.WARN)
 }
 
 const parseWad = (bytes: number[]): Either<Wad> =>
@@ -52,7 +51,7 @@ const parseWad = (bytes: number[]): Either<Wad> =>
 		.append(w => TP.parseTextures(bytes, w.dirs, w.pnames, w.patches), (w, v) => w.textures = v) // textures
 		.append(w => TP.parseFlats(bytes, w.dirs, w.palette), (w, v) => w.flatBitmaps = v) // flatBitmaps
 		.append(w => Either.ofRight(SP.parseSprites(bytes, w.dirs)), (w, v) => w.sprites = v) // Sprites
-		.append(w => MP.parseMaps(bytes, w.dirs, w.textures, w.flatBitmaps), (w, v) => w.maps = v); // maps
+		.append(w => MP.parseMaps(bytes, w.dirs, w.textures, w.flatBitmaps), (w, v) => w.maps = v) // maps
 
 // ############################ EXPORTS ############################
 export const testFunctions = {

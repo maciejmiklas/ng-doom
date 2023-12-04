@@ -42,7 +42,7 @@ export class PbmpComponent implements OnInit, DoCheck {
 	private ctx: CanvasRenderingContext2D
 	private bitmapDiffer: KeyValueDiffer<RgbaBitmap, any>
 	private lastRescale = 1
-	private initialized = false;
+	private initialized = false
 
 	constructor(private wadStorage: WadStorageService, private differ: KeyValueDiffers) {
 
@@ -59,13 +59,13 @@ export class PbmpComponent implements OnInit, DoCheck {
 	@Input()
 	set maxSize(maxSize: number) {
 		this._maxSize = maxSize
-		this.adjustScale();
+		this.adjustScale()
 	}
 
 	@Input()
 	set scale(scale: number) {
-		this._scale = scale;
-		this.adjustScale();
+		this._scale = scale
+		this.adjustScale()
 
 		if (this.initialized) {
 			this.rescale()
@@ -93,12 +93,12 @@ export class PbmpComponent implements OnInit, DoCheck {
 	private paint(): void {
 		this.canvas.width = this.bitmap.width
 		this.canvas.height = this.bitmap.height
-		this.ctx = this.canvas.getContext('2d');
+		this.ctx = this.canvas.getContext('2d')
 
 		this.ctx.putImageData(tp.toImageData(this.bitmap), 0, 0)
 		this.image = new Image()
 		this.image.onload = () => {
-			this.rescale();
+			this.rescale()
 		}
 		this.image.src = this.canvas.toDataURL()
 	}

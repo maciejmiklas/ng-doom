@@ -22,8 +22,8 @@ import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {WadPatchesNavbarComponent} from '../wad-patches/wad-patches-navbar/wad-patches-navbar.component'
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap'
 import {WadTextureComponent} from '../wad-texture/wad-texture.component'
-import { PbmpComponent } from '../pbmp/pbmp.component';
-import { NgFor } from '@angular/common';
+import { PbmpComponent } from '../pbmp/pbmp.component'
+import { NgFor } from '@angular/common'
 
 @Component({
     selector: 'app-wad-textures',

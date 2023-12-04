@@ -30,7 +30,7 @@ import {MainEvent} from '../../main/main-event'
 import {NavbarPluginFactory} from '../../main/navbar_plugin'
 import {NavbarCarouselPluginComponent} from './navbar-plugin/navbar-plugin.component'
 import {Slide} from './carousel-model'
-import { NgFor, NgTemplateOutlet } from '@angular/common';
+import { NgFor, NgTemplateOutlet } from '@angular/common'
 
 @Component({
     selector: 'app-carousel[slides]',

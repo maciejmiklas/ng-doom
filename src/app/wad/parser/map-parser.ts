@@ -30,6 +30,7 @@ import {
 	Sidedef,
 	Thing,
 	ThingType,
+	ThingTypes,
 	VectorConnection,
 	VectorV,
 	Vertex
@@ -38,6 +39,7 @@ import U from '../../common/util'
 import {Log} from "../../common/log"
 import {functions as FB} from "./flat-builder"
 import {config as WC} from "../wad-config"
+import {thingTypes} from "./things"
 
 const CMP = 'MP'
 
@@ -114,7 +116,7 @@ const parseMap = (bytes: number[], textureLoader: (name: string) => Either<DoomT
 		parseSidedefs(bytes, textureLoader)(mapDirs, sectors), sectors)
 	const flatBySector = buildFlatsBySectors(linedefs, sectors)
 	const things = parseThings(bytes, mapDirs, flatBySector)
-	const playerArr = things.filter(th => th.thingType == ThingType.PLAYER);
+	const playerArr = things.filter(th => th.thingTypeId == ThingTypes.PLAYER)
 	return {
 		mapName,
 		mapDirs,
@@ -212,18 +214,23 @@ const parseThing = (bytes: number[], thingDir: Directory, flats: FlatBySector[])
 		x: shortParser(offset),
 		y: shortParser(offset + 2),
 	}
-
+	const thingTypeId = shortParser(offset + 6)
+	const type = findThingType(thingTypeId)
 	const sector = findSectorByVertex(flats)(position)
-	return Either.ofCondition(() => sector.isRight(), () => 'No Sector for Thing:' + thingIdx, () => ({
+	return Either.ofTruth([sector, type], () => ({
 		dir: thingDir,
 		position,
 		angleFacing: shortParser(offset + 4),
 		lumpType: MapLumpType.THINGS,
-		thingType: shortParser(offset + 6),
+		thingTypeId,
+		type: type.get(),
 		flags: shortParser(offset + 8),
 		sector: sector.get()
 	}))
 }
+
+const findThingType = (id: number): Either<ThingType> => Either.ofNullable(thingTypes[id],
+	() => 'Thing Type: ' + id + ' not found', LeftType.WARN)
 
 const containsVertex = (polygons: Vertex[][], pos: Vertex): boolean => {
 	return polygons.filter(po => MF.containsVertex(po)(pos)).length > 0
@@ -413,7 +420,8 @@ export const testFunctions = {
 	findBacksidesBySector,
 	findLastNotConnected,
 	findBackLinedefs,
-	findMaxSectorId
+	findMaxSectorId,
+	findThingType
 }
 
 export const functions = {parseMaps, normalizeLinedefs}

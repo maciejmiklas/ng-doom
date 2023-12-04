@@ -51,11 +51,11 @@ export class Log {
 		}
 	}
 
-	static isTrace = (): boolean => Log.LOG_LEVEL >= LogLevel.TRACE;
-	static isDebug = (): boolean => Log.LOG_LEVEL >= LogLevel.DEBUG;
-	static isInfo = (): boolean => Log.LOG_LEVEL >= LogLevel.INFO;
-	static isWarn = (): boolean => Log.LOG_LEVEL >= LogLevel.WARN;
-	static isError = (): boolean => Log.LOG_LEVEL >= LogLevel.ERROR;
+	static isTrace = (): boolean => Log.LOG_LEVEL >= LogLevel.TRACE
+	static isDebug = (): boolean => Log.LOG_LEVEL >= LogLevel.DEBUG
+	static isInfo = (): boolean => Log.LOG_LEVEL >= LogLevel.INFO
+	static isWarn = (): boolean => Log.LOG_LEVEL >= LogLevel.WARN
+	static isError = (): boolean => Log.LOG_LEVEL >= LogLevel.ERROR
 }
 
 const msg = (args: any[]): string =>

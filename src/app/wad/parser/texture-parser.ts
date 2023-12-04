@@ -38,7 +38,7 @@ const parsePnames = (wadBytes: number[], dirs: Directory[]): Either<Pnames> => {
 		const strParser = U.parseStr(wadBytes)
 		const names: string[] = R
 			.range(0, nummappatches) // ()=> Patches amount
-			.map(idx => strParser(dir.filepos + 0x04 + 8 * idx, 8).toUpperCase()); // (patch offset)=> patch names
+			.map(idx => strParser(dir.filepos + 0x04 + 8 * idx, 8).toUpperCase()) // (patch offset)=> patch names
 		return {dir, nummappatches, names}
 	})
 }
@@ -52,7 +52,7 @@ const parsePatches = (wadBytes: number[], dirs: Directory[], palette: Palette, p
 	const patches = pnames.names
 		.map(patchDirFinder) // (dirName)=> Either<Directory>
 		.filter(d => d.filter()).map(d => d.get()) // (Either<Directory>)=>Directory
-		.map(bitmapParser).filter(b => b.filter()).map(b => b.get()); // (Directory) => Bitmap
+		.map(bitmapParser).filter(b => b.filter()).map(b => b.get()) // (Directory) => Bitmap
 
 	return Either.ofCondition(() => patches.length > 0, () => 'No patches', () => patches)
 }
@@ -96,7 +96,7 @@ const parseTexture = (wadBytes: number[], dirs: Directory[], dir: Directory, pna
 		.map(pn => offset + 22 + pn * 10)//(patch number) => patch offset
 		.map(offset => patchParser(offset))// (patch offset)=> Either<Patch>
 		.filter(e => e.filter())// remove Left
-		.map(e => e.get()); // (Either<Patch>) => Patch
+		.map(e => e.get()) // (Either<Patch>) => Patch
 	const width = shortParser(offset + 0x0C)
 	const height = shortParser(offset + 0x0E)
 
@@ -143,7 +143,7 @@ const parseFlats = (wadBytes: number[], dirs: Directory[], palette: Palette): Ei
 	return findFlatDirs(dirs)
 		.map(dirs => dirs.map(d => flatParser(d)))// Either<Directory> => Either[]<Either<Bitmap[]>>
 		.map(e => e.filter(d => d.filter()) // remove Left
-			.map(d => d.get())); // Either[]<Either<Bitmap[]>> => Either<Bitmap[]>
+			.map(d => d.get())) // Either[]<Either<Bitmap[]>> => Either<Bitmap[]>
 }
 
 const toImageData = (bitmap: RgbaBitmap): ImageData => {

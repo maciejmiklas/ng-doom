@@ -15,10 +15,10 @@
  */
 import U from './util'
 import * as R from 'ramda'
-import {Either} from "./either";
+import {Either} from "./either"
 
-const IWAD_STR = [73, 87, 65, 68]; // IWAD
-const BROWN98_STR = [66, 82, 79, 87, 78, 57, 56, 45, 65]; // BROWN96-A
+const IWAD_STR = [73, 87, 65, 68] // IWAD
+const BROWN98_STR = [66, 82, 79, 87, 78, 57, 56, 45, 65] // BROWN96-A
 const ARR = R.range(0, 5000)
 
 describe('util#parseUint32', () => {

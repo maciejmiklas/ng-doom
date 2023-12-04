@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Injectable} from '@angular/core';
+import {Injectable} from '@angular/core'
 import {config as gc, config as GC} from '../game-config'
 import * as T from "three"
 import * as THREE from "three"
 import {DoomMap, Thing, Wad} from "../wad/parser/wad-model"
-import {BuildMapCallback, WindowResizeCallback} from "./callbacks";
+import {BuildMapCallback, WindowResizeCallback} from "./callbacks"
 
 @Injectable({
 	providedIn: 'root'
@@ -29,7 +29,7 @@ export class CameraService implements WindowResizeCallback, BuildMapCallback {
 
 	create({clientWidth, clientHeight}: HTMLCanvasElement, scene: THREE.Scene): T.PerspectiveCamera {
 		if (this.camera != null) {
-			return this.camera;
+			return this.camera
 		}
 		this.camera = new T.PerspectiveCamera(
 			GC.camera.perspective.fov,
@@ -43,7 +43,7 @@ export class CameraService implements WindowResizeCallback, BuildMapCallback {
 		if (gc.camera.debug.cameraHelper) {
 			scene.add(new THREE.CameraHelper(this.camera))
 		}
-		return this.camera;
+		return this.camera
 	}
 
 	private positionCamera(player: Thing): void {
@@ -51,7 +51,7 @@ export class CameraService implements WindowResizeCallback, BuildMapCallback {
 	}
 
 	onResize(width: number, height: number): void {
-		this.camera.aspect = width / height;
+		this.camera.aspect = width / height
 		this.camera.updateProjectionMatrix()
 	}
 

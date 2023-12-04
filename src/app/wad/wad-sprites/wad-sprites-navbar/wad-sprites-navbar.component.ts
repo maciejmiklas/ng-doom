@@ -16,7 +16,7 @@
 import {Component} from '@angular/core'
 import {NavbarPlugin} from '../../../main/navbar_plugin'
 import {SpritesListControl} from '../wad-sprites.component'
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms'
 
 @Component({
     selector: 'app-wad-sprites-navbar',

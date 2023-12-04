@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {testFunctions as TF} from "./flat-builder";
-import {E1M1_S39} from "./testdata/data";
+import {testFunctions as TF} from "./flat-builder"
+import {E1M1_S39} from "./testdata/data"
 
 // karma options: --include=**/_test.spec.ts
 describe('test', () => {

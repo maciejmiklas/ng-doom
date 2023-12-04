@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing'
 
-import { FlashlightService } from './flashlight.service';
+import { FlashlightService } from './flashlight.service'
 
 describe('FlashlightService', () => {
-  let service: FlashlightService;
+  let service: FlashlightService
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(FlashlightService);
-  });
+    TestBed.configureTestingModule({})
+    service = TestBed.inject(FlashlightService)
+  })
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-});
+    expect(service).toBeTruthy()
+  })
+})

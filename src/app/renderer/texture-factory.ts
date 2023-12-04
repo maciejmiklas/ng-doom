@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {RgbaBitmap} from "../wad/parser/wad-model";
-import * as T from "three";
-import {config as GC} from "../game-config";
+import {RgbaBitmap} from "../wad/parser/wad-model"
+import * as T from "three"
+import {config as GC} from "../game-config"
 
 const createDataTexture = (bitmap: RgbaBitmap): T.DataTexture => {
 	const texture = new T.DataTexture(bitmap.rgba, bitmap.width, bitmap.height)
@@ -30,7 +30,7 @@ const createDataTexture = (bitmap: RgbaBitmap): T.DataTexture => {
 	texture.anisotropy = GC.texture.anisotropy
 	texture.minFilter = GC.texture.minFilter
 	texture.magFilter = GC.texture.magFilter
-	texture.encoding = T.sRGBEncoding;
+	texture.encoding = T.sRGBEncoding
 	texture.flipY = true
 	return texture
 }

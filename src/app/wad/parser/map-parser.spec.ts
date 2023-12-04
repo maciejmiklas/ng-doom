@@ -123,7 +123,7 @@ const validateFirstThing = (thing: Thing) => {
 	expect(thing.position.x).toEqual(1056)
 	expect(thing.position.y).toEqual(-3616)
 	expect(thing.angleFacing).toEqual(90)
-	expect(thing.thingType).toEqual(1)
+	expect(thing.thingTypeId).toEqual(1)
 	expect(thing.flags).toEqual(7)
 	expect(thing.sector.id).toEqual(38)
 }
@@ -133,7 +133,7 @@ const validateThirdThing = (thing: Thing) => {
 	expect(thing.position.x).toEqual(1104)
 	expect(thing.position.y).toEqual(-3600)
 	expect(thing.angleFacing).toEqual(90)
-	expect(thing.thingType).toEqual(3)
+	expect(thing.thingTypeId).toEqual(3)
 	expect(thing.flags).toEqual(7)
 	expect(thing.sector.id).toEqual(38)
 }
@@ -143,7 +143,7 @@ const validateLastThing = (thing: Thing) => {
 	expect(thing.position.x).toEqual(3648)
 	expect(thing.position.y).toEqual(-3840)
 	expect(thing.angleFacing).toEqual(0)
-	expect(thing.thingType).toEqual(2015)
+	expect(thing.thingTypeId).toEqual(2015)
 	expect(thing.flags).toEqual(7)
 	expect(thing.sector.id).toEqual(62)
 }
@@ -742,7 +742,7 @@ describe('map-parser#scalePos', () => {
 	const scale = TF.scalePos(4)(3)
 
 	it('0', () => {
-		expect(scale(1)).toEqual(1); // (3 + 1)/4 = 1
+		expect(scale(1)).toEqual(1) // (3 + 1)/4 = 1
 	})
 
 	it('2', () => {
@@ -1034,5 +1034,28 @@ describe('map-parser#findMaxSectorId', () => {
 		expect(TF.findMaxSectorId(getMaps()[3].linedefs)).toEqual(138)
 	})
 })
+
+describe('map-parser#findThingType', () => {
+
+	it('Not found', () => {
+		expect(TF.findThingType(9999).isLeft()).toBeTrue()
+	})
+
+	it('Found 12', () => {
+		const th = TF.findThingType(12).get()
+		expect(th.label).toEqual('Bloody mess')
+		expect(th.sprite).toEqual('PLAY')
+		expect(th.radius).toEqual(16)
+	})
+
+	it('Found 2023', () => {
+		const th = TF.findThingType(2023).get()
+		expect(th.label).toEqual('Berserk')
+		expect(th.sprite).toEqual('PSTR')
+		expect(th.radius).toEqual(20)
+	})
+})
+
+
 
 

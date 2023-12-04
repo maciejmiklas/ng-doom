@@ -1,11 +1,11 @@
-import {Injectable} from '@angular/core';
+import {Injectable} from '@angular/core'
 import * as T from 'three'
-import {InitCallback, RenderCallback} from "./callbacks";
-import {config as GC} from "../game-config";
-import {WorldService} from "./world.service";
-import {Either, LeftType} from "../common/either";
-import {Intersection} from "three/src/core/Raycaster";
-import {Log} from "../common/log";
+import {InitCallback, RenderCallback} from "./callbacks"
+import {config as GC} from "../game-config"
+import {WorldService} from "./world.service"
+import {Either, LeftType} from "../common/either"
+import {Intersection} from "three/src/core/Raycaster"
+import {Log} from "../common/log"
 
 const CMP = "PlayerService"
 
@@ -16,7 +16,7 @@ export class PlayerService implements InitCallback, RenderCallback {
 
 	private raycaster: T.Raycaster
 	private camera: T.PerspectiveCamera
-	private positionGoal = 0;
+	private positionGoal = 0
 	private lastFloorName = "-"
 
 	constructor(private worldService: WorldService) {
@@ -40,7 +40,7 @@ export class PlayerService implements InitCallback, RenderCallback {
 
 	private logSector(el: Intersection) {
 		if (Log.isInfo() && GC.player.debug.logSectorName) {
-			const florName = el.object.name;
+			const florName = el.object.name
 			if (this.lastFloorName !== florName) {
 				Log.info(CMP, 'Entering: ', el.object.name)
 				this.lastFloorName = florName
@@ -54,7 +54,7 @@ export class PlayerService implements InitCallback, RenderCallback {
 				return this.positionGoal = Math.round((el.point.y / GC.scene.scale) + GC.player.height + GC.camera.position.adjust.y)
 			}
 		)
-		const camY = Math.round(this.camera.position.y);
+		const camY = Math.round(this.camera.position.y)
 		const dc = GC.player.damping
 		const mul = Math.abs(this.positionGoal - camY) > dc.fallHeight ? dc.fallSpeed : dc.climbSpeed
 		if (this.positionGoal > camY) {

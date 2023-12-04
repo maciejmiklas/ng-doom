@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing'
 
-import { WorldService } from './world.service';
+import { WorldService } from './world.service'
 
 describe('WorldService', () => {
-  let service: WorldService;
+  let service: WorldService
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(WorldService);
-  });
+    TestBed.configureTestingModule({})
+    service = TestBed.inject(WorldService)
+  })
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-});
+    expect(service).toBeTruthy()
+  })
+})

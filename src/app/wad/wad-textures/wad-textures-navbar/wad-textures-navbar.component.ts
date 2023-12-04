@@ -16,7 +16,7 @@
 import {Component} from '@angular/core'
 import {TexturesListControl} from '../wad-textures.component'
 import {NavbarPlugin} from '../../../main/navbar_plugin'
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms'
 
 @Component({
     selector: 'app-wad-textures-navbar',

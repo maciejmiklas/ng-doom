@@ -168,7 +168,7 @@ export const getFirstMap = (): Directory => {
 	return _firstMap
 }
 
-export const FIRST_MAP_DIR_OFFSET = 6; // starting from 0
+export const FIRST_MAP_DIR_OFFSET = 6 // starting from 0
 export const FD_E1M1: Directory = {
 	filepos: 67500,
 	size: 0,

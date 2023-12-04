@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Injectable} from '@angular/core';
-import * as T from "three";
-import {config as GC} from "../game-config";
-import {FlatBySector, Wad} from "../wad/parser/wad-model";
-import {WallService} from "./wall.service";
-import {FlatService} from "./flat.service";
-import {BuildMapCallback} from "./callbacks";
+import {Injectable} from '@angular/core'
+import * as T from "three"
+import {config as GC} from "../game-config"
+import {FlatBySector, Wad} from "../wad/parser/wad-model"
+import {WallService} from "./wall.service"
+import {FlatService} from "./flat.service"
+import {BuildMapCallback} from "./callbacks"
 import * as R from 'ramda'
-import {ThingService} from "./thing.service";
-import {Log} from "../common/log";
-import {Either, LeftType} from "../common/either";
-import {Sector3d} from "./renderer-model";
+import {ThingService} from "./thing.service"
+import {Log} from "../common/log"
+import {Either, LeftType} from "../common/either"
+import {Sector3d} from "./renderer-model"
 
 const CMP = "WorldService"
 
@@ -62,8 +62,7 @@ export class WorldService implements BuildMapCallback {
 
 		// sprite and things
 		const map = wad.maps[mapId]
-		const st = this.thingService.createThings(map.things, wad.sprites)
-
+		this.thingService.createThings(map.things, wad.sprites).forEach(mesh => scene.add(mesh))
 		Log.info(CMP, 'Map ', map.mapDirs[0].name, ' created in ', performance.now() - startTime, 'ms')
 	}
 
@@ -85,27 +84,27 @@ export class WorldService implements BuildMapCallback {
 			lbs.sector.floorHeight, true, 'Floor')
 
 		if (floor.isLeft()) {
-			return Either.ofLeft(() => 'Sector ' + lbs.sector.id + ' without floor!', LeftType.WARN);
+			return Either.ofLeft(() => 'Sector ' + lbs.sector.id + ' without floor!', LeftType.WARN)
 		}
 
 		// ceiling
 		const ceiling = this.flatService.renderFlat(lbs.flat, lbs.sector.cellingTexture,
-			lbs.sector.cellingHeight, false, 'Celling');
+			lbs.sector.cellingHeight, false, 'Celling')
 
 		return Either.ofRight({sectorId: lbs.sector.id, walls, floor: floor.get(), ceiling})
 	}
 
 	get sectors(): Sector3d[] {
-		return this._sectors;
+		return this._sectors
 	}
 
 	get floors(): T.Mesh[] {
-		return this._floors;
+		return this._floors
 	}
 }
 
 const createAmbientLight = () =>
-	new T.AmbientLight(GC.scene.ambientLight.color, GC.scene.ambientLight.intensity);
+	new T.AmbientLight(GC.scene.ambientLight.color, GC.scene.ambientLight.intensity)
 
 
 

@@ -1,7 +1,7 @@
-import {Injectable} from '@angular/core';
-import {FlashlightService} from "./flashlight.service";
-import {InitCallback} from "./callbacks";
-import * as T from "three";
+import {Injectable} from '@angular/core'
+import {FlashlightService} from "./flashlight.service"
+import {InitCallback} from "./callbacks"
+import * as T from "three"
 
 @Injectable({
 	providedIn: 'root'

@@ -16,8 +16,8 @@
 import {Component} from '@angular/core'
 import {DirsListControl} from '../wad-dirs.component'
 import {NavbarPlugin} from '../../../main/navbar_plugin'
-import { NgbPagination } from '@ng-bootstrap/ng-bootstrap';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { NgbPagination } from '@ng-bootstrap/ng-bootstrap'
+import { ReactiveFormsModule, FormsModule } from '@angular/forms'
 
 @Component({
     selector: 'app-wad-dirs-wad-map-navbar',

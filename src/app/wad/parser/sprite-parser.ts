@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Bitmap, Directories, Directory, Frame, Palette, Sprite} from './wad-model'
+import {Bitmap, BitmapHeader, Directories, Directory, Frame, Palette, Sprite} from './wad-model'
 import {Either, LeftType} from '../../common/either'
 import {functions as DP} from './directory-parser'
 import {functions as BP} from './bitmap-parser'
@@ -32,7 +32,7 @@ const findSpriteDirs = (dirs: Directory[]): Directory[] => {
 
 /** #sprites contains only Dirs declaring sprites. */
 const groupDirsBySpriteName = (sprites: Directory[]): Directory[][] => {
-	const sorted = R.sortBy(parseSpriteName)(sprites); // sort by sprite name in order to be able to group by it
+	const sorted = R.sortBy(parseSpriteName)(sprites) // sort by sprite name in order to be able to group by it
 	return R.groupWith((d1: Directory, d2: Directory) => parseSpriteName(d1) === parseSpriteName(d2))(sorted)
 }
 
@@ -50,6 +50,12 @@ const toFrames = (wadBytes: number[], palette: Palette) => (dirs: Directory[]): 
 	return fd.concat(fdMirror).filter(f => f.filter(LeftType.WARN)).map(f => f.get())
 }
 
+const findMaxWidth = (hd: BitmapHeader[]): number => findMax(hh => hh.width, hd)
+const findMaxHeight = (hd: BitmapHeader[]): number => findMax(hh => hh.height, hd)
+
+const findMax = (mf: (fr: BitmapHeader) => number, frames: BitmapHeader[]) =>
+	R.reduce<number, number>(R.max, -Infinity, frames.map(fr => mf(fr)))
+
 /** K: Sprite's name, V: the Sprite */
 const parseSprites = (wadBytes: number[], dirs: Directory[]): Record<string, Sprite> => {
 	const sprites = groupDirsBySpriteName(findSpriteDirs(dirs)).map(toFrames(wadBytes, getPalette()))
@@ -57,7 +63,13 @@ const parseSprites = (wadBytes: number[], dirs: Directory[]): Record<string, Spr
 		.map(fs => {
 			const name = fs[0].spriteName
 			const frames: Record<string, Frame[]> = R.groupBy<Frame>(fr => fr.frameName)(fs)
-			return Either.ofRight({name, frames})
+			const sprite: Sprite = {
+				name,
+				frames,
+				maxWidth: findMaxWidth(fs.map(e => e.bitmap.header)),
+				maxHeight: findMaxHeight(fs.map(e => e.bitmap.header))
+			}
+			return Either.ofRight(sprite)
 		}).filter(bs => bs.filter(LeftType.WARN)).map(bs => bs.get())
 
 	return R.reduce(
@@ -115,7 +127,9 @@ export const testFunctions = {
 	hasMirrorFrame: isMirrorFrame,
 	parseMirrorFrameName,
 	toMainFrame,
-	toMirrorFrame
+	toMirrorFrame,
+	findMaxWidth,
+	findMaxHeight
 }
 
 export const functions = {

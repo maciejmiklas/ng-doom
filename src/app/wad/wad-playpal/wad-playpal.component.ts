@@ -16,8 +16,8 @@
 import {Component, OnInit} from '@angular/core'
 import {WadStorageService} from '../wad-storage.service'
 import {Slide} from '../../common/carousel/carousel-model'
-import { WadPaletteComponent } from '../wad-palette/wad-palette.component';
-import { CarouselComponent } from '../../common/carousel/carousel.component';
+import { WadPaletteComponent } from '../wad-palette/wad-palette.component'
+import { CarouselComponent } from '../../common/carousel/carousel.component'
 
 @Component({
     selector: 'app-wad-playpal',

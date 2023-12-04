@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Injectable} from '@angular/core';
-import {DoomTexture, Linedef, LinedefBySector, LinedefFlag, Sector, SpecialType} from "../wad/parser/wad-model";
-import * as T from "three";
-import {WebGLRenderer} from "three";
-import {functions as TF} from "./texture-factory";
-import {Either} from "../common/either";
-import {config as GC} from "../game-config";
-import {RenderCallback} from "./callbacks";
-import {DataTexture} from "three/src/textures/DataTexture";
-import {Scene} from "three/src/scenes/Scene";
-import {Camera} from "three/src/cameras/Camera";
-import {BufferGeometry} from "three/src/core/BufferGeometry";
-import {Material} from "three/src/materials/Material";
-import {Group} from "three/src/objects/Group";
+import {Injectable} from '@angular/core'
+import {DoomTexture, Linedef, LinedefBySector, LinedefFlag, Sector, SpecialType} from "../wad/parser/wad-model"
+import * as T from "three"
+import {WebGLRenderer} from "three"
+import {functions as TF} from "./texture-factory"
+import {Either} from "../common/either"
+import {config as GC} from "../game-config"
+import {RenderCallback} from "./callbacks"
+import {DataTexture} from "three/src/textures/DataTexture"
+import {Scene} from "three/src/scenes/Scene"
+import {Camera} from "three/src/cameras/Camera"
+import {BufferGeometry} from "three/src/core/BufferGeometry"
+import {Material} from "three/src/materials/Material"
+import {Group} from "three/src/objects/Group"
 
 // https://doomwiki.org/wiki/Texture_alignment
 // https://doomwiki.org/wiki/Sidedef
@@ -53,7 +53,7 @@ export class WallService implements RenderCallback {
 			.map(m => m.get())
 
 		const mesh: T.Mesh[] = [...middleWall, ...upperWall, ...lowerWall]
-		this.setupScrollingWalls(mesh);
+		this.setupScrollingWalls(mesh)
 		return mesh
 	}
 
@@ -65,7 +65,7 @@ export class WallService implements RenderCallback {
 					const tx = sm.map as DataTexture
 					tx.offset.x += this.lastRenderDeltaMs * GC.wall.texture.scroll.speedPerSec
 					if (tx.offset.x > GC.wall.texture.scroll.resetAt) {
-						tx.offset.x = 0;
+						tx.offset.x = 0
 					}
 				})
 	}
@@ -76,14 +76,14 @@ export class WallService implements RenderCallback {
 }
 
 const createWallMaterial = (dt: DoomTexture, wallWidth: number, side: T.Side, color = null): T.MeshStandardMaterial => {
-	const map = TF.createDataTexture(dt);
+	const map = TF.createDataTexture(dt)
 	map.repeat.x = wallWidth / dt.width
 	return new T.MeshStandardMaterial({
 		map,
 		transparent: true, // TODO - only some are transparent
 		side,
 		color
-	});
+	})
 }
 
 /** front side -> upper wall */
@@ -175,6 +175,13 @@ const wall = (sideF: (ld: Linedef) => T.Side,
 	mesh.rotateY(Math.atan2(ve.y - vs.y, ve.x - vs.x))
 	mesh.receiveShadow = GC.wall.shadow.receive
 	mesh.castShadow = GC.wall.shadow.cast
-	mesh.userData = {ld: ld}
+	const userData: WallUserData = {
+		ld
+	}
+	mesh.userData = userData
 	return mesh
+}
+
+type WallUserData = {
+	ld: Linedef
 }

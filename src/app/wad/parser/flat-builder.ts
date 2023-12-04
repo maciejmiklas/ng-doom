@@ -16,8 +16,8 @@
 import * as R from 'ramda'
 import {Either, LeftType} from '../../common/either'
 import {Flat, functions as MF, Linedef, MIN_VECTOR_V, Sector, VectorConnection, VectorV, Vertex} from './wad-model'
-import {Log} from "../../common/log";
-import U from "../../common/util";
+import {Log} from "../../common/log"
+import U from "../../common/util"
 import {config as MC} from "./parser-config"
 
 const CMP = 'FLB'
@@ -27,14 +27,14 @@ type ExpandResult<V extends VectorV> = {
 	skipped: V[]
 }
 
-const CROSSING_FLAG = "crossing";
+const CROSSING_FLAG = "crossing"
 const setCrossing = (v: VectorV) => v[CROSSING_FLAG] = true
 const cleanCrossing = (v: VectorV) => v[CROSSING_FLAG] = undefined
 const cleanCrossingVectors = (vectors: VectorV[]): void => vectors.forEach(cleanCrossing)
 const isCrossingVector = (v: VectorV) => R.isNotNil(v) && R.isNotNil(v[CROSSING_FLAG]) && v[CROSSING_FLAG] === true
 const isNotCrossingVector = (v: VectorV) => !isCrossingVector(v)
 
-const DUPLICATED_FLAG = "duplicate";
+const DUPLICATED_FLAG = "duplicate"
 const setDuplicated = (v: VectorV) => v[DUPLICATED_FLAG] = true
 const cleanDuplicated = (v: VectorV) => v[DUPLICATED_FLAG] = undefined
 const cleanDuplicatedVectors = (vectors: VectorV[]): void => vectors.forEach(cleanDuplicated)
@@ -74,7 +74,7 @@ const buildPolygons = <V extends VectorV>(sectorId: number, vectors: V[]): Eithe
 	return Either.ofConditionC<ExpandResult<V>, V[][]>(
 		v => v.skipped.length <= MC.flat.maxSkip, // many open paths are any good
 		v => () => 'Sector: ' + sectorId + ' contains ' + v.skipped.length + '  skipped vectors',
-		v => v.paths)(res);
+		v => v.paths)(res)
 }
 
 // for now it's limited to one open path
@@ -82,7 +82,7 @@ const joinPaths = <V extends VectorV>(inp: ExpandResult<V>): ExpandResult<V> => 
 	const openPaths = inp.paths.filter(pathOpen)
 	const closedPaths = inp.paths.filter(pathClosed)
 	if (openPaths.length == 0) {
-		return inp;
+		return inp
 	}
 	const open = sortBySize(openPaths)
 
@@ -100,7 +100,7 @@ const closePaths = <V extends VectorV>(inp: ExpandResult<V>): ExpandResult<V> =>
 	const openPaths = inp.paths.filter(pathOpen)
 	const closedPaths = inp.paths.filter(pathClosed)
 	if (openPaths.length == 0) {
-		return inp;
+		return inp
 	}
 	const newPaths = openPaths.map<V[]>(closePath)
 	return {
@@ -133,9 +133,9 @@ const sortBySize = <V extends VectorV>(candidates: V[][]): V[][] => R.sort(
  */
 const nextForNewPath = (vec: VectorV[]): number => {
 	const idx = vec.findIndex((el, idx, all) => {
-		return idx + 1 < vec.length && el.id == vec[idx + 1].id && isDuplicatedVector(el) && isDuplicatedVector(vec[idx + 1]);
+		return idx + 1 < vec.length && el.id == vec[idx + 1].id && isDuplicatedVector(el) && isDuplicatedVector(vec[idx + 1])
 	})
-	return idx > 0 ? idx : 0;
+	return idx > 0 ? idx : 0
 }
 
 type PathModification<V extends VectorV> = {
@@ -284,7 +284,7 @@ const sortByHoles = <V extends VectorV>(paths: V[][]): V[][] => {
 	// find outer shape and shift it on the beginning
 	const first = res.splice(groupByOuterPath(paths), 1)[0]
 	res.unshift(first)
-	return res;
+	return res
 }
 
 const createFlat = (sector: Sector) => (lindedefs: Linedef[]): Either<Flat> =>

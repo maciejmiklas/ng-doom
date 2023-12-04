@@ -16,8 +16,8 @@
 import {Component} from '@angular/core'
 import {NavbarPlugin} from '../../../main/navbar_plugin'
 import {CarouselControl} from '../carousel.component'
-import { NgxBootstrapSliderModule } from '@maciejmiklas/ngx-bootstrap-slider';
-import { NgIf } from '@angular/common';
+import { NgxBootstrapSliderModule } from '@maciejmiklas/ngx-bootstrap-slider'
+import { NgIf } from '@angular/common'
 
 @Component({
     selector: 'app-wad-map-navbar',

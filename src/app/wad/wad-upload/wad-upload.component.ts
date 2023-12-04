@@ -17,7 +17,7 @@ import {Component} from '@angular/core'
 import { FileSystemFileEntry, NgxFileDropEntry, NgxFileDropModule } from 'ngx-file-drop'
 import {WadStorageService} from '../wad-storage.service'
 import {UploadResult, UploadStatus} from './wad-upload-model'
-import { NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
+import { NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common'
 
 @Component({
     selector: 'app-wad-upload',
