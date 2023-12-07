@@ -33,6 +33,7 @@
 		"bootstrap-icons": "^1.10.3",
 		"bootstrap-slider": "^11.0.2",
 		"compass-mixins": "^0.12.12",
+		"imagetracer": "^0.2.2",
 		"jquery": "^3.6.3",
 		"js-yaml": "^4.1.0",
 		"ngx-file-drop": "^14.0.2",
