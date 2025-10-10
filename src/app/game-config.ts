@@ -19,7 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import {LinearFilter} from "three/src/constants"
 import * as T from "three"
 
 const game = {
@@ -225,7 +224,7 @@ const camera = {
 const renderer = {
 	physicallyCorrectLights: true,
 	antialias: true,
-	outputEncoding: T.sRGBEncoding,
+	//outputEncoding: T.sRGBEncoding, FIXME
 	resolution: {
 		width: -1,
 		height: -1
@@ -241,8 +240,8 @@ const renderer = {
 
 const texture = {
 	anisotropy: 16,
-	minFilter: LinearFilter,
-	magFilter: LinearFilter
+	minFilter: T.LinearFilter,
+	magFilter: T.LinearFilter
 }
 
 const flashLight = {
