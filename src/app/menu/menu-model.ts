@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Maciej Miklas (MIT License)
+ * Copyright 2022 Maciej Miklas (MIT License)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,19 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import {TestBed} from '@angular/core/testing'
+export type MenuRoot = {
+	l1: MenuL1[]
+}
 
-import {FlatService} from './flat.service'
+export type MenuL1 = {
+	title: string,
+	id: string,
+	l2: MenuL2[]
+}
 
-describe('FlatService', () => {
-  let service: FlatService
+export type MenuL2 = {
+	id: string,
+	title: string,
+	path: string,
+	decorator: string,
+	activated: boolean
+}
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({})
-    service = TestBed.inject(FlatService)
-  })
-
-  it('should be created', () => {
-    expect(service).toBeTruthy()
-  })
-})
+export interface MenuDecorator {
+	visible(): boolean
+}

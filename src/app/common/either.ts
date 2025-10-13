@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Maciej Miklas (MIT License)
+ * Copyright 2025 Maciej Miklas (MIT License)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -216,11 +216,11 @@ export class Left<T> extends Either<T> {
 		return fn()
 	}
 
-	get(): T {
+	override get(): T {
 		throw new TypeError('Left has no value: ' + this.message())
 	}
 
-	toString(): string {
+	override toString(): string {
 		return `Left[${this.message()}]`
 	}
 }
@@ -300,7 +300,7 @@ export class Right<T> extends Either<T> {
 		return true
 	}
 
-	toString(): string {
+	override toString(): string {
 		return `Right[${this.get()}]`
 	}
 

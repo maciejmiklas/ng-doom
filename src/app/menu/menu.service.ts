@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Maciej Miklas (MIT License)
+ * Copyright 2022 Maciej Miklas (MIT License)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,19 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import {TestBed} from '@angular/core/testing'
+import {Injectable} from '@angular/core'
+import {MenuRoot} from './menu-model'
+import {Observable, of} from "rxjs";
+import menuJson from './menu.json'
 
-import {FlatService} from './flat.service'
+@Injectable({providedIn: 'root'})
+export class MenuService {
 
-describe('FlatService', () => {
-  let service: FlatService
+	menu(): Observable<MenuRoot> {
+		return of(menuJson) as Observable<MenuRoot>;
+	}
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({})
-    service = TestBed.inject(FlatService)
-  })
+	empty(): MenuRoot {
+		return ({l1: []} as unknown) as MenuRoot
+	}
 
-  it('should be created', () => {
-    expect(service).toBeTruthy()
-  })
-})
+}
+

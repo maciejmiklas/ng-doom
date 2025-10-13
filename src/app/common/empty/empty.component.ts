@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Maciej Miklas (MIT License)
+ * Copyright 2025 Maciej Miklas (MIT License)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,9 +22,33 @@
 import {Component} from '@angular/core'
 
 @Component({
-    selector: 'app-empty',
-    templateUrl: './empty.component.html',
-    standalone: true
+	selector: 'app-empty',
+	template: `
+		<div class="bd-example-row">
+			<div class="container-fluid">
+				<!-- Stack the columns on mobile by making one full-width and the other half-width -->
+				<div class="row">
+					<div class="col-md-8">R1 .col-md-8</div>
+					<div class="col-6 col-md-4">R1 .col-6 .col-md-4</div>
+				</div>
+
+				<!-- Columns start at 50% wide on mobile and bump up to 33.3% wide on desktop -->
+				<div class="row">
+					<div class="col-6 col-md-4">R2 .col-6 .col-md-4</div>
+					<div class="col-6 col-md-4">R2 .col-6 .col-md-4</div>
+					<div class="col-6 col-md-4">R2 .col-6 .col-md-4</div>
+				</div>
+
+				<!-- Columns are always 50% wide, on mobile and desktop -->
+				<div class="row">
+					<div class="col-6">R3 .col-6</div>
+					<div class="col-6">R3 .col-6</div>
+				</div>
+			</div>
+		</div>
+
+	`,
+	standalone: true
 })
 export class EmptyComponent {
 
