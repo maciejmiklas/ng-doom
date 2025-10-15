@@ -27,12 +27,6 @@ import {functions as TF} from "./texture-factory"
 import {Either} from "../common/either"
 import {config as GC} from "../game-config"
 import {RenderCallback} from "./callbacks"
-import {DataTexture} from "three/src/textures/DataTexture"
-import {Scene} from "three/src/scenes/Scene"
-import {Camera} from "three/src/cameras/Camera"
-import {BufferGeometry} from "three/src/core/BufferGeometry"
-import {Material} from "three/src/materials/Material"
-import {Group} from "three/src/objects/Group"
 
 // https://doomwiki.org/wiki/Texture_alignment
 // https://doomwiki.org/wiki/Sidedef
@@ -64,11 +58,11 @@ export class WallService implements RenderCallback {
 	}
 
 	setupScrollingWalls(meshes: T.Mesh[]): void {
-		meshes.filter(m => m.userData.ld.specialType == SpecialType.SCROLLING_WALL_LEFT.valueOf())
+		meshes.filter(m => m.userData["ld"].specialType == SpecialType.SCROLLING_WALL_LEFT.valueOf())
 			.forEach(mesh =>
-				mesh.onBeforeRender = (renderer: WebGLRenderer, scene: Scene, camera: Camera, geometry: BufferGeometry, material: Material, group: Group) => {
+				mesh.onBeforeRender = (renderer: WebGLRenderer, scene: T.Scene, camera: T.Camera, geometry: T.BufferGeometry, material: T.Material, group: T.Group) => {
 					const sm = mesh.material as T.MeshStandardMaterial
-					const tx = sm.map as DataTexture
+					const tx = sm.map as T.DataTexture
 					tx.offset.x += this.lastRenderDeltaMs * GC.wall.texture.scroll.speedPerSec
 					if (tx.offset.x > GC.wall.texture.scroll.resetAt) {
 						tx.offset.x = 0

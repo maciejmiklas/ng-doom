@@ -21,12 +21,7 @@
  */
 import {Component, Input, OnInit} from '@angular/core'
 import {WadStorageService} from "../wad-storage.service"
-import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {RgbaBitmap} from "../parser/wad-model"
-import {MainEvent} from "../../main/main-event"
-import {NavbarPluginFactory} from "../../main/navbar_plugin"
-import {WadPatchesNavbarComponent} from "../wad-patches/wad-patches-navbar/wad-patches-navbar.component"
-import {NgbPopover} from '@ng-bootstrap/ng-bootstrap'
 import {PbmpComponent} from '../pbmp/pbmp.component'
 import {NgFor} from '@angular/common'
 
@@ -34,7 +29,7 @@ import {NgFor} from '@angular/common'
     selector: 'app-wad-flats',
     templateUrl: './wad-flats.component.html',
     standalone: true,
-    imports: [NgFor, PbmpComponent, NgbPopover]
+    imports: [NgFor, PbmpComponent]
 })
 export class WadFlatsComponent implements OnInit, FlatsListControl {
 
@@ -46,12 +41,12 @@ export class WadFlatsComponent implements OnInit, FlatsListControl {
 
 	flats: RgbaBitmap[]
 
-	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService) {
+	constructor(private wadStorage: WadStorageService/*, private eventBus: NgRxEventBusService*/) {
 	}
 
 	ngOnInit(): void {
 		this.flats = this.wadStorage.getCurrent().get().wad.flatBitmaps
-		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadPatchesNavbarComponent, this)))
+	//	this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadPatchesNavbarComponent, this)))
 	}
 
 	applyFilter(filter: string) {

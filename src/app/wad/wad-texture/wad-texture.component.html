@@ -16,9 +16,10 @@
 	<div class="app-texture-patches">
 		<ng-container *ngFor="let patch of texture.patches;let i=index">
 			<app-pbmp class="app-patch" [bitmap]="patch.bitmap" [maxSize]="patchMaxSize"
-								ngbPopover=
+								></app-pbmp>
+			<!-- ngbPopover=
 		"{{i}}:{{patch.patchName}}, Size: {{patch.bitmap.width}}x{{patch.bitmap.height}}, Offset: {{patch.originX}}x{{patch.originY}}"
-								triggers="mouseenter:mouseleave" (mouseover)="onPatchMoseOver(patch)" ></app-pbmp>
+								triggers="mouseenter:mouseleave" (mouseover)="onPatchMoseOver(patch)"  -->
 		</ng-container>
 	</div>
 </div>

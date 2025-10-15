@@ -20,10 +20,10 @@
  * SOFTWARE.
  */
 import {Injectable} from '@angular/core'
-import {PointerLockControls} from "three/examples/jsm/controls/PointerLockControls"
 import * as T from "three"
 import {InitCallback, RenderCallback} from "./callbacks"
 import {config as GC} from '../game-config'
+import * as TA from "three/examples/jsm/Addons.js"
 
 @Injectable({
 	providedIn: 'root'
@@ -32,13 +32,13 @@ export class ControlsService implements InitCallback, RenderCallback {
 
 	private moveX = MoveX.NO
 	private moveY = MoveY.NO
-	private controls: PointerLockControls
+	private controls: TA.PointerLockControls
 
 	init(canvas: HTMLCanvasElement, scene: T.Scene, camera: T.PerspectiveCamera): void {
 		window.addEventListener('keydown', this.onKeyDown.bind(this))
 		window.addEventListener('keyup', this.onKeyUp.bind(this))
 		canvas.addEventListener('click', this.onClick.bind(this))
-		this.controls = new PointerLockControls(camera, canvas)
+		this.controls = new TA.PointerLockControls(camera, canvas)
 	}
 
 	private onClick(): void {

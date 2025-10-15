@@ -71,7 +71,7 @@ const parsePatch = (wadBytes: number[], dirs: Directory[], pnames: Pnames, patch
 	}))
 }
 
-const highlightPatch = (texture: DoomTexture, highlighter: (path: Patch) => Either<Palette>): Uint8ClampedArray => {
+const highlightPatch = (texture: DoomTexture, highlighter: (path: Patch) => Either<Palette>): Uint8ClampedArray<ArrayBuffer> => {
 	const patches = texture.patches.map(patch => highlighter(patch) // go on, if Palette should be changed for this patch
 		.map(palette => BP.changePalette(palette)(patch.bitmap)) // generate new bitmap with given palette for this patch
 		.map(bitmap => ({ // clone this patch and apply new bitmap with changed palette
@@ -143,14 +143,19 @@ const parseFlats = (wadBytes: number[], dirs: Directory[], palette: Palette): Ei
 }
 
 const toImageData = (bitmap: RgbaBitmap): ImageData => {
-	return new ImageData(bitmap.rgba, bitmap.width, bitmap.height)
+	return {
+		data: new Uint8ClampedArray(bitmap.rgba),
+		width: bitmap.width,
+		height: bitmap.height,
+		colorSpace: 'srgb'
+	}
 }
 
 const toImageBitmap = (bitmap: Bitmap) => (width: number, height: number): Promise<ImageBitmap> => {
 	return createImageBitmap(toImageData(bitmap), {resizeWidth: width, resizeHeight: height})
 }
 
-const createTextureRgba = (width: number, height: number, patches: Patch[]): Uint8ClampedArray => {
+const createTextureRgba = (width: number, height: number, patches: Patch[]): Uint8ClampedArray<ArrayBuffer> => {
 	const rgba = new Uint8ClampedArray(width * height * RGBA_BYTES)
 	const patcher = applyPatch(width, height, rgba)
 	patches.forEach(patcher)

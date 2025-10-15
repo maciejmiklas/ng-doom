@@ -161,7 +161,7 @@ const parseFlat = (wadBytes: number[], palette: Palette) => (dir: Directory): Ei
   </tr>
 </table>
  */
-const patchDataToRGBA = (columns: Either<Column>[], width: number, height: number, palette: Palette): Uint8ClampedArray => {
+const patchDataToRGBA = (columns: Either<Column>[], width: number, height: number, palette: Palette): Uint8ClampedArray<ArrayBuffer> => {
 	const pixAtCol = postPixelAt(columns)
 	const array = new Uint8ClampedArray(width * height * RGBA_BYTES)
 	const pixelToImg = pixelToImgBuf(array, palette)

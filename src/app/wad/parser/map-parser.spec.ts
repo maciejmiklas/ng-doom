@@ -60,7 +60,7 @@ import {
 	VERTEX_27,
 	VERTEX_3,
 	VERTEX_466
-} from "./testdata/data"
+} from "./testdata/data.spec"
 import * as R from 'ramda'
 
 describe('map-parser#parseHeader', () => {

@@ -26,7 +26,6 @@ import {Wad, WadEntry} from './parser/wad-model'
 import * as R from 'ramda'
 import {Either} from '../common/either'
 import {functions as wp} from './parser/wad-parser'
-import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
 import {Log} from '../common/log'
 import {WadEvent} from './wad-event'
 
@@ -40,12 +39,12 @@ export class WadStorageService {
 	private wads: WadEntry[] = []
 	private currentWad = 0
 
-	constructor(private eventBus: NgRxEventBusService) {
+	constructor(/*private eventBus: NgRxEventBusService*/) {
 	}
 
 	public async uploadWad(file: File): Promise<UploadResult> {
 		return this.uploadWadIntern(file).then(res => {
-			this.eventBus.emit(new EmitEvent(WadEvent.WAD_UPLOADED, res))
+			//this.eventBus.emit(new EmitEvent(WadEvent.WAD_UPLOADED, res))
 			return res
 		})
 	}
@@ -54,7 +53,7 @@ export class WadStorageService {
 		if (!file.name.toLocaleLowerCase().endsWith('.wad')) {
 			return {fileName: file.name, status: UploadStatus.UNSUPPORTED_TYPE, message: undefined}
 		}
-		if (R.find(R.propEq('name', file.name))(this.wads) !== undefined) {
+		if (this.wads.some(w => w.name === file.name)) {
 			return {fileName: file.name, status: UploadStatus.FILE_ALREADY_EXISTS, message: undefined}
 		}
 		return file.arrayBuffer().then(ab => {

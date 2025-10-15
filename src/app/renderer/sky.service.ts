@@ -26,7 +26,7 @@ import {config as GC} from "../game-config"
 import U from "../common/util"
 import {functions as TF} from "./texture-factory"
 import {BuildMapCallback} from "./callbacks"
-import {MeshStandardMaterialParameters} from "three/src/materials/MeshStandardMaterial"
+import {MeshStandardMaterialParameters} from "three"
 
 @Injectable({
 	providedIn: 'root'

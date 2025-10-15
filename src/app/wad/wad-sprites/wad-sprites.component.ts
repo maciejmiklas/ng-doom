@@ -23,11 +23,6 @@ import {Component, OnInit} from '@angular/core'
 import {WadStorageService} from '../wad-storage.service'
 import {functions as SP} from '../parser/sprite-parser'
 import {Bitmap, Sprite} from '../parser/wad-model'
-import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
-import {MainEvent} from '../../main/main-event'
-import {NavbarPluginFactory} from '../../main/navbar_plugin'
-import {WadSpritesNavbarComponent} from './wad-sprites-navbar/wad-sprites-navbar.component'
-import {NgbPopover} from '@ng-bootstrap/ng-bootstrap'
 import {PbmpAnimationComponent} from '../pbmp-animation/pbmp-animation.component'
 import {NgFor} from '@angular/common'
 
@@ -35,7 +30,7 @@ import {NgFor} from '@angular/common'
 	selector: 'app-wad-sprite',
 	templateUrl: './wad-sprites.component.html',
 	standalone: true,
-	imports: [NgFor, PbmpAnimationComponent, NgbPopover]
+	imports: [NgFor, PbmpAnimationComponent]
 })
 export class WadSpritesComponent implements OnInit, SpritesListControl {
 
@@ -43,13 +38,13 @@ export class WadSpritesComponent implements OnInit, SpritesListControl {
 	scale: number[]
 	private readonly ZOOM_MAX_SIZE = 150 // box has 200px, it's set in .app-sprite
 
-	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService) {
+	constructor(private wadStorage: WadStorageService/*, private eventBus: NgRxEventBusService*/) {
 	}
 
 	ngOnInit(): void {
 		this.sprites = this.readSprites(() => true)
 		this.scale = this.sprites.map(s => s.sprite).map(SP.calcScale(this.ZOOM_MAX_SIZE))
-		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadSpritesNavbarComponent, this)))
+		//this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadSpritesNavbarComponent, this)))
 	}
 
 	applyFilter(filter: string) {

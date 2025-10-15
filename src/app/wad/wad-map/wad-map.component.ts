@@ -24,10 +24,6 @@ import * as paper from 'paper'
 import {Path, Point} from 'paper'
 import {WadStorageService} from '../wad-storage.service'
 import {DoomMap, WadEntry} from '../parser/wad-model'
-import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
-import {MainEvent} from '../../main/main-event'
-import {NavbarPluginFactory} from '../../main/navbar_plugin'
-import {WadMapNavbarComponent} from './wad-map-navbar/wad-map-navbar.component'
 import {functions as mp} from '../parser/map-parser'
 import {PaperComponent} from '../../common/paper/paper.component'
 
@@ -45,7 +41,7 @@ export class WadMapComponent implements OnInit, MapControl {
 	private wad: WadEntry
 	private _mapNames: string[]
 
-	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService) {
+	constructor(private wadStorage: WadStorageService/*, private eventBus: NgRxEventBusService*/) {
 	}
 
 	onZoomChange(zoom: number): void {
@@ -63,7 +59,7 @@ export class WadMapComponent implements OnInit, MapControl {
 	ngOnInit(): void {
 		this.wad = this.wadStorage.getCurrent().get()
 		this._mapNames = this.wad.wad.maps.map(m => m.mapDirs[0].name)
-		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadMapNavbarComponent, this)))
+			//	this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadMapNavbarComponent, this)))
 	}
 
 	onMouseDrag(point: paper.Point): void {

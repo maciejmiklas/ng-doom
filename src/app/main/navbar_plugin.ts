@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Maciej Miklas (MIT License)
+ * Copyright 2022 Maciej Miklas (MIT License)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,7 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-export type Slide = {
-	name: string
-	item: any
+import {Type} from '@angular/core'
+
+export class NavbarPluginFactory<CT extends NavbarPlugin<any>> {
+	constructor(public readonly component: Type<CT>, public readonly data: any) {
+	}
+}
+
+export interface NavbarPlugin<C> {
+	setData(data: C): void
 }

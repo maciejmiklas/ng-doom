@@ -24,7 +24,7 @@ import {Either} from "../common/either"
 import * as T from "three"
 import {config as gc, config as GC} from "../game-config"
 import {InitCallback, RenderCallback} from "./callbacks"
-import * as Stats from 'stats.js'
+import Stats from 'stats.js'
 
 @Injectable({
 	providedIn: 'root'

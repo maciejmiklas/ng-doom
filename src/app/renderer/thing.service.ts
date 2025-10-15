@@ -26,13 +26,8 @@ import {WebGLRenderer} from "three"
 import {Log} from "../common/log"
 import {Either, LeftType} from "../common/either"
 import {functions as TF} from "./texture-factory"
-import {Scene} from "three/src/scenes/Scene";
-import {Camera} from "three/src/cameras/Camera";
-import {BufferGeometry} from "three/src/core/BufferGeometry";
-import {Material} from "three/src/materials/Material";
-import {Group} from "three/src/objects/Group";
 import {imageTracer} from 'imagetracer'
-import {SVGLoader} from "three/examples/jsm/loaders/SVGLoader";
+import * as TA from "three/examples/jsm/Addons.js"
 
 const CMP = "ThingService"
 
@@ -70,7 +65,7 @@ const createSprite = (sprites: Record<string, Sprite>) => (thing: Thing): Either
 const bitmapTo3D = (bitmap: Bitmap): T.Object3D => {
 	// https://github.com/jankovicsandras/imagetracerjs/blob/master/options.md
 	const svg = imageTracer.imageDataToSVG(new ImageData(bitmap.rgba, bitmap.width, bitmap.height), 'posterized3')
-	const tsvg = new SVGLoader().parse(svg)
+	const tsvg = new TA.SVGLoader().parse(svg)
 	const group = new T.Group()
 	const texture = TF.createDataTexture(bitmap)
 
@@ -84,7 +79,7 @@ const bitmapTo3D = (bitmap: Bitmap): T.Object3D => {
 
 	for (let i = 0; i < tsvg.paths.length; i++) {
 		const path = tsvg.paths[i]
-		const fillColor = path.userData.style.fill
+		const fillColor = path.userData["style"].fill
 		if (fillColor === undefined) {
 			continue;
 		}
@@ -92,7 +87,7 @@ const bitmapTo3D = (bitmap: Bitmap): T.Object3D => {
 		if (color.r === 0 && color.b === 0 && color.g === 0) {
 			continue;
 		}
-		console.log('OP', path.userData.style.fillOpacity)
+		console.log('OP', path.userData["style"].fillOpacity)
 
 		const material = new T.MeshBasicMaterial({
 			color: colors[i],//new T.Color().setStyle(fillColor).convertSRGBToLinear(),
@@ -103,7 +98,7 @@ const bitmapTo3D = (bitmap: Bitmap): T.Object3D => {
 			//map: texture
 		})
 
-		const shape = SVGLoader.createShapes(path)[0];
+		const shape = TA.SVGLoader.createShapes(path)[0];
 		const geometry = new T.ShapeGeometry(shape)
 		const mesh = new T.Mesh(geometry, material)
 		mesh.castShadow = true
@@ -137,7 +132,7 @@ const createSprite_ = (sprites: Record<string, Sprite>) => (thing: Thing): Eithe
 	}
 	mesh.userData = userData
 
-	mesh.onBeforeRender = (renderer: WebGLRenderer, scene: Scene, camera: Camera, geometry: BufferGeometry, material: Material, group: Group) => {
+	mesh.onBeforeRender = (renderer: WebGLRenderer, scene: T.Scene, camera: T.Camera, geometry: T.BufferGeometry, material: T.Material, group: T.Group) => {
 		const userData = mesh.userData as ThingUserData
 
 		// rotate towards camera

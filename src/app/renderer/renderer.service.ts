@@ -48,11 +48,11 @@ export class RendererService implements InitCallback, StartRenderLoopCallback {
 		const conf = GC.renderer
 
 		this.renderer = new T.WebGLRenderer({antialias: conf.antialias, canvas})
-		this.renderer.physicallyCorrectLights = conf.physicallyCorrectLights
+		//this.renderer.physicallyCorrectLights = conf.physicallyCorrectLights FIXME: property is gone
 
 		this.renderer.shadowMap.enabled = conf.shadowMap.enabled
 		this.renderer.shadowMap.type = conf.shadowMap.type
-		this.renderer.outputEncoding = conf.outputEncoding
+		//this.renderer.outputEncoding = conf.outputEncoding FIXME: property is gone
 
 		if (conf.resolution.width > 0) {
 			this.renderer.setSize(conf.resolution.width, conf.resolution.height)

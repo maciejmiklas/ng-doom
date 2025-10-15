@@ -24,7 +24,6 @@ import {Either, LeftType} from '../../common/either'
 import {functions as DP} from './directory-parser'
 import {functions as BP} from './bitmap-parser'
 import * as R from 'ramda'
-import {getPalette} from './testdata/data'
 
 const findStartDir = (dirs: Directory[]): Either<Directory> => DP.findDirectoryByName(dirs)(Directories.S_START)
 
@@ -63,8 +62,8 @@ const findMax = (mf: (fr: BitmapHeader) => number, frames: BitmapHeader[]) =>
 	R.reduce<number, number>(R.max, -Infinity, frames.map(fr => mf(fr)))
 
 /** K: Sprite's name, V: the Sprite */
-const parseSprites = (wadBytes: number[], dirs: Directory[]): Record<string, Sprite> => {
-	const sprites = groupDirsBySpriteName(findSpriteDirs(dirs)).map(toFrames(wadBytes, getPalette()))
+const parseSprites = (wadBytes: number[], dirs: Directory[], palette: Palette): Record<string, Sprite> => {
+	const sprites = groupDirsBySpriteName(findSpriteDirs(dirs)).map(toFrames(wadBytes, palette))
 		// #fs contains all frames for a single sprite
 		.map(fs => {
 			const name = fs[0].spriteName

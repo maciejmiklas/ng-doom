@@ -479,7 +479,7 @@ export type RgbaBitmap = {
 	height: number,
 
 	/** RGBA32 */
-	rgba: Uint8ClampedArray,
+	rgba: Uint8ClampedArray<ArrayBuffer>,
 
 	/** The palette that has been used to render this image. */
 	palette?: Palette

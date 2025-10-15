@@ -36,7 +36,7 @@ const createDataTexture = (bitmap: RgbaBitmap): T.DataTexture => {
 	texture.anisotropy = GC.texture.anisotropy
 	texture.minFilter = GC.texture.minFilter
 	texture.magFilter = GC.texture.magFilter
-	texture.encoding = T.sRGBEncoding
+	// texture.encoding = T.sRGBEncoding FIXME: property is gone
 	return texture
 }
 

@@ -21,7 +21,7 @@
  */
 import {functions as SP, testFunctions as TF} from './sprite-parser'
 
-import {getAllDirs, getPalette, getWadBytes} from './testdata/data'
+import {getAllDirs, getPalette, getWadBytes} from './testdata/data.spec'
 import {BitmapHeader, Directory} from './wad-model'
 
 describe('sprite_parser#findStartDir', () => {
@@ -195,7 +195,7 @@ describe('sprite_parser#toMirrorFrame', () => {
 })
 
 describe('texture-parser#parseSprites', () => {
-	const spritesRec = SP.parseSprites(getWadBytes(), getAllDirs())
+	const spritesRec = SP.parseSprites(getWadBytes(), getAllDirs(), getPalette())
 	const sprites = Object.values(spritesRec)
 
 	it('Max/Min size', () => {

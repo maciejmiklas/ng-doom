@@ -24,7 +24,6 @@ import {WadStorageService} from '../wad-storage.service'
 import {DoomTexture, Palette, Patch} from '../parser/wad-model'
 import {Either} from "../../common/either"
 import {functions as tp} from "../parser/texture-parser"
-import {NgbPopover} from '@ng-bootstrap/ng-bootstrap'
 import {NgFor} from '@angular/common'
 import {WadDirElementComponent} from '../wad-dir-element/wad-dir-element.component'
 import {PbmpComponent} from '../pbmp/pbmp.component'
@@ -33,7 +32,7 @@ import {PbmpComponent} from '../pbmp/pbmp.component'
     selector: 'app-wad-texture',
     templateUrl: './wad-texture.component.html',
     standalone: true,
-    imports: [PbmpComponent, WadDirElementComponent, NgFor, NgbPopover]
+    imports: [PbmpComponent, WadDirElementComponent, NgFor]
 })
 export class WadTextureComponent implements OnInit {
 

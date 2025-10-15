@@ -21,11 +21,11 @@
  */
 import {Injectable} from '@angular/core'
 import * as T from 'three'
+import {Intersection} from 'three'
 import {InitCallback, RenderCallback} from "./callbacks"
 import {config as GC} from "../game-config"
 import {WorldService} from "./world.service"
 import {Either, LeftType} from "../common/either"
-import {Intersection} from "three/src/core/Raycaster"
 import {Log} from "../common/log"
 
 const CMP = "PlayerService"
@@ -49,7 +49,7 @@ export class PlayerService implements InitCallback, RenderCallback {
 	}
 
 	findActiveFloor(): Either<Intersection> {
-		this.raycaster.setFromCamera(this.camera.position, this.camera)
+		this.raycaster.setFromCamera(new T.Vector2(this.camera.position.x, this.camera.position.y), this.camera)
 		const flr = GC.player.floorRay
 		this.raycaster.ray.direction.set(flr.direction.x, flr.direction.y, flr.direction.z)
 		this.raycaster.ray.origin.y += flr.origin.adjust.y

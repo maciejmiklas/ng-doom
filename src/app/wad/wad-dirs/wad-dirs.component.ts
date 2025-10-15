@@ -23,10 +23,6 @@ import {Component, OnInit} from '@angular/core'
 import {WadStorageService} from '../wad-storage.service'
 import {Directory} from '../parser/wad-model'
 import * as R from 'ramda'
-import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
-import {MainEvent} from '../../main/main-event'
-import {NavbarPluginFactory} from '../../main/navbar_plugin'
-import {WadDirsNavbarComponent} from './wad-dirs-navbar/wad-dirs-navbar.component'
 import {WadDirComponent} from '../wad-dir/wad-dir.component'
 import {NgFor} from '@angular/common'
 
@@ -42,13 +38,13 @@ export class WadDirsComponent implements OnInit, DirsListControl {
 	pageDirs: Directory[]
 	pageSize = 20
 
-	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService) {
+	constructor(private wadStorage: WadStorageService/*, private eventBus: NgRxEventBusService*/) {
 	}
 
 	ngOnInit(): void {
 		this.initDirs = this.wadStorage.getCurrent().get().wad.dirs
 		this.allDirs = this.initDirs
-		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadDirsNavbarComponent, this)))
+	//	this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadDirsNavbarComponent, this)))
 		this.onPageChange(1)
 	}
 

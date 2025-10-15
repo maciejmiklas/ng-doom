@@ -22,11 +22,6 @@
 import {Component, Input, OnInit} from '@angular/core'
 import {WadStorageService} from '../wad-storage.service'
 import {Bitmap} from '../parser/wad-model'
-import {EmitEvent, NgRxEventBusService} from '@maciejmiklas/ngrx-event-bus'
-import {MainEvent} from '../../main/main-event'
-import {NavbarPluginFactory} from '../../main/navbar_plugin'
-import {WadPatchesNavbarComponent} from './wad-patches-navbar/wad-patches-navbar.component'
-import {NgbPopover} from '@ng-bootstrap/ng-bootstrap'
 import {PbmpComponent} from '../pbmp/pbmp.component'
 import {NgFor} from '@angular/common'
 
@@ -34,7 +29,7 @@ import {NgFor} from '@angular/common'
     selector: 'app-wad-patches',
     templateUrl: './wad-patches.component.html',
     standalone: true,
-    imports: [NgFor, PbmpComponent, NgbPopover]
+    imports: [NgFor, PbmpComponent]
 })
 export class WadPatchesComponent implements OnInit, PatchesListControl {
 	patches: Bitmap[]
@@ -45,13 +40,13 @@ export class WadPatchesComponent implements OnInit, PatchesListControl {
 	@Input()
 	zoom = 4
 
-	constructor(private wadStorage: WadStorageService, private eventBus: NgRxEventBusService) {
+	constructor(private wadStorage: WadStorageService/*, private eventBus: NgRxEventBusService*/) {
 	}
 
 	ngOnInit(): void {
 		const wad = this.wadStorage.getCurrent().get().wad
 		this.patches = wad.patches
-		this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadPatchesNavbarComponent, this)))
+	//	this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadPatchesNavbarComponent, this)))
 	}
 
 	applyFilter(filter: string) {
