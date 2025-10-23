@@ -19,53 +19,60 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import {Component, inject, signal} from "@angular/core";
+import {Component, computed, inject, Signal, signal} from "@angular/core";
 import {MatAccordion, MatExpansionPanel, MatExpansionPanelHeader} from "@angular/material/expansion";
 import {MenuService} from "./menu.service";
-import {toSignal} from "@angular/core/rxjs-interop";
 import {MatListItem, MatNavList} from "@angular/material/list";
 import {MenuL1, MenuL2} from "./menu-model";
 import {Router} from "@angular/router";
 import {Log} from "../common/log";
 
 @Component({
-	selector: 'app-menu',
-	standalone: true,
-	imports: [
-		MatAccordion,
-		MatExpansionPanel,
-		MatExpansionPanelHeader,
-		MatListItem,
-		MatNavList
-	],
-	template: `
-		<mat-accordion>
-			@for (l1 of menu().l1; track l1.id) {
-				<mat-expansion-panel>
-					<mat-expansion-panel-header>{{ l1.title }}</mat-expansion-panel-header>
-					<mat-nav-list>
-						@for (l2 of l1.l2; track l2.id) {
-							<a mat-list-item [activated]="activeL1() === l1.id && activeL2() === l2.id"
-								 (click)="toggleActivated(l1, l2)">{{ l2.title }}</a>
-						}
-					</mat-nav-list>
-				</mat-expansion-panel>
-			}
-		</mat-accordion>
-	`
+  selector: 'app-menu',
+  standalone: true,
+  providers: [MenuService],
+  imports: [
+    MatAccordion,
+    MatExpansionPanel,
+    MatExpansionPanelHeader,
+    MatListItem,
+    MatNavList
+  ],
+  template: `
+    <mat-accordion>
+      @for (l1 of menu().l1; track l1.id) {
+        @if (l1.visibilityCheck()) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>{{ l1.title }}</mat-expansion-panel-header>
+            <mat-nav-list>
+              @for (l2 of l1.l2; track l2.id) {
+                @if (l2.visibilityCheck()) {
+                  <a mat-list-item
+                     [activated]="isActivated(l1.id, l2.id)()"
+                     (click)="onL2Click(l1, l2)">{{ l2.title }}</a>
+                }
+              }
+            </mat-nav-list>
+          </mat-expansion-panel>
+        }
+      }
+    </mat-accordion>
+  `
 })
 export class MenuComponent {
-	private router = inject(Router)
-	private readonly menuService = inject(MenuService)
-	menu = toSignal(this.menuService.menu(), {initialValue: this.menuService.empty()})
-	activeL1 = signal<string>('-')
-	activeL2 = signal<string>('-')
+  private router = inject(Router)
+  private readonly menuService = inject(MenuService)
+  menu = this.menuService.menu()
+  activeL1 = signal<string>('-')
+  activeL2 = signal<string>('-')
 
-	toggleActivated(l1: MenuL1, l2: MenuL2) {
-		this.activeL1.set(l1.id)
-		this.activeL2.set(l2.id)
-		this.router.navigate(['/', l2.path])
-			.catch(er => Log.error('Cannot navigate to ' + l2.path + ': ' + er.message + ''))
-	}
+  onL2Click(l1: MenuL1, l2: MenuL2) {
+    this.activeL1.set(l1.id)
+    this.activeL2.set(l2.id)
+    this.router.navigate(['/', l1.path, l2.path])
+      .catch(er => Log.error('Cannot navigate to ' + l2.path + ': ' + er.message + ''))
+  }
 
+  isActivated = (l1Id: string, l2Id: string): Signal<boolean> =>
+    computed(() => this.activeL1() === l1Id && this.activeL2() === l2Id)
 }

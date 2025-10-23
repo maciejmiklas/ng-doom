@@ -23,13 +23,12 @@ import {Component} from '@angular/core'
 import {NavbarPlugin} from '../../../main/navbar_plugin'
 import {MapControl} from '../wad-map.component'
 import {ReactiveFormsModule} from '@angular/forms'
-import {NgFor} from '@angular/common'
 
 @Component({
 	selector: 'app-wad-map-navbar',
 	templateUrl: './wad-map-navbar.component.html',
 	standalone: true,
-	imports: [NgFor, ReactiveFormsModule]
+	imports: [ReactiveFormsModule]
 })
 export class WadMapNavbarComponent implements NavbarPlugin<MapControl> {
 

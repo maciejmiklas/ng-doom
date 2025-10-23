@@ -19,24 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import {inject, Injectable} from '@angular/core'
+import {Injectable} from '@angular/core'
 import {MenuVisibilityCheck} from '../menu/menu-model'
-import {WadStorageService} from './wad-storage.service'
 import {Observable, of} from "rxjs";
 
 @Injectable({providedIn: 'root'})
-export class WadLoadedMenuVisibilityCheck implements MenuVisibilityCheck {
-  private readonly wadStorage: WadStorageService = inject(WadStorageService)
+export class InGameVisibilityCheck implements MenuVisibilityCheck {
 
   visible(): Observable<boolean> {
-    return this.wadStorage.loaded$;
-  }
-}
-
-@Injectable({providedIn: 'root'})
-export class MultipleWadsLoadedMenuVisibilityCheck implements MenuVisibilityCheck {
-
-  visible(): Observable<boolean> {
-    return of(false)
+    return of(false);
   }
 }

@@ -19,24 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import {Observable} from "rxjs";
+import {Signal} from "@angular/core";
+
 export type MenuRoot = {
-	l1: MenuL1[]
+  l1: MenuL1[]
 }
 
-export type MenuL1 = {
-	title: string,
-	id: string,
-	l2: MenuL2[]
+export type Menu = {
+  id: string,
+  title: string,
+  path: string,
+  visibilityCheck?: Signal<boolean>
 }
 
-export type MenuL2 = {
-	id: string,
-	title: string,
-	path: string,
-	decorator: string,
-	activated: boolean
+export type MenuL1 = Menu & {
+  l2: MenuL2[]
 }
 
-export interface MenuDecorator {
-	visible(): boolean
+export type MenuL2 = Menu & {
+  visibilityCheckName: string
+}
+
+export interface MenuVisibilityCheck {
+  visible(): Observable<boolean>
 }

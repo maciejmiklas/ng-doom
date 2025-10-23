@@ -1,31 +1,115 @@
 {
-	"l1": [
-		{
-			"id": "m1_manage_wads", "title": "Manage WADs", "l2": [
-			{"id": "m2_wad_upload", "title": "Upload new", "path": "wad_upload", "decorator": "dec_wad_upload"},
-			{"id": "m2_wad_list", "title": "My WADs", "path": "wad_list", "decorator": "dec_wad_loaded"},
-			{"id": "m2_wad_select", "title": "Select WAD", "path": "wad_select", "decorator": "dec_wad_loaded"}
-		]
-		},
-		{
-			"id": "m1_wad_viewer", "title": "WAD Viewer", "l2": [
-			{"id": "m2_wad_maps", "title": "Maps", "path": "wad_maps", "decorator": "dec_wad_loaded"},
-			{"id": "m2_wad_dirs", "title": "Directories", "path": "wad_dirs", "decorator": "dec_wad_loaded"},
-			{"id": "m2_wad_playpal", "title": "Playpal", "path": "wad_playpal", "decorator": "dec_wad_loaded"},
-			{"id": "m2_wad_title_img", "title": "Title Images", "path": "wad_title_img", "decorator": "dec_wad_loaded"},
-			{"id": "m2_wad_sprites", "title": "Sprites", "path": "wad_sprites", "decorator": "dec_wad_loaded"},
-			{"id": "m2_wad_patches", "title": "Patches", "path": "wad_patches", "decorator": "dec_wad_loaded"},
-			{"id": "m2_wad_flats", "title": "Flats", "path": "wad_flats", "decorator": "dec_wad_loaded"},
-			{"id": "m2_wad_textures", "title": "Textures", "path": "wad_textures", "decorator": "dec_wad_loaded"}
-		]
-		},
-		{
-			"id": "m1_game", "title": "Game", "l2": [
-			{"id": "m2_game_new", "title": "New", "path": "game_new", "decorator": "dec_wad_loaded"},
-			{"id": "m2_game_load", "title": "Load", "path": "game_load", "decorator": "dec_game_load"},
-			{"id": "m2_game_save", "title": "Save", "path": "game_save", "decorator": "dec_game_save"},
-			{"id": "m2_game_manage", "title": "Manage Saves", "path": "game_manage", "decorator": "dec_game_manage"}
-		]
-		}
-	]
+  "l1": [
+    {
+      "id": "m1_manage_wads",
+      "title": "Manage WADs",
+      "path": "wads",
+      "l2": [
+        {
+          "id": "m2_wad_upload",
+          "title": "Upload new",
+          "path": "wad_upload",
+          "visibilityCheckName": "always"
+        },
+        {
+          "id": "m2_wad_list",
+          "title": "My WADs",
+          "path": "wad_list",
+          "visibilityCheckName": "wadLoaded"
+        },
+        {
+          "id": "m2_wad_select",
+          "title": "Select WAD",
+          "path": "wad_select",
+          "visibilityCheckName": "multipleWadsLoaded"
+        }
+      ]
+    },
+    {
+      "id": "m1_wad_viewer",
+      "title": "WAD Viewer",
+      "path": "wad",
+      "l2": [
+        {
+          "id": "m2_wad_maps",
+          "title": "Maps",
+          "path": "maps",
+          "visibilityCheckName": "wadLoaded"
+        },
+        {
+          "id": "m2_wad_dirs",
+          "title": "Directories",
+          "path": "dirs",
+          "visibilityCheckName": "wadLoaded"
+        },
+        {
+          "id": "m2_wad_playpal",
+          "title": "Playpal",
+          "path": "playpal",
+          "visibilityCheckName": "wadLoaded"
+        },
+        {
+          "id": "m2_wad_title_img",
+          "title": "Title Images",
+          "path": "title_img",
+          "visibilityCheckName": "wadLoaded"
+        },
+        {
+          "id": "m2_wad_sprites",
+          "title": "Sprites",
+          "path": "sprites",
+          "visibilityCheckName": "wadLoaded"
+        },
+        {
+          "id": "m2_wad_patches",
+          "title": "Patches",
+          "path": "patches",
+          "visibilityCheckName": "wadLoaded"
+        },
+        {
+          "id": "m2_wad_flats",
+          "title": "Flats",
+          "path": "flats",
+          "visibilityCheckName": "wadLoaded"
+        },
+        {
+          "id": "m2_wad_textures",
+          "title": "Textures",
+          "path": "textures",
+          "visibilityCheckName": "wadLoaded"
+        }
+      ]
+    },
+    {
+      "id": "m1_game",
+      "title": "Game",
+      "path": "game",
+      "l2": [
+        {
+          "id": "m2_game_new",
+          "title": "New",
+          "path": "new",
+          "visibilityCheckName": "wadLoaded"
+        },
+        {
+          "id": "m2_game_load",
+          "title": "Load",
+          "path": "load",
+          "visibilityCheckName": "wadLoaded"
+        },
+        {
+          "id": "m2_game_save",
+          "title": "Save",
+          "path": "save",
+          "visibilityCheckName": "inGame"
+        },
+        {
+          "id": "m2_game_manage",
+          "title": "Manage Saves",
+          "path": "game_manage",
+          "visibilityCheckName": "wadLoaded"
+        }
+      ]
+    }
+  ]
 }

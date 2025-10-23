@@ -16,12 +16,11 @@ import {MenuComponent} from "./menu/menu.component";
 
 			<mat-sidenav-content>
 				<mat-toolbar color="primary">
-					<button mat-icon-button (click)="sidenav.toggle()">H</button>
-					<span>My App</span>
+					<button mat-icon-button (click)="sidenav.toggle()"><<</button>
+					<span>Title Bar goes here some day</span>
 				</mat-toolbar>
 
 				<main class="content">
-					CONTENT
 					<router-outlet></router-outlet>
 				</main>
 			</mat-sidenav-content>
