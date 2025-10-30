@@ -19,71 +19,119 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import {Component, OnInit} from '@angular/core'
+import {AfterViewInit, Component, computed, effect, inject, Signal, ViewChild, ViewEncapsulation} from '@angular/core'
 import {WadStorageService} from '../wad-storage.service'
 import {Directory} from '../parser/wad-model'
 import * as R from 'ramda'
-import {WadDirComponent} from '../wad-dir/wad-dir.component'
-import {NgFor} from '@angular/common'
+import {toSignal} from "@angular/core/rxjs-interop";
+import {
+  MatCell,
+  MatCellDef,
+  MatColumnDef,
+  MatHeaderCell,
+  MatHeaderCellDef,
+  MatHeaderRow,
+  MatHeaderRowDef,
+  MatRow,
+  MatRowDef,
+  MatTable,
+  MatTableDataSource
+} from "@angular/material/table";
+import {MatPaginator} from '@angular/material/paginator';
+import {ToolbarHostService} from "../../toolbar/toolbar-host.service";
 
 @Component({
-    selector: 'app-wad-dirs',
-    templateUrl: './wad-dirs.component.html',
-    standalone: true,
-    imports: [NgFor, WadDirComponent]
+  selector: 'app-wad-dirs',
+  styleUrl: './wad-dirs.component.scss',
+  template: `
+    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100, 1000]"></mat-paginator>
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let dir">{{ dir.name }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="idx">
+        <th mat-header-cell *matHeaderCellDef>IDX</th>
+        <td mat-cell *matCellDef="let dir">{{ dir.idx }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="filepos">
+        <th mat-header-cell *matHeaderCellDef>Filepos</th>
+        <td mat-cell *matCellDef="let dir">{{ dir.filepos }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="size">
+        <th mat-header-cell *matHeaderCellDef>Size</th>
+        <td mat-cell *matCellDef="let dir">{{ dir.size }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  `,
+  standalone: true,
+  encapsulation: ViewEncapsulation.None,
+  imports: [MatTable, MatHeaderCell, MatHeaderCellDef, MatCell, MatCellDef, MatColumnDef, MatHeaderRow, MatRow, MatHeaderRowDef, MatRowDef, MatPaginator, MatPaginator]
 })
-export class WadDirsComponent implements OnInit, DirsListControl {
-	initDirs: Directory[]
-	allDirs: Directory[]
-	pageDirs: Directory[]
-	pageSize = 20
+export class WadDirsComponent implements AfterViewInit {
 
-	constructor(private wadStorage: WadStorageService/*, private eventBus: NgRxEventBusService*/) {
-	}
+  private wadStorage = inject(WadStorageService)
+  private readonly wad = toSignal(this.wadStorage.current$)
+  readonly dirs: Signal<Directory[]> = computed(() => this.wad()?.wad.dirs ?? [])
+  initDirs: Directory[]
+  allDirs: Directory[]
+  pageDirs: Directory[]
+  pageSize = 20
+  displayedColumns: string[] = ['name', 'idx', 'filepos', 'size']
+  dataSource: MatTableDataSource<Directory> = new MatTableDataSource(this.dirs());
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  private toolbarHostService = inject(ToolbarHostService)
 
-	ngOnInit(): void {
-		this.initDirs = this.wadStorage.getCurrent().get().wad.dirs
-		this.allDirs = this.initDirs
-	//	this.eventBus.emit(new EmitEvent(MainEvent.SET_NAVBAR_PLUGIN, new NavbarPluginFactory(WadDirsNavbarComponent, this)))
-		this.onPageChange(1)
-	}
+  constructor() {
+    effect(() => {
+      const host = this.toolbarHostService.getHost()()
+      console.log(">>>>>", host)
+      if (!host) return;
+      // safe to use host here
+    });
+  }
 
-	applyFilter(filter: string) {
-		if (R.isEmpty(filter)) {
-			this.allDirs = this.initDirs
-		} else {
-			const filterFun = filterDir(filter)
-			this.allDirs = R.filter(filterFun, this.initDirs)
-			this.onPageChange(1)
-		}
-	}
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+  }
 
-	onPageChange(page: number) {
-		const from = (page - 1) * this.pageSize
-		const to = from + this.pageSize
-		this.pageDirs = R.slice(from, to)(this.allDirs)
-	}
+  _ngOnInit(): void {
+    this.initDirs = this.wadStorage.getCurrent().get().wad.dirs
+    this.allDirs = this.initDirs
+    this.onPageChange(1)
+  }
 
-	getListSize(): number {
-		return this.allDirs.length
-	}
+  applyFilter(filter: string) {
+    if (R.isEmpty(filter)) {
+      this.allDirs = this.initDirs
+    } else {
+      const filterFun = filterDir(filter)
+      this.allDirs = R.filter(filterFun, this.initDirs)
+      this.onPageChange(1)
+    }
+  }
 
-	getPageSize(): number {
-		return this.pageSize
-	}
+  onPageChange(page: number) {
+    const from = (page - 1) * this.pageSize
+    const to = from + this.pageSize
+    this.pageDirs = R.slice(from, to)(this.allDirs)
+  }
+
+  getListSize(): number {
+    return this.allDirs.length
+  }
+
+  getPageSize(): number {
+    return this.pageSize
+  }
 }
 
 const filterDir = (filter: string) => (dir: Directory): boolean =>
-	(dir.filepos + ',' + dir.name + ',' + dir.idx + ',' + dir.size).toLowerCase().includes(filter.toLowerCase())
+  (dir.filepos + ',' + dir.name + ',' + dir.idx + ',' + dir.size).toLowerCase().includes(filter.toLowerCase())
 
-
-export interface DirsListControl {
-	onPageChange(page: number)
-
-	getListSize(): number
-
-	getPageSize(): number
-
-	applyFilter(filter: string)
-
-}

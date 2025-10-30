@@ -1,0 +1,18 @@
+@use '../../scss/common';
+@use '@angular/material' as mat;
+@use '../../scss/variables' as nd;
+
+:root {
+  @include mat.toolbar-overrides((
+    container-background-color: transparent,
+    container-text-color: nd.$font-color
+  ))
+}
+
+app-toolbar .mat-mdc-card-content:last-child {
+  padding: 0;
+}
+
+app-toolbar .mat-toolbar-single-row {
+  padding: 0;
+}

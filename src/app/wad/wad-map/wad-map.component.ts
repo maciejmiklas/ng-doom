@@ -29,7 +29,10 @@ import {PaperComponent} from '../../common/paper/paper.component'
 
 @Component({
     selector: 'app-wad-map',
-    templateUrl: './wad-map.component.html',
+    template: `
+      <app-paper (paperInitialized)="onPapertInit($event)" (mouseDrag)="onMouseDrag($event)"
+                 (mouseDragEnd)="onMouseDragEnd($event)"></app-paper>
+    `,
     standalone: true,
     imports: [PaperComponent]
 })

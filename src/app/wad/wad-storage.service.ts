@@ -20,13 +20,14 @@
  * SOFTWARE.
  */
 
-import {Injectable} from '@angular/core'
+import {effect, inject, Injectable} from '@angular/core'
 import {UploadResult, UploadStatus} from './wad-upload/wad-upload-model'
 import {Wad, WadEntry} from './parser/wad-model'
 import {Either} from '../common/either'
 import {functions as wp} from './parser/wad-parser'
 import {Log} from '../common/log'
-import {BehaviorSubject, distinctUntilChanged, Observable, shareReplay, tap} from "rxjs";
+import {BehaviorSubject, distinctUntilChanged, Observable, shareReplay} from "rxjs";
+import {ToolbarHostService} from "../toolbar/toolbar-host.service";
 
 const CMP = "WadStorageService"
 
@@ -37,13 +38,16 @@ export class WadStorageService {
   static CMP = 'WadStorageService'
   private wads: WadEntry[] = []
   private currentWad = 0
-  private readonly loadedSubject$ = new BehaviorSubject<boolean>(false);
+  private currentSubject$: BehaviorSubject<WadEntry> = new BehaviorSubject<WadEntry>(undefined)
+  readonly current$: Observable<WadEntry> = this.currentSubject$.asObservable()
+  private readonly loadedSubject$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
+
   readonly loaded$: Observable<boolean> = this.loadedSubject$.asObservable()
     .pipe(
-      tap(v => console.log('loaded$:', v)),
       distinctUntilChanged(), // only emit when the value changes
       shareReplay({bufferSize: 1, refCount: true}) // share the last emitted value to new subscribers
     );
+
 
   public async uploadWad(file: File): Promise<UploadResult> {
     return this.uploadWadIntern(file).then(res => {
@@ -53,11 +57,13 @@ export class WadStorageService {
   }
 
   private markLoaded() {
-    this.loadedSubject$.next(true);
+    this.loadedSubject$.next(true)
+    this.currentSubject$.next(this.wads[this.currentWad])
   }
 
   private markUnloaded() {
-    this.loadedSubject$.next(false);
+    this.loadedSubject$.next(false)
+    this.currentSubject$.next(undefined)
   }
 
   private async uploadWadIntern(file: File): Promise<UploadResult> {
@@ -80,7 +86,7 @@ export class WadStorageService {
   }
 
   public isLoaded(): boolean {
-    return this.loadedSubject$.value;
+    return this.loadedSubject$.value
   }
 
   public removeAllWads(): void {

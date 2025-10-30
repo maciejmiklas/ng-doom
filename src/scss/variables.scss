@@ -1,0 +1,56 @@
+$flicker-steps: 50;
+$flicker-delay: 0.5s;
+
+// ######### MAIN COLORS #########
+$bg-transparency-color: black;
+$bg-slight: rgba($bg-transparency-color, 0.1);
+$bg-light: rgba($bg-transparency-color, 0.3);
+$bg-middle: rgba($bg-transparency-color, 0.6);
+$bg-dark: rgba($bg-transparency-color, 0.8);
+$red-bright: rgba(252, 0, 0, 0.8);
+$red-dark: rgb(106, 0, 0);
+
+// ######### MIX #########
+$font-color: rgb(27, 180, 20);
+$font-readonly-color: #495057;
+$separator-line-color: $red-bright;
+$border-color: $red-dark;
+$screen-bg-color: $red-dark;
+$content-bg-color: $bg-middle;
+$content-bg-dark-color: $bg-dark;
+$content-bg-light-color: $bg-light;
+$component-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+$list-hover-bg: rgba($font-color, 0.7);
+
+// ######### BUTTON #########
+$button-border-color: $red-dark;
+$button-background-color: $bg-middle;
+
+// ######### INPUT #########
+$input-text-color: $font-color;
+$input-text-bg: $content-bg-light-color;
+
+// ########### SIDEBAR ##################
+$sidebar-width: 250px;
+$sidebar-margin-right: 10px;
+$sidebar-header-height: 80px;
+$sidebar-header-padding: 5px;
+
+// ######### WAD SPRITES #########
+$wad-sprite-box-size: 200px;
+$wad-sprite-box-margin: 5px;
+
+// ######### WAD PATCHES #########
+$wad-patch-box-size: 300px;
+$wad-patch-box-margin: 5px;
+
+// ######### WAD TEXTURE -> PATCHES #########
+$wad-tx-patch-box-size: 128px;
+$wad-tx-patch-box-margin: 5px;
+
+// ######### WAD TEXTURES #########
+$wad-texture-box-size: 300px;
+$wad-texture-box-margin: 5px;
+
+// ######### MODAL #########
+$bg-modal: rgba(#3a3a3a, 0.8);

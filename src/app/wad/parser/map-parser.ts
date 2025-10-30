@@ -190,7 +190,7 @@ const buildFlatsBySectors = (mapLinedefs: Linedef[], sectors: Sector[]): FlatByS
 			Either.ofNullable(sectors.find(s => s.id === sectorId), () => 'No Sector: ' + sectorId)
 		)
 
-		// remove not existing sectors from array
+		// remove not existing sectors from the array
 		.filter(s => s.filter())
 
 		// Either<Sector> => Sector
@@ -199,7 +199,7 @@ const buildFlatsBySectors = (mapLinedefs: Linedef[], sectors: Sector[]): FlatByS
 		// Sector => Either<LinedefBySector>
 		.map(s => bySector(s).map(buildFlatsForSector))
 
-		// remove not existing LinedefBySector from array
+		// remove not existing LinedefBySector from the array
 		.filter(ld => ld.filter())
 
 		// Either<LinedefBySector> => LinedefBySector

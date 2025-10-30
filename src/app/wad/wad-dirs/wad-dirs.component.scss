@@ -1,0 +1,10 @@
+@use '../../../scss/common';
+@use '@angular/material' as mat;
+@use '../../../scss/variables' as nd;
+
+:root {
+  @include mat.paginator-overrides((
+    container-text-color: nd.$font-color,
+    container-background-color: transparent
+  ));
+}

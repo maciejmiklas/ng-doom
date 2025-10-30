@@ -36,7 +36,7 @@ export const routes: Routes = [
 	},
 	{
 		path: 'dirs',
-		loadComponent:()=>import('./wad-dir/wad-dir.component').then(m => m.WadDirComponent)
+		loadComponent:()=>import('./wad-dirs/wad-dirs.component').then(m => m.WadDirsComponent)
 	},
 	{
 		path: 'list',

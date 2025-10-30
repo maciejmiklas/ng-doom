@@ -20,11 +20,20 @@
  * SOFTWARE.
  */
 import {Component, Input} from '@angular/core'
+import {MatCard, MatCardContent} from "@angular/material/card";
 
 @Component({
-    selector: 'app-wad-dir-element',
-    templateUrl: './wad-dir-element.component.html',
-    standalone: true
+  selector: 'app-wad-dir-element',
+  template: `
+    <mat-card>
+      <mat-card-content>{{ label }}-{{ value }}</mat-card-content>
+    </mat-card>
+  `,
+  imports: [
+    MatCard,
+    MatCardContent
+  ],
+  standalone: true
 })
 export class WadDirElementComponent {
 
@@ -33,6 +42,4 @@ export class WadDirElementComponent {
 
 	@Input()
 	value: string
-
-
 }
