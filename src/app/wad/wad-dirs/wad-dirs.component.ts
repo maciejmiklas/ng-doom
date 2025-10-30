@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import {AfterViewInit, Component, computed, effect, inject, Signal, ViewChild, ViewEncapsulation} from '@angular/core'
+import {Component, computed, effect, EnvironmentInjector, inject, Signal, ViewEncapsulation} from '@angular/core'
 import {WadStorageService} from '../wad-storage.service'
 import {Directory} from '../parser/wad-model'
 import * as R from 'ramda'
@@ -44,7 +44,6 @@ import {ToolbarHostService} from "../../toolbar/toolbar-host.service";
   selector: 'app-wad-dirs',
   styleUrl: './wad-dirs.component.scss',
   template: `
-    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100, 1000]"></mat-paginator>
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Name</th>
@@ -72,40 +71,31 @@ import {ToolbarHostService} from "../../toolbar/toolbar-host.service";
   `,
   standalone: true,
   encapsulation: ViewEncapsulation.None,
-  imports: [MatTable, MatHeaderCell, MatHeaderCellDef, MatCell, MatCellDef, MatColumnDef, MatHeaderRow, MatRow, MatHeaderRowDef, MatRowDef, MatPaginator, MatPaginator]
+  imports: [MatTable, MatHeaderCell, MatHeaderCellDef, MatCell, MatCellDef, MatColumnDef, MatHeaderRow, MatRow, MatHeaderRowDef, MatRowDef]
 })
-export class WadDirsComponent implements AfterViewInit {
+export class WadDirsComponent {
 
   private wadStorage = inject(WadStorageService)
   private readonly wad = toSignal(this.wadStorage.current$)
   readonly dirs: Signal<Directory[]> = computed(() => this.wad()?.wad.dirs ?? [])
   initDirs: Directory[]
   allDirs: Directory[]
-  pageDirs: Directory[]
-  pageSize = 20
   displayedColumns: string[] = ['name', 'idx', 'filepos', 'size']
   dataSource: MatTableDataSource<Directory> = new MatTableDataSource(this.dirs());
-  @ViewChild(MatPaginator) paginator: MatPaginator;
   private toolbarHostService = inject(ToolbarHostService)
+  private envInjector: EnvironmentInjector = inject(EnvironmentInjector)
 
   constructor() {
     effect(() => {
-      const host = this.toolbarHostService.getHost()()
-      console.log(">>>>>", host)
-      if (!host) return;
-      // safe to use host here
+      const hostRef = this.toolbarHostService.registerHost(MatPaginator, this.envInjector)
+      hostRef.setInput('pageSizeOptions', [5, 10, 25, 100, 1000]);
+      hostRef.setInput('pageSize', 10);
+      hostRef.setInput('hidePageSize', false);
+      hostRef.setInput('showFirstLastButtons', true);
+      this.dataSource.paginator = hostRef.instance;
     });
   }
 
-  ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
-  }
-
-  _ngOnInit(): void {
-    this.initDirs = this.wadStorage.getCurrent().get().wad.dirs
-    this.allDirs = this.initDirs
-    this.onPageChange(1)
-  }
 
   applyFilter(filter: string) {
     if (R.isEmpty(filter)) {
@@ -113,23 +103,10 @@ export class WadDirsComponent implements AfterViewInit {
     } else {
       const filterFun = filterDir(filter)
       this.allDirs = R.filter(filterFun, this.initDirs)
-      this.onPageChange(1)
+
     }
   }
 
-  onPageChange(page: number) {
-    const from = (page - 1) * this.pageSize
-    const to = from + this.pageSize
-    this.pageDirs = R.slice(from, to)(this.allDirs)
-  }
-
-  getListSize(): number {
-    return this.allDirs.length
-  }
-
-  getPageSize(): number {
-    return this.pageSize
-  }
 }
 
 const filterDir = (filter: string) => (dir: Directory): boolean =>

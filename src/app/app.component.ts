@@ -17,7 +17,7 @@ import {ToolbarHostService} from "./toolbar/toolbar-host.service";
       <mat-sidenav-content>
         <app-toolbar (hideButtonClick)="onExpandClick($event)"></app-toolbar>
         <main class="content">
-          <router-outlet></router-outlet>
+          <router-outlet (activate)="onActivateRoure()"></router-outlet>
         </main>
       </mat-sidenav-content>
     </mat-sidenav-container>
@@ -28,11 +28,14 @@ export class AppComponent {
   @ViewChild('sidenav', {static: true})
   private sidenav!: MatSidenav;
 
-  private toolbarHost: ToolbarHostService = inject(ToolbarHostService);
-
+  private readonly toolbarHostService = inject(ToolbarHostService)
 
   onExpandClick(open: boolean) {
     void this.sidenav.toggle(open);
+  }
+
+  onActivateRoure() {
+    this.toolbarHostService.resetHost()
   }
 
 }
