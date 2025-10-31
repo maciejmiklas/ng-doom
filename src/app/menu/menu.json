@@ -3,24 +3,24 @@
     {
       "id": "m1_manage_wads",
       "title": "Manage WADs",
-      "path": "wads",
+      "path": "wad",
       "l2": [
         {
           "id": "m2_wad_upload",
           "title": "Upload new",
-          "path": "wad_upload",
+          "path": "upload",
           "visibilityCheckName": "always"
         },
         {
           "id": "m2_wad_list",
           "title": "My WADs",
-          "path": "wad_list",
+          "path": "list",
           "visibilityCheckName": "wadLoaded"
         },
         {
           "id": "m2_wad_select",
           "title": "Select WAD",
-          "path": "wad_select",
+          "path": "select",
           "visibilityCheckName": "multipleWadsLoaded"
         }
       ]

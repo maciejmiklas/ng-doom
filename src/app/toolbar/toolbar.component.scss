@@ -9,6 +9,15 @@
   ))
 }
 
+
+app-toolbar .toolbar-container {
+  display: flex;
+}
+
+app-toolbar .spacer {
+  flex: 1 1 auto;
+}
+
 app-toolbar .mat-mdc-card-content:last-child {
   padding: 0;
 }

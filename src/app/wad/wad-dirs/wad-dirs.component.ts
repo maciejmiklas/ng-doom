@@ -19,11 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import {Component, computed, effect, EnvironmentInjector, inject, Signal, ViewEncapsulation} from '@angular/core'
+import {Component, computed, inject, Signal, ViewEncapsulation} from '@angular/core'
 import {WadStorageService} from '../wad-storage.service'
 import {Directory} from '../parser/wad-model'
 import * as R from 'ramda'
-import {toSignal} from "@angular/core/rxjs-interop";
+import {takeUntilDestroyed, toSignal} from "@angular/core/rxjs-interop";
 import {
   MatCell,
   MatCellDef,
@@ -37,8 +37,9 @@ import {
   MatTable,
   MatTableDataSource
 } from "@angular/material/table";
-import {MatPaginator} from '@angular/material/paginator';
 import {ToolbarHostService} from "../../toolbar/toolbar-host.service";
+import {WadToolbarComponent} from "./wad-toolbar/wad-toolbar.component";
+import {take} from "rxjs";
 
 @Component({
   selector: 'app-wad-dirs',
@@ -83,19 +84,15 @@ export class WadDirsComponent {
   displayedColumns: string[] = ['name', 'idx', 'filepos', 'size']
   dataSource: MatTableDataSource<Directory> = new MatTableDataSource(this.dirs());
   private toolbarHostService = inject(ToolbarHostService)
-  private envInjector: EnvironmentInjector = inject(EnvironmentInjector)
 
   constructor() {
-    effect(() => {
-      const hostRef = this.toolbarHostService.registerHost(MatPaginator, this.envInjector)
-      hostRef.setInput('pageSizeOptions', [5, 10, 25, 100, 1000]);
-      hostRef.setInput('pageSize', 10);
-      hostRef.setInput('hidePageSize', false);
-      hostRef.setInput('showFirstLastButtons', true);
-      this.dataSource.paginator = hostRef.instance;
-    });
+    this.toolbarHostService.registerHost(WadToolbarComponent).pipe(takeUntilDestroyed())
+      .subscribe(hr => {
+          hr.instance.paginatorReady.pipe(take(1))
+            .subscribe(pag => this.dataSource.paginator = pag)
+        }
+      )
   }
-
 
   applyFilter(filter: string) {
     if (R.isEmpty(filter)) {
@@ -106,7 +103,6 @@ export class WadDirsComponent {
 
     }
   }
-
 }
 
 const filterDir = (filter: string) => (dir: Directory): boolean =>

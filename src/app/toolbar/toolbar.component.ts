@@ -32,11 +32,12 @@ import {ToolbarHostService} from "./toolbar-host.service";
   template: `
     <mat-card appearance="outlined">
       <mat-card-content>
-        <mat-toolbar color="primary">
+        <mat-toolbar color="primary" class="toolbar-container">
           <button mat-icon-button (click)="onHideButtonClick()">
             <ng-icon [name]="hideIcon()"/>
           </button>
-          <ng-container #host></ng-container>
+          <span class="spacer"></span>
+          <ng-container #host class="toolbar-host"></ng-container>
         </mat-toolbar>
       </mat-card-content>
     </mat-card>
