@@ -15,38 +15,51 @@ mat-sidenav-container {
   height: 100%;
 }
 
-:root {
-  @include mat.sidenav-overrides((
-    container-background-color: nd.$bg-light,
-    content-background-color: transparent,
-    container-text-color: nd.$font-color
-  ));
+input {
+  background: nd.$bg-slight;
+  border: 1px solid nd.$separator-line-color;
+  color: inherit;
+  outline: none;
 }
 
-:root {
-  @include mat.expansion-overrides((
-    container-background-color: nd.$bg-light,
-    container-text-color: nd.$font-color
-  ));
-}
 
 :root {
   @include mat.list-overrides((
     list-item-label-text-color: nd.$font-color
   ));
-}
 
-:root {
+  @include mat.expansion-overrides((
+    container-background-color: nd.$bg-light,
+    container-text-color: nd.$font-color
+  ));
+
+  @include mat.sidenav-overrides((
+    container-background-color: nd.$bg-light,
+    content-background-color: transparent,
+    container-text-color: nd.$font-color
+  ));
+
   @include mat.card-overrides((
     outlined-container-color: nd.$bg-light,
   ));
-}
 
-:root {
   @include mat.table-overrides((
     background-color: nd.$bg-slight,
     header-headline-color: nd.$font-color
   ));
+}
+
+.mat-mdc-select-panel,
+.mdc-menu-surface.mat-mdc-select-panel {
+  background-color: nd.$bg-light;
+}
+
+.mdc-text-field--filled {
+  background-color: nd.$bg-slight !important;
+}
+
+.mat-mdc-paginator {
+  background-color: transparent !important;
 }
 
 html {

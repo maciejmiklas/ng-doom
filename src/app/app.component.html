@@ -1,0 +1,12 @@
+<mat-sidenav-container>
+  <mat-sidenav #sidenav mode="side" opened>
+    <app-menu></app-menu>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <app-toolbar (hideButtonClick)="onExpandClick($event)"></app-toolbar>
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

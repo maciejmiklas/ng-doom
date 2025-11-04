@@ -7,20 +7,7 @@ import {ToolbarComponent} from "./toolbar/toolbar.component";
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, MatSidenavContainer, MatSidenav, MatSidenavContent, MenuComponent, ToolbarComponent],
-  template: `
-    <mat-sidenav-container>
-      <mat-sidenav #sidenav mode="side" opened>
-        <app-menu></app-menu>
-      </mat-sidenav>
-
-      <mat-sidenav-content>
-        <app-toolbar (hideButtonClick)="onExpandClick($event)"></app-toolbar>
-        <main class="content">
-          <router-outlet></router-outlet>
-        </main>
-      </mat-sidenav-content>
-    </mat-sidenav-container>
-  `,
+  templateUrl: './app.component.html',
   styleUrl: '../scss/ng-doom.scss'
 })
 export class AppComponent {

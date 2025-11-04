@@ -20,7 +20,6 @@
  * SOFTWARE.
  */
 import {Component} from '@angular/core'
-import {NavbarPlugin} from '../../../main/navbar_plugin'
 import {PatchesListControl} from '../wad-patches.component'
 import {FormsModule, ReactiveFormsModule} from '@angular/forms'
 
@@ -30,7 +29,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms'
     standalone: true,
     imports: [ReactiveFormsModule, FormsModule]
 })
-export class WadPatchesNavbarComponent implements NavbarPlugin<PatchesListControl> {
+export class WadPatchesNavbarComponent /*implements NavbarPlugin<PatchesListControl> */{
 
 	private data: PatchesListControl
 

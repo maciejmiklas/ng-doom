@@ -24,8 +24,12 @@ import {PaperScope, Point} from 'paper'
 
 @Component({
   selector: 'app-paper',
+  styleUrl: './paper.component.scss',
   template: `
-    <canvas #canvas id="canvas" resize="true"></canvas>`,
+    <div class="paper-wrap">
+      <canvas #canvas id="canvas" resize="true"></canvas>
+    </div>
+  `,
   standalone: true
 })
 export class PaperComponent implements OnInit {

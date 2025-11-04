@@ -20,7 +20,6 @@
  * SOFTWARE.
  */
 import {Component} from '@angular/core'
-import {NavbarPlugin} from "../../../main/navbar_plugin"
 import {FlatsListControl} from "../wad-flats.component"
 import {FormsModule, ReactiveFormsModule} from '@angular/forms'
 
@@ -30,7 +29,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms'
     standalone: true,
     imports: [ReactiveFormsModule, FormsModule]
 })
-export class WadFlatsNavbarComponent implements NavbarPlugin<FlatsListControl> {
+export class WadFlatsNavbarComponent /*implements NavbarPlugin<FlatsListControl> */{
 	private data: FlatsListControl
 
 	setData(data: FlatsListControl): void {

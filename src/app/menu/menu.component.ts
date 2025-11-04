@@ -38,26 +38,7 @@ import {Log} from "../common/log";
     MatListItem,
     MatNavList
   ],
-  template: `
-    <mat-accordion>
-      @for (l1 of menu().l1; track l1.id) {
-        @if (l1.visibilityCheck()) {
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>{{ l1.title }}</mat-expansion-panel-header>
-            <mat-nav-list>
-              @for (l2 of l1.l2; track l2.id) {
-                @if (l2.visibilityCheck()) {
-                  <a mat-list-item
-                     [activated]="isActivated(l1.id, l2.id)()"
-                     (click)="onL2Click(l1, l2)">{{ l2.title }}</a>
-                }
-              }
-            </mat-nav-list>
-          </mat-expansion-panel>
-        }
-      }
-    </mat-accordion>
-  `
+  templateUrl: './menu.component.html',
 })
 export class MenuComponent {
   private router = inject(Router)

@@ -21,7 +21,6 @@ export class ToolbarHostService {
   }
 
   setHost(host: ViewContainerRef) {
-    console.log("setting hostRef")
     this.host$.next(host);
     this.host = host
   }

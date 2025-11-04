@@ -22,7 +22,6 @@
 import {Component, computed, inject, Signal, ViewEncapsulation} from '@angular/core'
 import {WadStorageService} from '../wad-storage.service'
 import {Directory} from '../parser/wad-model'
-import * as R from 'ramda'
 import {takeUntilDestroyed, toSignal} from "@angular/core/rxjs-interop";
 import {
   MatCell,
@@ -44,7 +43,7 @@ import {take} from "rxjs";
 @Component({
   selector: 'app-wad-dirs',
   styleUrl: './wad-dirs.component.scss',
-  template: `
+  template:`
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Name</th>
@@ -76,31 +75,27 @@ import {take} from "rxjs";
 })
 export class WadDirsComponent {
 
-  private wadStorage = inject(WadStorageService)
+  private readonly wadStorage = inject(WadStorageService)
   private readonly wad = toSignal(this.wadStorage.current$)
   readonly dirs: Signal<Directory[]> = computed(() => this.wad()?.wad.dirs ?? [])
-  initDirs: Directory[]
-  allDirs: Directory[]
-  displayedColumns: string[] = ['name', 'idx', 'filepos', 'size']
-  dataSource: MatTableDataSource<Directory> = new MatTableDataSource(this.dirs());
-  private toolbarHostService = inject(ToolbarHostService)
+  readonly displayedColumns: string[] = ['name', 'idx', 'filepos', 'size']
+  readonly dataSource: MatTableDataSource<Directory> = new MatTableDataSource(this.dirs());
+  private readonly toolbarHostService = inject(ToolbarHostService)
 
   constructor() {
     this.toolbarHostService.registerHost(WadToolbarComponent).pipe(takeUntilDestroyed())
       .subscribe(hr => {
           hr.instance.paginatorReady.pipe(take(1))
             .subscribe(pag => this.dataSource.paginator = pag)
+          hr.instance.filterText.pipe(takeUntilDestroyed())
+            .subscribe(text => {
+              this.dataSource.filter = text
+              console.log(text)
+            })
         }
       )
-  }
-
-  applyFilter(filter: string) {
-    if (R.isEmpty(filter)) {
-      this.allDirs = this.initDirs
-    } else {
-      const filterFun = filterDir(filter)
-      this.allDirs = R.filter(filterFun, this.initDirs)
-
+    this.dataSource.filterPredicate = (row: Directory, filter: string) => {
+      return filterDir(filter)(row)
     }
   }
 }

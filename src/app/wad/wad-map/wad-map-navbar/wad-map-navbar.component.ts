@@ -19,44 +19,56 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import {Component} from '@angular/core'
-import {NavbarPlugin} from '../../../main/navbar_plugin'
-import {MapControl} from '../wad-map.component'
+import {Component, EventEmitter, Input, Output, signal, ViewEncapsulation, WritableSignal} from '@angular/core'
 import {ReactiveFormsModule} from '@angular/forms'
+import {MatFormField, MatLabel, MatOption, MatSelect} from '@angular/material/select';
 
 @Component({
-	selector: 'app-wad-map-navbar',
-	templateUrl: './wad-map-navbar.component.html',
-	standalone: true,
-	imports: [ReactiveFormsModule]
+  selector: 'app-wad-map-navbar',
+  styleUrl: './wad-map-navbar.component.scss',
+  template: `
+    <mat-form-field>
+      <mat-label>Map</mat-label>
+      <mat-select [value]="mapNames[0]" (selectionChange)="onMapSelect($event.value)">
+        @for (map of mapNames; track map) {
+          <mat-option [value]="map">{{ map }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <!--
+    <mv-slider [(value)]="zoom" [min]="1" [max]="8" [step]="1" [formatter]="zoomFormatter"
+    tooltipPosition="bottom"></mv-slider>
+    -->
+  `,
+  standalone: true,
+  encapsulation: ViewEncapsulation.None,
+  imports: [ReactiveFormsModule, MatSelect, MatOption, MatSelect, MatSelect, MatOption, MatFormField, MatLabel]
 })
-export class WadMapNavbarComponent implements NavbarPlugin<MapControl> {
+export class WadMapNavbarComponent {
 
-	private _zoom = 1
-	control: MapControl
-	maps: string[]
+  @Input() mapNames: string[]
+  @Output() mapChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() zoomChange: EventEmitter<number> = new EventEmitter<number>();
 
-	set zoom(zoom: number) {
-		this._zoom = zoom
-		this.control.onZoomChange(zoom)
-	}
+  private _zoom = 1
+  maps: WritableSignal<string[]> = signal([])
 
-	get zoom(): number {
-		return this._zoom
-	}
+  set zoom(zoom: number) {
+    this._zoom = zoom
+    // this.control.onZoomChange(zoom)
+  }
 
-	setData(control: MapControl): void {
-		this.control = control
-		this.maps = control.mapNames()
-	}
+  get zoom(): number {
+    return this._zoom
+  }
 
-	zoomFormatter = (value) => {
-		return 'x ' + value
-	}
+  zoomFormatter = (value) => {
+    return 'x ' + value
+  }
 
-	onMapSelect(name: string): void {
-		this.control.onMapChange(name)
-	}
-
+  onMapSelect(name: string): void {
+    this.mapChange.emit(name)
+  }
 
 }
