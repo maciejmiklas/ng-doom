@@ -23,6 +23,7 @@ import {Observable} from "rxjs";
 import {Signal} from "@angular/core";
 
 export type MenuRoot = {
+  initialSelection: MenuPath,
   l1: MenuL1[]
 }
 
@@ -39,6 +40,11 @@ export type MenuL1 = Menu & {
 
 export type MenuL2 = Menu & {
   visibilityCheckName: string
+}
+
+export type MenuPath = {
+  l1Id: string,
+  l2Id: string
 }
 
 export interface MenuVisibilityCheck {

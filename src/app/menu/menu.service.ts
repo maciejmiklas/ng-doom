@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 import {computed, inject, Injectable, signal, Signal} from '@angular/core'
-import {MenuL1, MenuL2, MenuRoot, MenuVisibilityCheck} from './menu-model'
+import {MenuL1, MenuL2, MenuPath, MenuRoot, MenuVisibilityCheck} from './menu-model'
 import menuJson from './menu.json'
 import {toSignal} from "@angular/core/rxjs-interop";
 import {Observable, of} from "rxjs";

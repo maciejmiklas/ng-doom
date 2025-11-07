@@ -19,9 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import {Component, EventEmitter, Input, Output, signal, ViewEncapsulation, WritableSignal} from '@angular/core'
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter, inject,
+  Input,
+  InputSignal, model,
+  Output,
+  signal,
+  ViewEncapsulation,
+  WritableSignal
+} from '@angular/core'
 import {ReactiveFormsModule} from '@angular/forms'
 import {MatFormField, MatLabel, MatOption, MatSelect} from '@angular/material/select';
+import {MatSlider, MatSliderThumb} from "@angular/material/slider";
 
 @Component({
   selector: 'app-wad-map-navbar',
@@ -36,34 +47,29 @@ import {MatFormField, MatLabel, MatOption, MatSelect} from '@angular/material/se
       </mat-select>
     </mat-form-field>
 
-    <!--
-    <mv-slider [(value)]="zoom" [min]="1" [max]="8" [step]="1" [formatter]="zoomFormatter"
-    tooltipPosition="bottom"></mv-slider>
-    -->
+    <mat-slider min="1" max="5" step="1" showTickMarks discrete [displayWith]="zoomFormatter" (input)="onZoomChange($event)">
+      <input matSliderThumb value="1"  [(value)]="zoom">
+    </mat-slider>
+    {{zoom()}}
   `,
   standalone: true,
   encapsulation: ViewEncapsulation.None,
-  imports: [ReactiveFormsModule, MatSelect, MatOption, MatSelect, MatSelect, MatOption, MatFormField, MatLabel]
+  imports: [ReactiveFormsModule, MatSelect, MatOption, MatSelect, MatSelect, MatOption, MatFormField, MatLabel, MatSlider, MatSliderThumb]
 })
 export class WadMapNavbarComponent {
 
   @Input() mapNames: string[]
   @Output() mapChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() zoomChange: EventEmitter<number> = new EventEmitter<number>();
-
-  private _zoom = 1
+  zoom:WritableSignal<number> = signal(1)
   maps: WritableSignal<string[]> = signal([])
 
-  set zoom(zoom: number) {
-    this._zoom = zoom
-    // this.control.onZoomChange(zoom)
+  onZoomChange(event: Event) {
+    const zoom = Number((event.target as HTMLInputElement).value);
+    this.zoomChange.emit(zoom)
   }
 
-  get zoom(): number {
-    return this._zoom
-  }
-
-  zoomFormatter = (value) => {
+  zoomFormatter = (value: number): string => {
     return 'x ' + value
   }
 

@@ -33,41 +33,34 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
   selector: 'app-wad-map',
   template: `
     <app-paper (paperInitialized)="onPapertInit($event)" (mouseDrag)="onMouseDrag($event)"
-               (mouseDragEnd)="onMouseDragEnd($event)"></app-paper>
+               (mouseDragEnd)="onMouseDragEnd()"></app-paper>
   `,
   standalone: true,
   imports: [PaperComponent]
 })
 export class WadMapComponent {
-  private zoom = 1
+
   private scope: paper.PaperScope
   private lastDragPos: paper.Point
-  private lastZoom = -1
   private wad: WadEntry
-  private _mapNames: string[]
   private wadStorage = inject(WadStorageService)
   private readonly toolbarHostService = inject(ToolbarHostService)
+  private navbar: WadMapNavbarComponent
 
   constructor() {
     this.wad = this.wadStorage.getCurrent().get()
-    this._mapNames = this.wad.wad.maps.map(m => m.mapDirs[0].name)
 
     this.toolbarHostService.registerHost(WadMapNavbarComponent).pipe(takeUntilDestroyed())
       .subscribe(host => {
-        host.instance.mapNames = this.mapNames()
+        host.instance.mapNames = this.wad.wad.maps.map(m => m.mapDirs[0].name)
         host.instance.mapChange.pipe(takeUntilDestroyed()).subscribe(name => this.onMapChange(name))
+        host.instance.zoomChange.pipe(takeUntilDestroyed()).subscribe(zoom => this.onZoomChange(zoom))
+        this.navbar = host.instance
       })
   }
 
   onZoomChange(zoom: number): void {
-    this.zoom = zoom
-
-    if (this.zoom > this.lastZoom) {
-      this.scope.view.scale(1.2, new Point(0, 0))
-    } else {
-      this.scope.view.scale(0.8, new Point(0, 0))
-    }
-    this.lastZoom = zoom
+    this.scope.view.zoom = zoom
   }
 
   onMouseDrag(point: paper.Point): void {
@@ -77,7 +70,7 @@ export class WadMapComponent {
     this.lastDragPos = point
   }
 
-  onMouseDragEnd(point: paper.Point): void {
+  onMouseDragEnd(): void {
     this.lastDragPos = null
   }
 
@@ -99,13 +92,13 @@ export class WadMapComponent {
         new Point(ld.start.x, ld.start.y),
         new Point(ld.end.x, ld.end.y))
     })
-  }
-
-  mapNames(): string[] {
-    return this._mapNames
+    const contentCenter = this.scope.project.activeLayer.bounds.center
+    this.scope.view.center = new Point(contentCenter.x * 1.5, contentCenter.y * 1.5)
   }
 
   onMapChange(name: string) {
     this.plotMap(this.wad.wad.maps.filter(m => m.mapDirs[0].name === name)[0])
+    this.scope.view.zoom = 1
+    this.navbar.zoom.update(() => 1)
   }
 }

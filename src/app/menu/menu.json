@@ -1,4 +1,8 @@
 {
+  "initialSelection": {
+    "l1Id": "m1_manage_wads",
+    "l2Id": "m2_wad_upload"
+  },
   "l1": [
     {
       "id": "m1_manage_wads",

@@ -1,2 +1,7 @@
 @use '@angular/material' as mat;
 
+/* CSS */
+.mat-mdc-slider .mdc-slider__value-indicator-container {
+  transform: translateY(200%); /* move below track */
+}
+

@@ -22,8 +22,15 @@ input {
   outline: none;
 }
 
-
 :root {
+
+  @include mat.slider-overrides((
+    active-track-color: nd.$font-color,
+    handle-color: nd.$font-color,
+    hover-handle-color: nd.$font-color,
+    focus-handle-color:nd.$red-dark
+  ));
+
   @include mat.list-overrides((
     list-item-label-text-color: nd.$font-color
   ));

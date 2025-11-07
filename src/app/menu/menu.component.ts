@@ -38,7 +38,26 @@ import {Log} from "../common/log";
     MatListItem,
     MatNavList
   ],
-  templateUrl: './menu.component.html',
+  template: `
+    <mat-accordion>
+      @for (l1 of menu().l1; track l1.id) {
+        @if (l1.visibilityCheck()) {
+          <mat-expansion-panel [expanded]="initiallyExpanded(l1.id)">
+            <mat-expansion-panel-header>{{ l1.title }}</mat-expansion-panel-header>
+            <mat-nav-list>
+              @for (l2 of l1.l2; track l2.id) {
+                @if (l2.visibilityCheck()) {
+                  <a mat-list-item
+                     [activated]="l2Active(l1.id, l2.id)()"
+                     (click)="onL2Click(l1, l2)">{{ l2.title }}</a>
+                }
+              }
+            </mat-nav-list>
+          </mat-expansion-panel>
+        }
+      }
+    </mat-accordion>
+  `
 })
 export class MenuComponent {
   private router = inject(Router)
@@ -47,13 +66,22 @@ export class MenuComponent {
   activeL1 = signal<string>('-')
   activeL2 = signal<string>('-')
 
+  constructor() {
+    this.activeL1.set(this.menu().initialSelection.l1Id)
+    this.activeL2.set(this.menu().initialSelection.l2Id)
+  }
+
+  initiallyExpanded = (l1Id: string): boolean =>
+    this.menu().initialSelection.l1Id === l1Id
+
   onL2Click(l1: MenuL1, l2: MenuL2) {
-    this.activeL1.set(l1.id)
+    console.log('>>>',l2.id)
     this.activeL2.set(l2.id)
     this.router.navigate(['/', l1.path, l2.path])
       .catch(er => Log.error('Cannot navigate to ' + l2.path + ': ' + er.message + ''))
   }
 
-  isActivated = (l1Id: string, l2Id: string): Signal<boolean> =>
+  l2Active = (l1Id: string, l2Id: string): Signal<boolean> =>
     computed(() => this.activeL1() === l1Id && this.activeL2() === l2Id)
+
 }
